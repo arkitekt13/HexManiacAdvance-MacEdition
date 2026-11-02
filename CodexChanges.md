@@ -403,3 +403,19 @@ Validation: Before strengthening the assertions, eight missing/duplicate scenari
 Validation note: The Debug in-process first-project run recorded 2,626 cases with 1,578 passed, zero failed, 1,048 optional-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.Co2QcJ`).
 
 Scope: Only test code changed; application metadata algorithms, ROM definitions, and historical-upgrade exemptions are unchanged, and the second test project remains deferred.
+
+## 025 — Load uncached optional fixtures and explain missing paths
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Tests/Integration/AutoSearchTests.cs](src/HexManiac.Tests/Integration/AutoSearchTests.cs) | 927 | Allow isolated synthetic preload lists, load uncached files before copying models, and identify missing fixture paths in skips. |
+| [src/HexManiac.Tests/Integration/UpgradeTests.cs](src/HexManiac.Tests/Integration/UpgradeTests.cs) | 34 | Include the required ROM path in both metadata-upgrade and reopening absence skips. |
+| [src/HexManiac.Tests/AutoSearchFixtureTests.cs](src/HexManiac.Tests/AutoSearchFixtureTests.cs) | 8 | Add six synthetic checks for explained skips, cold-cache loading, independent copies, and preservation of the cached template and source bytes. |
+| [src/HexManiac.Tests/README.md](src/HexManiac.Tests/README.md) | 55 | Document exact fixture filename expectations and distinguish the three disabled expansion methods from missing-ROM skips. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 247 | Record the fixture-loader defect, six regression checks, current counts, and unresolved disabled-feature coverage. |
+
+Validation: The cold-cache copy case reproduced KeyNotFoundException and both AutoSearch absence checks exposed missing path diagnostics before the fix; afterward all six new cases passed, including unchanged isolation behavior.
+
+Validation note: The final Debug in-process first-project run recorded 2,632 cases with 1,584 passed, zero failed, 1,048 optional-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.sugxmj`); git diff whitespace checks passed.
+
+Scope: Only tests and documentation changed; exceptions while loading supplied fixtures are not converted into skips, game definitions and application code are unchanged, and the second project remains deferred.

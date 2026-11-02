@@ -2,12 +2,12 @@
 
 Infrastructure branch: `improve/upstream-test-harness`, based on `7faa0a43`.
 Host: macOS ARM64, .NET SDK 8.0.300 / runtime 8.0.5, Debug configuration.
-Engine: xUnit 2.4.1; existing assertion bodies and dependency versions retained.
+Engine: xUnit 2.4.1; dependency versions retained; targeted assertion improvements are recorded below.
 Scope: `src/HexManiac.Tests` only; `src/HexManiac.Integration` remains unported.
 
 Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
-is an explicit skip; see [Metadata and optional-fixture follow-up](#metadata-and-optional-fixture-follow-up)
-for the current zero-failure baseline and its remaining coverage limits.
+is an explicit skip. The latest first-project run records **2,632 cases: 1,584 passed, 0 failed,
+1,048 skipped, 0 engine errors**; see the follow-up sections below for evidence and coverage limits.
 
 ## Observed results
 
@@ -243,3 +243,22 @@ reordered collections. The full Debug in-process run (`artifacts/upstream-tests/
 recorded **2,626 cases: 1,578 passed, 0 failed, 1,048 skipped, 0 engine errors**.
 Only test code changed; actual ROM reopening coverage still requires the optional fixtures.
 The separate integration project remains deferred until this first-project review is complete.
+
+## First-project fixture loader and skip diagnostics
+
+`AutoSearchFixture.LoadModelNoCache` previously indexed the cache directly after checking
+file existence, so an existing fixture outside the initial preload list raised KeyNotFoundException.
+It now uses the existing LoadModel path before copying. Missing AutoSearch and Upgrade fixtures
+name their required path in skip messages; read/model-load exceptions remain uncaught failures.
+Six synthetic cases cover both AutoSearch skip paths, both Upgrade skip paths, loading a file
+not preloaded, and byte/metadata isolation of two copies from the cached template and source file.
+The first three AutoSearch failure scenarios reproduced before the fix; isolation already passed.
+All six pass afterward. The final Debug run (`artifacts/upstream-tests/run.sugxmj`) records
+**2,632 cases: 1,584 passed, 0 failed, 1,048 skipped, 0 engine errors**.
+
+No application code, reference addresses, pointer definitions, or game layouts changed.
+No commercial ROMs were supplied, so the optional-ROM cases remain unverified. The three
+commented-out expansion methods are outside discovery: TM and item tests explicitly defer
+unfinished features; move expansion is enabled in the editor despite its unexplained disabled
+test. These require a separate feature review with suitable fixtures, not automatic re-enabling.
+The second integration project remains unmodified and unported.

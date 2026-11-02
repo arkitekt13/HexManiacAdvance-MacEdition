@@ -49,3 +49,19 @@ load from the copied `toml_versions` directory instead of a fixed parent-directo
 
 See [the baseline](../../tests/UPSTREAM_BASELINE.md) for counts and triage. The separate
 `HexManiac.Integration` project remains unported, and no performance optimization is included.
+
+AutoSearch and Upgrade now include the expected path in missing-ROM skip messages.
+AutoSearch retains exact filenames such as `sampleFiles/Pokemon FireRed.gba` and
+`sampleFiles/Pokemon FireRed v1.1.gba`; case and revision labels matter on case-sensitive
+filesystems. Filenames identify the expected game/revision, so renaming a different ROM
+is not sufficient validation. No automatic search or copying of personal files is performed.
+Requests for independent models load an existing file even if it was not initially preloaded,
+then copy its bytes and exported metadata without modifying the source file.
+
+Three old AutoSearch expansion methods have commented-out test attributes and are absent
+from discovery, rather than counted among skips. TM and item expansion tests explicitly say
+"test removed until feature is complete"; those features are also absent from the editor's
+expansion menu, and TM implementation comments identify outstanding research. Move expansion
+is still available in the editor, but its old test is disabled without an explanation. That
+coverage gap needs a matching ROM fixture and a separate feature review before re-enabling;
+this work does not change expansion code, researched addresses, or disabled attributes.

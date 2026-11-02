@@ -31,7 +31,7 @@ namespace HavenSoft.HexManiac.Tests {
       [SkippableTheory]
       [MemberData(nameof(GameAndTomlCombo))]
       public void OldMetadata_Upgrade_MetadataMatchesNewLoad(string romName, string tomlName) {
-         Skip.IfNot(File.Exists(romName), "Test cannot run without a real rom");
+         Skip.IfNot(File.Exists(romName), "Optional ROM fixture was not supplied: " + romName);
 
          var singletons = BaseViewModelTestClass.Singletons;
          var tomlPath = Path.Combine(System.AppContext.BaseDirectory, "toml_versions");
@@ -162,7 +162,7 @@ namespace HavenSoft.HexManiac.Tests {
       [InlineData("sampleFiles/Pokemon Emerald.gba")]
       [InlineData("sampleFiles/Pokemon Ruby.gba")]
       public void NewMetadata_Reopen_MetadataMatches(string romName) {
-         Skip.IfNot(File.Exists(romName), "Test cannot run without a real rom");
+         Skip.IfNot(File.Exists(romName), "Optional ROM fixture was not supplied: " + romName);
 
          var singletons = BaseViewModelTestClass.Singletons;
          var fileData = File.ReadAllBytes(romName);

@@ -5,6 +5,9 @@ Host: macOS ARM64, .NET SDK 8.0.300 / runtime 8.0.5, Debug configuration.
 Engine: xUnit 2.4.1; existing assertion bodies and dependency versions retained.
 Scope: `src/HexManiac.Tests` only; `src/HexManiac.Integration` remains unported.
 
+Current follow-up: the save fixture correction resolves six original failures; see
+[Save fixture follow-up](#save-fixture-follow-up) for the updated counts and evidence.
+
 ## Observed results
 
 Two complete in-process runs produced identical failure sets and totals:
@@ -90,3 +93,31 @@ investigation and was not changed to manufacture a passing result.
 Next: review test doubles and missing-structure behavior, fix each confirmed issue in a separate
 checkpoint, then port the second integration project. Script performance work is outside this
 infrastructure checkpoint.
+
+## Save fixture follow-up
+
+The five affected test methods (six cases because the Diff test has two inputs) now explicitly
+configure successful metadata writes for their successful-save scenarios. No shared stub defaults,
+production code, existing assertions, case counts, or skips changed.
+
+| Discovery entries | Executed cases | Passed | Failed | Skipped | Engine errors |
+| --- | --- | --- | --- | --- | --- |
+| 2,570 | 1,523 | 1,496 | 27 | 1,047 | 0 |
+
+Resolved original cases:
+
+- `ViewPortSaveTests.CallingSaveMultipleTimesOnlySavesOnce`
+- `ViewPortSaveTests.FileRaisesCloseEventIfSavedAfterEdit`
+- `ViewPortSaveTests.ViewPortTakesNewNameOnSave`
+- `DiffTests.TwoTabsSameModel_SaveAsTab_OtherTabClosed(tabToEdit: 0)`
+- `DiffTests.TwoTabsSameModel_SaveAsTab_OtherTabClosed(tabToEdit: 1)`
+- `ChangeHistoryTests.Edit_Close_Saved`
+
+The full Debug in-process run is retained in `artifacts/upstream-tests/run.hrvB0n`; comparison
+against the original baseline confirms exactly these six failures disappeared and no new failures
+appeared. The runner still correctly returns failure for the remaining 27 cases. The existing
+SaveSafety regression group also passed all 17 assertions, including ROM/metadata failures,
+successful retries, and retention of an unsaved document after close-save failure.
+
+The next largest unresolved cluster is the 15 trainer/table null-reference cases; the three
+metadata/version cases, eight script cases, and one missing-ROM-data case also remain pending.

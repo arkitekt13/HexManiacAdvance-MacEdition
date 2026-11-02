@@ -109,6 +109,8 @@ namespace HavenSoft.HexManiac.Tests {
 
       [Fact]
       public void FileRaisesCloseEventIfSavedAfterEdit() {
+         // A successful close-save includes the metadata write, not just the prompt's ROM save.
+         fileSystem.SaveMetadata = (_, _) => true;
          int closed = 0;
          var viewPort = new ViewPort();
          viewPort.Closed += (sender, e) => closed++;
@@ -148,6 +150,7 @@ namespace HavenSoft.HexManiac.Tests {
 
       [Fact]
       public void CallingSaveMultipleTimesOnlySavesOnce() {
+         fileSystem.SaveMetadata = (_, _) => true;
          int count = 0;
          var viewPort = new ViewPort();
          fileSystem.Save = loadedFile => { count++; return true; };
@@ -221,7 +224,11 @@ namespace HavenSoft.HexManiac.Tests {
 
       [Fact]
       public void ViewPortTakesNewNameOnSave() {
-         var fileSystem = new StubFileSystem { RequestNewName = (originalName, description, extensions) => "path/to/newfile.txt", Save = loadedFile => true };
+         var fileSystem = new StubFileSystem {
+            RequestNewName = (originalName, description, extensions) => "path/to/newfile.txt",
+            Save = loadedFile => true,
+            SaveMetadata = (_, _) => true,
+         };
          var viewPort = new ViewPort();
          int nameChangedCount = 0;
          viewPort.PropertyChanged += (sender, e) => { if (e.PropertyName == nameof(viewPort.Name)) nameChangedCount++; };

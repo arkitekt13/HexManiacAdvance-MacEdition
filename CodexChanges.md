@@ -307,3 +307,18 @@ Validation: Two complete Debug in-process xUnit runs each discovered 2,570 cases
 Validation note: Mac regression verification passed all fourteen groups with 1,102 assertions, including 29 new runner checks, on its repeat run; an existing FocusAnimation check failed during the first run and then passed both isolated and full reruns without assertion changes.
 
 Limitations: VSTest's localhost socket is denied in this session and its full execution is not verified; the separate HexManiac.Integration project remains unported, upstream failures are retained for triage, and optional ROM fixtures were not supplied or copied.
+
+## 018 — Configure complete successful saves in the upstream fixtures
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Tests/Before_Baseclass/ViewPortSaveTests.cs](src/HexManiac.Tests/Before_Baseclass/ViewPortSaveTests.cs) | 111 | Explicitly return metadata-save success in three successful-save scenarios while retaining their close-event, save-count, filename, and notification assertions. |
+| [src/HexManiac.Tests/DiffTests.cs](src/HexManiac.Tests/DiffTests.cs) | 309 | Configure metadata-save success for both shared-model Save As cases before expecting the other viewport to close. |
+| [src/HexManiac.Tests/Before_Baseclass/ChangeHistoryTests.cs](src/HexManiac.Tests/Before_Baseclass/ChangeHistoryTests.cs) | 473 | Complete the simulated close-save with a successful metadata write before asserting that history is saved. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 97 | Record the six resolved cases, updated upstream counts, unchanged remaining failures, and separate save-failure validation. |
+
+Validation: The full Debug in-process upstream run discovered 2,570 cases with 1,496 passed, 27 failed, 1,047 skipped, and zero engine errors; exactly the six intended cases changed from failing to passing with no new failures, and all existing assertion lines in the modified test files remain unchanged.
+
+Validation note: The existing SaveSafety group rebuilt successfully and passed all 17 assertions, including metadata failure, retry, Save As, and cancellation of close after a requested save fails.
+
+Scope: Only individual successful-save fixtures were configured; production save behavior and the shared stub's default failure behavior remain unchanged, and the upstream suite still correctly returns failure for the remaining 27 cases.

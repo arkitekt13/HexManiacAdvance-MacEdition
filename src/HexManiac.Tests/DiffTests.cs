@@ -307,6 +307,8 @@ namespace HavenSoft.HexManiac.Tests {
       [InlineData(0)]
       [InlineData(1)]
       public void TwoTabsSameModel_SaveAsTab_OtherTabClosed(int tabToEdit) {
+         // Closing the other view follows a completed ROM-and-metadata save.
+         fs.SaveMetadata = (_, _) => true;
          fs.RequestNewName = (_, _, _) => "new.gba";
          fs.Save = _ => true;
          ViewModel1.Close.Execute();

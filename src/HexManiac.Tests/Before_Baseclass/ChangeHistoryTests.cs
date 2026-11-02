@@ -472,6 +472,7 @@ namespace HavenSoft.HexManiac.Tests {
       [Fact]
       public void Edit_Close_Saved() {
          FileSystem.TrySavePrompt = arg => true;
+         FileSystem.SaveMetadata = (_, _) => true;
          ViewPort.Edit("11 ");
 
          ViewPort.Close.Execute(FileSystem);

@@ -19,7 +19,7 @@
         <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Include="$(SolutionDir)src\SharedAssemblyInfo.cs" />
+        <Compile Include="../SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>
         <None Include="Models\Code\default.axve.axpe.bpee.toml">

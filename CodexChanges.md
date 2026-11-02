@@ -351,3 +351,14 @@ Validation: All eight original script failures and nineteen new cases passed wit
 Validation note: All fourteen Mac regression groups passed with 1,102 assertions, including script editor layout and the existing save, patch, import/export, and UI regressions.
 
 Limitations: Native keyboard/caret appearance remains a manual check, script compilation retains its existing separate undo-history entries, and large-script performance and the four unrelated upstream failures remain separate work.
+
+## 021 — Include Core's declared version in standalone builds
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/HexManiac.Core.csproj](src/HexManiac.Core/HexManiac.Core.csproj) | 22 | Include SharedAssemblyInfo through a project-relative path so standalone builds retain the declared Core version used by metadata migration. |
+| [src/HexManiac.Tests/MetadataIdentityTests.cs](src/HexManiac.Tests/MetadataIdentityTests.cs) | 7 | Check declared version attributes, metadata export round trips, release identity, and recognition of older metadata. |
+
+Validation: The new checks exposed missing assembly attributes and version 0.0.0 before the fix; afterward all three passed, and the original list and table-group migration failures passed without changing their assertions or the migration algorithms.
+
+Scope: The first version-only upstream run recorded 2,601 cases with 1,552 passed, two failed, and 1,047 skipped; the remaining warning-timing and missing-fixture cases are addressed in subsequent entries.

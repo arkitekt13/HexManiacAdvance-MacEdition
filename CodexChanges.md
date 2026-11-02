@@ -175,3 +175,19 @@ Scope note: The original xUnit suite is not part of this count and is not claime
 Validation: All seven regression groups passed with 564 assertions; Mac application and regression builds passed, including staged-write failure injection and the previously failing metadata-save case.
 
 Limitations: ROM and metadata remain separate writes rather than a two-file power-loss transaction; a failed metadata write retains an open unsaved document for retry, and the Windows WPF application/native dialogs have not been built or exercised on this Mac.
+
+## 011 — Validate patches before changing ROM data
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Code/Patcher.cs](src/HexManiac.Core/Models/Code/Patcher.cs) | 8 | Parse bounded IPS and UPS candidates off-model and commit changed spans only after complete structural and checksum validation. |
+| [src/HexManiac.Core/Models/Code/Patcher.cs](src/HexManiac.Core/Models/Code/Patcher.cs) | 12 | Fix IPS generation at the last changed byte, reserved EOF offset, zero-filled expansion, and truncation boundaries. |
+| [src/HexManiac.Core/Models/Code/Patcher.cs](src/HexManiac.Core/Models/Code/Patcher.cs) | 124 | Include truncated source tails in UPS generation so reverse application restores the original bytes. |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 1468 | Preserve existing edits and undo history after rejected patch imports and report that validation failures leave the ROM unchanged. |
+| [tests/PatchSafety/PatchSafety.csproj](tests/PatchSafety/PatchSafety.csproj) | 1 | Add synthetic patch regressions with shared engine reference resources. |
+| [tests/PatchSafety/Program.cs](tests/PatchSafety/Program.cs) | 1 | Check randomized forward and reverse round trips, empty and zero-tail cases, malformed inputs, reserved offsets, size limits, and undo preservation. |
+| [tests/PatchSafety/README.md](tests/PatchSafety/README.md) | 1 | Document patch validation, supported bounds, and the retained history-reset behavior for successful UI patch imports. |
+
+Validation: All eight regression groups passed with 921 assertions, including the previously failing output-checksum and truncated-IPS cases; the final added IPS truncation guard is covered by subsequent verification runs.
+
+Limitations: Successful whole-ROM patch imports still rebuild metadata and reset history as before; failed imports preserve history, and this entry does not claim successful patch imports are undoable or that native dialogs were tested.

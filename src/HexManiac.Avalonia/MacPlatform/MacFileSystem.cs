@@ -290,26 +290,17 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher {
    }
 
    public bool Save(LoadedFile file) {
-      var directory = Path.GetDirectoryName(file.Name);
-      if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
-
-      // stop our own write from looking like an outside edit
       watchers.TryGetValue(file.Name, out var watcherList);
-      if (watcherList != null) foreach (var watcher in watcherList) watcher.EnableRaisingEvents = false;
-
-      var result = true;
       try {
-         using var stream = new FileStream(file.Name, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-         stream.Write(file.Contents, 0, file.Contents.Length);
-         stream.SetLength(file.Contents.Length);
+         if (watcherList != null) foreach (var watcher in watcherList) watcher.EnableRaisingEvents = false;
+         AtomicFileWriter.Write(file.Name, stream => stream.Write(file.Contents, 0, file.Contents.Length));
+         return true;
       } catch (Exception) {
-         ShowCustomMessageBox("Could not save. The file might be ReadOnly or in use by another application.", showYesNoCancel: false);
-         result = false;
+         ShowCustomMessageBox("Could not save. The previous file was not replaced. Check permissions, available space, or whether another application is locking the file.", showYesNoCancel: false);
+         return false;
+      } finally {
+         if (watcherList != null) foreach (var watcher in watcherList) watcher.EnableRaisingEvents = true;
       }
-
-      if (watcherList != null) foreach (var watcher in watcherList) watcher.EnableRaisingEvents = true;
-
-      return result;
    }
 
    public bool? TrySavePrompt(LoadedFile file) {
@@ -319,7 +310,8 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher {
       if (result != true) return result;
       if (displayName == string.Empty) displayName = RequestNewName(displayName);
       if (string.IsNullOrEmpty(displayName)) return null;
-      return Save(new LoadedFile(displayName.Trim(), file.Contents));
+      // IFileSystem reserves false for an intentional discard, not a failed save.
+         return Save(new LoadedFile(displayName.Trim(), file.Contents)) ? true : null;
    }
 
    public string RequestNewName(string currentName, string extensionDescription = null, params string[] extensionOptions) =>
@@ -360,7 +352,7 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher {
       var metadataName = MetadataPath(originalFileName);
       for (int tryCount = 1; ; tryCount++) {
          try {
-            File.WriteAllLines(metadataName, metadata);
+            AtomicFileWriter.WriteAllLines(metadataName, metadata);
             return true;
          } catch (Exception ex) {
             if (tryCount >= 5) {

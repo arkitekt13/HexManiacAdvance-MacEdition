@@ -661,7 +661,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
          var metadata = Model.ExportMetadata(RefTable, Singletons.MetadataInfo);
          if (fileSystem.Save(new LoadedFile(FileName, Model.RawData))) {
-            fileSystem.SaveMetadata(FileName, metadata?.Serialize());
+            // ROM and metadata are separate writes: keep the document dirty if the second fails.
+            if (!fileSystem.SaveMetadata(FileName, metadata?.Serialize())) return;
             history.TagAsSaved();
             Model.ResetChanges();
          }
@@ -674,7 +675,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          var metadata = Model.ExportMetadata(RefTable, Singletons.MetadataInfo);
          if (fileSystem.Save(new LoadedFile(newName, Model.RawData))) {
             FileName = newName; // don't bother notifying, because tagging the history will cause a notify;
-            fileSystem.SaveMetadata(FileName, metadata?.Serialize());
+            // ROM and metadata are separate writes: keep the document dirty if the second fails.
+            if (!fileSystem.SaveMetadata(FileName, metadata?.Serialize())) return;
             history.TagAsSaved();
             Model.ResetChanges();
             RequestCloseOtherViewports?.Invoke(this, Model);
@@ -708,7 +710,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
             var result = fileSystem.TrySavePrompt(new LoadedFile(FileName, Model.RawData));
             if (result == null) return;
             if (result == true) {
-               fileSystem.SaveMetadata(FileName, metadata?.Serialize());
+               // A requested save must complete before closing the last view of the model.
+               if (!fileSystem.SaveMetadata(FileName, metadata?.Serialize())) return;
                history.TagAsSaved();
             }
          }

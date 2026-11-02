@@ -176,6 +176,11 @@ public class AngleComboBox : ComboBox {
 
    private void HandleVMTextChanged(object sender, PropertyChangedEventArgs e) {
       if (e.PropertyName == nameof(FilteringComboOptions.CanFilter)) Classes.Set("editable", subscribed?.CanFilter ?? false);
+      // Replacing ItemsSource temporarily coerces the control's selection to -1. The VM's
+      // value can remain unchanged, so the binding alone need not publish it again.
+      if (e.PropertyName == nameof(FilteringComboOptions.SelectedIndex)) {
+         SetCurrentValue(SelectedIndexProperty, subscribed.SelectedIndex);
+      }
       if (e.PropertyName != nameof(FilteringComboOptions.DisplayText)) return;
       ClearSelection();
    }

@@ -136,3 +136,20 @@ the broader suites were not rerun for this tools/docs checkpoint. Their last bas
 the preceding move-validation checkpoint: 1,641/26 upstream passes with 1,048/41 optional-ROM
 skips and 16 Mac groups/1,328 assertions. Native UI behavior, import dialogs/remapping,
 real ROMs, long-session memory, and broader palette/format cases remain unverified.
+
+## Follow-up 1: live choice correctness
+
+`fix/portrait-choice-freshness` compares visual dimensions, pixels, scale, display-index
+behavior, type, text, and enum indices when retaining choices. Equal images still retain
+the existing collections. No rendering or cache change is included in this checkpoint.
+
+The new offscreen control regression first reproduced stale live pixels while freshly
+constructed candidates were correct. Fixing that revealed another Mac issue: replacing
+ItemsSource coerced the visible selection to -1 without changing the model value. The
+AngleComboBox now resynchronizes on the VM's selection notification using SetCurrentValue,
+preserving its binding. The test requires the actual selected WriteableBitmap to change.
+
+The eight compressed/uncompressed edit, palette, shared-pointer repoint, and reload
+scenarios pass 68 assertions, including exact-byte undo/redo where applicable. Ten new
+upstream cases guard visual comparison and text filtering. Native appearance, real ROMs,
+image-import orchestration, and long-session memory remain outside these checks.

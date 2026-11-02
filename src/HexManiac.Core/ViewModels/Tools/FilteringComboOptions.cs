@@ -10,6 +10,23 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       private enum InteractionType { None, Text, DropDown, Update }
       private InteractionType interactionType;
 
+      // Equal labels alone do not mean equal choices: portrait pixels and enum indices
+      // can change after edits/repointing/reload while their display names stay the same.
+      private sealed class OptionComparer : IEqualityComparer<ComboOption> {
+         public static readonly OptionComparer Instance = new();
+         public bool Equals(ComboOption left, ComboOption right) {
+            if (ReferenceEquals(left, right)) return true;
+            if (left is null || right is null || left.Text != right.Text || left.Index != right.Index || left.DisplayAsText != right.DisplayAsText) return false;
+            if (left is VisualComboOption a && right is VisualComboOption b) {
+               return a.PixelWidth == b.PixelWidth && a.PixelHeight == b.PixelHeight &&
+                  a.SpriteScale == b.SpriteScale && a.DisplayIndex == b.DisplayIndex && a.Transparent == b.Transparent &&
+                  a.PixelData.SequenceEqual(b.PixelData);
+            }
+            return left is not VisualComboOption && right is not VisualComboOption;
+         }
+         public int GetHashCode(ComboOption option) => option?.Index ?? 0;
+      }
+
       public ObservableCollection<ComboOption> AllOptions { get; private set; }
       public ObservableCollection<ComboOption> FilteredOptions { get; private set; } = new();
 
@@ -79,7 +96,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          bool notifyOptions = false, notifyDropOpen = false;
 
          // warning: this might be a performance sink. It might be faster to replace elements, rather than replacing the full collection.
-         if (AllOptions == null || !AllOptions.Select(option => option.Text).SequenceEqual(options.Select(option => option.Text))) {
+         if (AllOptions == null || !AllOptions.SequenceEqual(options, OptionComparer.Instance)) {
             AllOptions = new(options);
             FilteredOptions = new(options);
             notifyOptions = true;

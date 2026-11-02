@@ -675,3 +675,24 @@ Validation: The final Release build passed with zero warnings/errors and the rep
 Finding note: Sprite edits, palette edits, repoint-then-edit, and model reload produced correct fresh/model-cached pixels but retained stale live choice images when labels stayed unchanged; edit/repoint probes preserved exact bytes/pointers through undo/redo and invalid portrait 255 retained its numeric fallback.
 
 Scope: Tools/docs only, with no application cache or behavior changes; the report recommends fixing existing visual-choice freshness before any bounded model-cache reuse experiment, and leaves item profiling, real-ROM/native behavior, image-import orchestration, and broader palette/format equivalence for follow-up work.
+
+## 042 — Refresh edited portrait choices and retain Mac selection
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/FilteringComboOptions.cs](src/HexManiac.Core/ViewModels/Tools/FilteringComboOptions.cs) | 13 | Compare visual content and enum indices before retaining choice collections so unchanged labels cannot hide edited portraits. |
+| [src/HexManiac.Avalonia/Controls/AngleComboBox.cs](src/HexManiac.Avalonia/Controls/AngleComboBox.cs) | 181 | Restore the VM selection after replacing choice items without detaching the existing selection binding. |
+| [src/HexManiac.Tests/VisualComboOptionsTests.cs](src/HexManiac.Tests/VisualComboOptionsTests.cs) | 6 | Add ten regression cases for visual changes, index changes, equal-image reuse, and text filtering. |
+| [tests/PortraitFreshness/Program.cs](tests/PortraitFreshness/Program.cs) | 34 | Exercise actual bound bitmaps, popup state, selection, sprite/palette edits, shared-pointer repointing, reload, and exact-byte undo/redo for both sprite encodings. |
+| [tests/PortraitFreshness/PortraitFreshness.csproj](tests/PortraitFreshness/PortraitFreshness.csproj) | 1 | Add a separately executable Mac regression group sharing the existing synthetic portrait fixture. |
+| [tests/PortraitFreshness/README.md](tests/PortraitFreshness/README.md) | 1 | Document reproduced failures and the new control-level coverage and limits. |
+| [tools/TrainerPortraitBenchmark/PortraitFixture.cs](tools/TrainerPortraitBenchmark/PortraitFixture.cs) | 1 | Add explicit imports so the unchanged fixture also supports projects without implicit usings. |
+| [tests/PORTRAIT_PERFORMANCE.md](tests/PORTRAIT_PERFORMANCE.md) | 140 | Record the correctness checkpoint before attempting image reuse. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts for the ten visual-choice cases. |
+| [tests/README.md](tests/README.md) | 29 | Link the new live portrait regression coverage. |
+
+Validation: Both upstream suites pass with 1,651/26 cases, 1,048/41 optional-ROM skips, and zero failures/engine errors; the complete Mac repeat passes 17 groups and 1,396 assertions, including 68 new portrait assertions.
+
+Validation note: The new test first reproduced stale live pixels, then a blank Mac selector after item replacement; both pass after the fixes, while an initial unrelated FocusAnimation timing failure passed unchanged in isolation and in the full repeat.
+
+Scope: Choice freshness and Mac selection synchronization only; portrait rendering/cache behavior, ROM definitions and researched addresses, compiler, pointer/repointing algorithms, and history implementation remain unchanged, with native appearance and real-ROM/import orchestration still unverified.

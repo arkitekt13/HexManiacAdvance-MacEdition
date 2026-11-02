@@ -7,7 +7,7 @@ Scope: first-project results only; the second project now has its own portable h
 [separate integration baseline](INTEGRATION_BASELINE.md). Historical checkpoints below retain their original limitations.
 
 Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
-is an explicit skip. The latest first-project run records **2,715 cases: 1,667 passed, 0 failed,
+is an explicit skip. The ROM-free first-project baseline records **2,715 cases: 1,667 passed, 0 failed,
 1,048 skipped, 0 engine errors**; see the follow-up sections below for evidence and coverage limits.
 The seven additional table-navigation cases check refresh-scoped discovery, live getters,
 creation/removal, renaming, matched-length format changes, metadata reload, and forced
@@ -286,3 +286,28 @@ The latest first-project Debug run reports **2,657 cases: 1,609 passed, 0 failed
 [SCRIPT_PERFORMANCE.md](SCRIPT_PERFORMANCE.md) for exact-output comparisons, timing and
 allocation measurements, the caught substring regression, and untouched ROM-editing scope.
 Earlier results above are historical checkpoints, not current test counts.
+
+
+## Supplied FireRed 1.1 fixture verification — 2026-11-02
+
+The locally supplied 16 MiB file has game code BPRE, revision byte 1, and a valid GBA
+header checksum. It is therefore staged as `sampleFiles/Pokemon FireRed v1.1.gba` in the
+Debug in-process host output, leaving the user's original filename and contents unchanged.
+This identifies the header revision; no independent clean-dump database comparison was made.
+Both the source and staged copy retain SHA-256
+`729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059` after testing.
+ROM files remain ignored and are not included in Git.
+
+The unchanged first-project command passes **2,715 cases: 1,780 passed, 0 failed,
+935 skipped, 0 engine errors**, enabling 113 previously skipped cases. All 113 newly
+passing cases name the supplied 1.1 fixture, including BasicLoad, table discovery,
+trainer sprites/palettes, and tilemap palette-page checks. Results are retained locally
+at `artifacts/upstream-tests/run.SnZ7NB` with discovery, xUnit XML, and validated JSON.
+
+The second project also passes its unchanged command: **67 cases, 26 passed, 0 failed,
+41 skipped, 0 engine errors**, at `artifacts/upstream-tests/run.JdyMhc`. Its ROM workflows
+expect `Pokemon FireRed.gba` (1.0) or Emerald, so this correctly named 1.1 fixture enables
+none of those cases. The remaining first-project skips also include other games/revisions
+and FireRed-1.0-specific/metadata-upgrade cases. No fixture was mislabeled to force coverage,
+no assertion was changed, and no application code was modified. This adds real-ROM discovery
+coverage but does not replace native editing or portrait-cache-specific real-ROM workflows.

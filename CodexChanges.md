@@ -717,3 +717,12 @@ Validation note: One intermediate run exceeded the existing whitespace-allocatio
 Measurement note: Before and both after benchmark runs pass 66 checks with identical fixture/pixel hashes and freshness results; 64 uncompressed candidate preparation changed from 77.406 to 3.014 ms and 171.856 to 13.136 MB per 100 constructions, with the repeat at 2.959 ms and identical allocation, while bound headless navigation changed from 435.055 to 324.568 ms and 383.108 to 220.846 MB without claiming a native or whole-editor multiplier.
 
 Scope: A small context-keyed dictionary within the existing model-cache lifetime preserves the original enum renderer and existing invalidation, with no persistent/global cache or changes to the address-only image cache, researched addresses, compiler, pointer/repointing algorithms, or history implementation; retained RAM reduction, native responsiveness, real ROMs, and import orchestration remain unverified, and items are left for the next profiling task.
+
+
+Validation follow-up for 043 — supplied ROM, 2026-11-02: The provided file identifies as
+FireRed 1.1 (BPRE1), so its host copy uses the existing v1.1 fixture name; all 113 newly
+enabled first-project cases pass, bringing that run to 1,780 passes/935 skips with zero
+failures/engine errors, while integration remains 26 passes/41 skips because its ROM
+workflows require FireRed 1.0 or Emerald. Both original and staged ROM hashes are unchanged;
+no application/test assertions changed and no ROM was committed. Full evidence and limits
+are recorded in tests/UPSTREAM_BASELINE.md rather than a separate change entry.

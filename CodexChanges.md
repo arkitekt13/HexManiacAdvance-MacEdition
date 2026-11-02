@@ -337,3 +337,17 @@ Validation: Before the fix, two new missing-table cases reproduced the crash whi
 Validation note: The full Debug in-process upstream run discovered 2,579 cases with 1,520 passed, 12 failed, 1,047 skipped, and zero engine errors; all fourteen Mac regression groups passed with 1,102 assertions.
 
 Scope: This is a shared application fix rather than a fixture adjustment; it omits only hints that cannot be derived without evolution data, retains the existing valid-table algorithms and warnings, and leaves the twelve unrelated upstream failures for separate work.
+
+## 020 — Complete script braces without corrupting dialogue or commands
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Code/ScriptParser.cs](src/HexManiac.Core/Models/Code/ScriptParser.cs) | 419 | Recognize existing LF, CRLF, and CR separators during brace completion so inserted boundaries preserve dialogue, command tokens, compiled lengths, and caret positions. |
+| [src/HexManiac.Tests/ScriptNewlineTests.cs](src/HexManiac.Tests/ScriptNewlineTests.cs) | 11 | Add nineteen cases covering newline variants, mixed input, brace boundaries, caret movement, exact encoded text and pointers, intentional blank lines, and undo/redo round trips. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 154 | Record the shared newline root cause, eight resolved original failures, new regression coverage, and the four remaining upstream failures. |
+
+Validation: All eight original script failures and nineteen new cases passed without modifying existing assertions or fixtures; the full Debug in-process upstream run discovered 2,598 cases with 1,547 passed, four failed, 1,047 skipped, and zero engine errors, with no new failures.
+
+Validation note: All fourteen Mac regression groups passed with 1,102 assertions, including script editor layout and the existing save, patch, import/export, and UI regressions.
+
+Limitations: Native keyboard/caret appearance remains a manual check, script compilation retains its existing separate undo-history entries, and large-script performance and the four unrelated upstream failures remain separate work.

@@ -416,79 +416,82 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
 
       private record StreamInfo(ExpectedPointerType PointerType, int Source, int Destination);
 
+      /// <summary>Put stream braces on their own lines without changing existing line separators or dialogue.</summary>
+      /// <returns>The caret displacement caused by inserted or removed characters.</returns>
       public static int InsertMissingClosers(ref string script, int caret) {
-         int caretMove = 0;
-         bool isStartOfLine = true;
+         var originalCaret = caret;
+         caret = Math.Clamp(caret, 0, script.Length);
          var text = script.ToList();
+         var firstBreak = script.IndexOfAny(new[] { '\r', '\n' });
+         var newline = firstBreak < 0 ? Environment.NewLine :
+            script[firstBreak] == '\r' && firstBreak + 1 < script.Length && script[firstBreak + 1] == '\n'
+               ? "\r\n" : script[firstBreak].ToString();
+
+         int NewlineLength(int index) {
+            if (index >= text.Count) return 0;
+            if (text[index] == '\r') return index + 1 < text.Count && text[index + 1] == '\n' ? 2 : 1;
+            return text[index] == '\n' ? 1 : 0;
+         }
+         void Insert(int index, string value) {
+            text.InsertRange(index, value);
+            if (index <= caret) caret += value.Length;
+         }
+         void Remove(int index, int length) {
+            text.RemoveRange(index, length);
+            if (index < caret) caret -= Math.Min(length, caret - index);
+         }
+
+         bool isStartOfLine = true;
          for (int i = 0; i < text.Count; i++) {
             if (text[i] == '\n' || text[i] == '\r') isStartOfLine = true;
-            else if (text[i] != ' ' && text[i] != '{') isStartOfLine = false;
+            else if (text[i] != ' ' && text[i] != '\t' && text[i] != '{') isStartOfLine = false;
             if (text[i] != '{') continue;
 
             if (!isStartOfLine) {
-               text.Insert(i, '\r');
-               text.Insert(i + 1, '\n');
-               if (i <= caret) { caret += 2; }
-               i += 2;
+               Insert(i, newline);
+               i += newline.Length;
             }
-
+            var caretAfterOpening = caret == i + 1;
             isStartOfLine = true;
             var close = -1;
             for (int j = i + 1; j < text.Count && text[j] != '{'; j++) {
                if (text[j] == '\n' || text[j] == '\r') isStartOfLine = true;
-               else if (text[j] != ' ' && text[j] != '}') isStartOfLine = false;
+               else if (text[j] != ' ' && text[j] != '\t' && text[j] != '}') isStartOfLine = false;
                if (text[j] != '}') continue;
                if (!isStartOfLine) {
-                  text.Insert(j, '\r');
-                  text.Insert(j + 1, '\n');
-                  if (j < caret) { caret += 2; caretMove += 2; }
-                  j += 2;
+                  Insert(j, newline);
+                  j += newline.Length;
                }
                close = j;
                break;
             }
+
             if (close == -1) {
-               if (i == caret || (i == caret - 1 && caret == text.Count)) {
-                  text.Insert(i + 1, '\r');
-                  text.Insert(i + 2, '\n');
-               }
-               text.Insert(i + 3, '}');
-               close = i + 3;
-               if (i == caret) caretMove -= 3;
-               // check for excess blank lines after the lines we just inserted
-               if (close < text.Count - 4 && text[close + 1] == '\r' && text[close + 2] == '\n' && text[close + 3] == '\r' && text[close + 4] == '\n') {
-                  text.RemoveAt(close + 1);
-                  text.RemoveAt(close + 1);
-               }
+               // Close an unfinished stream before the following command, never inside its token.
+               if (NewlineLength(i + 1) == 0) Insert(i + 1, newline);
+               close = i + 1 + NewlineLength(i + 1);
+               Insert(close, "}");
+               var afterClose = NewlineLength(close + 1);
+               if (afterClose > 0 && NewlineLength(close + 1 + afterClose) > 0) Remove(close + 1, afterClose);
             }
-            if (i + 1 < text.Count && text[i + 1] != '\r') {
-               text.Insert(i + 1, '\r');
-               text.Insert(i + 2, '\n');
-               if (i < caret) { caret += 2; caretMove += 2; }
-               close += 2;
+            if (NewlineLength(i + 1) == 0) {
+               Insert(i + 1, newline);
+               close += newline.Length;
             }
-            if (close + 1 < text.Count && text[close + 1] != '\r') {
-               text.Insert(close + 1, '\r');
-               text.Insert(close + 2, '\n');
-               if (close < caret) { caret += 2; }
-               isStartOfLine = true;
-               close += 2;
-            }
+            if (close + 1 < text.Count && NewlineLength(close + 1) == 0) Insert(close + 1, newline);
 
-            // special case: no blank line between open and close
-            if (close == i + 3) {
-               while (text.Count < i) text.Add(' ');
-               text.Insert(i + 1, '\r');
-               text.Insert(i + 2, '\n');
-               if (i < caret) { caret += 2; caretMove -= 2; }
-               close += 2;
+            // Keep one editable empty line in an empty stream and place a newly typed caret there.
+            var bodyStart = i + 1 + NewlineLength(i + 1);
+            if (close == bodyStart) {
+               Insert(close, newline);
+               close += newline.Length;
+               if (caretAfterOpening) caret = bodyStart;
             }
-
             i = close;
          }
 
          script = new string(text.ToArray());
-         return caretMove;
+         return caret - originalCaret;
       }
 
       public byte[] CompileWithoutErrors(ModelDelta token, IDataModel model, int scriptStart, ref string script) {

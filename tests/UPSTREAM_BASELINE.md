@@ -5,8 +5,8 @@ Host: macOS ARM64, .NET SDK 8.0.300 / runtime 8.0.5, Debug configuration.
 Engine: xUnit 2.4.1; existing assertion bodies and dependency versions retained.
 Scope: `src/HexManiac.Tests` only; `src/HexManiac.Integration` remains unported.
 
-Current follow-up: the save fixtures and trainer validation fixes resolve 21 original failures;
-see [Trainer validation follow-up](#trainer-validation-follow-up) for current counts and evidence.
+Current follow-up: the save fixtures, trainer validation, and script newline fixes resolve 29
+original failures; see [Script newline follow-up](#script-newline-follow-up) for current counts.
 
 ## Observed results
 
@@ -150,3 +150,42 @@ Failure-set comparison confirms no new failures. The remaining failures comprise
 cases, three metadata/version cases, and the missing-ROM-data theory. The runner still correctly
 returns failure for those cases; no optional ROMs were supplied or loaded. Normal evolution
 warnings remain enabled, and the existing valid-table derivation algorithms are unchanged.
+
+## Script newline follow-up
+
+The eight original script failures shared a production-code cause in `InsertMissingClosers`:
+it inserted hard-coded CRLF separators and used two-character newline offsets even when the
+input contained LF. This introduced empty dialogue lines, changed compiled text/stream lengths,
+and could insert a closing brace inside the following `end` command.
+
+Brace completion now recognizes CRLF, LF, and CR separators independently, leaves existing
+separators intact, uses the first existing separator for new lines (or the host default when
+none exists), and computes caret displacement from actual insertions/removals. Existing script
+test assertions and fixtures are unchanged.
+
+Nineteen new regression cases cover complete-block idempotence, mixed separators, missing
+closers, opening braces at EOF, a lone brace, inline braces, caret placement, intentional blank
+dialogue lines, exact encoded text lengths, compiled bytes and pointers, and undo/redo round trips.
+The undo checks retain the current separate stream/format/code history entries rather than
+claiming script compilation is one atomic undo operation.
+
+All eight original failures and all nineteen new cases pass:
+
+| Discovery entries | Executed cases | Passed | Failed | Skipped | Engine errors |
+| --- | --- | --- | --- | --- | --- |
+| 2,598 | 1,551 | 1,547 | 4 | 1,047 | 0 |
+
+The full Debug in-process result is retained in `artifacts/upstream-tests/run.OaIigU`. Comparison
+with the preceding trainer checkpoint confirms exactly the eight original script failures
+disappeared and no new failures appeared. All fourteen Mac regression groups also passed with
+1,102 assertions. Native typing/caret appearance has not been visually checked, and large-script
+performance remains a separate investigation.
+
+The four remaining failures are:
+
+- `ViewPortSaveTests.ViewPortWarnsIfLoadedMatchedWordValueDoesNotMatch`
+- `ListTests.HashMatches_UpdateVersion_ListUpdates`
+- `TableGroupTests.NoGroups_UpdateVersion_Groups`
+- `BasicLoadTests.CanLoad` (no optional ROM fixture data)
+
+The upstream runner still correctly exits nonzero for these unresolved cases.

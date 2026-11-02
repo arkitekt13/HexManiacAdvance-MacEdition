@@ -16,7 +16,9 @@ using HavenSoft.HexManiac.Core;
 
 AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem()
    .UseWindowingSubsystem(() => { }, "offscreen").UseSkia().WithInterFont().SetupWithoutStarting();
+var checks = 0;
 void Check(bool condition, string message) {
+   checks++;
    if (!condition) throw new InvalidOperationException(message);
 }
 var calls = 0;
@@ -118,4 +120,5 @@ if (args.Length == 1) {
    using (var context = bitmap.CreateDrawingContext()) Render(root, context);
    bitmap.Save(args[0]);
 }
+Console.WriteLine($"CHECKS_PASSED:{checks}");
 public record WelcomeModel(ICommand Open, bool ShowError = false, string ErrorMessage = "", ICommand ClearError = null);

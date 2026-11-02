@@ -10,7 +10,9 @@ using HavenSoft.HexManiac.AvaloniaUI.Controls;
 
 AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem()
    .UseWindowingSubsystem(() => { }, "offscreen").UseSkia().WithInterFont().SetupWithoutStarting();
+var checks = 0;
 void Check(bool condition, string message) {
+   checks++;
    if (!condition) throw new InvalidOperationException(message);
 }
 var oldAnimation = new Animation {
@@ -52,3 +54,4 @@ for (int repeat = 0; repeat < 3; repeat++) {
    Check(!outline.IsVisible && outline.RenderTransform == null, "Outline must be hidden and its transform cleared on completion.");
 }
 Console.WriteLine("PASS: reproduced the reported crash; three real focus animations moved, resized, completed, and cleaned up without a cast failure.");
+Console.WriteLine($"CHECKS_PASSED:{checks}");

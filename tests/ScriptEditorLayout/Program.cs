@@ -14,7 +14,9 @@ AppBuilder.Configure<Application>().UseStandardRuntimePlatformSubsystem()
 var font = new Typeface("Menlo, Consolas, monospace");
 double Width(string text) => new FormattedText(text, CultureInfo.InvariantCulture,
    FlowDirection.LeftToRight, font, 12, Brushes.White).WidthIncludingTrailingWhitespace;
+var checks = 0;
 void Check(bool condition, string message) {
+   checks++;
    if (!condition) throw new InvalidOperationException(message);
 }
 
@@ -55,3 +57,4 @@ foreach (var (name, raw) in layers) {
 }
 Check(vm.Content == content && editor.EditBox.Text == content, "The editable script must remain unchanged.");
 Console.WriteLine("PASS: reproduced zero-width placeholders; checked monospaced font, all six display layers, token positions, comments, line endings, and unchanged editable text.");
+Console.WriteLine($"CHECKS_PASSED:{checks}");

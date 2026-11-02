@@ -641,3 +641,20 @@ Validation note: All sixteen Mac groups again passed 1,328 assertions, including
 Measurement note: Both corrected-UI benchmark revisions passed 7,831 checks with identical fixture/text/pixel hashes, UI summaries, and diagnostics; custom-six preparation changed from 282.514 to 196.459 ms and 379.810 to 270.662 MB allocated per 100 switches, while bound-phase timing varied across scenarios and does not support a uniform native/UI speedup claim.
 
 Scope: Stream presentation construction only; specialized constructors, shared enum/move matching, portrait/palette caches, compiler, researched addresses, relocation/pointer algorithms, unused flag/variable discovery, and history implementation remain unchanged, while native responsiveness and real-ROM default behavior remain unverified.
+
+## 040 — Validate trainer move tokens and align warning spans
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Runs/TrainerPokemonTeamRun.cs](src/HexManiac.Core/Models/Runs/TrainerPokemonTeamRun.cs) | 646 | Strip the move-list prefix before shared name matching and position unlearnable-move warnings on the actual token after indentation. |
+| [src/HexManiac.Tests/TrainerMoveValidationTests.cs](src/HexManiac.Tests/TrainerMoveValidationTests.cs) | 11 | Add twenty-four cases with real synthetic learnsets covering matching variants, warning ranges, species/rename updates, immutable data, and a validation allocation budget. |
+| [tests/TRAINER_PERFORMANCE.md](tests/TRAINER_PERFORMANCE.md) | 298 | Record the separate move-validation implementation, failing-before/passing-after evidence, benchmark comparison, and coverage limits for publishing. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts for the twenty-four trainer move-validation cases. |
+
+Validation: The initial twenty-case pre-fix run reproduced two indented-warning span failures and 1,087,728 bytes per warmed validation against an 800,000-byte budget; the final twenty-four-case set passes with the unchanged budget, and both upstream suites pass with 1,641 and 26 cases plus their existing 1,048 and 41 optional-ROM skips and zero failures/engine errors.
+
+Validation note: The complete Mac repeat passed sixteen groups and 1,328 assertions after the unchanged intermittent offscreen FocusAnimation clock check passed in isolation; no animation assertion was weakened or suppressed.
+
+Measurement note: Both benchmark revisions passed 7,831 checks with matching fixture/text/preview hashes, UI summaries, and diagnostics; six-member custom-team validation changed from 83.076 to 14.971 ms and 106.562 to 27.391 MB allocated per 100 teams, while navigation preparation changed from 196.459 to 51.954 ms and 270.662 to 112.319 MB per 100 switches, without claiming those component ratios as whole-editor speedups.
+
+Scope: Advisory trainer move validation only; shared enum matching, learnability-source algorithms, compiler/deserialization, ROM definitions/addresses, pointer/repointing and history logic, caches, emulator integration, and AI/custom features remain unchanged, while real-ROM legality and native responsiveness remain unverified.

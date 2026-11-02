@@ -294,3 +294,86 @@ and preview-generation component phases still exercise the same implementations;
 are not individually optimized here. No move-token matching or portrait caching change
 is bundled with this result. The final benchmark build had zero warnings/errors; complete
 Core rebuilds retained the existing warnings.
+
+## Follow-up 3: validate the trainer move token
+
+Branch: `fix/trainer-move-validation`, based on `1718ae9b`.
+TrainerTextFormatter now locates the move-list marker after indentation and passes only
+the trimmed move token to the unchanged shared matcher. Exact names can take the existing
+early-return path instead of forcing full fuzzy matching of a line containing `- `.
+Learnability aggregation (level-up, tutor, egg, TM, and ancestor moves) is unchanged.
+Warning spans now cover the actual raw token, including quotes/disambiguation suffixes,
+while excluding indentation, the list marker, and trailing whitespace. Empty or unknown
+names retain their existing no-warning behavior; this does not add a strict move compiler.
+
+Twenty-four upstream cases use fabricated binary name/learnset tables and the real
+Flags/ModelCacheScope/formatter path. They verify allowed and forbidden moves, exact
+versus overlapping names, case, partial names, quotes, apostrophes, embedded hyphens,
+duplicate `~1`/`~2` suffixes, numeric IDs, empty/unknown input, whitespace/underline ranges,
+current team-member tracking, rename/undo, immutable bytes/metadata, and warmed allocation.
+Their synthetic tables do not modify researched game definitions or addresses. Existing
+evolution/ancestor tests remain in the upstream suite; these new cases specifically use
+level-up learnsets and are not a complete real-ROM legality certification.
+
+The pre-fix run with the initial 20 cases had three expected failures: two mispositioned
+indented warning spans and 1,087,728 bytes for warmed six-member validation against an
+800,000-byte budget (`artifacts/upstream-tests/run.Znjmqp`). Four additional numeric/empty/
+trailing-space cases were added; all 24 pass afterward with the same allocation budget.
+Normal/quoted/partial/duplicate covered-name cases already resolved correctly before the
+fix, so this checkpoint claims reduced matching work and corrected spans, not a general
+repair of move legality or ROM compilation.
+
+The final first-suite run passed 2,689 cases: 1,641 passed, zero failures/engine errors,
+and the existing 1,048 optional-ROM skips (`artifacts/upstream-tests/run.JeXDrw`).
+
+The second suite passed all 26 available cases with its existing 41 optional-ROM skips
+and zero failures/engine errors (`artifacts/upstream-tests/run.aEhkLx`). The complete Mac
+repeat passed all 16 groups and 1,328 assertions. The first Mac run stopped on the already
+observed offscreen FocusAnimation clock/movement assertion; its unchanged 13 assertions
+passed in isolation and the complete repeat. That intermittent test-clock issue is not
+fixed or suppressed by this checkpoint.
+
+### Move-validation measurements
+
+Compare `artifacts/trainer-table-performance/corrected-ui-after.json` (prior constructor
+optimization, `1718ae9b`) with `move-validation-after.json` (this checkpoint). Both run
+the same six fixtures/workloads, two warmups, seven samples, and corrected production UI,
+without concurrent builds/tests. Both pass 7,831 checks; fixture/text/preview hashes,
+UI summaries/control counts, and reuse/notification diagnostics match exactly. Standard
+serialized fixture lines already had the correct spans; the newly corrected indented
+spans are verified separately in the learnset-backed upstream tests.
+
+| Scenario | Validation ms before → after | Validation MB allocated before → after | Navigation preparation ms before → after | Preparation MB allocated before → after |
+| --- | --- | --- | --- | --- |
+| Basic one member | 1.564 → 1.415 | 0.436 → 0.436 | 57.547 → 56.127 | 54.622 → 54.622 |
+| Custom one member | 14.886 → 2.566 | 17.748 → 4.481 | 49.830 → 25.563 | 89.749 → 63.215 |
+| Custom six members | 83.076 → 14.971 | 106.562 → 27.391 | 196.459 → 51.954 | 270.662 → 112.319 |
+| Custom six + Pokémon preview data | 86.238 → 15.420 | 106.562 → 27.391 | 193.142 → 52.921 | 270.993 → 112.651 |
+| Custom six + portrait options | 84.609 → 14.905 | 106.562 → 27.391 | 280.059 → 139.726 | 442.613 → 284.271 |
+| Mixed formats/counts + all artwork | 28.159 → 5.537 | 35.812 → 9.685 | 166.936 → 120.327 | 298.948 → 246.693 |
+
+All values are per 100 operations; MB is decimal cumulative managed-thread allocation,
+not retained RAM. Validation excludes serialization; navigation preparation includes
+validation and other model/view-model work, so the columns are not additive. The custom-six
+case used 82.0% less validation time and 74.3% less validation allocation, with 73.6% less
+navigation preparation time and 58.5% less preparation allocation. Basic teams with no
+custom move lines show unchanged allocation, as expected. The existing shared matcher,
+standalone prefixed/bare lookup probes, and portrait constructors were not optimized.
+
+| Scenario | Headless binding/layout ms before → after | Bound-phase MB allocated before → after |
+| --- | --- | --- |
+| Basic one member | 851.429 → 939.973 | 567.386 → 570.297 |
+| Custom one member | 1,090.499 → 1,063.631 | 622.579 → 589.887 |
+| Custom six members | 1,552.707 → 1,520.528 | 923.071 → 752.390 |
+| Custom six + Pokémon preview data | 1,984.147 → 1,607.127 | 960.124 → 788.786 |
+| Custom six + portrait options | 2,026.019 → 1,745.004 | 1,111.107 → 947.021 |
+| Mixed formats/counts + all artwork | 1,844.463 → 1,753.545 | 1,007.079 → 951.754 |
+
+The bound phase includes navigation. Custom-case timings improved by about 2–19%, while
+the basic case measured 10.4% slower despite no change to its validation allocation; this
+is within the approximately 14% elapsed variation observed on prior identical-revision
+runs. Do not advertise the 82% validation reduction as an overall editor or native-UI
+speedup. The confirmed improvement is fewer unnecessary matching operations, lower
+custom-team allocations, and correct indented warning spans. Real-ROM/native interaction
+still needs validation. The Release build succeeded with the same eight existing Core
+warnings and no errors; no benchmark workload or test budget was weakened.

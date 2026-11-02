@@ -7,13 +7,16 @@ Scope: first-project results only; the second project now has its own portable h
 [separate integration baseline](INTEGRATION_BASELINE.md). Historical checkpoints below retain their original limitations.
 
 Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
-is an explicit skip. The latest first-project run records **2,665 cases: 1,617 passed, 0 failed,
+is an explicit skip. The latest first-project run records **2,689 cases: 1,641 passed, 0 failed,
 1,048 skipped, 0 engine errors**; see the follow-up sections below for evidence and coverage limits.
 The seven additional table-navigation cases check refresh-scoped discovery, live getters,
 creation/removal, renaming, matched-length format changes, metadata reload, and forced
 relocation with pointer/undo/redo preservation; see [TABLE_PERFORMANCE.md](TABLE_PERFORMANCE.md).
 One trainer-presentation case additionally guards warmed refresh allocation while preserving
 all six text layers, diagnostics, bytes, metadata, and history; see [TRAINER_PERFORMANCE.md](TRAINER_PERFORMANCE.md).
+Twenty-four trainer move-validation cases additionally cover synthetic learnsets, exact/
+partial/quoted/duplicate/numeric names, token spans, species changes, rename/undo, and a
+validation allocation budget; see the same report for the separate validation checkpoint.
 
 ## Observed results
 

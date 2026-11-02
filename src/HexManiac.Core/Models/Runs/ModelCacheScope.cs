@@ -27,6 +27,8 @@ namespace HavenSoft.HexManiac.Core.Models.Runs {
       private readonly Dictionary<string, IReadOnlyList<string>> cachedBitOptions = new Dictionary<string, IReadOnlyList<string>>();
       private IReadOnlyList<MapInfo> cachedMapInfo;
       private readonly Dictionary<int, IPixelViewModel> cachedImages = new Dictionary<int, IPixelViewModel>();
+      // Read-only presentation buffers; normal byte writes, reload, and Refresh replace this scope.
+      private readonly Dictionary<(ISpriteRun Sprite, IPaletteRun Palette, int Index), (short[] Pixels, int Width)> cachedEnumImages = new();
 
       public IReadOnlyList<string> GetOptions(string table) {
          if (model is PokemonModel pModel) {
@@ -99,6 +101,24 @@ namespace HavenSoft.HexManiac.Core.Models.Runs {
 
          cachedBitOptions[enumName] = results;
          return results;
+      }
+
+      internal (short[] Pixels, int Width) GetEnumImage(ISpriteRun run, IPaletteRun paletteRun, int tableIndex) {
+         (short[] Pixels, int Width) Render() {
+            var sprite = run.GetPixels(model, 0, tableIndex);
+            var palette = paletteRun?.GetPalette(model, paletteRun.PaletteFormat.InitialBlankPages) ?? TileViewModel.CreateDefaultPalette(16);
+            return (SpriteTool.Render(sprite, palette, paletteRun?.PaletteFormat.InitialBlankPages ?? 0, 0), sprite.GetLength(0));
+         }
+         // Preserve the enum renderer (not BuildSprite's page/palette policy). These concrete
+         // immutable-format runs use reference identity; replacement metadata gets a new key.
+         // Other sprite implementations may depend on additional context, so render them fresh.
+         if ((run.GetType() != typeof(SpriteRun) && run.GetType() != typeof(LzSpriteRun)) ||
+            (paletteRun != null && paletteRun.GetType() != typeof(PaletteRun) && paletteRun.GetType() != typeof(LzPaletteRun))) return Render();
+         lock (cachedEnumImages) {
+            var key = (run, paletteRun, tableIndex);
+            if (!cachedEnumImages.TryGetValue(key, out var image)) cachedEnumImages[key] = image = Render();
+            return image;
+         }
       }
 
       public IPixelViewModel GetImage(ISpriteRun run) {

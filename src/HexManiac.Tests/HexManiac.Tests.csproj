@@ -30,6 +30,7 @@
   <ItemGroup>
     <Compile Include="../SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
     <Compile Include="../../tools/TrainerTableBenchmark/SyntheticTrainerFixture.cs" Link="Performance/SyntheticTrainerFixture.cs" />
+    <Compile Include="../../tools/TrainerPortraitBenchmark/PortraitFixture.cs" Link="Performance/PortraitFixture.cs" />
   </ItemGroup>
 
   <ItemGroup>

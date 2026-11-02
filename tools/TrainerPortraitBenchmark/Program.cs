@@ -94,7 +94,7 @@ foreach (var (count, compressed) in new[] { (16, false), (64, false), (128, fals
    window.Close(); Dispatcher.UIThread.RunJobs();
 }
 
-// Freshness is observed, not repaired: compare live retained choices with a newly built candidate.
+// Observe live-choice freshness independently of the timed read-only workloads.
 var freshness = new List<object>();
 foreach (var operation in new[] { "sprite-edit", "palette-edit", "repoint-then-edit", "model-reload" }) {
    var fixture = new PortraitFixture(64, false);
@@ -170,7 +170,7 @@ Directory.CreateDirectory(Path.GetDirectoryName(output)!);
 File.WriteAllText(output, JsonSerializer.Serialize(new {
    runtime = RuntimeInformation.FrameworkDescription, platform = RuntimeInformation.OSDescription, configuration = "Release",
    architecture = RuntimeInformation.ProcessArchitecture.ToString(), correctnessChecks = checks,
-   scope = "Portrait-only real enum/view/binding paths; fabricated 64x64 graphics; no application cache changes; import/reload orchestration audited separately",
+   scope = "Portrait-only real enum/view/binding paths; fabricated 64x64 graphics; component measurements; import/reload orchestration audited separately",
    results, freshness, invalidPortraitPreserved = true,
 }, new JsonSerializerOptions { WriteIndented = true }));
 Console.WriteLine($"BENCHMARK_CHECKS_PASSED:{checks}");

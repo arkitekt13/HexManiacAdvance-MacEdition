@@ -25,7 +25,9 @@ An explicit experiment reads already prepared images from the existing ModelCach
 It checks equality against freshly rendered portrait pixels for these fixtures. The
 experiment excludes enum/view-model setup and is not an implemented editor optimization,
 cache invalidation guarantee, or whole-app speedup. The real app's palette/index/page
-semantics need additional coverage before connecting that cache to this path.
+semantics differ from that address-only cache. The implemented follow-up instead reuses
+the original enum renderer with sprite/palette/index context inside the model scope;
+see the report and PortraitPreparationTests for its separate coverage.
 
 Mutation probes use the real sprite/palette write APIs, a real shared-pointer repoint
 command followed by editing, and model reload followed by refresh. They compare new
@@ -40,4 +42,4 @@ watchers, multi-palette/index-specific formats, format/count changes, and real-R
 behavior are outside this fixture. Import/reload orchestration is reviewed in the source.
 
 See [PORTRAIT_PERFORMANCE.md](../../tests/PORTRAIT_PERFORMANCE.md) for measured evidence,
-the freshness defect, and a conservative recommendation. No new persistent cache is proposed.
+the initial freshness finding and separately verified correctness/performance follow-ups.

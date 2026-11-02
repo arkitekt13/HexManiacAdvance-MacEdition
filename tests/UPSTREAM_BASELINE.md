@@ -7,7 +7,7 @@ Scope: first-project results only; the second project now has its own portable h
 [separate integration baseline](INTEGRATION_BASELINE.md). Historical checkpoints below retain their original limitations.
 
 Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
-is an explicit skip. The latest first-project run records **2,699 cases: 1,651 passed, 0 failed,
+is an explicit skip. The latest first-project run records **2,715 cases: 1,667 passed, 0 failed,
 1,048 skipped, 0 engine errors**; see the follow-up sections below for evidence and coverage limits.
 The seven additional table-navigation cases check refresh-scoped discovery, live getters,
 creation/removal, renaming, matched-length format changes, metadata reload, and forced
@@ -19,7 +19,10 @@ partial/quoted/duplicate/numeric names, token spans, species changes, rename/und
 validation allocation budget; see the same report for the separate validation checkpoint.
 
 Ten visual-choice cases additionally verify pixel/dimension/scale/index/type updates, equal-image
-collection reuse, and text filtering; see [PORTRAIT_PERFORMANCE.md](PORTRAIT_PERFORMANCE.md).
+collection reuse, and text filtering. Sixteen portrait-preparation cases cover bounded warmed
+allocation, pixel reuse, original-renderer equivalence, byte-write invalidation, metadata-only
+format/palette/hint changes, default/compressed palettes, aliases, model isolation, and custom
+sprite fallback; see [PORTRAIT_PERFORMANCE.md](PORTRAIT_PERFORMANCE.md).
 
 ## Observed results
 

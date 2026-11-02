@@ -696,3 +696,24 @@ Validation: Both upstream suites pass with 1,651/26 cases, 1,048/41 optional-ROM
 Validation note: The new test first reproduced stale live pixels, then a blank Mac selector after item replacement; both pass after the fixes, while an initial unrelated FocusAnimation timing failure passed unchanged in isolation and in the full repeat.
 
 Scope: Choice freshness and Mac selection synchronization only; portrait rendering/cache behavior, ROM definitions and researched addresses, compiler, pointer/repointing algorithms, and history implementation remain unchanged, with native appearance and real-ROM/import orchestration still unverified.
+
+## 043 — Reuse portrait enum rendering within the model cache lifetime
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Runs/ModelCacheScope.cs](src/HexManiac.Core/Models/Runs/ModelCacheScope.cs) | 106 | Retain original enum-rendered images by sprite/palette reference and enum index for known immutable-format runs while rendering other implementations fresh. |
+| [src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs](src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs) | 246 | Reuse model-scoped portrait pixels after the existing palette lookup while preserving enum labels, dimensions, indices, and renderer policy. |
+| [src/HexManiac.Tests/PortraitPreparationTests.cs](src/HexManiac.Tests/PortraitPreparationTests.cs) | 12 | Add sixteen regression cases for allocation, exact renderer equivalence, invalidation, metadata contexts, palette variants, aliases, model isolation, and custom sprite fallback. |
+| [src/HexManiac.Tests/HexManiac.Tests.csproj](src/HexManiac.Tests/HexManiac.Tests.csproj) | 33 | Link the existing synthetic portrait fixture into the upstream test assembly. |
+| [tools/TrainerPortraitBenchmark/Program.cs](tools/TrainerPortraitBenchmark/Program.cs) | 97 | Clarify freshness/report descriptions for implementation follow-ups without changing timed workloads. |
+| [tools/TrainerPortraitBenchmark/README.md](tools/TrainerPortraitBenchmark/README.md) | 28 | Distinguish the untouched address-only-cache experiment from the implemented context-aware enum-image reuse. |
+| [tests/PORTRAIT_PERFORMANCE.md](tests/PORTRAIT_PERFORMANCE.md) | 158 | Record the separate reuse change, pre-fix allocation failures, controlled measurements, repeat results, regression evidence, and retained-memory tradeoff. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts and coverage for the sixteen portrait-preparation cases. |
+
+Validation: Both upstream suites pass 1,667/26 cases with 1,048/41 optional-ROM skips and zero failures/engine errors, and all 17 Mac groups pass 1,396 assertions including live portrait edits/repoint/reload/history checks; the unchanged 400,000-byte candidate budget failed before the change at 1,726,968/1,859,576 bytes and passes afterward.
+
+Validation note: One intermediate run exceeded the existing whitespace-allocation test budget at 8,152 bytes; the full final run passes that unchanged test, with no assertion weakened or suppressed, and the Release build retains eight existing Core warnings with zero errors.
+
+Measurement note: Before and both after benchmark runs pass 66 checks with identical fixture/pixel hashes and freshness results; 64 uncompressed candidate preparation changed from 77.406 to 3.014 ms and 171.856 to 13.136 MB per 100 constructions, with the repeat at 2.959 ms and identical allocation, while bound headless navigation changed from 435.055 to 324.568 ms and 383.108 to 220.846 MB without claiming a native or whole-editor multiplier.
+
+Scope: A small context-keyed dictionary within the existing model-cache lifetime preserves the original enum renderer and existing invalidation, with no persistent/global cache or changes to the address-only image cache, researched addresses, compiler, pointer/repointing algorithms, or history implementation; retained RAM reduction, native responsiveness, real ROMs, and import orchestration remain unverified, and items are left for the next profiling task.

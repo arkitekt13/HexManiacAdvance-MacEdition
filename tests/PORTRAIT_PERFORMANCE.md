@@ -2,7 +2,8 @@
 
 Branch: `investigate/trainer-portrait-preparation`, based on `b0008438`.
 Host: Apple M3 Pro, macOS ARM64, .NET 8.0.5, Release, Avalonia 11.2.3.
-This checkpoint is tools/documentation only. It implements no cache or application fix.
+The initial checkpoint below is tools/documentation only. Separately committed correctness
+and model-scoped image-reuse follow-ups are recorded at the end.
 
 ## Scope and method
 
@@ -153,3 +154,88 @@ The eight compressed/uncompressed edit, palette, shared-pointer repoint, and rel
 scenarios pass 68 assertions, including exact-byte undo/redo where applicable. Ten new
 upstream cases guard visual comparison and text filtering. Native appearance, real ROMs,
 image-import orchestration, and long-session memory remain outside these checks.
+
+## Follow-up 2: reuse enum-rendered images within the model scope
+
+Branch `improve/portrait-image-preparation`, based on correctness commit `fe5fe625`.
+The existing address-only `GetImage` cache remains untouched: its rendering policy is
+not interchangeable with the enum path. Instead, a small dictionary inside the existing
+ModelCacheScope retains the original enum-rendered pixels and width, keyed by the concrete
+sprite-run reference, palette-run reference, and enum index. Palette lookup still happens
+on each candidate. Rendering still uses page zero, the same initial-blank-page policy,
+the same default palette, and the same SpriteTool.Render call.
+
+Only exact SpriteRun/LzSpriteRun and PaletteRun/LzPaletteRun types participate; other
+implementations render fresh. These concrete run objects have immutable format properties
+and reference identity. Metadata-only replacement therefore changes the key even without
+a scope reset; byte writes, refresh, undo/redo, and reload retain their existing model-cache
+invalidation. No persistent/global cache, dependency tracker, renderer replacement, or
+ROM-editing algorithm was introduced. Consumers treat retained pixel buffers as read-only.
+
+Sixteen new upstream cases compare all fixture choices against the original uncached
+renderer, cover warm pixel-buffer reuse and allocation, writes without explicit Refresh,
+metadata-only sprite dimensions/palette pages/hints, default palettes, compressed palettes,
+aliased sprite pointers with separate enum indices, separate models, and an unknown sprite
+subclass with additional mutable context that must bypass caching. The 64-portrait warmed
+allocation tests failed before the change at 1,726,968/1,859,576 bytes (uncompressed/compressed)
+and pass the same 400,000-byte budget afterward. Read-only preparation preserves exact bytes,
+metadata, and empty undo history. The earlier 68 live-bitmap/control assertions also pass.
+
+### Controlled before/after measurement
+
+Before: `artifacts/trainer-portrait-performance/freshness-fixed-before.json` at `fe5fe625`.
+After: `artifacts/trainer-portrait-performance/cached-after.json`, with a second run at
+`cached-repeat.json`. The same Release workload, two warmups, and seven samples were used;
+no build or test process ran concurrently with the timed phases. Harness changes only
+clarify the report description; workloads/assertions are unchanged. All three runs pass
+66 checks with identical source/pixel hashes and complete freshness results, including
+fresh live choices after sprite/palette edits, repointing, reload, and redo. Invalid value
+255 remains a numeric fallback without ROM normalization.
+
+Medians below are per 100 operations. MB means cumulative managed calling-thread allocation,
+not retained memory. Before/after refer to the first after run for a single consistent pair.
+
+| Images / encoding | Candidate ms, before → after | Candidate MB, before → after | Navigation without controls ms, before → after | Navigation MB, before → after |
+| --- | --- | --- | --- | --- |
+| 16 uncompressed | 68.490 → 2.298 | 43.405 → 3.725 | 23.296 → 6.698 | 50.013 → 10.326 |
+| 64 uncompressed | 77.406 → 3.014 | 171.856 → 13.136 | 81.192 → 4.909 | 179.763 → 21.043 |
+| 128 uncompressed | 154.873 → 6.172 | 343.125 → 25.685 | 160.786 → 8.468 | 352.773 → 35.333 |
+| 64 compressed | 146.749 → 3.301 | 185.117 → 13.136 | 150.104 → 5.396 | 193.139 → 21.158 |
+
+The initial 16-image case remains sensitive to tiering and should not be used for CPU
+scaling claims. Later cases show approximately 92–93% less candidate allocation; the
+64-uncompressed candidate component is about 26 times faster in this run. This is the
+preparation component, not a whole-editor multiplier. Cold rendering still has to happen.
+
+| Images / encoding | Bound closed-selector navigation ms, before → after | Bound allocation MB, before → after |
+| --- | --- | --- |
+| 16 uncompressed | 345.350 → 321.998 | 245.380 → 205.069 |
+| 64 uncompressed | 435.055 → 324.568 | 383.108 → 220.846 |
+| 128 uncompressed | 575.750 → 328.478 | 566.312 → 241.571 |
+| 64 compressed | 516.320 → 334.729 | 398.855 → 220.792 |
+
+Headless bound navigation improved in this pair, but this does not establish native
+frame rate or input latency. Popup cycles and the separate address-only-cache experiment
+are tiny/noisy and do not support a further improvement claim. The second after run is
+recorded below as a repeat rather than selecting the fastest sample.
+
+### Verification and practical limits
+
+Both upstream projects pass: 1,667/26 cases, 1,048/41 optional-ROM skips, zero failures and
+engine errors. The Mac suite passes 17 groups/1,396 assertions. An intermediate upstream
+run hit the existing whitespace-allocation test at 8,152 bytes against its 4,096-byte
+budget; the complete final run passes that unchanged test. No threshold was weakened or
+case suppressed. Release build succeeds with eight existing Core warnings and no errors.
+
+Retaining rendered buffers trades some lifetime memory for avoiding repeated decoding and
+allocation. Sixty-four 64×64 short-pixel buffers contain about 0.5 MiB, or 1 MiB for 128,
+plus dictionary overhead; choices may also retain equal buffers from an earlier scope.
+This is not a claim of reduced retained RAM or a measured peak-memory bound. Full refresh
+and writes rebuild the cache; the measured gain is repeated read-only preparation within
+its lifetime. Long sessions, native UI, real ROMs, image-import dialogs/remapping, and every
+custom/indexed-palette format remain unverified. Items remain the next profiling target.
+
+Repeat after medians (per 100): 64 uncompressed candidates 2.959 ms / 13.136 MB,
+128 uncompressed 5.979 ms / 25.685 MB, and 64 compressed 3.314 ms / 13.136 MB;
+bound navigation respectively 327.469, 327.878, and 336.128 ms. This repeats the
+preparation/allocation reduction without changing the correctness observations.

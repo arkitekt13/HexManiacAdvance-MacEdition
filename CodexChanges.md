@@ -389,3 +389,17 @@ Validation: Two complete Debug in-process upstream runs each discovered 2,609 ca
 Validation note: All fourteen Mac regression groups passed with 1,102 assertions on the full repeat; the first run hit the already recorded intermittent FocusAnimation clock assertion, which then passed isolated and in the full repeat without test changes.
 
 Limitations: The 1,048 skips are unavailable optional-ROM cases, the separate HexManiac.Integration project remains unported, and full VSTest execution remains unavailable through this session's blocked localhost connection.
+
+## 024 — Detect lost or duplicated metadata in reopening tests
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Tests/Integration/UpgradeTests.cs](src/HexManiac.Tests/Integration/UpgradeTests.cs) | 177 | Compare complete identity multisets before the existing reopening value assertions so missing or duplicated metadata cannot pass silently. |
+| [src/HexManiac.Tests/MetadataReopenAssertionTests.cs](src/HexManiac.Tests/MetadataReopenAssertionTests.cs) | 6 | Add seventeen synthetic cases covering missing, extra, duplicated, reordered, and matching entries across the four collections checked by the ROM reopening test. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 232 | Record stronger first-project reopening assertions and their ROM-free regression evidence. |
+
+Validation: Before strengthening the assertions, eight missing/duplicate scenarios were incorrectly accepted and four extra-entry scenarios raised lookup exceptions; afterward all seventeen regression cases passed, including reordered and matching metadata.
+
+Validation note: The Debug in-process first-project run recorded 2,626 cases with 1,578 passed, zero failed, 1,048 optional-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.Co2QcJ`).
+
+Scope: Only test code changed; application metadata algorithms, ROM definitions, and historical-upgrade exemptions are unchanged, and the second test project remains deferred.

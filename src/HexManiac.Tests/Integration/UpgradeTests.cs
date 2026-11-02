@@ -1,4 +1,4 @@
-﻿using HavenSoft.HexManiac.Core;
+using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.Models.Runs;
 using System.Collections.Generic;
@@ -173,6 +173,22 @@ namespace HavenSoft.HexManiac.Tests {
          var serializedBack = new StoredMetadata(metadata1.Serialize());
          var reopenModel = new HardcodeTablesModel(singletons, fileData, serializedBack);
          var metadata2 = reopenModel.ExportMetadata(singletons.MetadataInfo);
+
+         AssertReopenedMetadataMatches(metadata1, metadata2);
+      }
+
+      // Shared with synthetic regression cases so lost metadata is detectable without ROM fixtures.
+      internal static void AssertReopenedMetadataMatches(StoredMetadata metadata1, StoredMetadata metadata2) {
+         // Compare complete identity multisets before inspecting values: iterating only the
+         // reopened entries would silently accept lost entries or duplicated survivors.
+         Assert.Equal(metadata1.Lists.Select(list => list.Name).OrderBy(name => name, System.StringComparer.Ordinal),
+            metadata2.Lists.Select(list => list.Name).OrderBy(name => name, System.StringComparer.Ordinal));
+         Assert.Equal(metadata1.MatchedWords.Select(word => word.Address).OrderBy(address => address),
+            metadata2.MatchedWords.Select(word => word.Address).OrderBy(address => address));
+         Assert.Equal(metadata1.NamedAnchors.Select(anchor => anchor.Name).OrderBy(name => name, System.StringComparer.Ordinal),
+            metadata2.NamedAnchors.Select(anchor => anchor.Name).OrderBy(name => name, System.StringComparer.Ordinal));
+         Assert.Equal(metadata1.OffsetPointers.Select(pointer => pointer.Address).OrderBy(address => address),
+            metadata2.OffsetPointers.Select(pointer => pointer.Address).OrderBy(address => address));
 
          // verify that the content is the same
          Assert.Equal(metadata1.FreeSpaceBuffer, metadata2.FreeSpaceBuffer);

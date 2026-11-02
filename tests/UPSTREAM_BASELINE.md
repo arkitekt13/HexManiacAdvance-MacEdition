@@ -228,3 +228,18 @@ session, and skipped cases do not establish real-ROM compatibility. The broad Ma
 check again exposed the already recorded intermittent FocusAnimation clock assertion; its
 isolated rerun and the full repeat passed without changing that test, with fourteen groups and
 1,102 assertions successful on the full repeat.
+
+## First-project reopening assertion follow-up
+
+The ROM reopening test now compares sorted identity multisets for lists, matched words,
+named anchors, and offset pointers before its original value comparisons. Previously,
+lost entries or duplicated survivors could pass because only surviving entries were inspected.
+The historical-version upgrade test retains its deliberate migration exemptions.
+
+Seventeen synthetic cases exercise the same comparison without commercial ROMs. Before
+strengthening it, eight missing/duplicate scenarios were falsely accepted; four extra-entry
+scenarios failed through lookup exceptions. All seventeen now pass, including matching and
+reordered collections. The full Debug in-process run (`artifacts/upstream-tests/run.Co2QcJ`)
+recorded **2,626 cases: 1,578 passed, 0 failed, 1,048 skipped, 0 engine errors**.
+Only test code changed; actual ROM reopening coverage still requires the optional fixtures.
+The separate integration project remains deferred until this first-project review is complete.

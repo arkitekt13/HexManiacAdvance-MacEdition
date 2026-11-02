@@ -5,8 +5,9 @@ Host: macOS ARM64, .NET SDK 8.0.300 / runtime 8.0.5, Debug configuration.
 Engine: xUnit 2.4.1; existing assertion bodies and dependency versions retained.
 Scope: `src/HexManiac.Tests` only; `src/HexManiac.Integration` remains unported.
 
-Current follow-up: the save fixtures, trainer validation, and script newline fixes resolve 29
-original failures; see [Script newline follow-up](#script-newline-follow-up) for current counts.
+Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
+is an explicit skip; see [Metadata and optional-fixture follow-up](#metadata-and-optional-fixture-follow-up)
+for the current zero-failure baseline and its remaining coverage limits.
 
 ## Observed results
 
@@ -189,3 +190,41 @@ The four remaining failures are:
 - `BasicLoadTests.CanLoad` (no optional ROM fixture data)
 
 The upstream runner still correctly exits nonzero for these unresolved cases.
+
+## Metadata and optional-fixture follow-up
+
+Two migration failures were caused by the standalone Core build silently omitting
+`SharedAssemblyInfo.cs`: its solution-relative include matched no source file in that build.
+Consequently Core lacked its declared version attributes and reported 0.0.0. A project-relative
+include restores the intended 0.6.1 identity; the version reader and migration rules are unchanged.
+Three new tests verify the declaration, export/reload round trip, and older-version comparison.
+
+The matched-word warning failure had a different cause in the ControlledDispatch test helper.
+It used cancellation of an infinite Task.Delay to represent completed work, which allowed
+initialization continuations to race the unchanged warning assertion. TaskCompletionSource now
+represents successful completion, permits synchronous followups to drain, and faults/propagates
+workload exceptions. Three new tests reproduced the old behavior and pass with the fix; the
+production Mac dispatcher and warning-validation code are unchanged.
+
+BasicLoad's no-data theory is now an explicit optional-fixture skip. Missing or empty folders
+produce one sentinel case with a reason; supplied `.gba` paths are sorted and extension matching
+is case-insensitive. Only that absent-fixture sentinel skips: missing specified files still fail.
+Five new tests exercise discovery and this distinction using disposable paths, with no real ROMs.
+
+Two complete Debug in-process runs produced the same results:
+
+| Discovery entries | Executed cases | Passed | Failed | Skipped | Engine errors |
+| --- | --- | --- | --- | --- | --- |
+| 2,609 | 1,561 | 1,561 | 0 | 1,048 | 0 |
+
+Evidence is retained under `artifacts/upstream-tests/run.YJ8JLd` and `run.xFz02J`. All eleven new
+regression cases pass. The three original assertions pass unchanged; the fourth original failure
+is reclassified as one explicit absence skip, rather than being claimed as executed successfully.
+The other 1,047 skips still represent unavailable optional-ROM cases.
+
+This green result applies only to `HexManiac.Tests` through the in-process runner. The separate
+`HexManiac.Integration` project remains unported, VSTest's socket remains unavailable in this
+session, and skipped cases do not establish real-ROM compatibility. The broad Mac regression
+check again exposed the already recorded intermittent FocusAnimation clock assertion; its
+isolated rerun and the full repeat passed without changing that test, with fourteen groups and
+1,102 assertions successful on the full repeat.

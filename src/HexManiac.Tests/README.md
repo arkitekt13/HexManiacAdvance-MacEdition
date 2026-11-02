@@ -39,11 +39,13 @@ verified here. Normal NuGet access also failed through dotnet; pinned packages w
 over HTTPS into an ignored local feed and restored with existing cached Core packages as a second
 read-only feed. No TLS verification was disabled or package versions changed.
 
-No personal ROMs are copied or discovered automatically. The original optional tests still look
-for `sampleFiles` under the selected host output directory and retain their original skip/empty-data
-behavior. Their filename conventions and fixture setup will be handled in a later checkpoint;
-missing fixture skips are not compatibility evidence. Historical metadata fixtures now load from
-the copied `toml_versions` directory instead of relying on a fixed number of parent directories.
+No ROMs are copied or searched for outside `sampleFiles` under the selected host output directory.
+BasicLoad discovers `.gba` files case-insensitively in a deterministic order. If the directory is
+missing or contains no ROMs, it supplies one explicit skipped case explaining the absent optional
+fixture. A supplied path still executes the original load operation; read/load failures are not
+converted into skips. The other optional tests retain their existing filename conventions and
+skip policies. Missing fixture skips are not compatibility evidence. Historical metadata fixtures
+load from the copied `toml_versions` directory instead of a fixed parent-directory traversal.
 
 See [the baseline](../../tests/UPSTREAM_BASELINE.md) for counts and triage. The separate
 `HexManiac.Integration` project remains unported, and no performance optimization is included.

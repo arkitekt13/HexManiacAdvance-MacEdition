@@ -373,3 +373,19 @@ Scope: The first version-only upstream run recorded 2,601 cases with 1,552 passe
 Validation: All three new dispatcher checks failed before the fix and passed afterward, along with the unchanged matched-word warning assertion that previously raced initialization completion.
 
 Scope: ControlledDispatch is the test dispatcher used by that warning fixture; production Mac dispatching and the warning's validation logic are unchanged.
+
+## 023 — Report absent optional ROM fixtures explicitly
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Tests/Integration/BasicLoadTests.cs](src/HexManiac.Tests/Integration/BasicLoadTests.cs) | 13 | Discover sorted ROM paths case-insensitively and emit one explained skip only when no optional fixture is supplied while retaining actual file-load failures. |
+| [src/HexManiac.Tests/RomFixtureDiscoveryTests.cs](src/HexManiac.Tests/RomFixtureDiscoveryTests.cs) | 7 | Check missing and empty folders, extension filtering and order, the explicit absence skip, and failure for a missing specified file. |
+| [src/HexManiac.Tests/README.md](src/HexManiac.Tests/README.md) | 42 | Document the optional-fixture discovery policy and distinguish absence skips from failures while loading supplied paths. |
+| [tests/README.md](tests/README.md) | 12 | Point to the zero-failure first-project baseline while retaining the separate integration-project limitation. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 194 | Record the confirmed build-version and test-dispatcher causes, fixture policy, two green runs, and remaining coverage limits. |
+
+Validation: Two complete Debug in-process upstream runs each discovered 2,609 cases with 1,561 passed, zero failed, 1,048 skipped, and zero engine errors; all eleven new regression cases pass, the three original metadata/warning assertions are unchanged, and the former no-data failure is one explicit absence skip rather than a claimed successful load.
+
+Validation note: All fourteen Mac regression groups passed with 1,102 assertions on the full repeat; the first run hit the already recorded intermittent FocusAnimation clock assertion, which then passed isolated and in the full repeat without test changes.
+
+Limitations: The 1,048 skips are unavailable optional-ROM cases, the separate HexManiac.Integration project remains unported, and full VSTest execution remains unavailable through this session's blocked localhost connection.

@@ -9,8 +9,8 @@ set fails the run. The summary reports groups and assertions rather than claimin
 These checks use synthetic data and offscreen rendering, not commercial ROMs or native windows.
 The original `src/HexManiac.Tests` xUnit suite is separate and is not included in these assertion
 counts. Run `scripts/verify-upstream.sh` for that suite, or add `--in-process` when VSTest's
-local test-host socket is unavailable. It now builds on .NET 8, but the recorded baseline has
-failures and optional-ROM skips; see [UPSTREAM_BASELINE.md](UPSTREAM_BASELINE.md).
+local test-host socket is unavailable. It builds on .NET 8, and the latest in-process baseline
+has zero failures with explicit optional-ROM skips; see [UPSTREAM_BASELINE.md](UPSTREAM_BASELINE.md).
 The second upstream project, `src/HexManiac.Integration`, has not yet been ported or run.
 See individual group READMEs for any manual GUI checks that remain.
 

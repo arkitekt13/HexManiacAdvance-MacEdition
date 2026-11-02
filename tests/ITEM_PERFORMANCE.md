@@ -71,3 +71,75 @@ indices, actual bound descriptions/icons, and capture comparable fixture/text/pi
 The ROM scenario covers items 0–9, not every item/effect or every ROM. No commercial ROM is
 committed. Both tools and regression tests leave delayed map usage outside foreground work.
 File-dialog import/export, native scrolling/input, retained RAM, and other games remain separate.
+
+## Follow-up: notify icon geometry only when it changes
+
+Branch `improve/item-icon-notifications`, based on benchmark commit `1eb03f41`.
+SpriteElementViewModel retains its last published width/height and compares the computed
+scale before sending those notifications. The original pixel decoding, palette resolution,
+rendering, and PixelData notification path are retained. A fixed-size visible icon therefore
+requests one pixel upload through PixelData instead of three through width, height, and
+pixels; unchanged scale also avoids a layout notification. Initial presentation and genuine
+dimension/scale changes still notify. This is two small presentation-state integers per VM,
+not an image cache, deferred rendering scheme, or editing/history change.
+
+The new ItemTablePresentation group fails before the change on redundant dimension updates
+and passes 48 assertions afterward. It verifies identical actual bitmaps on explicit refresh,
+retained PixelData updates, metadata-only dimension changes, a real scale transition through
+paged-view-model copying, actual bound price/name/description edits, forced description
+relocation with unrelated pointers preserved, palette/sprite edits, and exact-byte undo/redo.
+A spaced name retains its existing quoted selector label; test expectations follow that
+existing behavior rather than changing application naming. Its README distinguishes the
+wide-sprite presentation copy from complete format-import orchestration.
+
+Both upstream suites pass: 1,780/26 cases, 935/41 missing-ROM skips, zero failures/engine errors.
+All 18 Mac groups pass 1,444 assertions, including the new 48 and the existing trainer,
+portrait, map, and script presentation checks. The Release rebuild succeeds with eight
+existing Core warnings and zero errors. No test threshold was weakened or case suppressed.
+
+### Before/after evidence
+
+The same workload at `1eb03f41` (`before.json`) and with the notification change (`after.json`)
+passes 762 checks with identical source, description, model-pixel, and actual bound-bitmap
+hashes, formats, and field-type counts in all five scenarios. No builds/tests run concurrently
+with timed phases. The untimed fixed-size icon diagnostics change from 103/13 width, height,
+and scale notifications to zero, retaining all 103/13 PixelData notifications.
+
+| Icon refresh case | Operations | Before ms | After ms | Before allocated MB | After allocated MB |
+| --- | --- | --- | --- | --- | --- |
+| 375 synthetic items | 100 | 1.257 | 0.833 | 0.848800 | 0.763200 |
+| 1024 synthetic items | 100 | 1.264 | 0.775 | 0.848800 | 0.763200 |
+| Long descriptions | 100 | 1.193 | 0.774 | 0.848800 | 0.763200 |
+| FireRed 1.1, selected item | 10 | 0.813 | 0.796 | 0.621920 | 0.613360 |
+
+The synthetic component is roughly one-third faster in this pair, saving about 0.4 ms
+and 85.6 KB per 100 icon refreshes. That is approximately four microseconds per icon,
+not a large user-visible browsing win. Real-ROM icon refresh time is essentially unchanged;
+its preparation/lookup cost dominates this tiny presentation saving. The deterministic
+reduction is two redundant bitmap-update requests and one scale notification per stable
+refresh, with 856 fewer managed bytes allocated per measured icon refresh.
+
+Whole-table timings are mixed: bound 375-item synthetic navigation changes from 861.206 to
+895.192 ms per 100, 1024 items from 863.365 to 867.592, and long descriptions from 960.725 to
+968.810; the supplied-ROM case changes from 213.020 to 188.207 ms per ten. The no-icon control
+case changes from 936.687 to 941.696 ms. These variations do not establish a uniform browsing
+speedup or regression, and the isolated tiny icon saving cannot explain the larger movement
+in overall timings. Read-only preparation allocations barely change (64 bytes saved per row
+in these scenarios); no retained-memory reduction or native latency claim is made.
+
+The modest benefit is appropriate to the small change and added editing coverage. The review
+does not justify a new item icon/description cache. More consequential work should profile
+the normally delayed map-usage lookup separately, investigate dependent-usage preparation
+with matching freshness tests, or follow concrete workflow feedback from native editing.
+
+
+Repeat: `artifacts/item-table-performance/after-repeat.json` also passes 762 checks with
+all integrity/presentation hashes, formats, and field counts matching both earlier runs.
+Selected-icon refresh medians are 3.835 ms / 0.763288 MB for 375 synthetic items,
+0.839 ms / 0.763200 MB for 1024, 3.822 ms / 0.763256 MB for long descriptions (all per 100),
+and 0.773 ms / 0.613360 MB for the ROM (per ten). The synthetic timings vary substantially
+between processes; even the isolated first-pair speedup is not consistently reproduced.
+The repeat supports the allocation and notification reduction, not a stable elapsed-time
+speedup. No further run was selected to replace the less favorable measurements. The
+cleanup and added regression coverage are the outcome; larger optimization claims would
+require more controlled profiling and a larger bottleneck.

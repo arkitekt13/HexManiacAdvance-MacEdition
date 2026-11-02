@@ -743,3 +743,22 @@ Validation: The completed baseline passes 762 checks across four synthetic cases
 Measurement note: Correctly deferred real-ROM foreground navigation costs 22.955 ms / 25.883 MB per ten selections and bound navigation/layout 213.020 ms / 107.215 MB; preliminary multi-GB runs forced normally delayed map searches because of an immediate shared dispatcher, are explicitly excluded from the baseline, and do not establish a native browsing regression.
 
 Scope: Measurement tools/docs only; existing formats and researched ROM addresses, conditional item fields, decoding, palette lookup, pointer/repointing algorithms, and history remain unchanged, with delayed map-use latency and native/other-game workflows left for separate review.
+
+## 045 — Avoid redundant item icon geometry notifications
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/SpriteElementViewModel.cs](src/HexManiac.Core/ViewModels/Tools/SpriteElementViewModel.cs) | 276 | Notify width/height/scale only when published values change while retaining fresh pixel rendering and notifications. |
+| [tests/ItemTablePresentation/Program.cs](tests/ItemTablePresentation/Program.cs) | 21 | Add 48 offscreen checks for actual icon bitmaps, dimension/scale transitions, bound item edits, forced description relocation, palette/sprite freshness, and exact-byte undo/redo. |
+| [tests/ItemTablePresentation/ItemTablePresentation.csproj](tests/ItemTablePresentation/ItemTablePresentation.csproj) | 1 | Add the item presentation regression group using the existing app and shared fabricated item fixture. |
+| [tests/ItemTablePresentation/README.md](tests/ItemTablePresentation/README.md) | 1 | Document the pre-fix failure, editing/history coverage, synthetic geometry-copy check, and deferred/native exclusions. |
+| [tests/ITEM_PERFORMANCE.md](tests/ITEM_PERFORMANCE.md) | 75 | Record the separate notification change, unchanged pixels/format evidence, modest component savings, and mixed whole-table timings. |
+| [tests/README.md](tests/README.md) | 36 | Link the new item editing and presentation regression coverage. |
+
+Validation: The new regression first fails on unchanged dimensions requesting redundant uploads, then passes all 48 checks; both upstream suites pass 1,780/26 cases with 935/41 optional-ROM skips and zero failures/engine errors, and all 18 Mac groups pass 1,444 assertions without weakened thresholds or suppressed cases.
+
+Measurement note: Before/after benchmark runs each pass 762 checks with identical fixture/description/pixel/bound-bitmap hashes, formats, and field counts; fixed-size diagnostics drop width/height/scale notifications from 103 synthetic or 13 ROM to zero while retaining every PixelData update, and synthetic selected-icon refresh changes from 1.257 to 0.833 ms and 0.848800 to 0.763200 MB per 100, a small component saving rather than a general browsing-speedup claim.
+
+Repeat note: The second after run also passes 762 checks with identical integrity/presentation fields and stable allocation reductions, but synthetic icon-refresh times vary substantially (3.835/0.839/3.822 ms per 100 across the three icon cases), so the first paired speedup is not consistently reproduced and no stable elapsed-time gain is claimed.
+
+Scope: Presentation notifications only, with no new image cache or changes to decoding, palette resolution, conditional item semantics, researched addresses, import/export, compiler, pointer/repointing algorithms, or history; mixed whole-table timing, native responsiveness, retained RAM, other games, and delayed map-use search remain outside the claimed improvement.

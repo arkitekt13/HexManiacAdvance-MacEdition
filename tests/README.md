@@ -33,4 +33,5 @@ These are component-level measurements,
 not native-input or full-editor latency claims.
 
 Item-table preparation, actual-ROM limits, and icon notification findings are recorded in
-[ITEM_PERFORMANCE.md](ITEM_PERFORMANCE.md).
+[ITEM_PERFORMANCE.md](ITEM_PERFORMANCE.md); bound editing, relocation/history, and dimension/scale
+regressions are documented in [ItemTablePresentation/README.md](ItemTablePresentation/README.md).

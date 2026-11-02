@@ -501,3 +501,20 @@ Scope: All 41 original integration cases still require optional ROM fixtures; on
 Validation: The regression reproduced 33 actual underline-list rebuilds before the fix and one afterward; ScriptEditorLayout passed 102 assertions, and all fourteen Mac regression groups passed with 1,112 assertions (`/tmp/hma-diagnostic-coalescing-mac.log`).
 
 Scope: Only Mac diagnostic presentation changes; the compiler, on-the-fly relocation/repointing, flag and variable allocation, validation rules, ROM models, and researched definitions are untouched, and end-to-end script latency has not been measured.
+
+## 032 — Cache exact syntax-highlight dictionary lookups
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/TextEditorViewModel.cs](src/HexManiac.Core/ViewModels/TextEditorViewModel.cs) | 19 | Replace repeated keyword/constant scans with lazily cached ordinal lookups while retaining precedence, invalidation, indices, and the old bounds rejection. |
+| [src/HexManiac.Tests/SyntaxHighlightingTests.cs](src/HexManiac.Tests/SyntaxHighlightingTests.cs) | 8 | Add twenty-four semantic cases covering coloring, dictionary changes, duplicates, source/caret preservation, large mixed-line-ending input, and quoted EOF. |
+| [tools/ScriptHighlightBenchmark/ScriptHighlightBenchmark.csproj](tools/ScriptHighlightBenchmark/ScriptHighlightBenchmark.csproj) | 1 | Add a ROM-free Release benchmark host referencing the shared Core project. |
+| [tools/ScriptHighlightBenchmark/Program.cs](tools/ScriptHighlightBenchmark/Program.cs) | 8 | Measure highlighting time and allocations at three sizes and record exact hashes of all six layers. |
+| [tools/ScriptHighlightBenchmark/README.md](tools/ScriptHighlightBenchmark/README.md) | 1 | Document benchmark inputs, execution, output comparisons, and measurement limits. |
+| [tests/SCRIPT_PERFORMANCE.md](tests/SCRIPT_PERFORMANCE.md) | 23 | Record measured before/after costs, identical layer output, the caught bounds regression, allocation tradeoff, and full regression evidence. |
+
+Validation: The 2,000-line synthetic Release median fell from 197.034 ms to 94.978 ms with identical hashes for all six layers at every benchmark size; allocations rose from 21,558,024 to 21,902,200 bytes per large edit, so this checkpoint claims CPU savings only.
+
+Validation note: The first upstream project passed 1,608 cases with 1,048 optional-ROM skips; the second passed 26 with 41 skips, both with zero failures or engine errors, and all fourteen Mac regression groups passed 1,112 assertions.
+
+Scope: Compiler, relocation/repointing, empty-space allocation, unused flag/variable discovery, ROM caches, and game definitions are unchanged; end-to-end latency and real-ROM behavior remain unmeasured here.

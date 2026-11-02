@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -16,6 +16,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       public ObservableCollection<string> Constants { get; } = new();
       public ObservableCollection<TextSegment> ErrorLocations { get; } = new();
 
+      // Presentation-only lookups: invalidate on dictionary changes, rebuild lazily after
+      // bulk initialization, and keep the same case-sensitive character matching as before.
+      private HashSet<string> keywordLookup, constantLookup;
+
       private string commentHeader = string.Empty, multiLineCommentStart = string.Empty, multiLineCommentEnd = string.Empty;
       public string LineCommentHeader { get => commentHeader; set => Set(ref commentHeader, value); }
       public string MultiLineCommentHeader { get => multiLineCommentStart; set => Set(ref multiLineCommentStart, value); }
@@ -29,14 +33,14 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       public event EventHandler RequestKeyboardFocus;
 
       public TextEditorViewModel() {
-         Keywords.CollectionChanged += (sender, e) => UpdateLayers();
-         Constants.CollectionChanged += (sender, e) => UpdateLayers();
+         Keywords.CollectionChanged += (sender, e) => { keywordLookup = null; UpdateLayers(); };
+         Constants.CollectionChanged += (sender, e) => { constantLookup = null; UpdateLayers(); };
          SyntaxHighlighting = true;
       }
 
       public TextEditorViewModel(bool syntaxHighlighting) {
-         Keywords.CollectionChanged += (sender, e) => UpdateLayers();
-         Constants.CollectionChanged += (sender, e) => UpdateLayers();
+         Keywords.CollectionChanged += (sender, e) => { keywordLookup = null; UpdateLayers(); };
+         Constants.CollectionChanged += (sender, e) => { constantLookup = null; UpdateLayers(); };
          SyntaxHighlighting = syntaxHighlighting;
       }
 
@@ -138,30 +142,21 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
             basic.Clear(index, endIndex - index);
          }
 
+         var keywords = keywordLookup ??= new HashSet<string>(Keywords, StringComparer.Ordinal);
+         var options = constantLookup ??= new HashSet<string>(Constants, StringComparer.Ordinal);
          var check = basic.GetPossibleKeywordStartPoints().ToList();
          for (int i = 0; i < check.Count; i++) {
-            bool match = false;
-
-            // keywords
-            for (int j = 0; j < Keywords.Count; j++) {
-               if (check[i].length != Keywords[j].Length) continue;
-               if (basic.Match(Keywords[j], check[i].start)) {
-                  accent.Replace(check[i].start, Keywords[j]);
-                  basic.Clear(check[i].start, Keywords[j].Length);
-                  match = true;
-                  break;
-               }
-            }
-            if (match) continue;
-
-            // constants
-            for (int j = 0; j < Constants.Count; j++) {
-               if (check[i].length != Constants[j].Length) continue;
-               if (basic.Match(Constants[j], check[i].start)) {
-                  constants.Replace(check[i].start, Constants[j]);
-                  basic.Clear(check[i].start, Constants[j].Length);
-                  break;
-               }
+            // A quoted token at EOF can leave a candidate beyond the buffer. Match()
+            // previously rejected it; retain that behavior before taking a substring.
+            if (check[i].start < 0 || check[i].start + check[i].length > basic.Length) continue;
+            var candidate = basic.Substring(check[i].start, check[i].length);
+            // Keywords retain precedence when a name is also a constant.
+            if (keywords.Contains(candidate)) {
+               accent.Replace(check[i].start, candidate);
+               basic.Clear(check[i].start, check[i].length);
+            } else if (options.Contains(candidate)) {
+               constants.Replace(check[i].start, candidate);
+               basic.Clear(check[i].start, check[i].length);
             }
          }
 
@@ -208,6 +203,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       public MutableString(int length) => content = new char[length];
 
       public override string ToString() => new(content);
+
+      public string Substring(int start, int length) => new(content, start, length);
 
       public int IndexOfKeyword(string keyword, int start) {
          if (keyword.Length == 0) return -1;

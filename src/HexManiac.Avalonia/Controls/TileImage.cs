@@ -247,7 +247,7 @@ public class PixelImage : Image {
 
    static PixelImage() {
       UseTrueTransparencyProperty.Changed.AddClassHandler<PixelImage>((self, e) => self.UpdateSource());
-      ScaleAffectsLayoutProperty.Changed.AddClassHandler<PixelImage>((self, e) => self.UpdateSource());
+      ScaleAffectsLayoutProperty.Changed.AddClassHandler<PixelImage>((self, e) => self.UpdateLayoutSize());
       TransparentBrushProperty.Changed.AddClassHandler<PixelImage>((self, e) => self.UpdateSource());
    }
 
@@ -271,11 +271,16 @@ public class PixelImage : Image {
    }
 
    private void HandleDataContextPropertyChanged(object sender, PropertyChangedEventArgs e) {
+      if (e.PropertyName == nameof(IPixelViewModel.SpriteScale)) {
+         // Zoom changes layout, not pixel content. Keep the current bitmap and any
+         // pending background pixel update instead of converting/uploading it again.
+         UpdateLayoutSize();
+         return;
+      }
       if (!e.PropertyName.IsAny(
          nameof(ViewModel.PixelWidth),
          nameof(ViewModel.PixelHeight),
-         nameof(ViewModel.PixelData),
-         nameof(ViewModel.SpriteScale)
+         nameof(ViewModel.PixelData)
       )) return;
       UpdateSource();
    }
@@ -334,7 +339,11 @@ public class PixelImage : Image {
       PixelBuffer.Write555(bitmapBack, pixels, ViewModel.PixelWidth, ViewModel.PixelHeight);
       (bitmapFront, bitmapBack) = (bitmapBack, bitmapFront);
       Source = bitmapFront;
+      UpdateLayoutSize();
+   }
 
+   private void UpdateLayoutSize() {
+      if (ViewModel == null) return;
       // Stands in for WPF's LayoutTransform ScaleTransform bound to SpriteScale. Only assign when
       // it actually changes: an unconditional assignment re-runs layout on every pixel update,
       // which on the map editor (where these refresh constantly) is a second source of flicker.

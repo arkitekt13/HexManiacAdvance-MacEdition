@@ -533,3 +533,24 @@ Validation: The new whitespace regression allocated 23,040,040 bytes before the 
 Validation note: Final checks passed 1,609 first-project cases and 26 second-project cases with zero failures/engine errors, while retaining 1,048 and 41 absent-ROM skips respectively; all fourteen Mac groups passed 1,112 assertions.
 
 Scope: Only highlighting character comparisons change; compiler, live script relocation, pointer updates, free-space allocation, unused flags/variables, undo/model behavior, game definitions, and compiler scheduling are untouched, and real-ROM/end-to-end stutter remains unmeasured.
+
+## 034 — Reuse map bitmaps for zoom-only presentation changes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TileImage.cs](src/HexManiac.Avalonia/Controls/TileImage.cs) | 250 | Route zoom and layout-scaling changes through layout sizing while preserving current bitmaps, pending frames, and the existing pixel-update path for actual changes. |
+| [tests/MapRendering/MapRendering.csproj](tests/MapRendering/MapRendering.csproj) | 1 | Add an automatically discovered offscreen map regression group with the required reference resources. |
+| [tests/MapRendering/SyntheticMapFixture.cs](tests/MapRendering/SyntheticMapFixture.cs) | 10 | Build fabricated binary map tables and two-color blocksets for the real model, renderer, editing, and history paths without a ROM. |
+| [tests/MapRendering/Program.cs](tests/MapRendering/Program.cs) | 1 | Check three sizes for zoom reuse, exact pixels/bytes/metadata, painting, undo/redo, masks, selection overlays, sprites, and pending/context-switched frames. |
+| [tests/MapRendering/README.md](tests/MapRendering/README.md) | 1 | Document the regression group and distinguish synthetic history/render checks from native-tab and NPC coverage. |
+| [tools/MapRenderingBenchmark/MapRenderingBenchmark.csproj](tools/MapRenderingBenchmark/MapRenderingBenchmark.csproj) | 1 | Add a Release benchmark host sharing the same synthetic map fixture. |
+| [tools/MapRenderingBenchmark/Program.cs](tools/MapRenderingBenchmark/Program.cs) | 1 | Record cold/cached rendering and repeated offscreen zoom processing with raw timings, UI allocations, immutable source checks, pixel hashes, and bitmap-publication counts. |
+| [tools/MapRenderingBenchmark/README.md](tools/MapRenderingBenchmark/README.md) | 1 | Document benchmark execution, reproducibility, and component-level measurement limits. |
+| [tests/MAP_PERFORMANCE.md](tests/MAP_PERFORMANCE.md) | 1 | Record the reproduced redundant zoom refresh, before/after benchmarks, exact-output checks, regression results, and untouched Core scope. |
+| [tests/README.md](tests/README.md) | 22 | Link separate map and script benchmark evidence without implying full-editor latency measurements. |
+
+Validation: At each of three map sizes, 70 zoom steps published 70 bitmaps before the fix and zero afterward, with identical rendered-pixel hashes; the largest fixture's ten-step offscreen median changed from 33.917 to 0.019 ms, excluding native layout, GPU work, and input latency.
+
+Validation note: MapRendering passed 93 assertions, all fifteen Mac groups passed 1,205 assertions, and both upstream suites remained green with 1,609 and 26 passes plus their existing 1,048 and 41 optional-ROM skips; zero engine errors were reported.
+
+Scope: No Core code, compiler, repointing, pointer definitions, flag/variable allocation, map-editing algorithms, cache invalidation, or undo implementation changed; real-ROM/NPC workflows and native interaction remain unverified.

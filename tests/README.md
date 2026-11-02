@@ -17,3 +17,8 @@ See individual group READMEs for any manual GUI checks that remain.
 
 New regression groups must target net8.0, have the same project/directory/assembly name, and print
 `CHECKS_PASSED:N` only after all checks have finished, with N the positive assertion count.
+
+Map presentation measurements and synthetic-fixture limits are recorded separately in
+[MAP_PERFORMANCE.md](MAP_PERFORMANCE.md); script highlighting results remain in
+[SCRIPT_PERFORMANCE.md](SCRIPT_PERFORMANCE.md). These are component-level measurements,
+not native-input or full-editor latency claims.

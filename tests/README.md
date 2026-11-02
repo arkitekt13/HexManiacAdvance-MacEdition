@@ -26,5 +26,7 @@ Map presentation measurements and synthetic-fixture limits are recorded separate
 and headless binding/layout findings are in [TABLE_PERFORMANCE.md](TABLE_PERFORMANCE.md).
 Trainer stream, portrait, validation, and template-selection findings are in
 [TRAINER_PERFORMANCE.md](TRAINER_PERFORMANCE.md).
+The portrait-specific cost and image-freshness review is in
+[PORTRAIT_PERFORMANCE.md](PORTRAIT_PERFORMANCE.md).
 These are component-level measurements,
 not native-input or full-editor latency claims.

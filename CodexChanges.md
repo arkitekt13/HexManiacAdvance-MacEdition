@@ -658,3 +658,20 @@ Validation note: The complete Mac repeat passed sixteen groups and 1,328 asserti
 Measurement note: Both benchmark revisions passed 7,831 checks with matching fixture/text/preview hashes, UI summaries, and diagnostics; six-member custom-team validation changed from 83.076 to 14.971 ms and 106.562 to 27.391 MB allocated per 100 teams, while navigation preparation changed from 196.459 to 51.954 ms and 270.662 to 112.319 MB per 100 switches, without claiming those component ratios as whole-editor speedups.
 
 Scope: Advisory trainer move validation only; shared enum matching, learnability-source algorithms, compiler/deserialization, ROM definitions/addresses, pointer/repointing and history logic, caches, emulator integration, and AI/custom features remain unchanged, while real-ROM legality and native responsiveness remain unverified.
+
+## 041 — Benchmark portrait preparation and audit image freshness
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/TrainerPortraitBenchmark/TrainerPortraitBenchmark.csproj](tools/TrainerPortraitBenchmark/TrainerPortraitBenchmark.csproj) | 1 | Add a standalone Release portrait benchmark with test-only headless services and existing resources. |
+| [tools/TrainerPortraitBenchmark/PortraitFixture.cs](tools/TrainerPortraitBenchmark/PortraitFixture.cs) | 10 | Isolate the real portrait enum path with fabricated palettes and 16/64/128 uncompressed or 64 compressed 64x64 images. |
+| [tools/TrainerPortraitBenchmark/Program.cs](tools/TrainerPortraitBenchmark/Program.cs) | 20 | Measure candidate/navigation/popup preparation and existing image-cache reads while probing edit, palette, repoint, history, reload, and invalid-enum freshness. |
+| [tools/TrainerPortraitBenchmark/README.md](tools/TrainerPortraitBenchmark/README.md) | 1 | Document reproducible execution, experimental-cache limits, recorded staleness, and native/import coverage exclusions. |
+| [tests/PORTRAIT_PERFORMANCE.md](tests/PORTRAIT_PERFORMANCE.md) | 1 | Record portrait scaling, the existing label-only reuse defect, invalidation review, and a conservative correctness-first recommendation. |
+| [tests/README.md](tests/README.md) | 29 | Link the portrait-specific performance and freshness evidence. |
+
+Validation: The final Release build passed with zero warnings/errors and the repeated investigation passed 66 checks with identical source/pixel hashes and freshness findings; 64 uncompressed portrait candidates cost 88.263 ms / 171.856 MB per 100 constructions and 128 cost 176.679 ms / 343.125 MB, with first-case warmup and native-UI limits recorded separately.
+
+Finding note: Sprite edits, palette edits, repoint-then-edit, and model reload produced correct fresh/model-cached pixels but retained stale live choice images when labels stayed unchanged; edit/repoint probes preserved exact bytes/pointers through undo/redo and invalid portrait 255 retained its numeric fallback.
+
+Scope: Tools/docs only, with no application cache or behavior changes; the report recommends fixing existing visual-choice freshness before any bounded model-cache reuse experiment, and leaves item profiling, real-ROM/native behavior, image-import orchestration, and broader palette/format equivalence for follow-up work.

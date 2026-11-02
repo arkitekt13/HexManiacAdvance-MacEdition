@@ -84,13 +84,12 @@ public class IconExtension {
    public object ProvideValue(IServiceProvider serviceProvider) => GetIcon(Name);
 
    /// <summary>
-   /// Returns a private copy of the named icon, never the resource itself.
+   /// Returns an independent geometry root, never the shared resource itself.
    ///
    /// Avalonia's Shape applies its Stretch by assigning Transform to the Geometry it is handed,
-   /// which mutates the shared resource. The next Path that uses the same icon then tries to
-   /// Clone() an already-transformed geometry and throws
-   /// "Unable to cast TransformedGeometryImpl to IStreamGeometryImpl" - which took the whole app
-   /// down the moment two map connection shifters wanted the same arrow.
+   /// which would mutate a shared resource. Rotated StreamGeometry resources also cannot be
+   /// cloned after their native transformed geometry has been created. Give those icons a
+   /// private wrapper that can absorb Stretch without changing their original rotation.
    /// </summary>
    public static Geometry GetIcon(string name) {
       if (Application.Current == null) return null;
@@ -98,10 +97,11 @@ public class IconExtension {
       if (resource is not Geometry geometry) return null;
       try {
          return geometry.Clone();
-      } catch (NotSupportedException) {
-         // A geometry type that cannot be cloned is still safe to share as long as nothing
-         // stretches it; returning it unchanged keeps the old behaviour for those.
-         return geometry;
+      } catch (Exception error) when (error is InvalidCastException or NotSupportedException) {
+         return new GeometryGroup {
+            FillRule = geometry is GeometryGroup group ? group.FillRule : FillRule.NonZero,
+            Children = new GeometryCollection { geometry },
+         };
       }
    }
 }

@@ -264,7 +264,7 @@
   </NativeMenu.Menu>
 
   <Grid Name="ContentPanel">
-    <DockPanel>
+    <DockPanel Name="EditorWorkspace" IsVisible="{Binding !IsVisible, ElementName=WelcomeScreen}">
       <!-- Toolbar / search panels row -->
       <DockPanel DockPanel.Dock="Top" Background="{DynamicResource Background}">
 
@@ -580,5 +580,9 @@
     </Border>
     <Rectangle Name="FocusAnimationElement" StrokeThickness="3" Stroke="{DynamicResource Accent}" IsVisible="False"
                HorizontalAlignment="Right" VerticalAlignment="Top"/>
+    <!-- Cover the empty workspace; ItemCount also brings welcome back after the last tab closes. -->
+    <hsg3hv:StartScreen Name="WelcomeScreen" ZIndex="10"
+                       IsVisible="{Binding ItemCount, ElementName=Tabs, Converter={StaticResource EqualityCheck}, ConverterParameter=0}"/>
+
   </Grid>
 </Window>

@@ -1,0 +1,142 @@
+# Codex Changes
+
+This log records changes we make in this fork, starting with our local work; it does not repeat changes inherited from the original projects.
+
+## Entry format
+
+- Add a numbered section for each fix or feature, in chronological order.
+- Use the same three columns for every entry: **File Name**, **Line**, and **Summary**.
+- Add one row per meaningful change; use a repository-relative file path and a single starting line number.
+- Keep each summary to one sentence describing what changed and why.
+- Line numbers refer to the file when the entry was written and may shift after later edits.
+- Include supporting tests and configuration changes, and record validation below the table.
+- Record completed work only; identify any verification still pending.
+- Do not add entries for creating or maintaining this log.
+
+## 001 — Fix overlapping text in the script editor
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml](src/HexManiac.Avalonia/Controls/TextEditor.axaml) | 14 | Give the editing and highlighting layers a shared monospaced font with Menlo preferred on macOS so character widths remain aligned. |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml](src/HexManiac.Avalonia/Controls/TextEditor.axaml) | 16 | Register and apply a display converter to the bound syntax layers so invisible placeholders retain their intended spacing. |
+| [src/HexManiac.Avalonia/Controls/SyntaxLayerTextConverter.cs](src/HexManiac.Avalonia/Controls/SyntaxLayerTextConverter.cs) | 13 | Replace zero-width NUL placeholders with ordinary spaces for display while preserving character indices, line breaks, and editable script content. |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs](src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs) | 197 | Normalize the manually rendered comment layer before creating its inline runs so comments and error markings use the same spacing as the other layers. |
+| [tests/ScriptEditorLayout/ScriptEditorLayout.csproj](tests/ScriptEditorLayout/ScriptEditorLayout.csproj) | 1 | Add a small regression-check executable that references the actual Mac editor without requiring a new test framework. |
+| [tests/ScriptEditorLayout/Program.cs](tests/ScriptEditorLayout/Program.cs) | 21 | Reproduce zero-width placeholders and check monospaced metrics, all six display bindings, token positions, comments, line endings, and unchanged editable text using Avalonia and Skia without opening a window. |
+| [tests/ScriptEditorLayout/README.md](tests/ScriptEditorLayout/README.md) | 1 | Document how to run the automated layout check and manually inspect script alignment, scrolling, caret placement, and selection. |
+| [.gitignore](.gitignore) | 12 | Ignore generated bin directories so compiled regression-check output stays out of version control. |
+
+Validation: The editor and regression-check project built with zero warnings and zero errors, the regression check passed on this Mac, and the user confirmed improved readability with a screenshot showing aligned commands, arguments, comments, and dialogue in the reported NPC script.
+
+Pending verification: Check scrolling, caret placement, and selection in the running editor.
+
+## 002 — Keep map tutorial descriptions readable on hover
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml](src/HexManiac.Avalonia/Controls/TutorialControl.axaml) | 18 | Clip the tutorial cards to a viewport that follows the panel width while keeping the full cards aligned to its left edge. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml](src/HexManiac.Avalonia/Controls/TutorialControl.axaml) | 40 | Restore the card pointer-entry handler so hovering a tutorial can highlight its associated map control. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 33 | Expand the actual right-anchored panel from 100 to 400 pixels on hover instead of sliding the cards outside a narrow layout and hover area. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 80 | Position the completion checkmark relative to the icon column in both collapsed and expanded layouts. |
+| [tests/TutorialLayout/TutorialLayout.csproj](tests/TutorialLayout/TutorialLayout.csproj) | 1 | Add a regression-check executable referencing the real tutorial control without requiring a ROM or an additional test framework. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 20 | Check repeated pointer entry and exit at two host widths to verify right-edge anchoring and containment of all five visible tutorial descriptions. |
+| [tests/TutorialLayout/README.md](tests/TutorialLayout/README.md) | 1 | Document how to run the tutorial layout check and verify hover, navigation between cards, dismissal, and collapse with a real mouse. |
+
+Validation: The editor and tutorial regression-check project built with zero warnings and zero errors, the offscreen geometry check passed for three expansion/collapse cycles at each of two host widths, and the user confirmed the original hover clipping was resolved.
+
+Follow-up: The user's requested compact sizing and reported overlay/preview issues are addressed in entry 003.
+
+## 003 — Make tutorials compact and keep map previews out of overlays
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml](src/HexManiac.Avalonia/Controls/TutorialControl.axaml) | 14 | Reduce the collapsed strip to 72 pixels and the five-card height to 400 pixels while giving the panel a transparent hit-test background. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml](src/HexManiac.Avalonia/Controls/TutorialControl.axaml) | 33 | Position cards using the compact row height and reduce their icons and typography within a 320-pixel expanded panel. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 23 | Keep row positioning and completion animations aligned with the smaller 80-pixel cards without changing Core's tutorial models. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 39 | Ease the panel's width over 160 milliseconds so hover expansion no longer jumps instantly. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 43 | Consume tutorial pointer presses, releases, and wheel events before they reach map interaction handlers. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 1240 | Place tutorials above the map arrows and selection overlays so those elements cannot draw over or intercept the cards. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 46 | Close map previews when leaving the tab or moving onto another control and clear them immediately on tutorial entry. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 129 | Delegate preview ownership and caching to a map-surface controller instead of attaching NPC dialogue to the entire tab. |
+| [src/HexManiac.Avalonia/Controls/MapHoverPreview.cs](src/HexManiac.Avalonia/Controls/MapHoverPreview.cs) | 20 | Restrict preview sources to the map surface and its children so overlay controls cannot trigger NPC dialogue. |
+| [src/HexManiac.Avalonia/Controls/MapHoverPreview.cs](src/HexManiac.Avalonia/Controls/MapHoverPreview.cs) | 23 | Remove the attached tooltip on exit while retaining cached content for re-entering the same NPC cell and clearing it over empty cells. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 58 | Update layout checks for compact dimensions and verify that all 36 descriptions fit their cards. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 94 | Check tutorial stacking configuration and preview source filtering, dismissal, cached re-entry, and empty-cell clearing without a native window. |
+| [tests/TutorialLayout/README.md](tests/TutorialLayout/README.md) | 3 | Document the compact-layout and preview checks along with the remaining live mouse and animation verification. |
+
+Validation: The editor and updated regression-check project built with zero warnings and zero errors, and the compact layout, full-description fit, stacking configuration, and preview lifecycle checks passed.
+
+Pending verification: In the running app, check the smaller cards and expansion animation, confirm arrows stay behind them, and move from an NPC to the tutorials and back to verify preview dismissal and re-entry.
+
+## 004 — Restore missing rotated map arrows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Resources/MarkupExtensions.cs](src/HexManiac.Avalonia/Resources/MarkupExtensions.cs) | 100 | Wrap icon geometries when Avalonia cannot clone them so rotated arrows render while their shared resources retain their original transforms. |
+| [tests/MapArrowIcons/MapArrowIcons.csproj](tests/MapArrowIcons/MapArrowIcons.csproj) | 1 | Add a regression-check executable using the actual editor resources and renderer without opening a window. |
+| [tests/MapArrowIcons/Program.cs](tests/MapArrowIcons/Program.cs) | 18 | Reproduce the three rotated-icon cloning failures and verify all six arrow types render visible pixels repeatedly without changing shared resources. |
+| [tests/MapArrowIcons/README.md](tests/MapArrowIcons/README.md) | 1 | Document the automated arrow rendering check and the remaining visual check in the map editor. |
+
+Validation: The editor and both arrow and tutorial regression projects built with zero warnings and zero errors; all six arrow rendering checks and the existing tutorial layout and preview checks passed.
+
+Pending verification: Relaunch the editor and confirm the left, top, and bottom arrows appear correctly on a map.
+
+## 005 — Fix map focus animation crash and improve arrow contrast
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 705 | Route the focus outline through a shared animation helper instead of applying a transform animation directly to a TranslateTransform and triggering an InvalidCastException. |
+| [src/HexManiac.Avalonia/Controls/FocusOutlineAnimation.cs](src/HexManiac.Avalonia/Controls/FocusOutlineAnimation.cs) | 14 | Animate position and size together on the owning control and hide and reset the outline when the animation finishes. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 1105 | Use the main theme foreground for all map arrows to increase contrast against their button backgrounds. |
+| [tests/FocusAnimation/FocusAnimation.csproj](tests/FocusAnimation/FocusAnimation.csproj) | 1 | Add a regression executable that runs the actual focus animation without requiring a native window or ROM. |
+| [tests/FocusAnimation/Program.cs](tests/FocusAnimation/Program.cs) | 16 | Reproduce the reported cast failure and drive three corrected animations through movement, resizing, completion, and cleanup using Avalonia's animation clock. |
+| [tests/FocusAnimation/README.md](tests/FocusAnimation/README.md) | 1 | Document the animation check, its version-dependent clock adapter, and live map-editor verification. |
+| [tests/MapArrowIcons/Program.cs](tests/MapArrowIcons/Program.cs) | 65 | Check the production arrow brushes, render complete button backgrounds and foregrounds, and compare rotated arrow shapes with an edge antialiasing tolerance. |
+| [tests/MapArrowIcons/README.md](tests/MapArrowIcons/README.md) | 7 | Document the additional arrow color and rotation checks. |
+
+Validation: The editor and both regression projects built with zero warnings and zero errors; the exact cast failure was reproduced, three corrected focus animations completed successfully, and arrow rendering, color, rotation, and shared-resource checks passed; the user confirmed the crash is fixed, and complete button rendering confirmed all six backgrounds use the same opaque #383838 in the default theme.
+
+Pending verification: The user still perceives a top-versus-side background difference in the live map; the automated renderer shows identical backgrounds, but screenshot pixel sampling was unavailable, so the apparent contrast effect remains an inference.
+
+
+## 006 — Add a purple script welcome screen for Mac
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml](src/HexManiac.Avalonia/Controls/StartScreen.axaml) | 1 | Replace the unused information page with a dark welcome screen featuring purple script lettering, a white Mac subtitle, a subtle glow, and a layout that scales to smaller windows. |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml](src/HexManiac.Avalonia/Controls/StartScreen.axaml) | 40 | Connect Open File to the existing editor command and show the existing keyboard shortcut and ROM drop option. |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml](src/HexManiac.Avalonia/Controls/StartScreen.axaml) | 53 | Display and dismiss file-opening errors on welcome so they remain accessible while the workspace is hidden. |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs](src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs) | 7 | Populate the footer from the actual application assembly version and compile-time Debug or Release configuration without changing the version number. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 267 | Hide the empty editor workspace while welcome is visible so its controls cannot receive keyboard focus underneath the screen. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 584 | Mount welcome when the tab count is zero so it disappears on opening a ROM and returns after the final tab closes. |
+| [tests/WelcomeScreen/WelcomeScreen.csproj](tests/WelcomeScreen/WelcomeScreen.csproj) | 1 | Add a regression executable referencing the real welcome control without requiring a ROM or native window. |
+| [tests/WelcomeScreen/Program.cs](tests/WelcomeScreen/Program.cs) | 17 | Verify layout at three window sizes, command wiring, tab-count visibility, error display, shell mounting, and the version footer with optional rendered preview output. |
+| [tests/WelcomeScreen/README.md](tests/WelcomeScreen/README.md) | 1 | Document the welcome regression checks and remaining native file-picker and launch verification. |
+
+Validation: The app and regression project built with zero warnings and zero errors; welcome layout, Open command binding, zero-tab lifecycle, error display, shell mounting, and version checks passed, and the rendered preview was visually inspected.
+
+Pending verification: Relaunch on macOS and check the native picker, cancellation, Cmd+O, dropping a ROM, direct Finder opening, and returning to welcome after closing the final tab.
+
+## 007 — Refine welcome proportions and fix the partial button highlight
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml](src/HexManiac.Avalonia/Controls/StartScreen.axaml) | 15 | Apply hover and pressed colors to the full button surface and add a visible keyboard-focus outline. |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml](src/HexManiac.Avalonia/Controls/StartScreen.axaml) | 36 | Reduce the script title and subtitle sizes and tighten their spacing while scaling only the lettering down for smaller windows. |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml](src/HexManiac.Avalonia/Controls/StartScreen.axaml) | 47 | Keep Open File at a fixed size and give it a local rounded template so the global button theme cannot leave a smaller highlighted rectangle behind the label. |
+| [tests/WelcomeScreen/Program.cs](tests/WelcomeScreen/Program.cs) | 56 | Exercise the production button's hover, pressed, exit, and keyboard-focus states and verify its rounded surface covers the entire button. |
+| [tests/WelcomeScreen/README.md](tests/WelcomeScreen/README.md) | 8 | Describe the full-surface button state checks. |
+
+Validation: The app and welcome regression project built with zero warnings and zero errors; button state, focus, layout, command, visibility, error, and version checks passed, and the refined rendered preview was visually inspected.
+
+Pending verification: Relaunch and confirm the full button highlights under a real mouse and assess the smaller lettering and tighter spacing.
+
+## 008 — Use a bold purple welcome title
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml](src/HexManiac.Avalonia/Controls/StartScreen.axaml) | 39 | Replace the main title's formal script with bold purple sans-serif lettering at a size that fits the existing layout while retaining the white Mac script subtitle. |
+
+Validation: The app and welcome regression project built with zero warnings and zero errors; the existing layout and button checks passed, and the rendered preview was visually inspected.
+
+Pending verification: Relaunch to review the new title in the running app.

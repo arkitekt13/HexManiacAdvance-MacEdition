@@ -1,6 +1,10 @@
 using System;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using Avalonia.Controls;
+using Avalonia.Data.Converters;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using HavenSoft.HexManiac.AvaloniaUI.Resources;
 using HavenSoft.HexManiac.Core;
@@ -16,8 +20,13 @@ namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
 /// AnimationExtensions (property transitions) and containers are found with ContainerFromItem.
 /// </summary>
 public partial class TutorialControl : UserControl {
-   private const double ElementHeight = 90;
-   private const double SlideDistance = -300;
+   private const double ElementHeight = 80;
+   private const double CollapsedWidth = 72;
+   private const double ExpandedWidth = 320;
+
+   // Core tracks tutorial rows independently of the Mac interface's card size.
+   public static readonly IValueConverter RowOffsetConverter =
+      new FuncValueConverter<double, double>(row => row * ElementHeight);
 
    public event EventHandler<MapTutorialViewModel> EnterTutorial;
 
@@ -27,8 +36,25 @@ public partial class TutorialControl : UserControl {
    public TutorialControl() {
       InitializeComponent();
       DataContextChanged += (sender, e) => UpdateTutorialHandlers();
-      PointerEntered += (sender, e) => Tutorials.AnimateLeft(SlideDistance);
-      PointerExited += (sender, e) => Tutorials.AnimateLeft(0);
+      ContentPanel.Transitions = new Transitions {
+         new DoubleTransition { Property = WidthProperty, Duration = TimeSpan.FromMilliseconds(160), Easing = new CubicEaseOut() },
+      };
+      // Tutorial interaction must not bubble into the map's drawing/panning/zoom handlers.
+      AddHandler(PointerPressedEvent, (_, e) => e.Handled = true, RoutingStrategies.Bubble);
+      AddHandler(PointerReleasedEvent, (_, e) => e.Handled = true, RoutingStrategies.Bubble);
+      AddHandler(PointerWheelChangedEvent, (_, e) => e.Handled = true, RoutingStrategies.Bubble);
+   }
+
+   protected override void OnPointerEntered(PointerEventArgs e) {
+      base.OnPointerEntered(e);
+      // The map anchors this control to the right. Growing its actual layout width opens
+      // the cards to the left and keeps their descriptions inside the hover/clip bounds.
+      ContentPanel.Width = ExpandedWidth;
+   }
+
+   protected override void OnPointerExited(PointerEventArgs e) {
+      base.OnPointerExited(e);
+      ContentPanel.Width = CollapsedWidth;
    }
 
    private void UpdateTutorialHandlers() {
@@ -64,9 +90,9 @@ public partial class TutorialControl : UserControl {
       if (tut.Index >= 5) return; // don't show the checkmark for off-screen tutorials
       var ui = Tutorials.ContainerFromItem(tut);
       if (ui == null) return;
-      Canvas.SetTop(Check, tut.TopEdge + 15);
-      var offset = 300 + Canvas.GetLeft(Tutorials);
-      Check.AnimateRight(ui.Bounds.Width / 2 - offset, ui.Bounds.Width * 1.2 - offset);
+      Canvas.SetTop(Check, tut.TargetPosition * ElementHeight + 20);
+      // Start over the icon column in either layout state, then fly off the right edge.
+      Check.AnimateRight(ContentPanel.Width - 56, -56);
       Check.AnimateOpacity(1, 0, 1);
    }
 

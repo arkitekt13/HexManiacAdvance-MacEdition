@@ -1,37 +1,30 @@
-using System.Diagnostics;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using HavenSoft.HexManiac.AvaloniaUI.Windows;
-using HavenSoft.HexManiac.Core.ViewModels;
 
 namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
 
-/// <summary>Ported from HexManiac.WPF/Controls/StartScreen.xaml.cs.</summary>
+/// <summary>The empty editor's welcome screen; opening a ROM uses the normal editor command.</summary>
 public partial class StartScreen : Grid {
-   public StartScreen() {
-      InitializeComponent();
-      AttachedToVisualTree += (sender, e) => {
-         var version = (DataContext as EditorViewModel)?.Singletons.MetadataInfo;
-         Usage.Text = AboutWindow.GetUsageText(version);
-      };
+   public static string VersionLabel {
+      get {
+         var version = typeof(StartScreen).Assembly.GetName().Version?.ToString(3) ?? "unknown";
+#if DEBUG
+         const string build = "Debug build";
+#else
+         const string build = "Release build";
+#endif
+         return $"Version {version} · Mac · {build}";
+      }
    }
 
-   /// WPF's Hyperlink.RequestNavigate carried the Uri; the ported buttons carry it in Tag.
-   private void Navigate(object sender, RoutedEventArgs e) {
-      if (sender is Control control && control.Tag is string url) {
-         Process.Start(new ProcessStartInfo("open", $"\"{url}\"") { UseShellExecute = false });
-      }
-      e.Handled = true;
+   public StartScreen() {
+      InitializeComponent();
+      VersionInformation.Text = VersionLabel;
    }
 }
 
-/// <summary>
-/// Causes the element within the decorator to not take part in the Measure step of the layout loop.
-/// </summary>
+/// <summary>Measures its child without reserving any space for it.</summary>
 public class MeasureEmptyDecorator : Decorator {
-   protected override Size MeasureOverride(Size constraint) {
+   protected override Avalonia.Size MeasureOverride(Avalonia.Size constraint) {
       Child?.Measure(default);
       return default;
    }

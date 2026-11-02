@@ -32,15 +32,20 @@ namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
 public partial class MapTab : UserControl {
    private MapEditorViewModel ViewModel => DataContext as MapEditorViewModel;
    private MapEditorViewModel subscribed;
+   private readonly MapHoverPreview hoverPreview;
 
    public event EventHandler FocusElement;
 
    public MapTab() {
       InitializeComponent();
+      hoverPreview = new MapHoverPreview(MapView);
       DataContextChanged += (sender, e) => UpdateDataContext();
       AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Bubble);
       AddHandler(KeyUpEvent, HandleKeyUp, RoutingStrategies.Bubble);
       AttachedToVisualTree += (sender, e) => Focus();
+      DetachedFromVisualTree += (sender, e) => HideMapTooltip();
+      // Inspect the actual target before bubbling map handlers can reuse an NPC preview.
+      AddHandler(PointerMovedEvent, DismissTooltipOutsideMap, RoutingStrategies.Tunnel, handledEventsToo: true);
       SizeChanged += (sender, e) => {
          var partial = Bounds.Width / 2 - (int)(Bounds.Width / 2);
          if (MapView.RenderTransform is TranslateTransform transform) transform.X = -partial;
@@ -121,48 +126,16 @@ public partial class MapTab : UserControl {
       TileViewer.Offset = new Vector(TileViewer.Offset.X, scrollRange * scrollPercent);
    }
 
-   private object[] lastTooltipContent = Array.Empty<object>();
+   private void UpdateTooltipContent(object content) => hoverPreview.Update(content);
 
-   /// <summary>
-   /// Called on every pointer move over the map. WPF rebuilt the tooltip each time, which it can
-   /// afford; here every IsOpen=true spins up a popup window, so doing that per mouse-move made
-   /// the map visibly flicker. The content is compared first and the popup is left alone unless
-   /// it actually changed. WPF's unconditional InvalidateVisual is gone for the same reason - it
-   /// repainted the whole map on every move.
-   /// </summary>
-   private void UpdateTooltipContent(object content) {
-      if (content == null) return;
-      if (content is not object[] tooltip) return;
-      if (TooltipContentMatches(tooltip)) return;
-      lastTooltipContent = tooltip;
+   private void HideMapTooltip() => hoverPreview.Hide();
 
-      if (tooltip.Length == 0) {
-         ToolTip.SetIsOpen(this, false);
-         return;
-      }
-
-      // WPF built a fresh HexContentToolTip each time "to prevent a glitch of text changing as
-      // the old one fades to closed" - a WPF fade artifact. Avalonia has no such fade, and here
-      // replacing the tip tears down and recreates a popup *window*; doing that for every cell
-      // the pointer crosses is what made the map editor flicker. Reuse the control instead and
-      // just repoint its DataContext.
-      if (ToolTip.GetTip(this) is HexContentToolTip existing) {
-         existing.DataContext = content;
-      } else {
-         ToolTip.SetTip(this, new HexContentToolTip { DataContext = content });
-      }
-      ToolTip.SetIsOpen(this, true);
-   }
-
-   private bool TooltipContentMatches(object[] tooltip) {
-      if (lastTooltipContent.Length != tooltip.Length) return false;
-      for (int i = 0; i < tooltip.Length; i++) {
-         if (!Equals(lastTooltipContent[i], tooltip[i])) return false;
-      }
-      return true;
+   private void DismissTooltipOutsideMap(object sender, PointerEventArgs e) {
+      if (!hoverPreview.OwnsSource(e.Source)) HideMapTooltip();
    }
 
    private void OnEnterTutorial(object sender, MapTutorialViewModel tutorial) {
+      HideMapTooltip();
       var index = (Tutorial)(tutorial.Index - 1);
       if (index == Tutorial.LeftClickBlock_SelectBlock) FocusElement.Raise(BlockViewer);
       if (index == Tutorial.BlockButton_EditBlocks) FocusElement.Raise(EditBlockButton);
@@ -187,6 +160,10 @@ public partial class MapTab : UserControl {
       MapView.PointerReleased += ButtonUp;
       MapView.PointerExited += ButtonLeave;
       MapView.PointerWheelChanged += Wheel;
+      TutorialsControl.PointerEntered += (sender, e) => {
+         HideMapTooltip();
+         if (ViewModel != null) ViewModel.ShowHighlightCursor = false;
+      };
 
       MapBackground.PointerPressed += BackgroundDown;
       MapBackground.PointerMoved += BackgroundMove;
@@ -368,7 +345,7 @@ public partial class MapTab : UserControl {
    }
 
    private void ButtonLeave(object sender, PointerEventArgs e) {
-      UpdateTooltipContent(NoTooltip);
+      HideMapTooltip();
       if (ViewModel == null) return;
       ViewModel.ShowHighlightCursor = false;
    }

@@ -1102,7 +1102,7 @@
                        Width="20" Height="20" Background="{DynamicResource Backlight}"
                        ToolTip.ShowDelay="0" ToolTip.Tip="{Binding Tooltip}">
                   <!-- WPF picked the arrow with a DataTrigger per MapSliderIcons value. -->
-                  <Path Name="Path" Fill="{DynamicResource Secondary}" Stretch="Uniform"
+                  <Path Name="Path" Fill="{DynamicResource Primary}" Stretch="Uniform"
                         Data="{Binding Icon, Converter={x:Static res:MapSliderIconConverter.Instance}}" />
                   <Border.ContextMenu>
                      <ContextMenu IsEnabled="{Binding EnableContextMenu}" ItemsSource="{Binding ContextItems}">
@@ -1237,7 +1237,8 @@
       </Border>
 
       <!-- Tutorials Panel -->
-      <local:TutorialControl x:Name="TutorialsControl" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" DataContext="{Binding Tutorials}" EnterTutorial="OnEnterTutorial" />
+      <local:TutorialControl x:Name="TutorialsControl" Grid.Row="1" Grid.Column="1" ZIndex="4"
+                             HorizontalAlignment="Right" VerticalAlignment="Center" DataContext="{Binding Tutorials}" EnterTutorial="OnEnterTutorial" />
 
       <!--
          Toolbar. Ported 1:1 from WPF, including the Wild Pokemon popup, the event-template

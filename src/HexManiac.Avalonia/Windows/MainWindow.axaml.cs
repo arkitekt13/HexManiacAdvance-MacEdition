@@ -702,44 +702,8 @@ public partial class MainWindow : Window {
       if (point == null) return;
       var target = point.Value;
 
-      FocusAnimationElement.IsVisible = true;
-      var transform = new TranslateTransform();
-      FocusAnimationElement.RenderTransform = transform;
-
-      var endX = -ContentPanel.Bounds.Width + target.X + element.Bounds.Width;
-      var animation = new Avalonia.Animation.Animation {
-         Duration = FastTime,
-         Easing = new Avalonia.Animation.Easings.CubicEaseOut(),
-         Children = {
-            new KeyFrame { Cue = new Cue(0d), Setters = {
-               new Setter(TranslateTransform.XProperty, endX / 2),
-               new Setter(TranslateTransform.YProperty, target.Y / 2),
-            } },
-            new KeyFrame { Cue = new Cue(1d), Setters = {
-               new Setter(TranslateTransform.XProperty, endX),
-               new Setter(TranslateTransform.YProperty, target.Y),
-            } },
-         },
-      };
-      var sizeAnimation = new Avalonia.Animation.Animation {
-         Duration = FastTime,
-         Easing = new Avalonia.Animation.Easings.CubicEaseOut(),
-         Children = {
-            new KeyFrame { Cue = new Cue(0d), Setters = {
-               new Setter(WidthProperty, ContentPanel.Bounds.Width / 2),
-               new Setter(HeightProperty, ContentPanel.Bounds.Height / 2),
-            } },
-            new KeyFrame { Cue = new Cue(1d), Setters = {
-               new Setter(WidthProperty, element.Bounds.Width),
-               new Setter(HeightProperty, element.Bounds.Height),
-            } },
-         },
-      };
-      animation.RunAsync(transform);
-      sizeAnimation.RunAsync(FocusAnimationElement).ContinueWith(_ => Dispatcher.UIThread.Post(() => {
-         FocusAnimationElement.IsVisible = false;
-         FocusAnimationElement.RenderTransform = null;
-      }));
+      _ = FocusOutlineAnimation.RunAsync(FocusAnimationElement, ContentPanel.Bounds.Size,
+         new Rect(target, element.Bounds.Size), FastTime);
    }
 
    #endregion

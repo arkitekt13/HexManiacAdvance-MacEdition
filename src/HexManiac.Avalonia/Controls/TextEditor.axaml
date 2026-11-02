@@ -10,19 +10,22 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="HavenSoft.HexManiac.AvaloniaUI.Controls.TextEditor"
-             xmlns:local="clr-namespace:HavenSoft.HexManiac.AvaloniaUI.Controls">
+             xmlns:local="clr-namespace:HavenSoft.HexManiac.AvaloniaUI.Controls"
+             FontFamily="Menlo, Consolas, monospace">
+   <UserControl.Resources>
+      <local:SyntaxLayerTextConverter x:Key="SyntaxLayerTextConverter"/>
+   </UserControl.Resources>
    <Grid Name="Body" ClipToBounds="True" Background="Transparent">
-      <Canvas ClipToBounds="False" Width="0" HorizontalAlignment="Left" TextElement.FontFamily="Consolas">
-         <TextBlock Name="BasicLayer" Foreground="{DynamicResource Primary}" Margin="2" Text="{Binding PlainContent}"/>
-         <TextBlock Name="AccentLayer" Foreground="{DynamicResource Accent}" Margin="2" Text="{Binding AccentContent}"/>
-         <TextBlock Name="ConstantsLayer" Foreground="{DynamicResource Data1}" Margin="2" Text="{Binding ConstantContent}"/>
-         <TextBlock Name="TextLayer" Foreground="{DynamicResource Text1}" Margin="2" Text="{Binding TextContent}"/>
-         <TextBlock Name="NumericLayer" Foreground="{DynamicResource Data2}" Margin="2" Text="{Binding NumericContent}"/>
+      <Canvas ClipToBounds="False" Width="0" HorizontalAlignment="Left">
+         <TextBlock Name="BasicLayer" Foreground="{DynamicResource Primary}" Margin="2" Text="{Binding PlainContent, Converter={StaticResource SyntaxLayerTextConverter}}"/>
+         <TextBlock Name="AccentLayer" Foreground="{DynamicResource Accent}" Margin="2" Text="{Binding AccentContent, Converter={StaticResource SyntaxLayerTextConverter}}"/>
+         <TextBlock Name="ConstantsLayer" Foreground="{DynamicResource Data1}" Margin="2" Text="{Binding ConstantContent, Converter={StaticResource SyntaxLayerTextConverter}}"/>
+         <TextBlock Name="TextLayer" Foreground="{DynamicResource Text1}" Margin="2" Text="{Binding TextContent, Converter={StaticResource SyntaxLayerTextConverter}}"/>
+         <TextBlock Name="NumericLayer" Foreground="{DynamicResource Data2}" Margin="2" Text="{Binding NumericContent, Converter={StaticResource SyntaxLayerTextConverter}}"/>
          <TextBlock Name="CommentLayer" Foreground="{DynamicResource Secondary}" Margin="2"/>
       </Canvas>
       <TextBox Name="TransparentLayer" Background="Transparent" CaretBrush="{DynamicResource Primary}" Foreground="Transparent"
                ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-               FontFamily="Consolas"
                UndoLimit="0" AcceptsReturn="True" AcceptsTab="True"
                Tag="{Binding $parent[local:TextEditor].Tag}"
                ContextMenu="{Binding $parent[local:TextEditor].ContextMenuOverride}"

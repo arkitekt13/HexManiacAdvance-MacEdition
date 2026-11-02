@@ -194,7 +194,7 @@ public partial class TextEditor : UserControl {
 
    private void UpdateErrorDecorations() {
       if (ViewModel == null) return;
-      var text = ViewModel.CommentContent ?? string.Empty;
+      var text = SyntaxLayerTextConverter.Normalize(ViewModel.CommentContent);
       var inlines = CommentLayer.Inlines;
       inlines.Clear();
       int character = 0, line = 0;

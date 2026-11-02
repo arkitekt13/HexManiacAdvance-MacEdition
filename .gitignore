@@ -9,6 +9,7 @@ sampleFiles/
 
 # Build results
 artifacts/
+bin/
 obj/
 *.coverage
 

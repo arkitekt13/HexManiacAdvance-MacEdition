@@ -191,3 +191,22 @@ Limitations: ROM and metadata remain separate writes rather than a two-file powe
 Validation: All eight regression groups passed with 921 assertions, including the previously failing output-checksum and truncated-IPS cases; the final added IPS truncation guard is covered by subsequent verification runs.
 
 Limitations: Successful whole-ROM patch imports still rebuild metadata and reset history as before; failed imports preserve history, and this entry does not claim successful patch imports are undoable or that native dialogs were tested.
+
+## 012 — Validate complete project imports before applying edits
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 66 | Version new exports and fingerprint table layouts so imports can reject incompatible structures before editing data. |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 94 | Preserve escaped carriage returns and reject incomplete or unknown text escapes instead of silently dropping characters. |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 111 | Validate manifests, tables, columns, indices, numeric widths, and lossless text encoding with structured file/row/field diagnostics before requesting a change token. |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 205 | Apply a standalone undo token only after validation and roll it back on failure without discarding earlier undo or redo history. |
+| [tests/ProjectImport/ProjectImport.csproj](tests/ProjectImport/ProjectImport.csproj) | 1 | Add synthetic import regressions with shared reference resources. |
+| [tests/ProjectImport/Program.cs](tests/ProjectImport/Program.cs) | 1 | Test invalid numeric/text input, diagnostics, unchanged round trips, one-step undo, redo retention, and rollback after an injected second-field failure. |
+| [tests/ProjectImport/README.md](tests/ProjectImport/README.md) | 1 | Document import validation and the legacy-export and context-only-field compatibility rules. |
+| [PORTING.md](PORTING.md) | 3 | Clarify that this fork allows targeted shared correctness fixes while prohibiting UI-specific workarounds in Core. |
+| [PORT_STATUS.md](PORT_STATUS.md) | 3 | Distinguish the original port's historical status from this fork's subsequent shared-engine fixes. |
+| [README.md](README.md) | 130 | Document the fork's shared fixes, verification command, and checkpoint-based revision workflow. |
+
+Validation: All nine regression groups passed with 951 assertions; the previous 999-to-231 truncation is rejected without mutation, valid imports undo in one step, and injected commit failure restores both data and metadata while retaining redo history.
+
+Compatibility: Legacy exports still require matching game code and ROM size and receive a missing-fingerprint note; pointers, calculated fields, and unsupported field types remain context only, and project import is not a full ROM serializer.

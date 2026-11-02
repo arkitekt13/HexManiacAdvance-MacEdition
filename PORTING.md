@@ -1,6 +1,9 @@
 # Porting plan
 
-The rule for the whole port: **never change behavior in HexManiac.Core to suit the UI**.
+Fork maintenance policy: **do not change HexManiac.Core to work around UI differences**.
+The original port kept Core unchanged; this fork now permits narrowly scoped, regression-tested
+shared correctness fixes (save failures and patch validation), with the same contract retained
+for both UIs and each change recorded in CodexChanges.md.
 If Core needs something from the platform, it goes through an interface (like `IFileSystem`),
 and the Avalonia project implements it. That keeps the 2,500+ unit tests meaningful and lets
 both UIs live in one repo.

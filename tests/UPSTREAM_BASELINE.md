@@ -5,8 +5,8 @@ Host: macOS ARM64, .NET SDK 8.0.300 / runtime 8.0.5, Debug configuration.
 Engine: xUnit 2.4.1; existing assertion bodies and dependency versions retained.
 Scope: `src/HexManiac.Tests` only; `src/HexManiac.Integration` remains unported.
 
-Current follow-up: the save fixture correction resolves six original failures; see
-[Save fixture follow-up](#save-fixture-follow-up) for the updated counts and evidence.
+Current follow-up: the save fixtures and trainer validation fixes resolve 21 original failures;
+see [Trainer validation follow-up](#trainer-validation-follow-up) for current counts and evidence.
 
 ## Observed results
 
@@ -119,5 +119,34 @@ appeared. The runner still correctly returns failure for the remaining 27 cases.
 SaveSafety regression group also passed all 17 assertions, including ROM/metadata failures,
 successful retries, and retention of an unsaved document after close-save failure.
 
-The next largest unresolved cluster is the 15 trainer/table null-reference cases; the three
-metadata/version cases, eight script cases, and one missing-ROM-data case also remain pending.
+At this checkpoint the largest unresolved cluster was the 15 trainer/table null-reference cases;
+the subsequent fix is recorded below.
+
+## Trainer validation follow-up
+
+The root cause was in production code: `Flags.GetMinimumLevelForPokemon` and
+`Flags.GetPokemonDevolutions` enumerated a null evolution table. Trainer validation can run on
+a partial model that has trainer/species data but no recognized evolution table. Both helpers
+now return an empty hint dictionary when that table is absent, which also supports their cache
+and map-template callers without inventing evolution restrictions.
+
+The original trainer/table tests and their fixtures were not changed. Nine new cases exercise:
+
+- Missing evolution data, with unchanged ROM bytes and metadata.
+- Trainer validation with known species but no evolution table.
+- Below/at/above minimum evolution levels with real synthetic evolution data.
+- Inherited minimum-level warnings after a stone evolution.
+- Non-level evolution arguments and multiple evolution slots.
+
+Before the fix, the two new missing-table cases reproduced the exception and the seven positive
+cases already passed (`artifacts/upstream-tests/run.dOyZsU`). After the fix, all nine pass and the
+15 original trainer/table failures disappear (`artifacts/upstream-tests/run.xLzIyD`):
+
+| Discovery entries | Executed cases | Passed | Failed | Skipped | Engine errors |
+| --- | --- | --- | --- | --- | --- |
+| 2,579 | 1,532 | 1,520 | 12 | 1,047 | 0 |
+
+Failure-set comparison confirms no new failures. The remaining failures comprise eight script
+cases, three metadata/version cases, and the missing-ROM-data theory. The runner still correctly
+returns failure for those cases; no optional ROMs were supplied or loaded. Normal evolution
+warnings remain enabled, and the existing valid-table derivation algorithms are unchanged.

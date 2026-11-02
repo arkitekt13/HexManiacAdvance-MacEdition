@@ -322,3 +322,18 @@ Validation: The full Debug in-process upstream run discovered 2,570 cases with 1
 Validation note: The existing SaveSafety group rebuilt successfully and passed all 17 assertions, including metadata failure, retry, Save As, and cancellation of close after a requested save fails.
 
 Scope: Only individual successful-save fixtures were configured; production save behavior and the shared stub's default failure behavior remain unchanged, and the upstream suite still correctly returns failure for the remaining 27 cases.
+
+## 019 — Keep trainer validation working when evolution data is unavailable
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Map/Flags.cs](src/HexManiac.Core/ViewModels/Map/Flags.cs) | 272 | Return empty minimum-level hints when the model has no evolution table instead of enumerating null during trainer validation. |
+| [src/HexManiac.Core/ViewModels/Map/Flags.cs](src/HexManiac.Core/ViewModels/Map/Flags.cs) | 294 | Return empty predecessor hints for the same missing-table condition so cached trainer and map-template consumers remain safe. |
+| [src/HexManiac.Tests/TrainerValidationTests.cs](src/HexManiac.Tests/TrainerValidationTests.cs) | 10 | Add nine cases proving missing-table safety without mutation while retaining valid minimum-level, inherited, non-level, and multiple-slot behavior. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 125 | Record the reproduced application defect, 15 resolved original failures, passing new cases, and remaining upstream counts. |
+
+Validation: Before the fix, two new missing-table cases reproduced the crash while seven positive evolution-data cases passed; afterward all nine passed and exactly the 15 original trainer/table failures disappeared with no new failures or changes to existing test assertions or fixtures.
+
+Validation note: The full Debug in-process upstream run discovered 2,579 cases with 1,520 passed, 12 failed, 1,047 skipped, and zero engine errors; all fourteen Mac regression groups passed with 1,102 assertions.
+
+Scope: This is a shared application fix rather than a fixture adjustment; it omits only hints that cannot be derived without evolution data, retains the existing valid-table algorithms and warnings, and leaves the twelve unrelated upstream failures for separate work.

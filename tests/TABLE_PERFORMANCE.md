@@ -1,8 +1,10 @@
 # Pokémon table presentation investigation — 2026-11-02
 
-Branch: `investigate/pokemon-table-performance`, based on `82245513`.
+Initial investigation: `investigate/pokemon-table-performance`, based on `82245513`.
+Implementation follow-up: `improve/table-navigation-preparation`, based on `756de902`.
 Host: Apple M3 Pro, macOS ARM64, .NET 8.0.5, Release, Avalonia 11.2.3.
-This checkpoint adds a benchmark and evidence; it changes no application code.
+The initial checkpoint added the benchmark without application changes; the follow-up
+below reduces duplicate navigation discovery in TableTool.
 
 ## Method and limits
 
@@ -64,7 +66,7 @@ binding/layout medians were 552.169, 811.148, 809.608, and 810.651 ms. The latte
 by up to about 15% between runs, reinforcing why these are descriptive measurements
 rather than timing gates or a claimed native-interaction improvement.
 
-## Source-confirmed repeated work
+## Source-confirmed repeated work in the baseline
 
 1. `TableTool.TableSections`, `TableList`, and `UnmatchedArrays` enumerate, resolve,
    group, and sort tables repeatedly. TableList reads TableSections twice and then
@@ -114,7 +116,7 @@ is needed. The headless fixture realized 21 of these lightweight presenters; who
 control counts include unrelated and hidden tools, so they are not Pokémon field counts.
 This evidence does not support rebuilding the table UI or blindly adding virtualization.
 
-## Recommended first implementation
+## Initial implementation recommendation
 
 First reduce duplicate table-navigation discovery within a refresh, then avoid publishing
 unchanged navigation lists to bindings. Start with refresh-scoped reuse rather than an
@@ -133,7 +135,7 @@ undo/redo, and sprite-backed choices before broader caching is safe. Full-tab la
 still warrants profiling after source preparation is reduced; this benchmark does not
 yet identify a single layout control as the dominant cost.
 
-## Correctness and scope
+## Initial checkpoint correctness and scope
 
 The benchmark checks selection/labels, actual bound HP values, immutable bytes/metadata
 after read-only work, no navigation-created undo history, and real name editing followed
@@ -149,7 +151,93 @@ assertions were added. Final confirmation reproduced the control-free allocation
 exactly again. Existing Mac/upstream regression suites were not rerun for this tools/docs
 checkpoint; no application or existing test code changed.
 
-No application/Core files, researched game addresses, compiler, repointing, pointer
-definitions, free-space/flag/variable allocation, history implementation, or existing
-tests are modified. The standalone benchmark is not a new group in verify-mac and does
+At the initial investigation checkpoint, no application/Core files, researched game
+addresses, compiler, repointing, pointer definitions, free-space/flag/variable allocation,
+history implementation, or existing tests were modified. The standalone benchmark is not a new group in verify-mac and does
 not replace the upstream suites or testing a small ROM hack in the actual editor.
+
+## Implemented follow-up: refresh-scoped navigation discovery
+
+TableTool now discovers eligible table names and sorted section names once during a
+synchronous DataForCurrentRunChangedCore call, reusing that snapshot for internal reads
+and synchronous binding callbacks. A Lazy avoids discovery when nobody reads the lists;
+a disposable scope restores the prior value when the call returns, throws, or nests.
+Getters called outside that scope always rediscover from the current model. TableList
+also uses one discovery result for its section validation and names, avoiding three
+separate scans even outside a refresh.
+
+Sorting, section grouping, StartsWith matching, matched-length table filtering, selected
+indices, and notification order are retained. Every eligible lookup still uses the
+existing GetTable/no-data-change token protection; no shared global token, persistent
+cache, model-lookup rewrite, or new invalidation contract is introduced. Main/field
+dropdown choice preparation, compiler, relocation, pointer updates, and undo remain
+unchanged. Suppressing unchanged-list notifications is deferred to a separate change.
+
+Seven new upstream regression cases exercise one discovery per refresh despite repeated
+binding reads, fresh discovery outside the refresh, table creation/removal, table renames
+with undo/redo, matched-length format changes with undo/redo, replacement metadata loading,
+and forced table expansion/relocation with actual pointer updates and exact undo bytes.
+Existing sorting tests and the broader upstream suite remain in place.
+
+An exploratory optimized benchmark ran while a Debug test build was active. Its allocation
+and correctness results were useful, but its timings are excluded from the final comparison.
+The final measurements use the unchanged benchmark workloads, after all builds and test
+runs finish; only the report's scope description is updated to apply to both revisions.
+
+### Before/after measurements
+
+Comparison uses the original `confirmation.json` (all 1,304 checks, before application
+changes) and final `optimized.json` (the same 1,304 checks), with seven samples per phase.
+Fixture SHA-256 hashes, whole-tab control counts, lightweight presenter counts, and
+selector sizes match in all four fixtures. No build/test processes were started during
+the final optimized measurement. The exploratory report is retained separately as
+`optimized-exploratory.json` and is not used in this table.
+
+| Species | Extra tables | Navigation preparation, ms before → after | Preparation allocations, MB before → after | Navigation + headless binding/layout, ms before → after | Binding/layout allocations, MB before → after |
+| --- | --- | --- | --- | --- | --- |
+| 412 | 0 | 23.930 → 22.359 | 28.487 → 25.944 | 558.272 → 540.957 | 274.601 → 268.685 |
+| 412 | 250 | 57.336 → 29.889 | 208.574 → 80.245 | 923.608 → 674.841 | 636.998 → 327.007 |
+| 1,024 | 250 | 61.636 → 31.303 | 211.844 → 83.515 | 809.728 → 708.299 | 637.292 → 330.279 |
+| 2,048 | 250 | 60.448 → 33.513 | 217.580 → 89.252 | 814.717 → 634.544 | 642.329 → 334.550 |
+
+All numbers are per 100 switches; MB is decimal cumulative managed-thread allocation,
+not retained RAM. Binding/layout timings include navigation and explicit dispatcher/layout
+work. The 412-species/250-extra-table fixture used 47.9% less preparation time, 61.5%
+less preparation allocation, 26.9% less headless binding/layout time, and 48.7% less
+allocation in that bound phase. The minimal fixture's 3.1% bound timing difference is
+small compared with previously observed run-to-run variation; no noticeable native-UI
+speed improvement is claimed for that case. Broader fixtures show the clearest benefit.
+
+Untimed counts per 100 control-free switches fell from 400 to 100 anchor-list reads at
+every size. With 250 extra tables, run lookups fell from 106,211 to 29,711 and anchor-name
+lookups from 130,299 to 54,099. Member-collection changes and selector-choice replacements
+remain zero. Section/table notification counts remain 100 each, as intended.
+
+Outside a refresh, isolated paired getter reads now allocate 91.634 MB rather than
+174.811 MB per 100 pairs with extra tables, because TableList discovers once rather
+than three times. Main-selector and held-item candidate allocation measurements are
+unchanged (2.536/11.542 MB for the 412/2,048-row main-selector cases, and 4.086 MB for
+100 held-item constructors), confirming those later opportunities were not implemented.
+
+Forced full-tab drawing remains a separate diagnostic: for 412 species with extra tables,
+navigation plus forced draws changed from 1,149.602 to 921.670 ms / 100 switches, while
+100 static draws remained approximately 108 ms. These are not native frame times.
+Compiler, live script repointing, and native responsiveness are outside these measurements.
+
+### Follow-up regression verification
+
+- First upstream project: 2,664 cases, 1,616 passes, zero failures/engine errors, and
+  the same 1,048 optional-ROM skips (`artifacts/upstream-tests/run.bMXgbP`).
+- Second upstream project: 67 cases, 26 passes, zero failures/engine errors, and the
+  same 41 optional-ROM skips (`artifacts/upstream-tests/run.f6G5X6`).
+- Mac regression repeat: all 15 groups, 1,205 assertions, no skipped groups.
+- Final Release benchmark: all four fixtures, 1,304 checks, including bound visible HP
+  and selection, exact read-only bytes/metadata, and rename undo/redo restoration.
+- The initial Mac run stopped on the previously observed intermittent FocusAnimation
+  offscreen-clock movement assertion; the unchanged check then passed its 13 assertions
+  in isolation and passed in the complete repeat. This checkpoint does not fix that
+  test-clock instability or weaken the assertion.
+
+The first full compilation reported existing Core warnings and the existing NamedByteTests
+xUnit analyzer warning; the final incremental Release benchmark build had no warnings
+or errors. No optional commercial ROM fixture was available for this follow-up.

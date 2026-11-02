@@ -7,8 +7,11 @@ Scope: first-project results only; the second project now has its own portable h
 [separate integration baseline](INTEGRATION_BASELINE.md). Historical checkpoints below retain their original limitations.
 
 Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
-is an explicit skip. The latest first-project run records **2,657 cases: 1,609 passed, 0 failed,
+is an explicit skip. The latest first-project run records **2,664 cases: 1,616 passed, 0 failed,
 1,048 skipped, 0 engine errors**; see the follow-up sections below for evidence and coverage limits.
+The seven additional table-navigation cases check refresh-scoped discovery, live getters,
+creation/removal, renaming, matched-length format changes, metadata reload, and forced
+relocation with pointer/undo/redo preservation; see [TABLE_PERFORMANCE.md](TABLE_PERFORMANCE.md).
 
 ## Observed results
 

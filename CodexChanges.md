@@ -571,3 +571,19 @@ Validation: The final Release build passed with zero warnings/errors and all fou
 Measurement note: Isolated section/table-list discovery allocated 174.81 MB per 100 paired reads with those extra tables; source inspection and a 1,360-byte lookup-token allocation probe identify repeated read-only discovery as the first optimization candidate, without claiming any editor speedup yet.
 
 Scope: This checkpoint changes tools and documentation only; application code, game definitions/addresses, compiler, relocation/repointing, unused flag/variable discovery, undo, and existing tests are unchanged, while real-ROM workflows and native Mac input/compositor performance remain unmeasured.
+
+## 036 — Reuse table-navigation discovery within each refresh
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/TableTool.cs](src/HexManiac.Core/ViewModels/Tools/TableTool.cs) | 25 | Share lazily discovered names/sections during one synchronous refresh and use one discovery per external TableList read while preserving live getters, sorting, filtering, and notifications. |
+| [src/HexManiac.Tests/TableNavigationTests.cs](src/HexManiac.Tests/TableNavigationTests.cs) | 10 | Add seven regression cases for discovery reuse, live getters, creation/removal, renames, matched-length formats, reload, and forced relocation with real pointer and undo/redo preservation. |
+| [tools/PokemonTableBenchmark/Program.cs](tools/PokemonTableBenchmark/Program.cs) | 206 | Clarify the report scope so the unchanged benchmark workloads describe both baseline and optimized editor revisions accurately. |
+| [tests/TABLE_PERFORMANCE.md](tests/TABLE_PERFORMANCE.md) | 159 | Record the refresh-scoped implementation, before/after measurements, unchanged outputs, regression results, and known offscreen animation-test instability. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts to include the seven new table-navigation regression cases. |
+
+Validation: The final uncontended Release benchmark passed all 1,304 checks with identical fixture hashes/control counts; for 412 species plus 250 extra tables, 100-switch preparation changed from 57.336 to 29.889 ms and 208.574 to 80.245 MB allocated, while headless binding/layout changed from 923.608 to 674.841 ms and 636.998 to 327.007 MB allocated.
+
+Validation note: The first upstream project passed 1,616 cases with 1,048 optional-ROM skips and the second passed 26 with 41 skips, both with zero failures/engine errors; all fifteen Mac groups passed 1,205 assertions on the complete repeat after the unchanged intermittent FocusAnimation clock check passed in isolation.
+
+Scope: Only table-navigation preparation changes; no persistent ROM cache, lookup-token behavior, dropdown-choice cache, researched game addresses, compiler, relocation/repointing, pointer definitions, free-space/flag/variable allocation, or undo implementation changes, and native Mac/real-ROM responsiveness remains unmeasured.

@@ -22,17 +22,16 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
 
       public string Name => "Table";
 
-      public IReadOnlyList<string> TableSections {
-         get {
-            var sections = UnmatchedArrays.Select(array => {
-               var parts = model.GetAnchorFromAddress(-1, array.Start).Split('.');
-               if (parts.Length > 2) return string.Join(".", parts.Take(2));
-               return parts[0];
-            }).Distinct().ToList();
-            sections.Sort();
-            return sections;
-         }
+      // Share discovery only within one synchronous refresh (including binding callbacks).
+      // Outside that scope getters stay live, so edits/repointing/undo need no cache invalidation.
+      private Lazy<TableNavigationSnapshot> navigationForRefresh;
+      private sealed class TableNavigationSnapshot {
+         public IReadOnlyList<string> Names { get; init; }
+         public IReadOnlyList<string> Sections { get; init; }
       }
+      private TableNavigationSnapshot TableNavigation => navigationForRefresh?.Value ?? DiscoverTableNavigation();
+
+      public IReadOnlyList<string> TableSections => TableNavigation.Sections;
 
       private int selectedTableSection;
       public int SelectedTableSection {
@@ -45,10 +44,11 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
 
       public IReadOnlyList<string> TableList {
          get {
-            if (selectedTableSection == -1 || selectedTableSection >= TableSections.Count) return new string[0];
-            var selectedSection = TableSections[selectedTableSection];
-            var tableList = UnmatchedArrays
-               .Select(array => model.GetAnchorFromAddress(-1, array.Start))
+            if (selectedTableSection == -1) return new string[0];
+            var navigation = TableNavigation;
+            if (selectedTableSection >= navigation.Sections.Count) return new string[0];
+            var selectedSection = navigation.Sections[selectedTableSection];
+            var tableList = navigation.Names
                .Where(name => name.StartsWith(selectedSection + "."))
                .Select(name => name.Substring(selectedSection.Length + 1))
                .ToList();
@@ -81,17 +81,21 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          Address = start;
       }
 
-      private IReadOnlyList<ITableRun> UnmatchedArrays {
-         get {
-            var list = new List<ITableRun>();
-            foreach (var anchor in model.Anchors) {
-               var table = model.GetTable(anchor);
-               if (table is null) continue; // skip anything that's not a table
-               if (table is ArrayRun array && !string.IsNullOrEmpty(array.LengthFromAnchor)) continue; // skip 'matched-length' arrays
-               list.Add(table);
-            }
-            return list;
+      private TableNavigationSnapshot DiscoverTableNavigation() {
+         var names = new List<string>();
+         foreach (var anchor in model.Anchors) {
+            var table = model.GetTable(anchor);
+            if (table is null) continue; // skip anything that's not a table
+            if (table is ArrayRun array && !string.IsNullOrEmpty(array.LengthFromAnchor)) continue; // skip 'matched-length' arrays
+            names.Add(model.GetAnchorFromAddress(-1, table.Start));
          }
+         var sections = names.Select(name => {
+            var parts = name.Split('.');
+            if (parts.Length > 2) return string.Join(".", parts.Take(2));
+            return parts[0];
+         }).Distinct().ToList();
+         sections.Sort();
+         return new TableNavigationSnapshot { Names = names, Sections = sections };
       }
 
       private string currentElementName;
@@ -349,6 +353,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       }
 
       private void DataForCurrentRunChangedCore() {
+         // Lazy discovery preserves the zero-scan path when no navigation list is read.
+         // Scope restores the previous value on return, exceptions, and nested refreshes.
+         using var navigationScope = Scope(ref navigationForRefresh,
+            new Lazy<TableNavigationSnapshot>(DiscoverTableNavigation), previous => navigationForRefresh = previous);
          foreach (var group in Groups) {
             foreach (var member in group.Members) ClearHandlers(member);
          }

@@ -203,7 +203,7 @@ File.WriteAllText(output, JsonSerializer.Serialize(new {
    runtime = RuntimeInformation.FrameworkDescription, platform = RuntimeInformation.OSDescription,
    architecture = RuntimeInformation.ProcessArchitecture.ToString(), configuration = "Release", samplesPerPhase = 7,
    emptyLookupTokenBytes,
-   scope = "Synthetic names and real base-stats schema; no ROM, portraits, evolutions, native input or macOS compositor; component reuse is experimental and editor code is unchanged",
+   scope = "Synthetic names and real base-stats schema; no ROM, portraits, evolutions, native input or macOS compositor; the prebuilt-choice experiment does not modify editor behavior",
    correctnessChecks = checks, results,
 }, new JsonSerializerOptions { WriteIndented = true }));
 Console.WriteLine($"BENCHMARK_CHECKS_PASSED:{checks}");

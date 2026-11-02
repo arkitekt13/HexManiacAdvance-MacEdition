@@ -40,3 +40,19 @@ ROM loading as before, so a missing script still fails rather than being hidden 
 Debug run `artifacts/upstream-tests/run.EHaCxt`: **46 cases: 5 passed, 0 failed, 41 skipped,
 0 engine errors**. The former missing-script failure now reaches the absent-ROM guard.
 This does not prove that importing the script or migrating its table works on a real ROM.
+
+## Dialogue-pointer test correction
+
+Both FireRed/Emerald overflow scans now share a reader using the offsets their original
+switch already calculated: loadpointer (0x0F) stores a bank byte before its pointer (+2),
+whereas preparemsg (0x67) stores its pointer immediately after the opcode (+1).
+These layouts match existing `scriptReference.txt` lines 127 and 292; definitions are unchanged.
+Previously both scans ignored the calculated offset and always read +2, so preparemsg
+could produce an invalid address and escape the existing range guard without checking text.
+
+Seven ROM-free cases cover both opcodes at two locations, null pointers, unsupported commands,
+and unchanged source bytes. Before correction both non-null preparemsg cases failed while
+five other cases passed; afterward all seven passed. Debug run `artifacts/upstream-tests/run.LDHMpz`
+records **53 cases: 12 passed, 0 failed, 41 skipped, 0 engine errors**. The original range
+and buffer exclusions and overflow assertions remain intact. Actual ROM dialogue coverage
+still requires fixtures; no game definitions or application parsing code changed.

@@ -449,3 +449,15 @@ Scope: Original integration assertions and package versions are retained at this
 Validation: The original missing-script failure was reproduced before the reference fix; afterward the Debug integration run reported 46 cases with five passed, zero failed, 41 absent-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.EHaCxt`).
 
 Scope: The existing table assertion and checked-in script contents are unchanged; the former failure now reaches its existing missing-ROM guard, so no successful ROM import or migration is claimed.
+
+## 028 — Read the calculated dialogue pointer in integration overflow tests
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Integration/ScriptTests.cs](src/HexManiac.Integration/ScriptTests.cs) | 13 | Share the existing opcode-offset calculation between both dialogue scans and use its result when reading the text pointer. |
+| [src/HexManiac.Integration/DialoguePointerTests.cs](src/HexManiac.Integration/DialoguePointerTests.cs) | 7 | Add seven ROM-free cases covering both pointer layouts, null pointers, unsupported commands, and source-byte preservation. |
+| [tests/INTEGRATION_BASELINE.md](tests/INTEGRATION_BASELINE.md) | 44 | Record the reproduced preparemsg misread, existing command-definition evidence, and passing synthetic coverage. |
+
+Validation: Both non-null preparemsg cases failed before the offset fix and all seven new cases passed afterward; the Debug integration run recorded 53 cases with twelve passed, zero failed, 41 absent-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.LDHMpz`).
+
+Scope: Only test code changed; opcode definitions, researched ROM addresses, parser behavior, and the original scans' range/buffer exclusions and overflow assertions are unchanged.

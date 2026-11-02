@@ -1,4 +1,4 @@
-﻿using HavenSoft.HexManiac.Core;
+using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.ViewModels.Map;
 using HavenSoft.HexManiac.Core.ViewModels.Tools;
@@ -10,6 +10,16 @@ using Xunit;
 
 namespace HavenSoft.HexManiac.Integration {
    public class ScriptTests : IntegrationTests {
+      // Both overflow scans use this reader; offsets come from the existing command definitions.
+      internal static int ReadDialogueTextStart(IDataModel model, int commandAddress) {
+         var textOffset = model[commandAddress] switch {
+            0x0F => commandAddress + 2, // loadpointer: bank byte precedes the pointer
+            0x67 => commandAddress + 1, // preparemsg: pointer immediately follows opcode
+            _ => throw new NotImplementedException(),
+         };
+         return model.ReadPointer(textOffset);
+      }
+
       [SkippableFact]
       public void AIScript_NoChangeEdit_NoOrphans() {
          var firered = LoadFireRed();
@@ -47,13 +57,7 @@ namespace HavenSoft.HexManiac.Integration {
          var model = emerald.Model;
          var scripts = Flags.GetAllTopLevelScripts(model);
          Assert.All(Flags.GetAllScriptSpots(model, emerald.Tools.CodeTool.ScriptParser, scripts, 0x0F, 0x67), spot => {
-            var textOffset = model[spot.Address] switch {
-               0x0F => spot.Address + 2, // loadpointer
-               0x67 => spot.Address + 1, // preparemsg
-               _ => throw new NotImplementedException(),
-            };
-            // loadpointer
-            var textStart = model.ReadPointer(spot.Address + 2);
+            var textStart = ReadDialogueTextStart(model, spot.Address);
             if (!textStart.InRange(0, model.Count)) return;
             var text = model.TextConverter.Convert(model, textStart, 1000);
             var exclude = new[] { "[rival]", "[player]", "[buffer" };
@@ -69,13 +73,7 @@ namespace HavenSoft.HexManiac.Integration {
          var model = firered.Model;
          var scripts = Flags.GetAllTopLevelScripts(model);
          Assert.All(Flags.GetAllScriptSpots(model, firered.Tools.CodeTool.ScriptParser, scripts, 0x0F, 0x67), spot => {
-            var textOffset = model[spot.Address] switch {
-               0x0F => spot.Address + 2, // loadpointer
-               0x67 => spot.Address + 1, // preparemsg
-               _ => throw new NotImplementedException(),
-            };
-            // loadpointer
-            var textStart = model.ReadPointer(spot.Address + 2);
+            var textStart = ReadDialogueTextStart(model, spot.Address);
             if (!textStart.InRange(0, model.Count)) return;
             var text = model.TextConverter.Convert(model, textStart, 1000);
             var exclude = new[] { "[rival]", "[player]", "[buffer" };

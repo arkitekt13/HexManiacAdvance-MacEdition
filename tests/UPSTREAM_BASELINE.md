@@ -7,7 +7,7 @@ Scope: first-project results only; the second project now has its own portable h
 [separate integration baseline](INTEGRATION_BASELINE.md). Historical checkpoints below retain their original limitations.
 
 Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
-is an explicit skip. The latest first-project run records **2,632 cases: 1,584 passed, 0 failed,
+is an explicit skip. The latest first-project run records **2,657 cases: 1,609 passed, 0 failed,
 1,048 skipped, 0 engine errors**; see the follow-up sections below for evidence and coverage limits.
 
 ## Observed results
@@ -263,3 +263,12 @@ commented-out expansion methods are outside discovery: TM and item tests explici
 unfinished features; move expansion is enabled in the editor despite its unexplained disabled
 test. These require a separate feature review with suitable fixtures, not automatic re-enabling.
 The second integration project remains unmodified and unported.
+
+## Low-risk highlighting follow-up
+
+Twenty-five presentation-focused checks were added on `improve/script-editor-responsiveness`.
+The latest first-project Debug run reports **2,657 cases: 1,609 passed, 0 failed, 1,048 skipped,
+0 engine errors** (`artifacts/upstream-tests/run.51QCaK`). See
+[SCRIPT_PERFORMANCE.md](SCRIPT_PERFORMANCE.md) for exact-output comparisons, timing and
+allocation measurements, the caught substring regression, and untouched ROM-editing scope.
+Earlier results above are historical checkpoints, not current test counts.

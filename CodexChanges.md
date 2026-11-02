@@ -518,3 +518,18 @@ Validation: The 2,000-line synthetic Release median fell from 197.034 ms to 94.9
 Validation note: The first upstream project passed 1,608 cases with 1,048 optional-ROM skips; the second passed 26 with 41 skips, both with zero failures or engine errors, and all fourteen Mac regression groups passed 1,112 assertions.
 
 Scope: Compiler, relocation/repointing, empty-space allocation, unused flag/variable discovery, ROM caches, and game definitions are unchanged; end-to-end latency and real-ROM behavior remain unmeasured here.
+
+## 033 — Remove temporary allocation from highlight whitespace passes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/TextEditorViewModel.cs](src/HexManiac.Core/ViewModels/TextEditorViewModel.cs) | 304 | Use direct CR/LF/tab comparisons in the two highlighting whitespace loops to avoid per-character params-array allocations without changing their output. |
+| [src/HexManiac.Tests/SyntaxHighlightingTests.cs](src/HexManiac.Tests/SyntaxHighlightingTests.cs) | 131 | Guard repeated whitespace passes with a warmed allocation budget and exact source/output preservation checks. |
+| [tests/SCRIPT_PERFORMANCE.md](tests/SCRIPT_PERFORMANCE.md) | 56 | Record the reproduced allocation overhead, final exact-output benchmark, full regression results, and explicit compiler/model scope exclusions. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 9 | Update the current first-project counts and link to the highlighting performance evidence while retaining historical checkpoints. |
+
+Validation: The new whitespace regression allocated 23,040,040 bytes before the fix and passed its 4,096-byte budget afterward; all six layer hashes remain identical at every benchmark size, and the combined 2,000-line Release median changed from 197.034 to 89.860 ms with allocations reduced from 21,558,024 to 3,332,424 bytes per edit.
+
+Validation note: Final checks passed 1,609 first-project cases and 26 second-project cases with zero failures/engine errors, while retaining 1,048 and 41 absent-ROM skips respectively; all fourteen Mac groups passed 1,112 assertions.
+
+Scope: Only highlighting character comparisons change; compiler, live script relocation, pointer updates, free-space allocation, unused flags/variables, undo/model behavior, game definitions, and compiler scheduling are untouched, and real-ROM/end-to-end stutter remains unmeasured.

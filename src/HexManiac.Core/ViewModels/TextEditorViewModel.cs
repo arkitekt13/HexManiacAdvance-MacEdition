@@ -303,14 +303,15 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
       public void Clear(int index, int length) {
          for (int i = 0; i < length; i++) {
-            if (content[index + i].IsAny('\n', '\r', '\t')) continue;
+            // Avoid allocating a params array for each character in every color layer.
+            if (content[index + i] is '\n' or '\r' or '\t') continue;
             content[index + i] = ' ';
          }
       }
 
       public void CopyWhitespace(MutableString other) {
          for (int i = 0; i < content.Length; i++) {
-            if (other.content[i].IsAny('\n', '\r', '\t')) {
+            if (other.content[i] is '\n' or '\r' or '\t') {
                content[i] = other.content[i];
             }
          }

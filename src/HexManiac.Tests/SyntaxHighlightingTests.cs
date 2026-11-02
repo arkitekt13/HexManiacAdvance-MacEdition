@@ -126,5 +126,25 @@ namespace HavenSoft.HexManiac.Tests {
          Assert.Equal(content.Length, vm.AccentContent.Length);
          Assert.Equal(content.Length, vm.ConstantContent.Length);
       }
+
+      [Fact]
+      public void RepeatedWhitespacePassesDoNotAllocatePerCharacterArrays() {
+         var content = string.Concat(Enumerable.Repeat("a \t\r\n.", 1000));
+         var source = new MutableString(content);
+         var target = new MutableString(content.Length);
+         for (int i = 0; i < 10; i++) {
+            target.CopyWhitespace(source);
+            target.Clear(0, target.Length);
+         }
+         var before = GC.GetAllocatedBytesForCurrentThread();
+         for (int i = 0; i < 20; i++) {
+            target.CopyWhitespace(source);
+            target.Clear(0, target.Length);
+         }
+         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+         Assert.InRange(allocated, 0L, 4096L);
+         Assert.Equal(content, source.ToString());
+         Assert.Equal(string.Concat(Enumerable.Repeat("  \t\r\n ", 1000)), target.ToString());
+      }
    }
 }

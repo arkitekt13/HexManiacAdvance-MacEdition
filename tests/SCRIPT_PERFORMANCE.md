@@ -52,3 +52,47 @@ Validation: first upstream project **2,656 cases: 1,608 passed, 0 failed, 1,048 
 Mac groups passed **1,112 assertions** (`/tmp/hma-script-optimizations-final-mac.log`).
 Only presentation highlighting changes in Core; compilation, repointing, allocation, flags,
 variables, model caches, and ROM/reference definitions remain unchanged.
+
+## Per-character whitespace allocation checkpoint
+
+The two whitespace-preservation loops in MutableString.Clear and CopyWhitespace now use
+direct comparisons for the same CR, LF, and tab characters. Their generic params-array
+membership calls allocated temporary objects for every character on repeated layer passes.
+The tokenizer, numeric/comment parsing, layer construction, and compiler are unchanged.
+
+A new allocation regression warmed these helpers and then executed twenty paired passes on
+a 6,000-character buffer. Before the change it allocated **23,040,040 bytes**, failing the
+4,096-byte budget (`artifacts/upstream-tests/run.SiPQkt`). Afterward it passed that budget,
+preserved the source, and produced the exact expected spaces, tabs, and line endings.
+This is an allocation budget, not a hardware-dependent elapsed-time assertion.
+
+Final combined Release highlighting results compared with the original baseline:
+
+| Lines | Original ms | Final ms | Original allocated bytes/edit | Final allocated bytes/edit |
+| --- | --- | --- | --- | --- |
+| 100 | 7.975 | 1.349 | 1,610,888 | 169,448 |
+| 500 | 34.601 | 10.473 | 5,631,672 | 834,072 |
+| 2000 | 197.034 | 89.860 | 21,558,024 | 3,332,424 |
+
+All six layer hashes match the original baseline at all three sizes. The 2,000-line case
+uses about 85% less temporary allocation and about 54% less highlighting time in this run.
+Raw medians, all seven timing samples, runtime identity, and output hashes are in
+`artifacts/script-performance/highlight-final.json`; earlier checkpoint reports are retained.
+This remains a synthetic highlighting measurement, not proof of improved end-to-end Mac or
+Windows editing latency. Full-document highlighting and other measured work remain possible
+future targets; no changes to their algorithms are included here.
+
+Final validation:
+
+- First upstream project: **2,657 cases; 1,609 passed, 0 failed, 1,048 skipped**, zero engine
+  errors (`artifacts/upstream-tests/run.51QCaK`), including 25 new highlighting checks.
+- Second upstream project: **67 cases; 26 passed, 0 failed, 41 skipped**, zero engine errors
+  (`artifacts/upstream-tests/run.Mu7p1J`).
+- Mac regression suite: **14 groups, 1,112 assertions**, no groups skipped
+  (`/tmp/hma-script-performance-final-mac.log`).
+- Diff inspection against `26244704` confirms no changes to Core Models, CodeTool, CodeBody,
+  Flags, EventTemplate, or ChangeHistory: relocation, repointing, free-space search, unused
+  flags/variables, undo, and compiler behavior are outside this work's code changes.
+
+ROM-dependent tests remain skipped without fixtures. Native interaction with a long script
+has not been profiled, and the user's observed Windows stutter is not claimed resolved.

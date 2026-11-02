@@ -48,7 +48,8 @@ skip policies. Missing fixture skips are not compatibility evidence. Historical 
 load from the copied `toml_versions` directory instead of a fixed parent-directory traversal.
 
 See [the baseline](../../tests/UPSTREAM_BASELINE.md) for counts and triage. The separate
-`HexManiac.Integration` project remains unported, and no performance optimization is included.
+`HexManiac.Integration` project now has a portable host selected with `--integration`; see its
+[baseline](../../tests/INTEGRATION_BASELINE.md). No performance optimization is included.
 
 AutoSearch and Upgrade now include the expected path in missing-ROM skip messages.
 AutoSearch retains exact filenames such as `sampleFiles/Pokemon FireRed.gba` and

@@ -419,3 +419,21 @@ Validation: The cold-cache copy case reproduced KeyNotFoundException and both Au
 Validation note: The final Debug in-process first-project run recorded 2,632 cases with 1,584 passed, zero failed, 1,048 optional-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.sugxmj`); git diff whitespace checks passed.
 
 Scope: Only tests and documentation changed; exceptions while loading supplied fixtures are not converted into skips, game definitions and application code are unchanged, and the second project remains deferred.
+
+## 026 — Run the second upstream test project on Mac
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Integration/HexManiac.Integration.csproj](src/HexManiac.Integration/HexManiac.Integration.csproj) | 4 | Target the integration host at .NET 8 with relative references and shared initialization while replacing Windows build commands with transitive portable resources. |
+| [src/HexManiac.Integration/HarnessTests.cs](src/HexManiac.Integration/HarnessTests.cs) | 7 | Check four required host resources without commercial ROMs. |
+| [tools/UpstreamTestRunner/UpstreamTestRunner.csproj](tools/UpstreamTestRunner/UpstreamTestRunner.csproj) | 10 | Build and copy the second test assembly into the existing in-process host. |
+| [tools/UpstreamTestRunner/Program.cs](tools/UpstreamTestRunner/Program.cs) | 5 | Select either the default first assembly or the explicitly requested integration assembly for xUnit discovery and execution. |
+| [scripts/verify-upstream.sh](scripts/verify-upstream.sh) | 8 | Add explicit integration-suite selection and bounded single-node restore while retaining result validation and default first-project behavior. |
+| [src/HexManiac.Integration/README.md](src/HexManiac.Integration/README.md) | 1 | Document integration commands, resources, fixture requirements, and coverage limits. |
+| [tests/INTEGRATION_BASELINE.md](tests/INTEGRATION_BASELINE.md) | 1 | Record the original 41-case baseline, added resource checks, and the exposed stale script reference. |
+| [tests/README.md](tests/README.md) | 14 | Point to the newly runnable second project's separate baseline. |
+| [src/HexManiac.Tests/README.md](src/HexManiac.Tests/README.md) | 53 | Replace the obsolete unported-project note with the new integration selector and baseline. |
+
+Validation: Portable Debug builds succeeded; the original 41 cases reported one stale-script failure and 40 absent-ROM skips, then four resource checks passed for a 45-case checkpoint with one failure, 40 skips, and zero engine errors (`artifacts/upstream-tests/run.qmzYAL`).
+
+Scope: Original integration assertions and package versions are retained at this checkpoint; no application code or researched ROM definitions changed, and the failing baseline remains visible for the next isolated fix.

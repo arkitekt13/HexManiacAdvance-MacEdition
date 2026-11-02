@@ -2,11 +2,13 @@ using System.Xml.Linq;
 using Xunit;
 
 // Use xUnit's original discovery/execution engine in one process when VSTest's socket is unavailable.
-if (args.Length != 1) { Console.Error.WriteLine("Expected a result directory."); return 2; }
+if (args.Length < 1 || args.Length > 2 || (args.Length == 2 && args[1] != "HexManiac.Integration")) {
+   Console.Error.WriteLine("Expected a result directory and optional HexManiac.Integration selector."); return 2;
+}
 var results = Path.GetFullPath(args[0]);
 Directory.CreateDirectory(results);
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
-var assemblyPath = Path.Combine(AppContext.BaseDirectory, "HexManiac.Tests.dll");
+var assemblyPath = Path.Combine(AppContext.BaseDirectory, (args.Length == 2 ? args[1] : "HexManiac.Tests") + ".dll");
 using var controller = new XunitFrontController(AppDomainSupport.Denied, assemblyPath, shadowCopy:false);
 using var discovery = new TestDiscoverySink();
 controller.Find(false, discovery, TestFrameworkOptions.ForDiscovery());

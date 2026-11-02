@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsTestProject>true</IsTestProject>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>false</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -23,32 +24,14 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
-    <ProjectReference Include="$(SolutionDir)src\HexManiac.Core\HexManiac.Core.csproj" />
-    <ProjectReference Include="..\HexManiac.Tests\HexManiac.Tests.csproj" />
+    <ProjectReference Include="../HexManiac.Core/HexManiac.Core.csproj" />
+    <ProjectReference Include="../HexManiac.Tests/HexManiac.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="$(SolutionDir)src\SharedAssemblyInfo.cs" />
+    <Compile Include="../SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
+    <Compile Include="../HexManiac.Tests/TestEnvironment.cs" Link="TestEnvironment.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="artifacts\HexManiac.Tests\obj\" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <PostBuildEvent>
-      mkdir "$(TargetDir)resources"
-      mkdir "$(TargetDir)resources\Scripts"
-      copy "$(TargetDir)Models\Code\*.txt" "$(TargetDir)resources"
-      del "$(TargetDir)Models\Code\*.txt"
-      copy "$(TargetDir)Models\Code\*.toml" "$(TargetDir)resources"
-      del "$(TargetDir)Models\Code\*.toml"
-      copy "$(TargetDir)Models\Code\*.hma" "$(TargetDir)resources"
-      del "$(TargetDir)Models\Code\*.hma"
-      copy "$(TargetDir)Models\Code\*.py" "$(TargetDir)resources"
-      del "$(TargetDir)Models\Code\*.py"
-      xcopy "$(SolutionDir)src\HexManiac.WPF\Scripts" "$(TargetDir)resources/Scripts" /i /c /k /e /r /y
-    </PostBuildEvent>
-  </PropertyGroup>
-
+  <!-- Reference data and scripts flow from the portable HexManiac.Tests project. -->
 </Project>

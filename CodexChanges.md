@@ -461,3 +461,13 @@ Scope: The existing table assertion and checked-in script contents are unchanged
 Validation: Both non-null preparemsg cases failed before the offset fix and all seven new cases passed afterward; the Debug integration run recorded 53 cases with twelve passed, zero failed, 41 absent-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.LDHMpz`).
 
 Scope: Only test code changed; opcode definitions, researched ROM addresses, parser behavior, and the original scans' range/buffer exclusions and overflow assertions are unchanged.
+
+## 029 — Preserve default suite selection under macOS Bash
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [scripts/verify-upstream.sh](scripts/verify-upstream.sh) | 34 | Keep the required result-directory argument in the runner array so Bash nounset mode handles default suite selection without an empty-array error. |
+
+Validation: Running the default first-project selector exposed an unbound-array error before test execution; afterward the complete first-project Debug run recorded 2,632 cases with 1,584 passed, zero failed, 1,048 skipped, and zero engine errors (`artifacts/upstream-tests/run.xBVE8W`).
+
+Scope: This corrects the newly introduced shell invocation; test selection defaults, assertions, result validation, application code, and ROM definitions are unchanged.

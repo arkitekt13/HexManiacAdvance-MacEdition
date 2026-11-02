@@ -31,7 +31,7 @@ mkdir -p artifacts/upstream-tests
 results="$(mktemp -d "$ROOT/artifacts/upstream-tests/run.XXXXXX")"
 printf 'Upstream results: %s\n' "$results"
 project="$ROOT/src/$suite/$suite.csproj"
-runner_args=()
+runner_args=("$results")
 if [[ "$suite" == HexManiac.Integration ]]; then runner_args+=("$suite"); fi
 if [[ "$mode" == in-process ]]; then project="$ROOT/tools/UpstreamTestRunner/UpstreamTestRunner.csproj"; fi
 if $restore; then
@@ -41,7 +41,7 @@ dotnet build "$project" --no-restore --nologo --disable-build-servers -p:UseShar
 # The in-process option uses the same xUnit engine without VSTest's local socket connection.
 if [[ "$mode" == in-process ]]; then
   set +e
-  python3 "$ROOT/scripts/run-upstream-command.py" 360 dotnet "$ROOT/tools/UpstreamTestRunner/bin/$configuration/net8.0/UpstreamTestRunner.dll" "$results" "${runner_args[@]}" > "$results/execution.log" 2>&1
+  python3 "$ROOT/scripts/run-upstream-command.py" 360 dotnet "$ROOT/tools/UpstreamTestRunner/bin/$configuration/net8.0/UpstreamTestRunner.dll" "${runner_args[@]}" > "$results/execution.log" 2>&1
   test_exit=$?
   python3 "$ROOT/scripts/summarize-upstream.py" --format xunit "$results/discovery.log" "$results/results.xunit.xml" "$results/summary.json"
   summary_exit=$?

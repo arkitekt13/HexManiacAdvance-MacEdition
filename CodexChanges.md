@@ -437,3 +437,15 @@ Scope: Only tests and documentation changed; exceptions while loading supplied f
 Validation: Portable Debug builds succeeded; the original 41 cases reported one stale-script failure and 40 absent-ROM skips, then four resource checks passed for a 45-case checkpoint with one failure, 40 skips, and zero engine errors (`artifacts/upstream-tests/run.qmzYAL`).
 
 Scope: Original integration assertions and package versions are retained at this checkpoint; no application code or researched ROM definitions changed, and the failing baseline remains visible for the next isolated fix.
+
+## 027 — Point the integration type-swap test at its current script fixture
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Integration/DataTests.cs](src/HexManiac.Integration/DataTests.cs) | 10 | Replace the nonexistent ability_type_swaps script path with the existing Pixilate fixture that declares the expected type-swap table. |
+| [src/HexManiac.Integration/HarnessTests.cs](src/HexManiac.Integration/HarnessTests.cs) | 8 | Verify the exact fixture path used by the upgrade test and its required table declaration without a ROM. |
+| [tests/INTEGRATION_BASELINE.md](tests/INTEGRATION_BASELINE.md) | 31 | Record the resolved stale reference and distinguish resource validation from still-skipped ROM migration coverage. |
+
+Validation: The original missing-script failure was reproduced before the reference fix; afterward the Debug integration run reported 46 cases with five passed, zero failed, 41 absent-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.EHaCxt`).
+
+Scope: The existing table assertion and checked-in script contents are unchanged; the former failure now reaches its existing missing-ROM guard, so no successful ROM import or migration is claimed.

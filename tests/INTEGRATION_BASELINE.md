@@ -27,3 +27,16 @@ The harness correctly reports failure; this is not a green game-workflow baselin
 
 The two ignored dialogue-pointer offsets and Debug-only conflict assertions remain separate
 follow-ups at this checkpoint. Actual map/script/image workflows require the optional ROMs.
+
+## Current type-swap fixture reference
+
+The stale `ability_type_swaps.hma` reference now names the current checked-in
+`Scripts/Add Mechanics From Later Generations/AnyGame_PixilateStyleAbilities.hma` script.
+That script explicitly creates the same `data.abilities.typeswaps` table asserted by the
+original test. A shared path constant and a ROM-free check verify the required table declaration;
+the script itself, import behavior, and final table assertion are unchanged. It is read before
+ROM loading as before, so a missing script still fails rather than being hidden by a ROM skip.
+
+Debug run `artifacts/upstream-tests/run.EHaCxt`: **46 cases: 5 passed, 0 failed, 41 skipped,
+0 engine errors**. The former missing-script failure now reaches the absent-ROM guard.
+This does not prove that importing the script or migrating its table works on a real ROM.

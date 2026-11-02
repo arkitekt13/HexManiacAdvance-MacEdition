@@ -587,3 +587,22 @@ Validation: The final uncontended Release benchmark passed all 1,304 checks with
 Validation note: The first upstream project passed 1,616 cases with 1,048 optional-ROM skips and the second passed 26 with 41 skips, both with zero failures/engine errors; all fifteen Mac groups passed 1,205 assertions on the complete repeat after the unchanged intermittent FocusAnimation clock check passed in isolation.
 
 Scope: Only table-navigation preparation changes; no persistent ROM cache, lookup-token behavior, dropdown-choice cache, researched game addresses, compiler, relocation/repointing, pointer definitions, free-space/flag/variable allocation, or undo implementation changes, and native Mac/real-ROM responsiveness remains unmeasured.
+
+## 037 — Investigate trainer presentation, validation, and template selection
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/TrainerTableBenchmark/TrainerTableBenchmark.csproj](tools/TrainerTableBenchmark/TrainerTableBenchmark.csproj) | 1 | Add a standalone Release trainer benchmark with benchmark-only headless services and existing format resources. |
+| [tools/TrainerTableBenchmark/SyntheticTrainerFixture.cs](tools/TrainerTableBenchmark/SyntheticTrainerFixture.cs) | 9 | Build six fabricated trainer/team scenarios with the existing 40-byte schema, symbolic lists/partitions, optional uncompressed artwork, and occupied growth guards. |
+| [tools/TrainerTableBenchmark/Program.cs](tools/TrainerTableBenchmark/Program.cs) | 20 | Measure navigation and component preparation while checking bindings, immutable data, real team resizing/repointing/history, and an isolated in-memory template-ordering experiment. |
+| [tools/TrainerTableBenchmark/README.md](tools/TrainerTableBenchmark/README.md) | 1 | Document benchmark execution, current versus experimental UI behavior, measurement semantics, and real-ROM/default-command coverage limits. |
+| [tests/TRAINER_PERFORMANCE.md](tests/TRAINER_PERFORMANCE.md) | 1 | Record trainer baseline measurements, the shadowed specialized template, discarded stream candidates, fuzzy validation, portrait preparation, and prioritized follow-up work. |
+| [tests/README.md](tests/README.md) | 25 | Link the trainer investigation alongside the existing table, script, and map performance reports. |
+
+Validation: The final Release build passed with zero warnings/errors and all six fixtures passed 7,831 checks, including exact read-only bytes/metadata, all unrelated team pointers, real growth relocation or shrinkage, and undo/redo restoration; repeated runs retained identical fixture/text/preview hashes.
+
+Measurement note: Six-member explicit-team validation cost 84.054 ms / 106.562 MB per 100 teams, an unused generic stream candidate cost 85.472 ms / 109.148 MB, and preparing 64 portrait choices cost 87.171 ms / 171.853 MB per 100 dropdowns; these are isolated baseline costs, not shipped speed improvements.
+
+Finding note: All production cases selected the generic stream TextBox; moving only the trainer template ahead of its base template in one in-memory probe revealed the specialized editor, four exact previews, and both default command buttons without writing model bytes.
+
+Scope: Investigation tools/docs only; no application XAML, compiler, ROM definitions/addresses, write/repointing logic, cache, or undo implementation changes, while native responsiveness, shared teams, default command behavior, and real move legality remain unverified.

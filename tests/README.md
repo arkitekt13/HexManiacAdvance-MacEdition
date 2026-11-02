@@ -22,5 +22,7 @@ Map presentation measurements and synthetic-fixture limits are recorded separate
 [MAP_PERFORMANCE.md](MAP_PERFORMANCE.md); script highlighting results remain in
 [SCRIPT_PERFORMANCE.md](SCRIPT_PERFORMANCE.md). Pokémon names/base-stats table preparation
 and headless binding/layout findings are in [TABLE_PERFORMANCE.md](TABLE_PERFORMANCE.md).
+Trainer stream, portrait, validation, and template-selection findings are in
+[TRAINER_PERFORMANCE.md](TRAINER_PERFORMANCE.md).
 These are component-level measurements,
 not native-input or full-editor latency claims.

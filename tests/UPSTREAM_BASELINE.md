@@ -3,7 +3,8 @@
 Infrastructure branch: `improve/upstream-test-harness`, based on `7faa0a43`.
 Host: macOS ARM64, .NET SDK 8.0.300 / runtime 8.0.5, Debug configuration.
 Engine: xUnit 2.4.1; dependency versions retained; targeted assertion improvements are recorded below.
-Scope: `src/HexManiac.Tests` only; `src/HexManiac.Integration` remains unported.
+Scope: first-project results only; the second project now has its own portable host and
+[separate integration baseline](INTEGRATION_BASELINE.md). Historical checkpoints below retain their original limitations.
 
 Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
 is an explicit skip. The latest first-project run records **2,632 cases: 1,584 passed, 0 failed,

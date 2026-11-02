@@ -471,3 +471,20 @@ Scope: Only test code changed; opcode definitions, researched ROM addresses, par
 Validation: Running the default first-project selector exposed an unbound-array error before test execution; afterward the complete first-project Debug run recorded 2,632 cases with 1,584 passed, zero failed, 1,048 skipped, and zero engine errors (`artifacts/upstream-tests/run.xBVE8W`).
 
 Scope: This corrects the newly introduced shell invocation; test selection defaults, assertions, result validation, application code, and ROM definitions are unchanged.
+
+## 030 — Assert integration model consistency in Debug and Release
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Integration/IntegrationTests.cs](src/HexManiac.Integration/IntegrationTests.cs) | 93 | Replace the conditional Debug diagnostic call with explicit model-type and consistency assertions. |
+| [src/HexManiac.Integration/ModelConsistencyAssertions.cs](src/HexManiac.Integration/ModelConsistencyAssertions.cs) | 8 | Mirror the original consistency diagnostic through public inspection APIs and xUnit assertions while preserving its ROM-pointer exemptions. |
+| [src/HexManiac.Integration/ConflictAssertionTests.cs](src/HexManiac.Integration/ConflictAssertionTests.cs) | 11 | Add fourteen synthetic cases for valid and corrupted pointer relationships, overlapping runs, dependent lengths, nonmutation, and permitted out-of-range pointers. |
+| [tests/INTEGRATION_BASELINE.md](tests/INTEGRATION_BASELINE.md) | 64 | Record the reproduced Release no-op, final Debug/Release counts, first-project cross-check, and unavailable game-workflow coverage. |
+| [src/HexManiac.Integration/README.md](src/HexManiac.Integration/README.md) | 26 | Explain synthetic versus ROM-dependent coverage and build-independent test assertions. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 6 | Point the first project's current scope note to the second project's separate baseline without rewriting historical results. |
+
+Validation: Before the fix, Release accepted deliberately stale pointer metadata and overlapping runs; afterward all fourteen synthetic consistency cases passed in Debug and Release, with each integration run recording 67 cases, 26 passed, zero failed, 41 absent-ROM skips, and zero engine errors (`run.9rmBl7` Debug and `run.HQ2wDZ` Release under artifacts/upstream-tests).
+
+Validation note: The default first-project selector retained 2,632 cases with 1,584 passed, zero failed, 1,048 skipped, and zero engine errors (`artifacts/upstream-tests/run.xBVE8W`); syntax and whitespace checks passed, and the diff confirms no Core or Avalonia application changes.
+
+Scope: All 41 original integration cases still require optional ROM fixtures; only host/synthetic coverage is claimed, production diagnostics and researched ROM definitions are unchanged, and the Mac UI regression suite was not rerun for this test-only work.

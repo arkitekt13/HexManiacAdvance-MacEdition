@@ -4,6 +4,10 @@ Project: `src/HexManiac.Integration`; branch: `improve/upstream-test-harness`.
 Host: macOS ARM64, .NET SDK 8.0.300 / runtime 8.0.5; Debug; xUnit 2.4.1.
 No commercial ROMs were supplied, searched for, or copied.
 
+Current status: **67 cases: 26 passed, 0 failed, 41 skipped, 0 engine errors**, verified in
+Debug and Release. The 26 passes are new host/synthetic checks; all 41 original ROM cases
+remain skipped, so this is not evidence that the game workflows have passed.
+
 ## Portable host checkpoint
 
 The project now targets .NET 8, references Core and the first test project through relative
@@ -56,3 +60,38 @@ five other cases passed; afterward all seven passed. Debug run `artifacts/upstre
 records **53 cases: 12 passed, 0 failed, 41 skipped, 0 engine errors**. The original range
 and buffer exclusions and overflow assertions remain intact. Actual ROM dialogue coverage
 still requires fixtures; no game definitions or application parsing code changed.
+
+## Build-independent model consistency assertions
+
+`IntegrationTests.AssertNoConflicts` now invokes a test-only counterpart of
+`PokemonModel.ResolveConflicts` using public inspection APIs under the model's run lock.
+The original diagnostic's pointer backlinks, table/inner-element sources, overlapping runs,
+and matched/parent-dependent lengths become xUnit assertions in Debug and Release.
+Its allowances for out-of-range and certain interior ROM pointers are retained. The
+production diagnostic and all application/model/reference code are unchanged. Keep the
+test-only rules aligned with that diagnostic if upstream changes them in future.
+
+Before the fix, a Release run with the first seven regression cases returned no assertion
+for deliberately stale pointer metadata or overlapping runs: **60 cases: 17 passed, 2 failed,
+41 skipped, 0 engine errors** (`artifacts/upstream-tests/run.eg2SR2`). This demonstrates
+that the old helper did not validate these conditions in Release.
+
+Fourteen final ROM-free cases cover empty and consistent models, unchanged bytes/runs,
+corrupted pointer/table/inner-element backlinks, overlap detection, parent-dependent lengths,
+matched-word consistency without repair, and three original out-of-range-pointer exemptions.
+All pass in both configurations:
+
+| Configuration | Cases | Passed | Failed | Skipped | Engine errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| Debug | 67 | 26 | 0 | 41 | 0 | `artifacts/upstream-tests/run.9rmBl7` |
+| Release | 67 | 26 | 0 | 41 | 0 | `artifacts/upstream-tests/run.HQ2wDZ` |
+
+A cross-check of the default first-project selector initially exposed an empty-array/nounset
+error in macOS Bash. The invocation now always includes its result-directory argument;
+afterward the first project retained **2,632 cases: 1,584 passed, 0 failed, 1,048 skipped,
+0 engine errors** (`artifacts/upstream-tests/run.xBVE8W`). Integration selection was rerun
+successfully after the shell fix. Both selectors retain strict result validation.
+
+Remaining limits: VSTest/native UI and real ROM workflows remain unverified here; the Mac
+regression suite was not rerun because this work changes only upstream tests and their host.
+This work does not address application performance or the first project's disabled features.

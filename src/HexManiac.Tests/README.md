@@ -1,0 +1,49 @@
+# Upstream engine tests on Mac
+
+The existing test assertions and package versions are retained. The host targets .NET 8; Core
+still targets .NET 6. Portable content items copy reference resources, scripts, assembly fixtures,
+and historical metadata. TestEnvironment sets the working directory to the test output before
+legacy static fixtures initialize and rejects absent/empty required reference files.
+
+From any directory, invoke the repository's `scripts/verify-upstream.sh`. It requires the .NET 8
+SDK and Python 3, restores into `artifacts/upstream-packages` unless NUGET_PACKAGES is explicitly
+set, builds fresh binaries, verifies discovery, runs tests, and retains evidence in a unique
+`artifacts/upstream-tests/run.*` directory. Test failures return a nonzero exit code.
+
+Options:
+
+- `--no-restore`: reuse already restored dependencies for the selected runner/configuration.
+- `--configuration Debug|Release`: default Debug, applied consistently to restore/build/test.
+- `--source SOURCE`: optionally repeat for specific NuGet feeds.
+- `--in-process`: use xUnit's pinned 2.4.1 runner utility to discover and execute the same assembly
+  without VSTest's socket connection; results use standard xUnit XML rather than TRX.
+
+Examples:
+
+```sh
+scripts/verify-upstream.sh
+scripts/verify-upstream.sh --in-process
+scripts/verify-upstream.sh --in-process --no-restore
+```
+
+The default VSTest mode keeps discovery/execution logs, TRX, and validated summary JSON. The
+in-process mode keeps discovery/execution logs, xUnit XML, and validated summary JSON. Discovery
+has a deadline; execution has a six-minute process watchdog (and a five-minute engine deadline
+in-process). Empty, entirely skipped, incomplete, aborted, or inconsistent runs fail verification.
+Discovery entries and executed parameterized cases are reported separately; case totals can differ
+when data is generated at execution time. A failed host/process cannot be hidden by an XML report.
+
+This session could build the VSTest host but its local socket connection was denied. The explicit
+in-process mode produced the recorded baseline; the default VSTest execution is not claimed as
+verified here. Normal NuGet access also failed through dotnet; pinned packages were retrieved
+over HTTPS into an ignored local feed and restored with existing cached Core packages as a second
+read-only feed. No TLS verification was disabled or package versions changed.
+
+No personal ROMs are copied or discovered automatically. The original optional tests still look
+for `sampleFiles` under the selected host output directory and retain their original skip/empty-data
+behavior. Their filename conventions and fixture setup will be handled in a later checkpoint;
+missing fixture skips are not compatibility evidence. Historical metadata fixtures now load from
+the copied `toml_versions` directory instead of relying on a fixed number of parent directories.
+
+See [the baseline](../../tests/UPSTREAM_BASELINE.md) for counts and triage. The separate
+`HexManiac.Integration` project remains unported, and no performance optimization is included.

@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsTestProject>true</IsTestProject>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>false</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -23,56 +24,19 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
-    <ProjectReference Include="$(SolutionDir)src\HexManiac.Core\HexManiac.Core.csproj" />
+    <ProjectReference Include="../HexManiac.Core/HexManiac.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="$(SolutionDir)src\SharedAssemblyInfo.cs" />
+    <Compile Include="../SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="test_compiled\Expand01_-_Move_Stats.bin">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="test_compiled\Expand02_-_Pokemon_Move_Learn_Table.bin">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="test_compiled\Expand03_-_Relearner_move_tutor.bin">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="test_code\Expand01_-_Move_Stats.asm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="test_code\Expand02_-_Pokemon_Move_Learn_Table.asm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="test_code\Expand03_-_Relearner_move_tutor.asm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Update="test_code/**/*;test_compiled/**/*;toml_versions/**/*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../HexManiac.Core/Models/Code/*.txt;../HexManiac.Core/Models/Code/*.md;../HexManiac.Core/Models/Code/*.toml;../HexManiac.Core/Models/Code/*.hma;../HexManiac.Core/Models/Code/*.py"
+             Link="resources/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../HexManiac.WPF/Scripts/**/*"
+             Link="resources/Scripts/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <PostBuildEvent>
-      mkdir "$(TargetDir)resources"
-      mkdir "$(TargetDir)resources\Scripts"
-      mkdir "$(TargetDir)resources\Scripts\Add Mechanics From Later Generations"
-      mkdir "$(TargetDir)resources\Scripts\internal"
-      mkdir "$(TargetDir)resources\Scripts\Patches"
-      mkdir "$(TargetDir)resources\Scripts\Update Existing Mechanics"
-      copy "$(TargetDir)Models\Code\*.txt" "$(TargetDir)resources"
-      del "$(TargetDir)Models\Code\*.txt"
-      copy "$(TargetDir)Models\Code\*.toml" "$(TargetDir)resources"
-      del "$(TargetDir)Models\Code\*.toml"
-      copy "$(TargetDir)Models\Code\*.hma" "$(TargetDir)resources"
-      del "$(TargetDir)Models\Code\*.hma"
-      copy "$(TargetDir)Models\Code\*.py" "$(TargetDir)resources"
-      del "$(TargetDir)Models\Code\*.py"
-      copy "$(SolutionDir)src\HexManiac.WPF\Scripts\*.hma" "$(TargetDir)resources\Scripts"
-      copy "$(SolutionDir)src\HexManiac.WPF\Scripts\Add Mechanics From Later Generations\*.hma" "$(TargetDir)resources\Scripts\Add Mechanics From Later Generations"
-      copy "$(SolutionDir)src\HexManiac.WPF\Scripts\internal\*.hma" "$(TargetDir)resources\Scripts\internal"
-      copy "$(SolutionDir)src\HexManiac.WPF\Scripts\Patches\*.hma" "$(TargetDir)resources\Scripts\Patches"
-      copy "$(SolutionDir)src\HexManiac.WPF\Scripts\Update Existing Mechanics\*.hma" "$(TargetDir)resources\Scripts\Update Existing Mechanics"
-    </PostBuildEvent>
-  </PropertyGroup>
 
 </Project>

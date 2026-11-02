@@ -281,3 +281,29 @@ Limitations: Discovery considers the most recent 30 releases and requires docume
 Validation: All thirteen regression groups passed with 1,073 assertions, including 38 external-file checks; native rapid writes initially exposed a missed notification that the reconciliation fallback resolves.
 
 Limitations: Unsaved edits remain untouched without automatic merging or a new conflict dialog; stable reads reduce but cannot eliminate partial-write risk, nonempty ROMs up to 64 MiB are supported, and renamed paths or retargeted links may require reopening as detailed in the regression README.
+
+## 017 — Run the original engine tests on Mac and record their baseline
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/Directory.Build.props](src/Directory.Build.props) | 2 | Supply a solution-root fallback scoped to upstream test project names so standalone test builds have predictable output paths without moving Mac application outputs. |
+| [src/HexManiac.Tests/HexManiac.Tests.csproj](src/HexManiac.Tests/HexManiac.Tests.csproj) | 4 | Target the test host at .NET 8 and use portable project references and resource copying while retaining Core's target and existing package versions. |
+| [src/HexManiac.Tests/TestEnvironment.cs](src/HexManiac.Tests/TestEnvironment.cs) | 6 | Initialize relative test paths from the output directory and reject missing or empty required reference resources before fixtures load. |
+| [src/HexManiac.Tests/Integration/UpgradeTests.cs](src/HexManiac.Tests/Integration/UpgradeTests.cs) | 37 | Resolve historical metadata from copied fixtures instead of a fixed parent-directory traversal without changing assertions. |
+| [scripts/verify-upstream.sh](scripts/verify-upstream.sh) | 1 | Restore isolated dependencies, build fresh tests, require discovery, and retain validated results for normal VSTest or explicitly selected in-process xUnit execution. |
+| [scripts/summarize-upstream.py](scripts/summarize-upstream.py) | 1 | Validate TRX or xUnit XML against discovery and case outcomes while rejecting empty, entirely skipped, inconsistent, aborted, or unsuccessful runs. |
+| [scripts/run-upstream-command.py](scripts/run-upstream-command.py) | 1 | Enforce discovery/execution deadlines and terminate the command's own process group after timeout or interruption. |
+| [tools/UpstreamTestRunner/UpstreamTestRunner.csproj](tools/UpstreamTestRunner/UpstreamTestRunner.csproj) | 1 | Reference the original test project and a runner utility pinned to its xUnit 2.4.1 engine. |
+| [tools/UpstreamTestRunner/Program.cs](tools/UpstreamTestRunner/Program.cs) | 1 | Discover and execute unchanged upstream cases through xUnit's engine in one process and retain standard XML without requiring VSTest's socket connection. |
+| [tests/UpstreamVerificationRunner/UpstreamVerificationRunner.csproj](tests/UpstreamVerificationRunner/UpstreamVerificationRunner.csproj) | 1 | Add a dependency-free regression group for the upstream verification infrastructure. |
+| [tests/UpstreamVerificationRunner/Program.cs](tests/UpstreamVerificationRunner/Program.cs) | 1 | Exercise both result formats, discovery/process failures, skipped-only and inconsistent runs, retained summaries, and watchdog timeout behavior using disposable fake processes. |
+| [tests/UpstreamVerificationRunner/README.md](tests/UpstreamVerificationRunner/README.md) | 1 | Document runner failure checks and their separation from upstream case totals. |
+| [src/HexManiac.Tests/README.md](src/HexManiac.Tests/README.md) | 1 | Document runner commands, dependency isolation, resource setup, environment restrictions, and the unchanged optional-ROM policy. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 1 | Record two identical failing-case baselines, classify the 33 failures, account for 1,047 missing-ROM skips, and list pending follow-up work. |
+| [tests/README.md](tests/README.md) | 11 | Link the independent upstream runner and baseline while distinguishing the still-unported second integration project. |
+
+Validation: Two complete Debug in-process xUnit runs each discovered 2,570 cases with 1,490 passed, 33 failed, 1,047 skipped, and zero engine errors; the runner correctly returns failure, and the failed-case sets are identical.
+
+Validation note: Mac regression verification passed all fourteen groups with 1,102 assertions, including 29 new runner checks, on its repeat run; an existing FocusAnimation check failed during the first run and then passed both isolated and full reruns without assertion changes.
+
+Limitations: VSTest's localhost socket is denied in this session and its full execution is not verified; the separate HexManiac.Integration project remains unported, upstream failures are retained for triage, and optional ROM fixtures were not supplied or copied.

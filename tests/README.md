@@ -7,8 +7,11 @@ from each. A build failure, nonzero process exit, missing count, duplicate count
 set fails the run. The summary reports groups and assertions rather than claiming xUnit cases ran.
 
 These checks use synthetic data and offscreen rendering, not commercial ROMs or native windows.
-The original `src/HexManiac.Tests` suite is separate and is not included or claimed as passing;
-its dependency restore, platform-specific build steps, runtime, and test discovery still need work.
+The original `src/HexManiac.Tests` xUnit suite is separate and is not included in these assertion
+counts. Run `scripts/verify-upstream.sh` for that suite, or add `--in-process` when VSTest's
+local test-host socket is unavailable. It now builds on .NET 8, but the recorded baseline has
+failures and optional-ROM skips; see [UPSTREAM_BASELINE.md](UPSTREAM_BASELINE.md).
+The second upstream project, `src/HexManiac.Integration`, has not yet been ported or run.
 See individual group READMEs for any manual GUI checks that remain.
 
 New regression groups must target net8.0, have the same project/directory/assembly name, and print

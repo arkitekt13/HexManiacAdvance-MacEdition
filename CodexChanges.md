@@ -621,3 +621,23 @@ Scope: Investigation tools/docs only; no application XAML, compiler, ROM definit
 Validation: The new regression reproduced the missing trainer TextEditor before the fix and passed 123 assertions afterward; all sixteen Mac groups passed 1,328 assertions with no skipped groups.
 
 Scope: Template ordering only; template contents, Core preparation, compiler, ROM definitions/addresses, relocation/pointer algorithms, and history implementation are unchanged, while native appearance and real-ROM default-move/item behavior remain unverified.
+
+## 039 — Avoid discarded generic stream preparation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/TableGroupViewModel.cs](src/HexManiac.Core/ViewModels/Tools/TableGroupViewModel.cs) | 232 | Select the trainer, palette, sprite, or text presentation before constructing it while preserving the original type precedence and pointer-validation/editing paths. |
+| [src/HexManiac.Tests/TrainerPresentationTests.cs](src/HexManiac.Tests/TrainerPresentationTests.cs) | 7 | Guard warmed trainer-refresh allocation while preserving the live editor, exact text/layers/diagnostics, ROM bytes, metadata, and empty undo history. |
+| [src/HexManiac.Tests/HexManiac.Tests.csproj](src/HexManiac.Tests/HexManiac.Tests.csproj) | 32 | Link the existing trainer fixture into the upstream test assembly without adding package dependencies. |
+| [tools/TrainerTableBenchmark/SyntheticTrainerFixture.cs](tools/TrainerTableBenchmark/SyntheticTrainerFixture.cs) | 1 | Add explicit imports so the unchanged fixture can compile in the upstream project with implicit usings disabled. |
+| [tools/TrainerTableBenchmark/Program.cs](tools/TrainerTableBenchmark/Program.cs) | 244 | Clarify report scope for implementation follow-ups without changing benchmark workloads. |
+| [tests/TRAINER_PERFORMANCE.md](tests/TRAINER_PERFORMANCE.md) | 224 | Record the separate construction optimization, failing-before/passing-after allocation regression, corrected-UI comparison, and final verification. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts for the additional trainer-presentation regression case. |
+
+Validation: The new regression failed before the change at 2,603,048 bytes per warmed refresh and passed the unchanged 1,800,000-byte budget afterward with exact presentation/data preservation; the first upstream suite passed 1,617 cases and the second passed 26, retaining 1,048 and 41 optional-ROM skips with zero failures/engine errors.
+
+Validation note: All sixteen Mac groups again passed 1,328 assertions, including restored trainer/sprite/palette controls, actual default-button fallback actions, and bound text-box editing with forced team relocation and undo/redo.
+
+Measurement note: Both corrected-UI benchmark revisions passed 7,831 checks with identical fixture/text/pixel hashes, UI summaries, and diagnostics; custom-six preparation changed from 282.514 to 196.459 ms and 379.810 to 270.662 MB allocated per 100 switches, while bound-phase timing varied across scenarios and does not support a uniform native/UI speedup claim.
+
+Scope: Stream presentation construction only; specialized constructors, shared enum/move matching, portrait/palette caches, compiler, researched addresses, relocation/pointer algorithms, unused flag/variable discovery, and history implementation remain unchanged, while native responsiveness and real-ROM default behavior remain unverified.

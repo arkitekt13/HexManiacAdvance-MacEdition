@@ -241,7 +241,7 @@ Directory.CreateDirectory(Path.GetDirectoryName(output)!);
 File.WriteAllText(output, JsonSerializer.Serialize(new {
    runtime = RuntimeInformation.FrameworkDescription, platform = RuntimeInformation.OSDescription,
    architecture = RuntimeInformation.ProcessArchitecture.ToString(), configuration = "Release", samplesPerPhase = 7,
-   scope = "Synthetic trainer schema, text teams, uncompressed artwork, production headless bindings/layout; no ROM, native input/compositor, default-move legality or compiler coverage; no application optimization implemented",
+   scope = "Synthetic trainer schema, text teams, uncompressed artwork, production headless bindings/layout; no ROM, native input/compositor, default-move legality or compiler coverage; component experiments do not modify application source",
    correctnessChecks = checks, results,
 }, new JsonSerializerOptions { WriteIndented = true }));
 Console.WriteLine($"BENCHMARK_CHECKS_PASSED:{checks}");

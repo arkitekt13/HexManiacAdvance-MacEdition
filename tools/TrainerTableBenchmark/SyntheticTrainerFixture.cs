@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.Models.Runs;
 using HavenSoft.HexManiac.Core.ViewModels;

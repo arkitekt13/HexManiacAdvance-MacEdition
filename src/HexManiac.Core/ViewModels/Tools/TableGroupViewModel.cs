@@ -229,11 +229,14 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          }
 
          IStreamArrayElementViewModel streamElement = null;
-         if (streamRun == null || streamRun is IStreamRun || streamRun is ITableRun) streamElement = new TextStreamElementViewModel(viewPort, item.Name, itemAddress, pointerSegment.InnerFormat);
-         var parentStart = parent is StreamElementViewModel streamParent ? streamParent.Start : -1;
-         if (streamRun is ISpriteRun spriteRun) streamElement = new SpriteElementViewModel(viewPort, item.Name, spriteRun.FormatString, spriteRun.SpriteFormat, itemAddress);
-         if (streamRun is IPaletteRun paletteRun) streamElement = new PaletteElementViewModel(viewPort, viewPort.ChangeHistory, item.Name, paletteRun.FormatString, paletteRun.PaletteFormat, itemAddress);
+         // Choose the most specific presentation before constructing it: generic text setup
+         // serializes/formats/validates a team and would otherwise be discarded immediately.
+         // Retain the original replacement precedence (trainer, palette, sprite, text).
          if (streamRun is TrainerPokemonTeamRun tptRun) streamElement = new TrainerPokemonTeamElementViewModel(viewPort, tptRun, item.Name, itemAddress);
+         else if (streamRun is IPaletteRun paletteRun) streamElement = new PaletteElementViewModel(viewPort, viewPort.ChangeHistory, item.Name, paletteRun.FormatString, paletteRun.PaletteFormat, itemAddress);
+         else if (streamRun is ISpriteRun spriteRun) streamElement = new SpriteElementViewModel(viewPort, item.Name, spriteRun.FormatString, spriteRun.SpriteFormat, itemAddress);
+         else if (streamRun == null || streamRun is IStreamRun || streamRun is ITableRun) streamElement = new TextStreamElementViewModel(viewPort, item.Name, itemAddress, pointerSegment.InnerFormat);
+         var parentStart = parent is StreamElementViewModel streamParent ? streamParent.Start : -1;
          if (streamElement == null) return;
          streamElement.Parent = header;
 

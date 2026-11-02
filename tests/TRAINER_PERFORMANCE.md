@@ -220,3 +220,77 @@ group. Existing upstream suites were not rerun for this XAML-only application ch
 they will be rerun after the separate Core presentation optimization. The corrected UI
 is benchmarked separately before that optimization, because restoring previews and the
 specialized editor changes the feature set relative to the original generic-template baseline.
+
+## Follow-up 2: construct the selected stream presentation only
+
+Branch: `improve/trainer-stream-preparation`, based on the template fix `6c97667e`.
+TableGroupViewModel now chooses trainer, palette, sprite, or generic text presentation
+before constructing it, retaining the original replacement precedence in that order.
+Pointer validation, stream parsing, specialized constructors, field reuse, change handlers,
+write/repointing logic, enum matching, and image-choice preparation are unchanged. The
+trainer no longer pays for a generic text candidate that would be immediately discarded.
+
+The new upstream allocation regression failed before the change at 2,603,048 managed bytes
+per warmed refresh of the six-member explicit-team fixture. It passes the unchanged
+1,800,000-byte budget afterward, retaining the same live editor, exact team text, all six
+highlight layers, diagnostics, ROM bytes, serialized metadata, and empty undo history.
+The test links the existing synthetic fixture; its explicit imports support projects
+with implicit usings disabled and do not change fixture data or workloads.
+
+The first upstream suite passed 2,665 cases with 1,617 passes, zero failures/engine errors,
+and the existing 1,048 optional-ROM skips (`artifacts/upstream-tests/run.r1Xdo0`). The
+expected pre-fix run had only the new allocation failure (`run.YAeu3l`); no test budget
+was relaxed to obtain the passing result.
+
+After the Core change, the complete Mac run again passed all 16 groups and 1,328
+assertions, including restored templates and the real UI edit/repointing checks. The
+second upstream suite passed 26 cases with the existing 41 optional-ROM skips, zero
+failures, and zero engine errors (`artifacts/upstream-tests/run.etba6Z`). The new allocation
+test is Core-only and is part of the first upstream project's case count, not an extra
+Mac assertion group. No new dependency is added to the application or either upstream suite.
+
+### Corrected-UI before/after benchmark
+
+Reports: `artifacts/trainer-table-performance/corrected-ui-before.json` at the template
+fix, and `corrected-ui-after.json` after direct presentation selection. Both use the same
+six workloads, two warmups, seven samples, and 100 operations per sample, with no builds
+or tests running concurrently. Only the report scope wording and explicit fixture imports
+changed in the harness; workload code and fabricated binary inputs are unchanged.
+
+Both complete runs passed 7,831 checks. All fixture, team-text, and preview-pixel hashes,
+UI summaries/control counts, and reuse/notification diagnostics match exactly. Both
+versions use the specialized trainer TextEditor and bind the same preview counts. This
+comparison therefore isolates the construction change from restoring previously hidden UI.
+
+| Scenario | Preparation ms before → after | Preparation MB allocated before → after | Headless navigation/binding/layout ms before → after | Bound-phase MB allocated before → after |
+| --- | --- | --- | --- | --- |
+| Basic one member | 61.347 → 57.547 | 55.518 → 54.622 | 938.053 → 851.429 | 571.202 → 567.386 |
+| Custom one member | 63.002 → 49.830 | 108.244 → 89.749 | 1,048.932 → 1,090.499 | 636.518 → 622.579 |
+| Custom six members | 282.514 → 196.459 | 379.810 → 270.662 | 1,879.663 → 1,552.707 | 1,037.445 → 923.071 |
+| Custom six + Pokémon preview data | 280.196 → 193.142 | 380.141 → 270.993 | 1,921.620 → 1,984.147 | 1,074.151 → 960.124 |
+| Custom six + portrait options | 365.054 → 280.059 | 551.761 → 442.613 | 1,956.812 → 2,026.019 | 1,222.764 → 1,111.107 |
+| Mixed formats/counts + all artwork | 196.405 → 166.936 | 336.025 → 298.948 | 1,848.558 → 1,844.463 | 1,047.368 → 1,007.079 |
+
+Values are per 100 switches; MB is decimal cumulative managed-thread allocation. The
+bound phase includes preparation and cannot be added to its columns. In the custom-six
+case, preparation time decreased 30.5%, preparation allocation decreased 28.7%, and bound
+allocation decreased 11.0%. With portrait options, preparation time decreased 23.3% and
+allocation decreased 19.8%. Every six-member case eliminated 109,148,000 preparation
+bytes per 100 switches, exactly the isolated discarded generic-candidate allocation.
+The basic/one-member cases save less, as expected. The mixed-case allocation delta differs
+from its component total by only 88 bytes, consistent with earlier measurement variation.
+
+Headless bound elapsed results are mixed: the custom-six case improved 17.4%, while
+custom-one, preview, and portrait cases measured approximately 3–4% slower, and the
+mixed case was essentially unchanged. Earlier identical-revision UI runs varied by up
+to about 14%, and different GC/layout work can fall within the sampled intervals. These
+measurements do not establish a uniform bound-UI or native responsiveness improvement.
+The reproducible saving is redundant construction/validation removed and lower managed
+allocation, with unchanged visible features/output. Further UI speed claims require
+layout/render profiling and real-ROM interaction testing.
+
+The explicit generic/specialized constructor, validation, lookup, portrait construction,
+and preview-generation component phases still exercise the same implementations; they
+are not individually optimized here. No move-token matching or portrait caching change
+is bundled with this result. The final benchmark build had zero warnings/errors; complete
+Core rebuilds retained the existing warnings.

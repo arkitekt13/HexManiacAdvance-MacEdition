@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
+using System.Text.Json;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.Models.Runs;
@@ -33,14 +34,11 @@ public static class ProjectExport {
    #region Export
 
    public static Result Export(IDataModel model, string directory) {
-      Directory.CreateDirectory(directory);
-      var tableDirectory = Path.Combine(directory, TableFolder);
-      Directory.CreateDirectory(tableDirectory);
-
+      var documents = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
       var notes = new List<string>();
       int tables = 0, rows = 0, fields = 0;
 
-      foreach (var (name, run) in NamedTables(model)) {
+      foreach (var (name, run) in NamedTables(model).OrderBy(t => t.Name, StringComparer.Ordinal)) {
          var table = model.GetTableModel(name);
          if (table == null || table.Count == 0) continue;
 
@@ -59,7 +57,8 @@ public static class ProjectExport {
             fields += segments.Count;
          }
 
-         File.WriteAllText(Path.Combine(tableDirectory, Sanitize(name) + ".tsv"), text.ToString());
+         var fileName = Sanitize(name) + ".tsv";
+         if (!documents.TryAdd(fileName, text.ToString())) throw new InvalidOperationException($"Table filenames collide after normalization: {name}.");
          tables++;
       }
 
@@ -70,7 +69,8 @@ public static class ProjectExport {
       manifest.AppendLine($"gameCode\t{model.GetGameCode()}");
       manifest.AppendLine($"romSize\t0x{model.Count:X}");
       manifest.AppendLine($"tables\t{tables}");
-      File.WriteAllText(Path.Combine(directory, ManifestName), manifest.ToString());
+      manifest.AppendLine("files\t" + JsonSerializer.Serialize(documents.Keys.OrderBy(n => n, StringComparer.Ordinal).ToArray()));
+      ProjectExportFiles.Publish(directory, documents, manifest.ToString());
 
       return new Result(tables, rows, fields, notes);
    }
@@ -120,6 +120,8 @@ public static class ProjectExport {
    private record PreparedField(string Table, int Index, string Field, string Text, int Number, bool IsText);
 
    public static Result Import(IEditableViewPort viewPort, string directory) {
+      using var exportLock = ProjectExportFiles.LockForRead(directory);
+      ProjectExportFiles.EnsureComplete(directory);
       var model = viewPort.Model;
       var notes = new List<string>();
       var manifestPath = Path.Combine(directory, ManifestName);
@@ -146,7 +148,7 @@ public static class ProjectExport {
       var seenTables = new HashSet<string>(StringComparer.Ordinal);
       int rows = 0, contextOnly = 0;
       // Read and validate all inputs before asking history for a token or writing a byte.
-      foreach (var file in Directory.EnumerateFiles(tableDirectory, "*.tsv").OrderBy(f => f, StringComparer.Ordinal)) {
+      foreach (var file in ProjectExportFiles.ReadFiles(directory, manifest)) {
          var lines = File.ReadAllLines(file);
          var name = lines.FirstOrDefault(l => l.StartsWith("# "))?[2..].Trim();
          void Error(int row, string field, string value, string message) => errors.Add(new ImportDiagnostic(Path.GetFileName(file), row, field, value, message));
@@ -241,6 +243,6 @@ public static class ProjectExport {
 
    private static string Sanitize(string name) {
       var invalid = Path.GetInvalidFileNameChars();
-      return new string(name.Select(c => invalid.Contains(c) ? '_' : c).ToArray());
+      return new string(name.Normalize(NormalizationForm.FormC).Select(c => invalid.Contains(c) || char.IsControl(c) || "\\<>:\"|?*".Contains(c) ? '_' : c).ToArray()).TrimEnd(' ', '.');
    }
 }

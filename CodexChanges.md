@@ -210,3 +210,17 @@ Limitations: Successful whole-ROM patch imports still rebuild metadata and reset
 Validation: All nine regression groups passed with 951 assertions; the previous 999-to-231 truncation is rejected without mutation, valid imports undo in one step, and injected commit failure restores both data and metadata while retaining redo history.
 
 Compatibility: Legacy exports still require matching game code and ROM size and receive a missing-fingerprint note; pointers, calculated fields, and unsupported field types remain context only, and project import is not a full ROM serializer.
+
+## 013 — Publish consistent, recoverable project exports
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 60 | Prepare deterministic table files and an explicit ownership manifest before publishing, reject filename collisions, and import only the declared files under a read lock. |
+| [src/HexManiac.Avalonia/Project/ProjectExportFiles.cs](src/HexManiac.Avalonia/Project/ProjectExportFiles.cs) | 10 | Stage complete exports with a recovery journal and exclusive writer lock while preserving unrelated files and restoring the previous set after failed publication. |
+| [tests/ProjectExportSafety/ProjectExportSafety.csproj](tests/ProjectExportSafety/ProjectExportSafety.csproj) | 1 | Add synthetic export regressions with shared reference resources. |
+| [tests/ProjectExportSafety/Program.cs](tests/ProjectExportSafety/Program.cs) | 1 | Verify stable output, owned-file cleanup, unrelated-file preservation, interrupted-export recovery, path rejection, locking, and publication rollback. |
+| [tests/ProjectExportSafety/README.md](tests/ProjectExportSafety/README.md) | 1 | Document ownership, recovery, external-editor limitations, and the persistent coordination lock. |
+
+Validation: All ten regression groups passed with 964 assertions, including 13 export checks using temporary folders and simulated interruption or publication failure.
+
+Limitations: Recovery covers process interruption rather than guaranteed physical power-loss durability; external editors do not honor the app's lock, and project export remains a table project rather than a full ROM serializer.

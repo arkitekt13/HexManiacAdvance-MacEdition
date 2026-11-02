@@ -726,3 +726,20 @@ failures/engine errors, while integration remains 26 passes/41 skips because its
 workflows require FireRed 1.0 or Emerald. Both original and staged ROM hashes are unchanged;
 no application/test assertions changed and no ROM was committed. Full evidence and limits
 are recorded in tests/UPSTREAM_BASELINE.md rather than a separate change entry.
+
+## 044 — Benchmark item preparation and bound presentation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ItemTableBenchmark/ItemTableBenchmark.csproj](tools/ItemTableBenchmark/ItemTableBenchmark.csproj) | 1 | Add a standalone Release item benchmark using the existing app and test-only headless services. |
+| [tools/ItemTableBenchmark/ItemFixture.cs](tools/ItemTableBenchmark/ItemFixture.cs) | 15 | Provide fabricated grouped item fixtures and an optional read-only ROM loader with deferred timers controlled through both dispatcher paths. |
+| [tools/ItemTableBenchmark/Program.cs](tools/ItemTableBenchmark/Program.cs) | 20 | Measure preparation, dropdowns, descriptions, icon/palette candidates, bound navigation, and selected-icon refresh while capturing integrity and presentation hashes. |
+| [tools/ItemTableBenchmark/README.md](tools/ItemTableBenchmark/README.md) | 1 | Document workload sizes, optional ROM use, timer exclusions, notification diagnostics, and interpretation limits. |
+| [tests/ITEM_PERFORMANCE.md](tests/ITEM_PERFORMANCE.md) | 1 | Record corrected baselines, discarded exploratory measurements, a modest notification-reduction candidate, and coverage limits. |
+| [tests/README.md](tests/README.md) | 36 | Link item-specific performance evidence. |
+
+Validation: The completed baseline passes 762 checks across four synthetic cases and the supplied BPRE1 ROM, preserving bytes/metadata/history and bound descriptions/icon dimensions; the Release build passes with zero errors, and no application code changed at this checkpoint.
+
+Measurement note: Correctly deferred real-ROM foreground navigation costs 22.955 ms / 25.883 MB per ten selections and bound navigation/layout 213.020 ms / 107.215 MB; preliminary multi-GB runs forced normally delayed map searches because of an immediate shared dispatcher, are explicitly excluded from the baseline, and do not establish a native browsing regression.
+
+Scope: Measurement tools/docs only; existing formats and researched ROM addresses, conditional item fields, decoding, palette lookup, pointer/repointing algorithms, and history remain unchanged, with delayed map-use latency and native/other-game workflows left for separate review.

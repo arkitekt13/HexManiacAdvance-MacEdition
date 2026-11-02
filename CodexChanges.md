@@ -606,3 +606,18 @@ Measurement note: Six-member explicit-team validation cost 84.054 ms / 106.562 M
 Finding note: All production cases selected the generic stream TextBox; moving only the trainer template ahead of its base template in one in-memory probe revealed the specialized editor, four exact previews, and both default command buttons without writing model bytes.
 
 Scope: Investigation tools/docs only; no application XAML, compiler, ROM definitions/addresses, write/repointing logic, cache, or undo implementation changes, while native responsiveness, shared teams, default command behavior, and real move legality remain unverified.
+
+## 038 — Restore specialized trainer, sprite, and palette templates
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml](src/HexManiac.Avalonia/Controls/TabView.axaml) | 553 | Place the generic stream fallback after derived templates so Avalonia displays the intended trainer editor, previews/buttons, sprite controls, and palette controls. |
+| [tests/StreamTemplates/StreamTemplates.csproj](tests/StreamTemplates/StreamTemplates.csproj) | 1 | Add an automatically discovered headless regression group sharing the existing synthetic trainer fixture. |
+| [tests/StreamTemplates/Program.cs](tests/StreamTemplates/Program.cs) | 1 | Verify specialized controls and text fallback with real bindings, default-button fallback actions, read-only data preservation, and actual UI team growth/repointing/undo/redo. |
+| [tests/StreamTemplates/README.md](tests/StreamTemplates/README.md) | 1 | Document production-template coverage and distinguish fixture default-command checks from real-ROM behavior. |
+| [tests/TRAINER_PERFORMANCE.md](tests/TRAINER_PERFORMANCE.md) | 202 | Record the separately verified template restoration and establish that the optimization comparison must use the corrected UI. |
+| [tests/README.md](tests/README.md) | 17 | Link the production stream-template regression coverage. |
+
+Validation: The new regression reproduced the missing trainer TextEditor before the fix and passed 123 assertions afterward; all sixteen Mac groups passed 1,328 assertions with no skipped groups.
+
+Scope: Template ordering only; template contents, Core preparation, compiler, ROM definitions/addresses, relocation/pointer algorithms, and history implementation are unchanged, while native appearance and real-ROM default-move/item behavior remain unverified.

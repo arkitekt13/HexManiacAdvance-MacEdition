@@ -3,7 +3,8 @@
 Branch: `investigate/trainer-table-performance`, based on `dcbf99f4`.
 Host: Apple M3 Pro, macOS ARM64, .NET 8.0.5, Release, Avalonia 11.2.3.
 The shared refresh-scoped table discovery improvement is already included in this baseline.
-This checkpoint adds tools and documentation only; no application optimization is implemented.
+The initial checkpoint added tools and documentation only. The implementation follow-ups
+below retain that historical baseline and distinguish UI restoration from optimization.
 
 ## Scope and method
 
@@ -197,3 +198,25 @@ The final Release build passed with zero warnings/errors; the first full depende
 compilation also reported the eight existing Core warnings. All six final fixtures and
 the in-memory ordering probe passed all 7,831 benchmark checks. No default-move/item
 commands, shared teams, or real-ROM legality checks are claimed as tested.
+
+## Follow-up 1: restore specialized stream templates
+
+Branch: `fix/specialized-stream-templates`, based on `ab860744`.
+The generic StreamElementViewModel fallback now follows its trainer, sprite, and palette
+specializations in production TabView. Their template bodies and command bindings are
+unchanged. No Core/ROM behavior or preparation optimization is included in this checkpoint.
+
+The new StreamTemplates headless regression failed on the missing trainer TextEditor
+before the application change. After reordering, it passed 123 assertions covering all
+four trainer formats, exact bound text, real preview bitmaps, visible enabled default
+buttons, sprite bitmaps/Edit bindings, palette controls/swatches, and ordinary text fallback.
+It invokes both trainer default buttons against the existing no-learnset/no-stats zero-data
+fallback and undoes their changes; it does not establish real-ROM defaults or legality.
+An edit through the production trainer TextBox grows a team, forces actual relocation,
+updates previews, preserves unrelated pointers, and restores exact bytes/pointers on undo/redo.
+
+The complete Mac verification passed 16 groups and 1,328 assertions, including the new
+group. Existing upstream suites were not rerun for this XAML-only application change;
+they will be rerun after the separate Core presentation optimization. The corrected UI
+is benchmarked separately before that optimization, because restoring previews and the
+specialized editor changes the feature set relative to the original generic-template baseline.

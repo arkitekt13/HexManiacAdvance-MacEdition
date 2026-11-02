@@ -13,3 +13,8 @@ dotnet tests/ScriptEditorLayout/bin/Debug/net8.0/ScriptEditorLayout.dll
 
 Visual checks after restarting the editor: open an NPC script, inspect the arguments and comments,
 scroll in both directions, and verify that the caret and selection line up with the colored text.
+
+Diagnostic checks publish 32 errors/warnings through the real view model and count actual
+inline-list rebuilds: one per burst, with every underline and character retained. They also
+check clearing diagnostics, switching scripts during a queued update, and ignoring the old
+model afterward. No compiler scheduling, ROM mutation, or diagnostic validation is mocked.

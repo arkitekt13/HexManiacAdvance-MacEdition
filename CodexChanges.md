@@ -488,3 +488,16 @@ Validation: Before the fix, Release accepted deliberately stale pointer metadata
 Validation note: The default first-project selector retained 2,632 cases with 1,584 passed, zero failed, 1,048 skipped, and zero engine errors (`artifacts/upstream-tests/run.xBVE8W`); syntax and whitespace checks passed, and the diff confirms no Core or Avalonia application changes.
 
 Scope: All 41 original integration cases still require optional ROM fixtures; only host/synthetic coverage is claimed, production diagnostics and researched ROM definitions are unchanged, and the Mac UI regression suite was not rerun for this test-only work.
+
+## 031 — Coalesce script diagnostic painting on Mac
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs](src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs) | 149 | Coalesce error-decoration updates at render priority and resolve the current script when painting without delaying validation or changing diagnostic records. |
+| [tests/ScriptEditorLayout/Program.cs](tests/ScriptEditorLayout/Program.cs) | 57 | Verify one rebuild for a 32-diagnostic burst while preserving all underlines, text, model records, clear behavior, and script-switch isolation. |
+| [tests/ScriptEditorLayout/README.md](tests/ScriptEditorLayout/README.md) | 17 | Explain the real-renderer diagnostic coalescing checks and their scope. |
+| [tests/SCRIPT_PERFORMANCE.md](tests/SCRIPT_PERFORMANCE.md) | 1 | Record the Windows-only symptom report, reproduced redundant Mac painting, measured rebuild reduction, and validation limits. |
+
+Validation: The regression reproduced 33 actual underline-list rebuilds before the fix and one afterward; ScriptEditorLayout passed 102 assertions, and all fourteen Mac regression groups passed with 1,112 assertions (`/tmp/hma-diagnostic-coalescing-mac.log`).
+
+Scope: Only Mac diagnostic presentation changes; the compiler, on-the-fly relocation/repointing, flag and variable allocation, validation rules, ROM models, and researched definitions are untouched, and end-to-end script latency has not been measured.

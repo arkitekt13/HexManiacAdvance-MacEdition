@@ -362,3 +362,14 @@ Limitations: Native keyboard/caret appearance remains a manual check, script com
 Validation: The new checks exposed missing assembly attributes and version 0.0.0 before the fix; afterward all three passed, and the original list and table-group migration failures passed without changing their assertions or the migration algorithms.
 
 Scope: The first version-only upstream run recorded 2,601 cases with 1,552 passed, two failed, and 1,047 skipped; the remaining warning-timing and missing-fixture cases are addressed in subsequent entries.
+
+## 022 — Complete controlled test work deterministically
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/IFileSystem.cs](src/HexManiac.Core/Models/IFileSystem.cs) | 203 | Complete controlled workloads through task-completion sources so synchronous initialization continuations drain reliably and workload failures fault their returned tasks. |
+| [src/HexManiac.Tests/ControlledDispatchTests.cs](src/HexManiac.Tests/ControlledDispatchTests.cs) | 7 | Verify successful completion, draining of continuation-created work, and propagation of workload failures without timing sleeps. |
+
+Validation: All three new dispatcher checks failed before the fix and passed afterward, along with the unchanged matched-word warning assertion that previously raced initialization completion.
+
+Scope: ControlledDispatch is the test dispatcher used by that warning fixture; production Mac dispatching and the warning's validation logic are unchanged.

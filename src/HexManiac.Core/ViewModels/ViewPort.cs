@@ -2463,6 +2463,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          if (!history.IsSaved) return; // don't overwrite local changes
 
          void action() {
+            if (!history.IsSaved) return; // edits may have arrived while UI work was queued
             try {
                var file = fileSystem.LoadFile(FileName);
                if (file == null) return; // asked to load the file, but the file wasn't found... carry on

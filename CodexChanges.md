@@ -262,3 +262,22 @@ Limitations: Native dialog appearance and actual Finder/browser/clipboard intera
 Validation: All twelve regression groups passed with 1,035 assertions, including 42 startup-update checks; no live GitHub access, downloads, installs, or ROM edits were required.
 
 Limitations: Discovery considers the most recent 30 releases and requires documented numeric tags and compatible Mac asset names; native startup appearance and live browser/network behavior remain manual checks, and Update opens the releases page rather than installing software.
+
+## 016 — Reload external ROM changes safely across replacement and rapid saves
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/MacPlatform/ExternalFileMonitor.cs](src/HexManiac.Avalonia/MacPlatform/ExternalFileMonitor.cs) | 12 | Combine native change/create/delete/rename/error notifications with metadata reconciliation, debounced stable content snapshots, retry batches, duplicate suppression, and cancellation of stale deliveries. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 50 | Allow injected UI delivery and provide verified reload snapshots without rereading temporarily locked files. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 256 | Read ROMs without requiring write access and reject incomplete stream reads instead of returning zero-padded tails. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 274 | Suspend external deliveries during local saves and acknowledge successful bytes before resuming monitoring in finally. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 354 | Canonicalize and deduplicate listener registrations, dispose removed monitors, and clear all remaining subscriptions on filesystem disposal. |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 2466 | Recheck saved state when queued UI reload work runs so intervening user edits cannot be overwritten. |
+| [src/HexManiac.Avalonia/App.axaml.cs](src/HexManiac.Avalonia/App.axaml.cs) | 128 | Dispose file monitoring when the main window closes. |
+| [tests/ExternalFileChanges/ExternalFileChanges.csproj](tests/ExternalFileChanges/ExternalFileChanges.csproj) | 1 | Add real-filesystem watcher regressions using synthetic ROM data and copied reference resources. |
+| [tests/ExternalFileChanges/Program.cs](tests/ExternalFileChanges/Program.cs) | 1 | Verify rapid saves, replacements, renames, locks, snapshots, local-save suppression, callback recovery, disposal, and protection of unsaved edits. |
+| [tests/ExternalFileChanges/README.md](tests/ExternalFileChanges/README.md) | 1 | Document monitoring behavior, reconciliation, retries, and limitations around external writers and conflict handling. |
+
+Validation: All thirteen regression groups passed with 1,073 assertions, including 38 external-file checks; native rapid writes initially exposed a missed notification that the reconciliation fallback resolves.
+
+Limitations: Unsaved edits remain untouched without automatic merging or a new conflict dialog; stable reads reduce but cannot eliminate partial-write risk, nonempty ROMs up to 64 MiB are supported, and renamed paths or retargeted links may require reopening as detailed in the regression README.

@@ -125,6 +125,7 @@ public partial class App : Application {
          desktop.MainWindow = mainWindow;
          var updateCancellation = new CancellationTokenSource();
          mainWindow.Closed += (_, _) => {
+            fileSystem.Dispose();
             updateCancellation.Cancel();
             updateCancellation.Dispose();
          };

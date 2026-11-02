@@ -245,3 +245,20 @@ Limitations: Recovery covers process interruption rather than guaranteed physica
 Validation: All eleven regression groups passed with 993 assertions, including 29 crash-report checks; the Mac application builds successfully and no real crash, ROM edit, browser launch, or issue submission was required.
 
 Limitations: Native dialog appearance and actual Finder/browser/clipboard interaction still require manual confirmation; existing logs in old working directories are retained, and Core metadata migration versions remain unchanged.
+
+## 015 — Check compatible Mac updates without blocking startup
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Updates/MacUpdateChecker.cs](src/HexManiac.Avalonia/Updates/MacUpdateChecker.cs) | 16 | Query this fork's release API with a timeout and response limit, select newer stable versions with compatible Mac assets, and cache successful results by repository, version, and architecture. |
+| [src/HexManiac.Avalonia/App.axaml.cs](src/HexManiac.Avalonia/App.axaml.cs) | 46 | Direct the existing Update action to this fork's releases page. |
+| [src/HexManiac.Avalonia/App.axaml.cs](src/HexManiac.Avalonia/App.axaml.cs) | 126 | Start update discovery after the window opens and cancel pending work when the window closes. |
+| [src/HexManiac.Avalonia/App.axaml.cs](src/HexManiac.Avalonia/App.axaml.cs) | 308 | Discard legacy upstream update flags and replace synchronous HTML scraping with background discovery and a guarded UI-thread result update. |
+| [src/HexManiac.Core/ViewModels/EditorViewModel.cs](src/HexManiac.Core/ViewModels/EditorViewModel.cs) | 383 | Notify bindings when update availability changes so asynchronously discovered updates enable the menu action. |
+| [tests/StartupUpdates/StartupUpdates.csproj](tests/StartupUpdates/StartupUpdates.csproj) | 1 | Add headless startup-update regressions with shared reference resources. |
+| [tests/StartupUpdates/Program.cs](tests/StartupUpdates/Program.cs) | 1 | Verify compatible release filtering, yielding requests, cache rules, property notifications, size limits, offline behavior, timeout, and cancellation with fake HTTP responses. |
+| [tests/StartupUpdates/README.md](tests/StartupUpdates/README.md) | 1 | Document release tag and asset conventions, daily caching, startup behavior, and the native and live-network checks that remain manual. |
+
+Validation: All twelve regression groups passed with 1,035 assertions, including 42 startup-update checks; no live GitHub access, downloads, installs, or ROM edits were required.
+
+Limitations: Discovery considers the most recent 30 releases and requires documented numeric tags and compatible Mac asset names; native startup appearance and live browser/network behavior remain manual checks, and Update opens the releases page rather than installing software.

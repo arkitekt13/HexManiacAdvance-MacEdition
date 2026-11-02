@@ -6,6 +6,8 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
+using HavenSoft.HexManiac.AvaloniaUI.Updates;
 using System.Reflection;
 using System.Threading;
 
@@ -41,7 +43,7 @@ namespace HavenSoft.HexManiac.AvaloniaUI;
 ///   latter WindowState.Normal on the same property, so that part transfers directly.
 /// </summary>
 public partial class App : Application {
-   public const string ReleaseUrl = "https://github.com/haven1433/HexManiacAdvance/releases";
+   public const string ReleaseUrl = AppIdentity.RepositoryUrl + "/releases";
    public const string
       Arg_Skip_Splash_Screen = "--skip-splash",
       Arg_No_Metadata = "--no-metadata",
@@ -121,7 +123,15 @@ public partial class App : Application {
          System.Diagnostics.Trace.Listeners.Clear();
          System.Diagnostics.Trace.Listeners.Add(new CustomTraceListener(fileSystem, viewModel));
          desktop.MainWindow = mainWindow;
-         mainWindow.Opened += (sender, e) => CloseSplash();
+         var updateCancellation = new CancellationTokenSource();
+         mainWindow.Closed += (_, _) => {
+            updateCancellation.Cancel();
+            updateCancellation.Dispose();
+         };
+         mainWindow.Opened += async (sender, e) => {
+            CloseSplash();
+            await CheckIsNewerVersionAvailableAsync(viewModel, updateCancellation.Token);
+         };
          mainWindow.Show();
          if (args.Any(argument => argument == Arg_Mcp_Server)) mainWindow.StartMcpServer(announce: false);
          DebugLog(viewModel, "All Started!");
@@ -295,7 +305,8 @@ public partial class App : Application {
       var editor = new EditorViewModel(fileSystem, fileSystem, allowLoadingMetadata: useMetadata) { ShowDeveloperMenu = showDevMenu };
       DebugLog(editor, "------");
       DebugLog(editor, fileName);
-      CheckIsNewerVersionAvailable(editor);
+      // Persisted flags from older builds referred to upstream Windows releases.
+      editor.IsNewVersionAvailable = false;
       if (!File.Exists(fileName)) return editor;
       DebugLog(editor, "File Exists");
       TryOpenFile(editor, fileSystem, fileName, address);
@@ -323,21 +334,16 @@ public partial class App : Application {
       }
    }
 
-   private static void CheckIsNewerVersionAvailable(EditorViewModel viewModel) {
-      if (DateTime.Now < viewModel.LastUpdateCheck + TimeSpan.FromDays(1)) return;
-      viewModel.LastUpdateCheck = DateTime.Now;
-      try {
-         using var client = new HttpClient();
-         string content = client.GetStringAsync(ReleaseUrl).Result;
-         var mostRecentVersion = content
-            .Split('\n')
-            .Where(line => line.Contains("/haven1433/HexManiacAdvance/tree/"))
-            .Select(line => line.Split("title=").Last().Split('"')[1].Split('v').Last())
-            .First();
-         viewModel.IsNewVersionAvailable = StoredMetadata.NeedVersionUpdate(viewModel.Singletons.MetadataInfo.VersionNumber, mostRecentVersion);
-      } catch {
-         // If anything goes wrong we probably don't care: IsNewVersionAvailable just stays false.
-      }
+   private static async Task CheckIsNewerVersionAvailableAsync(EditorViewModel viewModel, CancellationToken cancellationToken) {
+      using var client = new HttpClient();
+      var checker = new MacUpdateChecker(client, MacUpdateChecker.DefaultCachePath,
+         AppIdentity.VersionNumber, RuntimeInformation.ProcessArchitecture);
+      // Keep disk cache access, response parsing, and network setup off the UI thread as well.
+      var available = await Task.Run(() => checker.CheckAsync(cancellationToken)).ConfigureAwait(false);
+      if (cancellationToken.IsCancellationRequested || available == null) return;
+      await Dispatcher.UIThread.InvokeAsync(() => {
+         if (!cancellationToken.IsCancellationRequested) viewModel.IsNewVersionAvailable = available.Value;
+      });
    }
 
    #endregion

@@ -489,9 +489,7 @@ public partial class MainWindow : Window {
    /// EditorViewModel.InformationMessage has a private setter and Core is not modified by this
    /// port, so the title bar carries the "a server is listening" signal instead.
    private void UpdateTitle() {
-      var name = editor?.Singletons?.MetadataInfo?.VersionNumber is string version && version.Length > 0
-         ? $"HexManiacAdvance ({version})"
-         : "HexManiacAdvance";
+      var name = $"HexManiacAdvance ({AppIdentity.VersionNumber})";
       Title = mcpServer != null && mcpServer.IsRunning ? $"{name}  -  MCP on port {mcpServer.Port}" : name;
    }
 

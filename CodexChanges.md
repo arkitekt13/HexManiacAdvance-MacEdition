@@ -224,3 +224,24 @@ Compatibility: Legacy exports still require matching game code and ROM size and 
 Validation: All ten regression groups passed with 964 assertions, including 13 export checks using temporary folders and simulated interruption or publication failure.
 
 Limitations: Recovery covers process interruption rather than guaranteed physical power-loss durability; external editors do not honor the app's lock, and project export remains a table project rather than a full ROM serializer.
+
+## 014 — Report Mac crashes to this fork with consistent app versions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/AppIdentity.cs](src/HexManiac.Avalonia/AppIdentity.cs) | 7 | Define the Mac fork URLs and assembly-based app version with build configuration independently of Core metadata migration versions. |
+| [src/HexManiac.Avalonia/Windows/CrashReporter.cs](src/HexManiac.Avalonia/Windows/CrashReporter.cs) | 31 | Save reports to a stable user log folder, report write failures truthfully, and offer Finder only after a successful write. |
+| [src/HexManiac.Avalonia/Windows/CrashReporter.cs](src/HexManiac.Avalonia/Windows/CrashReporter.cs) | 71 | Open a bounded issue draft on the Mac fork and retain complete clipboard diagnostics with platform details, inner exceptions, and guarded editor-state collection. |
+| [src/HexManiac.Avalonia/Windows/CustomTraceListener.cs](src/HexManiac.Avalonia/Windows/CustomTraceListener.cs) | 32 | Use the shared app identity for assertions and direct their reporting action to this fork instead of upstream Discord. |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs](src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs) | 7 | Read the welcome version label from the shared Mac app identity. |
+| [src/HexManiac.Avalonia/Windows/AboutWindow.axaml.cs](src/HexManiac.Avalonia/Windows/AboutWindow.axaml.cs) | 17 | Show the app version and build configuration in About and identify the Mac fork as the preview-report destination. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 257 | Point the Help menu's Report an Issue action to the shared Mac fork issues URL. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 492 | Use the app version in the window title instead of Core's metadata version. |
+| [src/HexManiac.Avalonia/Mcp/McpServer.cs](src/HexManiac.Avalonia/Mcp/McpServer.cs) | 197 | Report the same app version during MCP initialization. |
+| [tests/CrashReporting/CrashReporting.csproj](tests/CrashReporting/CrashReporting.csproj) | 1 | Add a headless diagnostic regression group referencing the actual Mac application. |
+| [tests/CrashReporting/Program.cs](tests/CrashReporting/Program.cs) | 1 | Verify identity, fork routing, inner exceptions, full clipboard content, saved-log actions, append behavior, and failure reporting with synthetic exceptions. |
+| [tests/CrashReporting/README.md](tests/CrashReporting/README.md) | 1 | Document the crash checks, new log location, issue-draft workflow, and native integration checks that remain manual. |
+
+Validation: All eleven regression groups passed with 993 assertions, including 29 crash-report checks; the Mac application builds successfully and no real crash, ROM edit, browser launch, or issue submission was required.
+
+Limitations: Native dialog appearance and actual Finder/browser/clipboard interaction still require manual confirmation; existing logs in old working directories are retained, and Core metadata migration versions remain unchanged.

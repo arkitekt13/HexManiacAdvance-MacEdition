@@ -10,6 +10,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="HavenSoft.HexManiac.AvaloniaUI.Windows.MainWindow"
+        xmlns:app="clr-namespace:HavenSoft.HexManiac.AvaloniaUI"
         xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         xmlns:hsv="clr-namespace:HavenSoft.HexManiac.AvaloniaUI.Resources"
         xmlns:hsg3hv="clr-namespace:HavenSoft.HexManiac.AvaloniaUI.Controls"
@@ -253,7 +254,7 @@
                 </NativeMenu>
               </NativeMenuItem.Menu>
             </NativeMenuItem>
-            <NativeMenuItem Header="Report an Issue" Click="WebLink" CommandParameter="https://github.com/haven1433/HexManiacAdvance/issues" />
+            <NativeMenuItem Header="Report an Issue" Click="WebLink" CommandParameter="{x:Static app:AppIdentity.IssuesUrl}" />
             <NativeMenuItem Header="Discord" Click="WebLink" CommandParameter="https://discord.gg/x9eQuBg" />
             <NativeMenuItem Header="Copy Anchor Reference" Command="{Binding CopyAnchorReference}" CommandParameter="{DynamicResource FileSystem}" />
             <NativeMenuItem Header="About" Click="AboutClick" />

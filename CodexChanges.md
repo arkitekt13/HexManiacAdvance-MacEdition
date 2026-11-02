@@ -554,3 +554,20 @@ Validation: At each of three map sizes, 70 zoom steps published 70 bitmaps befor
 Validation note: MapRendering passed 93 assertions, all fifteen Mac groups passed 1,205 assertions, and both upstream suites remained green with 1,609 and 26 passes plus their existing 1,048 and 41 optional-ROM skips; zero engine errors were reported.
 
 Scope: No Core code, compiler, repointing, pointer definitions, flag/variable allocation, map-editing algorithms, cache invalidation, or undo implementation changed; real-ROM/NPC workflows and native interaction remain unverified.
+
+## 035 — Benchmark Pokémon table preparation and production UI bindings
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/PokemonTableBenchmark/PokemonTableBenchmark.csproj](tools/PokemonTableBenchmark/PokemonTableBenchmark.csproj) | 1 | Add a standalone Release benchmark host with benchmark-only Avalonia.Headless services and existing model resources. |
+| [tools/PokemonTableBenchmark/SyntheticPokemonFixture.cs](tools/PokemonTableBenchmark/SyntheticPokemonFixture.cs) | 7 | Construct fabricated names/base-stats tables using the existing stats schema, with optional unrelated tables and separate untimed model-access counters. |
+| [tools/PokemonTableBenchmark/Program.cs](tools/PokemonTableBenchmark/Program.cs) | 17 | Measure real navigation, selector/field preparation, list discovery, production bindings/layout, and separate forced drawing while guarding visible values, bytes, metadata, and rename undo/redo. |
+| [tools/PokemonTableBenchmark/README.md](tools/PokemonTableBenchmark/README.md) | 1 | Document reproducible benchmark execution, synthetic coverage, experimental choice reuse, and native-UI measurement limits. |
+| [tests/TABLE_PERFORMANCE.md](tests/TABLE_PERFORMANCE.md) | 1 | Record baseline/repeat evidence, repeated table-discovery and lookup-token allocations, existing control reuse, and prioritized optimization requirements. |
+| [tests/README.md](tests/README.md) | 23 | Link the table investigation alongside the existing script and map performance reports. |
+
+Validation: The final Release build passed with zero warnings/errors and all four fixtures passed 1,304 correctness checks; repeated runs reproduced control-free navigation allocations exactly, including 28.49 MB versus 208.57 MB per 100 switches when 250 unrelated tables were added to the 412-species fixture.
+
+Measurement note: Isolated section/table-list discovery allocated 174.81 MB per 100 paired reads with those extra tables; source inspection and a 1,360-byte lookup-token allocation probe identify repeated read-only discovery as the first optimization candidate, without claiming any editor speedup yet.
+
+Scope: This checkpoint changes tools and documentation only; application code, game definitions/addresses, compiler, relocation/repointing, unused flag/variable discovery, undo, and existing tests are unchanged, while real-ROM workflows and native Mac input/compositor performance remain unmeasured.

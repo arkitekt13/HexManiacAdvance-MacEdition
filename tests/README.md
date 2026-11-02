@@ -20,5 +20,7 @@ New regression groups must target net8.0, have the same project/directory/assemb
 
 Map presentation measurements and synthetic-fixture limits are recorded separately in
 [MAP_PERFORMANCE.md](MAP_PERFORMANCE.md); script highlighting results remain in
-[SCRIPT_PERFORMANCE.md](SCRIPT_PERFORMANCE.md). These are component-level measurements,
+[SCRIPT_PERFORMANCE.md](SCRIPT_PERFORMANCE.md). Pokémon names/base-stats table preparation
+and headless binding/layout findings are in [TABLE_PERFORMANCE.md](TABLE_PERFORMANCE.md).
+These are component-level measurements,
 not native-input or full-editor latency claims.

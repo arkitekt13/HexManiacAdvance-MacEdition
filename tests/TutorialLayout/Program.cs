@@ -20,6 +20,9 @@ void Check(bool condition, string message) {
    checks++;
    if (!condition) throw new InvalidOperationException(message);
 }
+string ExpectedDescription(MapTutorialViewModel tutorial) => tutorial.Title == "Paint Blocks"
+   ? "Select one block, then double-click the map to fill an area. Multiple-block selections cannot fill."
+   : OperatingSystem.IsMacOS() ? tutorial.Content.Replace("Control", "Command (⌘)") : tutorial.Content;
 
 foreach (var hostWidth in new[] { 800, 500 }) {
    var vm = new MapTutorialsViewModel();
@@ -72,7 +75,7 @@ foreach (var hostWidth in new[] { 800, 500 }) {
          var container = cards.ContainerFromItem(item) as Control;
          Check(container != null, "Tutorial cards must be realized.");
          var description = container.GetVisualDescendants().OfType<TextBlock>()
-            .Single(block => block.Text == (OperatingSystem.IsMacOS() ? item.Content.Replace("Control", "Command (⌘)") : item.Content));
+            .Single(block => block.Text == ExpectedDescription(item));
          var position = description.TranslatePoint(new Point(), viewport);
          Check(position.HasValue && new Rect(viewport.Bounds.Size)
             .Contains(new Rect(position.Value, description.Bounds.Size)),
@@ -81,7 +84,7 @@ foreach (var hostWidth in new[] { 800, 500 }) {
       foreach (var item in vm.Tutorials) {
          var container = (Control)cards.ContainerFromItem(item);
          var description = container.GetVisualDescendants().OfType<TextBlock>()
-            .Single(block => block.Text == (OperatingSystem.IsMacOS() ? item.Content.Replace("Control", "Command (⌘)") : item.Content));
+            .Single(block => block.Text == ExpectedDescription(item));
          Check(description.TextLayout.Height <= description.Bounds.Height + .01,
             $"Compact card must fit the full description: {item.Title}.");
          if (item.Icon == "CtrlKey") {

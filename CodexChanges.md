@@ -840,3 +840,14 @@ Scope: Arrow input routing only; core map creation, connection editing, resizing
 Validation: The editor and tutorial regression project build with zero warnings/errors, and all 332 tutorial layout, icon, content, and preview checks pass.
 
 Scope: Display instructions only; Command-left-drag already invokes rectangle fill on macOS, and no gesture, block-writing, selection, pointer, or history logic changed. Rectangle fill paints with the selected block rather than selecting an arbitrary area.
+
+## 051 — Clarify the single-block requirement for flood fill
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 35 | Explain in the Paint Blocks card that double-click fill requires one selected block and does not support multiple-block selections. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 23 | Verify the clarified description is displayed and fits the tutorial card at both tested widths. |
+
+Validation: The editor and tutorial project build with zero warnings/errors, and all 332 tutorial checks pass; an exploratory full-window synthetic test also fills a connected nine-cell region through two routed left clicks, including slight pointer movement.
+
+Scope: Tutorial wording only; the user confirmed multiple blocks were selected, which the existing shared Core intentionally excludes from flood fill, so no painting algorithm or input handler was changed and the provisional input trace was removed.

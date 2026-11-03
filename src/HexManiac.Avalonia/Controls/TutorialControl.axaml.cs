@@ -31,8 +31,11 @@ public partial class TutorialControl : UserControl {
 
    // Shared Core tutorials retain Windows wording; match the Mac map input bindings at display time.
    public static readonly IValueConverter ModifierTextConverter =
-      new FuncValueConverter<string, string>(text => OperatingSystem.IsMacOS()
-         ? text?.Replace("Control", "Command (⌘)") : text);
+      new FuncValueConverter<string, string>(text => {
+         if (text == "Double-Click over the map to paint an area with the selected block.")
+            return "Select one block, then double-click the map to fill an area. Multiple-block selections cannot fill.";
+         return OperatingSystem.IsMacOS() ? text?.Replace("Control", "Command (⌘)") : text;
+      });
 
    public static readonly IValueConverter ModifierIconConverter =
       new FuncValueConverter<string, Geometry>(icon => IconExtension.GetIcon(

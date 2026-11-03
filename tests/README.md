@@ -53,3 +53,7 @@ fill are checked in [MapSelection/README.md](MapSelection/README.md).
 
 Backward text selection, name replacement, and the reported text-tool crash are checked in
 [TextSelection/README.md](TextSelection/README.md).
+
+The script-edit pipeline, deferred compiler/component probes, and sparse variable-alias lookup
+investigation are recorded in [SCRIPT_EDIT_PIPELINE.md](SCRIPT_EDIT_PIPELINE.md); reproduction
+commands and scope limits are in [../tools/ScriptEditingBenchmark/README.md](../tools/ScriptEditingBenchmark/README.md).

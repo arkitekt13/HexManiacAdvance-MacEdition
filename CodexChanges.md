@@ -932,3 +932,19 @@ User verification update: The user confirmed the translucent copied-block previe
 Validation: The map selection project builds with zero warnings/errors and passes 340 checks on macOS; the complete Mac suite passes all 23 groups and 3,137 assertions with no skipped groups.
 
 Scope: Regression coverage only; no application editing, researched addresses, block behaviors, collision/elevation rules, or repointing algorithms were changed, and no user ROM was opened or modified.
+
+## 057 — Benchmark script editing and identify sparse variable-alias lookup costs
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ScriptEditingBenchmark/ScriptEditingBenchmark.csproj](tools/ScriptEditingBenchmark/ScriptEditingBenchmark.csproj) | 1 | Add an independently runnable Release benchmark referencing production Core and Avalonia controls with cached headless dependencies and shipped script definitions. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 19 | Measure immediate edits, deferred compilation, and attached text-control presentation across synthetic command/comment/dialogue scripts while checking exact byte changes, deferred writes, stable addresses, and matching outputs. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 82 | Compare equivalent hexadecimal, decimal, and named-alias operands and isolate compiler/traversal/formatting costs with timing samples, managed allocations, timer owners, and output hashes. |
+| [tools/ScriptEditingBenchmark/README.md](tools/ScriptEditingBenchmark/README.md) | 1 | Document reproduction commands, fixture isolation, measurement phases, report completeness, and native-input/relocation limits. |
+| [tests/SCRIPT_EDIT_PIPELINE.md](tests/SCRIPT_EDIT_PIPELINE.md) | 1 | Record measured compiler and UI baselines, the sparse alias-list bottleneck, and required semantic/safety coverage before optimization. |
+| [tests/SCRIPT_PERFORMANCE.md](tests/SCRIPT_PERFORMANCE.md) | 3 | Link the pipeline investigation from the earlier highlighting checkpoints to distinguish existing optimizations from newly measured costs. |
+| [tests/README.md](tests/README.md) | 57 | Link the new pipeline measurements and benchmark instructions alongside the existing regression documentation. |
+
+Validation: The Release benchmark builds successfully; all 18 pipeline cases, two component cases, and three equivalent-spelling cases finish with 1,596 checks, identical paired UI/Core layer hashes, and identical equivalent-spelling compiled-byte hashes. At 500 repeated commands, isolated compilation measures 702.73 ms/1,068,447,352 allocated bytes for hexadecimal variables versus 7.68 ms/24,153,352 bytes for equivalent decimal variables; these are diagnostic baselines, not an implemented speedup or retained-RAM measurements.
+
+Scope: Investigation tooling and documentation only; application sources, script matching semantics, researched addresses, compiler/relocation/repointing, flag/variable allocation, and history are unchanged. No user ROM was opened or modified, and the user's prior Windows stuttering is not claimed reproduced or resolved.

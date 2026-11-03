@@ -1,5 +1,9 @@
 # Script editor responsiveness checkpoints
 
+Follow-up: [SCRIPT_EDIT_PIPELINE.md](SCRIPT_EDIT_PIPELINE.md) measures the live CodeTool
+edit/deferred-compile path and attached Mac text control, including a newly identified sparse
+variable-alias lookup bottleneck; that investigation changes no application code.
+
 Branch: `improve/script-editor-responsiveness`, based on `26244704`.
 The reported long-script stutter was observed in the Windows editor; equivalent Mac stutter
 has not been reproduced or measured. These checkpoints target confirmed repeated work,

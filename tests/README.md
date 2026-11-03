@@ -64,3 +64,6 @@ shrinking, caller/dialogue preservation, and complete history round-trips are pr
 
 Per-compilation argument reuse, unchanged numeric/name interpretation, before/after metrics,
 and invalidation/coverage limits are recorded in [SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md](SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md).
+
+NPC-style 100–500-source-line editing, dialogue/comment changes, core completion cost, and the
+separate Mac autocomplete mapping finding are recorded in [NPC_SCRIPT_BENCHMARK.md](NPC_SCRIPT_BENCHMARK.md).

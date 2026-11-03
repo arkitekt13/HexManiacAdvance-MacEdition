@@ -983,3 +983,19 @@ Scope: Tests and documentation only; argument matching, compiler/relocation/repo
 Validation: All 24 Mac groups pass 4,702 assertions with no groups skipped; the first upstream project passes 1,780 cases with 0 failures/935 optional skips and the second passes 26 with 0 failures/41 optional skips, both with zero engine errors. All 1,596 benchmark invariants and original/current layer/compiled-byte hashes match; the isolated 500-command hexadecimal compile falls from 702.73 ms/1,068,447,352 temporary allocated bytes to 20.58 ms/26,623,472 bytes, while the attached 2,000-command deferred update falls from 2,795.41 ms to 90.19 ms.
 
 Scope: No numeric syntax or alias-priority change, pointer parsing change, global/cross-edit result cache, relocation/history rewrite, researched-address change, or flag/variable allocation change; existing mutable-culture and model-refresh behavior are retained. Figures are synthetic Release medians and temporary managed allocation volumes, not retained RAM or native typing latency; UI/highlighting costs remain, HMA-003 is unchanged, and source/staged FireRed fixture hashes are unchanged after upstream verification.
+
+## 060 — Benchmark 100–500-line NPC-style scripts and characterize autocomplete mapping
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 22 | Add an NPC mode with ten warmups, exact source-line sizes, numeric/dialogue/comment edits, settled-address checks, and explicit fixture-size/hash metadata. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 44 | Generate compound NPC conversations with conditional shared-routine calls, varied variables/flags, comments, and fixed-address dialogue instead of only repeated commands. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 198 | Measure core command/variable completions separately and characterize routed production overlay results with first-line controls and explicit later-line mismatches. |
+| [tools/ScriptEditingBenchmark/README.md](tools/ScriptEditingBenchmark/README.md) | 50 | Document realistic-size reproduction, measurement/setup boundaries, autocomplete controls, and native-input limits. |
+| [tests/NPC_SCRIPT_BENCHMARK.md](tests/NPC_SCRIPT_BENCHMARK.md) | 1 | Record two complete runs, per-edit timing ranges, hash equivalence, fast core completions, and the confirmed headless Mac caret-mapping finding. |
+| [tests/README.md](tests/README.md) | 68 | Link the NPC-style editing and autocomplete benchmark report. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 65 | Track HMA-004 for the original overlay's two-character newline assumption and the required offered/applied-completion regressions. |
+
+Validation: The final Release benchmark builds with zero warnings/errors; two complete runs each pass 2,892 measurement/invariant checks across 18 edit cases and 24 completion probes, with identical paired UI/Core and cross-run source/layer hashes, and the legacy lookup mode still passes 58 checks. All six first-line overlay controls match Core in each run, while all 18 tested later-line probes disagree and remain explicitly unfixed; immediate 500-line edits measure about 10–13 ms, deferred updates 34–38 ms, and core autocomplete query medians 0.0135–0.0784 ms.
+
+Scope: Benchmark tooling and documentation only; no application sources, numeric/alias parsing, script/compiler/relocation/history algorithms, or supplied ROMs were changed or opened. Measurements exclude native keyboard/full TabView bindings, initial source consolidation, the debounce wait, script growth, and new auto-stream allocation; later-line UI mismatches are characterization findings rather than successful autocomplete checks, and no native UI fix is claimed.

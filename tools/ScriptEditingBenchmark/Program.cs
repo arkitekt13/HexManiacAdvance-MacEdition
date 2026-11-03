@@ -16,9 +16,12 @@ using HavenSoft.HexManiac.Core.ViewModels;
 using HavenSoft.HexManiac.Core.ViewModels.Tools;
 
 // Investigation only: production editor/compiler, fabricated data, no supplied ROM or network.
-if(args.Length<1 || args.Length>2 || (args.Length==2 && args[1]!="--probe" && args[1]!="--lookup"))throw new ArgumentException("Expected an output JSON path and optional --probe or --lookup.");
+if(args.Length<1 || args.Length>2 || (args.Length==2 && args[1]!="--probe" && args[1]!="--lookup" && args[1]!="--npc"))throw new ArgumentException("Expected an output JSON path and optional --probe, --lookup, or --npc.");
 var probe=args.Length==2 && args[1]=="--probe";
 var lookupOnly=args.Length==2 && args[1]=="--lookup";
+var npc=args.Length==2 && args[1]=="--npc";
+var warmups=npc?10:2;
+const int samples=7;
 var output=Path.GetFullPath(args[0]);
 AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
    .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing=false })
@@ -26,18 +29,29 @@ AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
 SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationContext());
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 var rows=new List<object>();
+var completionRows=new List<object>();
 var checks=0;
 void WriteReport(bool complete)=>File.WriteAllText(output,JsonSerializer.Serialize(new {
    revision=Environment.GetEnvironmentVariable("HMA_BENCHMARK_REVISION")??"working tree; identify revision before comparison",runtime=RuntimeInformation.FrameworkDescription,
    platform=RuntimeInformation.OSDescription,architecture=RuntimeInformation.ProcessArchitecture.ToString(),
-   warmups=2,samplesPerCase=7,checks,complete,componentProbe=probe,lookupProbe=lookupOnly,
-   scope="Synthetic one-character same-size edits; standalone production TextEditor/CodeTool, manually flushed debounce; excludes the 500ms wait, full TabView/map/event bindings, native input/compositor, relocation and real ROM workloads. UI-thread allocations only. Component probes are isolated calls, not additive attribution of a complete update.",results=rows,
+   warmups,samplesPerCase=samples,checks,complete,componentProbe=probe,lookupProbe=lookupOnly,npc,
+   scope="Synthetic one-character same-size edits; standalone production TextEditor/CodeTool, manually flushed debounce; excludes the 500ms wait, full TabView/map/event bindings, native input/compositor, relocation and real ROM workloads. UI-thread allocations only. Component probes are isolated calls, not additive attribution of a complete update. NPC sizes count actual source lines, including comments/dialogue; completion queries are measured separately.",results=rows,completions=completionRows,
 },new JsonSerializerOptions { WriteIndented=true }));
 Directory.CreateDirectory(Path.GetDirectoryName(output)!);
 void Check(bool condition,string message){checks++;if(!condition)throw new InvalidOperationException(message);}
 const int start=0x1000;
-const int warmups=2,samples=7;
 string Source(string workload,int statements,int digit) {
+   if(workload.StartsWith("npc-",StringComparison.Ordinal)) {
+      var lines=new List<string>{"lock",$"setvar 0x4000 0x000{digit}","faceplayer","# NPC interaction 1"};
+      var tail=new[]{"release","end","reaction:","setvar temp3 3","return"};
+      for(int part=0;lines.Count+10+tail.Length<=statements;part++) {
+         lines.AddRange(new[]{"# Ask about the village",$"if.compare.call temp1 == {part%3} <reaction>",
+            $"msgbox.default <{0x20000+part*128:X6}>","{","Welcome to our village.","Take your time exploring.","}",
+            $"setvar temp{part%10} {part%5}",$"checkflag 0x{0x200+part%16:X4}",$"setflag 0x{0x220+part%16:X4}"});
+      }
+      while(lines.Count+tail.Length<statements)lines.Add("# Additional conversation note");
+      lines.AddRange(tail);return string.Join("\n",lines);
+   }
    var text=new StringBuilder("lock\nsetvar 0x4000 0x000"+digit+"\n");
    for(int i=0;i<statements;i++) {
       text.AppendLine(workload switch {
@@ -55,7 +69,7 @@ long MedianBytes(IEnumerable<long> values)=>values.Order().ElementAt(samples/2);
    var bytes=GC.GetAllocatedBytesForCurrentThread();var timestamp=Stopwatch.GetTimestamp();
    action();return(Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds,GC.GetAllocatedBytesForCurrentThread()-bytes);
 }
-foreach(var workload in probe||lookupOnly?new[]{"commands"}:new[]{"commands","comments","dialogue"})foreach(var statements in lookupOnly?new[]{500}:probe?new[]{500,2000}:new[]{100,500,2000}) {
+foreach(var workload in npc?new[]{"npc-argument","npc-dialogue","npc-comment"}:probe||lookupOnly?new[]{"commands"}:new[]{"commands","comments","dialogue"})foreach(var statements in npc?new[]{100,250,500}:lookupOnly?new[]{500}:probe?new[]{500,2000}:new[]{100,500,2000}) {
    foreach(var attached in probe||lookupOnly?new[]{false}:new[]{false,true}) {
       var dispatch=new BenchmarkDispatch();var singletons=new Singletons(dispatch);
       var data=Enumerable.Repeat((byte)0xFF,0x40000).ToArray();
@@ -76,7 +90,11 @@ foreach(var workload in probe||lookupOnly?new[]{"commands"}:new[]{"commands","co
       // Decompilation cannot reconstruct source comments; put the original compiled source
       // into the live body before measuring so the comment workload actually contains them.
       body.Content=seed;dispatch.Flush();
+      // A multi-section source may consolidate/relocate during initial setup. Measure
+      // subsequent same-size edits at its settled address, not that one-time setup.
+      var editingStart=body.Address;
       var canonical=body.Content;
+      if(npc)Check(canonical.Count(c=>c=='\n')+1==statements,"NPC size must count actual displayed source lines.");
       Check(workload!="comments" || canonical.Contains("# NPC interaction"),"Comment workload must retain source comments.");
       Check(canonical.Contains("0x0001"),"Editable immediate must survive initial decompilation.");
       if(lookupOnly) {
@@ -99,8 +117,10 @@ foreach(var workload in probe||lookupOnly?new[]{"commands"}:new[]{"commands","co
          }
          continue;
       }
-      var first=canonical.IndexOf("0x0001",StringComparison.Ordinal)+5;
-      var inputs=new[]{canonical[..first]+"2"+canonical[(first+1)..],canonical[..first]+"3"+canonical[(first+1)..]};
+      var first=workload=="npc-dialogue"?canonical.IndexOf("Welcome",StringComparison.Ordinal):
+         workload=="npc-comment"?canonical.IndexOf("# NPC interaction 1",StringComparison.Ordinal)+18:canonical.IndexOf("0x0001",StringComparison.Ordinal)+5;
+      var replacements=workload=="npc-dialogue"?new[]{"X","Y"}:new[]{"2","3"};
+      var inputs=replacements.Select(value=>canonical[..first]+value+canonical[(first+1)..]).ToArray();
       var initial=model.RawData.ToArray();
       var editTimes=new List<double>();var compileTimes=new List<double>();var presentationTimes=new List<double>();
       var editBytes=new List<long>();var compileBytes=new List<long>();var presentationBytes=new List<long>();
@@ -131,10 +151,13 @@ foreach(var workload in probe||lookupOnly?new[]{"commands"}:new[]{"commands","co
             var compile=Measure(dispatch.Flush);
             var afterCompile=Measure(Layout);
             Check(!body.HasError && !tool.ShowErrorText,"Measured scripts must compile without errors.");
-            Check(body.Address==start,"Same-size edits must not relocate the script.");
-            Check(model[start+4]==(iteration%2==0?2:3),"Compiler must write the changed immediate.");
-            Check(model.RawData.Where((value,index)=>value!=initial[index]).Count()==1,
-               "Same-size immediate edits must not modify unrelated bytes.");
+            Check(body.Address==editingStart,"Same-size edits must not relocate the settled script.");
+            if(workload=="npc-dialogue")Check(model[0x20000]==model.TextConverter.Convert(replacements[iteration%2],out _)[0],"Dialogue edit must update the intended PCS character.");
+            else if(workload!="npc-comment")Check(model[editingStart+4]==(iteration%2==0?2:3),"Compiler must write the changed immediate.");
+            var expected=initial.ToArray();
+            if(workload=="npc-dialogue")expected[0x20000]=model.TextConverter.Convert(replacements[iteration%2],out _)[0];
+            else if(workload!="npc-comment")expected[editingStart+4]=(byte)(iteration%2==0?2:3);
+            Check(model.RawData.SequenceEqual(expected),"Edits must change exactly their intended byte; comments must not change any ROM bytes.");
             if(iteration>=warmups) {
                editTimes.Add(edit.Ms);editBytes.Add(edit.Bytes);compileTimes.Add(compile.Ms);compileBytes.Add(compile.Bytes);
                presentationTimes.Add(presentation.Ms+afterCompile.Ms);presentationBytes.Add(presentation.Bytes+afterCompile.Bytes);
@@ -162,13 +185,49 @@ foreach(var workload in probe||lookupOnly?new[]{"commands"}:new[]{"commands","co
             }
          }
          rows.Add(new { workload,statements,sourceLines=canonical.Count(c=>c=='\n')+1,characters=canonical.Length,
+            sizeUnit=npc?"actual source lines":"repeated statements",branchCalls=canonical.Split('\n').Count(line=>line.StartsWith("if.compare.call",StringComparison.Ordinal)),
+            dialogueBlocks=canonical.Split('\n').Count(line=>line=="{"),
             attachedEditor=attached,keywords=body.Editor.Keywords.Count,constants=body.Editor.Constants.Count,
             immediateMedianMs=Median(editTimes),deferredCompileMedianMs=Median(compileTimes),presentationMedianMs=Median(presentationTimes),
             immediateAllocatedBytes=MedianBytes(editBytes),deferredCompileAllocatedBytes=MedianBytes(compileBytes),presentationAllocatedBytes=MedianBytes(presentationBytes),
             immediateSamplesMs=editTimes,deferredCompileSamplesMs=compileTimes,presentationSamplesMs=presentationTimes,
-            contentEvents,highlightEvents,layerSha256=layerHashes,components,timerSamples });
-         Console.WriteLine($"{workload} {statements} statements UI={attached}: edit {Median(editTimes):F2} ms, deferred {Median(compileTimes):F2} ms, presentation {Median(presentationTimes):F2} ms");
+            contentEvents,highlightEvents,layerSha256=layerHashes,components,timerSamples,
+            scriptStart=editingStart,sourceSha256=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical))) });
+         Console.WriteLine($"{workload} {statements} {(npc?"lines":"statements")} UI={attached}: edit {Median(editTimes):F2} ms, deferred {Median(compileTimes):F2} ms, presentation {Median(presentationTimes):F2} ms");
          WriteReport(false);
+         if(npc && attached && workload=="npc-argument") {
+            // Use an independent CodeBody: incomplete prefixes must not schedule a ROM compile.
+            var completionBody=new CodeBody(model,tool.ScriptParser,null);tool.ScriptParser.AddKeywords(model,completionBody);
+            var lines=canonical.Split('\n');
+            var commandLines=Enumerable.Range(0,lines.Length).Where(i=>lines[i].StartsWith("setvar",StringComparison.Ordinal)).ToArray();
+            var positions=new[]{0,commandLines[0],commandLines[commandLines.Length/2],commandLines[^1]};
+            var completionControl=new TextEditor{DataContext=completionBody.Editor,FontSize=14};
+            var overlay=new AutocompleteOverlay{DataContext=completionBody,Target=completionControl};
+            window.Content=new Grid{Children={completionControl,overlay}};Layout();
+            foreach(var query in new[]{"msgb","setvar tem"})foreach(var lineIndex in positions) {
+               overlay.Target=null;
+               var altered=lines.ToArray();altered[lineIndex]=query;completionBody.Content=string.Join("\n",altered);Layout();
+               var before=model.RawData.ToArray();var times=new List<double>();var allocations=new List<long>();
+               IReadOnlyList<AutocompleteItem> options=null;
+               for(int sample=0;sample<warmups+samples;sample++) {
+                  var result=Measure(()=>options=completionBody.GetTokenComplete(query,lineIndex,query.Length));
+                  Check(options?.Count>0,"A valid command/variable prefix must offer completions.");
+                  if(sample>=warmups){times.Add(result.Ms);allocations.Add(result.Bytes);}
+               }
+               var expectedOptions=options.Select(option=>option.Text).ToArray();
+               completionControl.EditBox.CaretIndex=altered.Take(lineIndex).Sum(line=>line.Length+1)+query.Length;
+               Layout();overlay.Target=completionControl;overlay.ClearAutocompleteOptions();
+               string[] Shown()=>(overlay.FindControl<ItemsControl>("AutocompleteItems")!.ItemsSource as IEnumerable<AutoCompleteSelectionItem>)?.Select(option=>option.DisplayText).ToArray()??Array.Empty<string>();
+               completionControl.EditBox.RaiseEvent(new TextChangedEventArgs(TextBox.TextChangedEvent));var immediate=Shown();Layout();
+               var shown=Shown();
+               Check(lineIndex!=0 || expectedOptions.SequenceEqual(shown),"The first-line autocomplete control must prove the routed handler is wired correctly.");
+               Check(model.RawData.SequenceEqual(before),"Autocomplete must not edit ROM bytes.");
+               completionRows.Add(new{sourceLines=statements,query,lineIndex,medianMs=Median(times),medianAllocatedBytes=MedianBytes(allocations),samplesMs=times,
+                  expectedOptions,immediateOptions=immediate,shownOptions=shown,overlayMatches=expectedOptions.SequenceEqual(shown)});
+               Console.WriteLine($"AUTOCOMPLETE {statements} lines line={lineIndex} {query}: {Median(times):F3} ms; core={expectedOptions.Length} overlay={shown.Length} matches={expectedOptions.SequenceEqual(shown)}");
+            }
+            overlay.Target=null;window.Content=control;Layout();WriteReport(false);
+         }
       } finally { if(window!=null){window.Content=null;window.Close();Layout();} }
    }
 }

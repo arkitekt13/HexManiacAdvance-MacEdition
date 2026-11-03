@@ -61,3 +61,24 @@ partial-match ranking. Verify the actual game/model workflow before claiming a n
 
 **Scope boundary:** Per-compilation argument reuse deliberately preserves matching semantics;
 this pre-existing failure is a separate correctness issue, not introduced or fixed by caching.
+
+## HMA-004 — Correct Mac script autocomplete caret mapping after the first line
+
+**Status:** Reproduced with routed headless production TextEditor/AutocompleteOverlay handlers;
+native keyboard confirmation and a fix are pending.
+
+**Reproduction:** With LF content `lock\nmsgb`, place the caret at the end (index 9). Core
+GetTokenComplete at line 1, column 4 returns suggestions, but the overlay subtracts the previous
+line's length plus 2, obtains column 3, and requests the wrong character position. Its own
+first-line `msgb` and `setvar tem` controls show the expected eight/ten suggestions. The NPC
+benchmark records all later-line mismatches separately rather than treating them as passes.
+
+**Source evidence:** Both TargetTextChanged and AutocompleteOptionChosen in Avalonia
+Controls/AutocompleteOverlay.axaml.cs retain the Windows `length + 2` line traversal while
+splitting on Environment.NewLine, which is LF on Mac. The option-application path has the
+same assumption but has not been exercised by this benchmark.
+
+**Next investigation:** Add focused LF/CRLF, blank-line, first/middle/last-line, selection and
+caret-boundary tests; verify offered and applied completions, read-only lookup, exact intended
+line edits, and undo/redo. Replace the traversal with line-ending-aware mapping only after
+those regressions reproduce the error. Keep suggestion matching and script compilation intact.

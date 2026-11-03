@@ -79,3 +79,7 @@ not a regression group requiring the observed limitations to remain.
 The follow-up [usage-detection investigation](FLAG_USAGE_INVESTIGATION.md) records primary-engine
 cross-checks and read-only FireRed fixture findings; [FlagUsageSafety](FlagUsageSafety/README.md)
 protects currently supported detection and literal distinctions without changing the helpers.
+
+[ScriptWorkflowSafety](ScriptWorkflowSafety/README.md) protects settled script correction,
+relocation/history and save/reopen; the separate [workflow investigation](SCRIPT_WORKFLOW_INVESTIGATION.md)
+records pending-context/persistence and late-resource-error findings without changing the editor.

@@ -108,3 +108,53 @@ the review tool reports omissions without requiring them to persist.
 **Possible next scope, requiring approval:** Add only engine-confirmed missing operands/header
 fields with failing-before/passing-after tests. Handle freshness, reservations, native-reserve
 audits, legal ranges, custom engines and incomplete-scan reporting as separately reviewed work.
+
+## HMA-006 — Prevent deferred script work from applying to a changed context
+
+**Status:** Confirmed in synthetic production-CodeTool and real headless TextEditor probes;
+investigation only, not fixed.
+
+**Reproduction:** Queue an edit to script A, navigate to script B before the half-second compile
+callback, and run the callback; A's pending source writes B's bytes. CodeBody reuse changes
+Address while the closure retains A's source/run. Focus loss does not flush it in the attached
+control probe. A pending compile can also reapply a new value after Undo and clear Redo.
+
+**Required scope:** Bind work to stable model/script/parser identity and edit generation, and
+define safe navigation/history/mode boundaries that preserve edits rather than merely canceling
+them. Retain automatic relocation/repointing and successful coalescing. Add regressions that
+fail against current code before implementing a repair.
+
+Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md).
+
+## HMA-007 — Account for pending script edits during Save and Close
+
+**Status:** Confirmed through production ViewPort commands on disposable synthetic files;
+investigation only, not fixed.
+
+**Reproduction:** Save As before debounce writes the older binary; ordinary Save does likewise
+when an unrelated compiled change makes Save enabled. The later callback makes memory dirty.
+A saved tab can close with no prompt and a compile callback still pending, losing the unsaved
+draft from the file. Settled Save/reopen and settled Close pass the new safety baseline.
+
+**Required scope:** Define a pending-source state and compile/validation barrier for save/close,
+including invalid-draft retention, Cancel and failure handling, without breaking existing
+ROM/metadata save failure protections. Native full-window event ordering remains to be checked.
+
+Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md).
+
+## HMA-008 — Review failed-compilation resource writes and preserve diagnostics
+
+**Status:** Raw-parser and CodeTool resource mutation reproduced; diagnostic clearing also
+confirmed through the headless TextEditor. Investigation only, not fixed.
+
+**Reproduction:** Editing an existing embedded dialogue stream writes/moves it before a later
+invalid command returns a compile failure. Partial data can be saved. When relocation rewrites
+the source pointer, CodeBody.Content clears the emitted error even while the invalid line
+remains visible. Deferred auto streams and ordinary early errors are unchanged controls.
+
+**Required scope:** Define a staged/transactional boundary for failed script/resource edits,
+preserve diagnostics during source replacement, and test bytes, metadata, history, caller
+pointers and recovery. Preserve successful automatic repointing; blocking Save alone does not
+revert partial memory writes. This work requires a separate reviewed implementation.
+
+Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md).

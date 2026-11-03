@@ -41,3 +41,6 @@ reviewed separately in [ITEM_USAGE_PERFORMANCE.md](ITEM_USAGE_PERFORMANCE.md).
 
 Synthetic query-local search freshness, cancellation, and allocation regressions are in
 [MapUsageSearch/README.md](MapUsageSearch/README.md).
+
+Full-editor routed wheel zoom, fresh-tab startup, optional local FireRed checks, and the
+unresolved intermittent freeze investigation are in [MapZoom/README.md](MapZoom/README.md).

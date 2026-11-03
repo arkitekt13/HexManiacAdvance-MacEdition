@@ -799,3 +799,16 @@ Validation note: An initial Mac run hit the previously observed FocusAnimation c
 Measurement note: Baseline and both implementation benchmark runs pass 71 checks with identical ordered destinations, thumbnail pixels, ROM identity, and event/root counts; item-13 actual delayed callback execution changes from 224.856 to 160.445 ms (147.708 on repeat) and 302.558 to 187.903 MB per query, with approximately 115 MB less temporary allocation in all four queries and less benefit when eager thumbnail creation dominates.
 
 Scope: A dictionary confined to one query preserves the original parser/traversal and current per-event behavior, without persistent caching or changes to researched addresses, compiler, pointer/repointing/history algorithms, flags/variables, debounce timing, thread assignment, or thumbnail scheduling; the measured 29–36% sparse-query execution saving is not a whole-editor/native responsiveness or retained-memory claim.
+
+## 048 — Add full-editor wheel zoom and startup regression coverage
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/MapZoom/MapZoom.csproj](tests/MapZoom/MapZoom.csproj) | 1 | Add a headless regression executable using the production editor window and shared fabricated map fixture. |
+| [tests/MapZoom/Program.cs](tests/MapZoom/Program.cs) | 20 | Exercise fresh-tab wheel routing, border transitions, UI heartbeats, final rendering, and data integrity with synthetic data and optional local FireRed background initialization. |
+| [tests/MapZoom/README.md](tests/MapZoom/README.md) | 1 | Document watchdog-bounded reproduction commands, passing scenarios, native diagnostic limits, and how to capture a recurring freeze. |
+| [tests/README.md](tests/README.md) | 45 | Link the full-editor zoom checks and unresolved freeze investigation. |
+
+Validation: The new project builds with zero warnings/errors; three synthetic sessions pass 1,098 checks and three supplied FireRed 1.1 sessions pass 1,102 checks, each scenario sending 360 routed wheel events and preserving model bytes, metadata, history availability, and the source ROM.
+
+Scope: Tests and documentation only; no editor implementation or ROM addresses were changed, and the full pre-existing suites were not rerun for this test-only addition. The user's intermittent startup freeze remains unreproduced and unresolved; investigation stopped at the user's request after zoom worked normally on restart.

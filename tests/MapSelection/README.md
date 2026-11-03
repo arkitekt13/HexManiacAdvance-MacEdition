@@ -14,7 +14,7 @@ On macOS, Control-left-drag now uses the existing secondary-button selection pat
 captures a rectangle of placed blocks, and ordinary left-click stamps it elsewhere. A physical
 secondary-button drag remains supported. Command-left-drag remains rectangle painting.
 
-The 117 checks on macOS exercise Control held through release, Control released before mouse-up,
+The selection checks on macOS exercise Control held through release, Control released before mouse-up,
 and physical secondary-button dragging at 1x and 2x. Each case captures a 2x3 pattern, verifies
 selection makes no ROM edits or undo entries, stamps it twice, checks every block and collision
 pair plus all unrelated bytes and metadata, and verifies exact undo/redo. A separate check selects
@@ -30,4 +30,19 @@ NPCs/events are not copied by this selection; starting a secondary gesture on an
 the existing event context-menu behavior. Native macOS device interaction still needs a live check.
 
 The unchanged selection assertion fails against the original MapTab handler on the first Mac
-Control-drag, which leaves no captured brush; the corrected handler passes all 117 checks.
+Control-drag, which leaves no captured brush. The original gesture group passed 117 checks.
+
+## Translucent stamp preview
+
+The expanded group passes 211 checks on macOS. The overlay uses the existing copied brush at
+55% opacity, with a Viewbox mapping source pixels to the stamp footprint rather than applying
+the sidebar's intrinsic scale again. Its inner surface shares the map's fractional alignment
+transform, while a fixed outer viewport clips the preview behind arrows, tutorials, and outlines.
+
+Tests compare actual preview bitmap pixels with the sidebar image, check source dimensions,
+exact destination alignment and size at fractional/whole zoom and odd/even window widths,
+and require zero bitmap uploads during pointer-only movement, zoom, and resizing. The same
+tests continue stamping through the non-interactive overlay and verify exact map/collision bytes,
+metadata, and undo/redo. Selection/painting gestures, leaving the map, cancellation, and
+reveal-beneath mode hide the preview; a ready single-block brush also receives a preview.
+Auto-tiling 9-grid brushes retain their existing outline instead of showing a misleading image.

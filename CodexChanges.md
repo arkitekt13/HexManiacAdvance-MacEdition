@@ -904,3 +904,17 @@ Scope: Mac input mapping and tutorial wording only; selection reuses shared Core
 Validation: The original bridge reproduces ArgumentOutOfRangeException in PCSTool.UpdateSelectionFromTool with a negative substring length, matching the user's crash path; the corrected project builds with zero warnings/errors, all 41 text-selection checks pass, and the full Mac suite passes 23 groups/2,914 assertions with no skipped groups.
 
 Scope: Avalonia text-selection synchronization only; shared Core's encoding, name-table updates, relocation, pointers, and undo algorithms are unchanged, and no user ROM was edited. The captured report was from the user's new map session, while automated reproduction uses synthetic text rather than map creation; native renaming still needs a retry after relaunch. The cursor stamp preview is planned, not implemented.
+
+## 055 — Show a translucent map-brush preview at the stamp destination
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 1124 | Display the existing copied brush at 55% opacity within the map viewport, sharing map alignment and zoom while remaining behind outlines, arrows, and tutorials and passing input through. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 101 | Show ready single/multi-block brushes and hide previews during map gestures, cancellation, reveal-beneath mode, or absent selection without changing Core editing behavior. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 58 | Expand coverage to 211 checks including real copied bitmap pixels, translucency, destination alignment, fractional zoom, window resizing, bitmap reuse, clipping/layering, visibility, and unchanged stamping/history. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 33 | Document the overlay, expanded coverage, bitmap reuse, and preserved auto-tiling behavior. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 31 | Mark the copied-brush preview implemented with native visual confirmation pending. |
+
+Validation: The final project builds with zero warnings/errors, all 211 map selection/preview checks pass, and the complete Mac suite passes 23 groups/3,008 assertions with no skipped groups; source bitmap identity/upload counts remain unchanged during pointer movement, zoom, and window resizing.
+
+Scope: Avalonia display only; the existing brush image and hover footprint drive the preview while shared Core's copying, block/collision writes, clipping, pointer/repointing, and history algorithms remain unchanged. Synthetic data only was used, and native appearance on the user's tree selection still needs a visual check after relaunch.

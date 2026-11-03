@@ -86,6 +86,7 @@ public partial class MapTab : UserControl {
          subscribed.AutoscrollBlocks += AutoscrollBlocks;
          subscribed.AutoscrollTiles += AutoscrollTiles;
       }
+      UpdateStampPreviewVisibility();
    }
 
    private void HandleContextPropertyChanged(object sender, PropertyChangedEventArgs e) {
@@ -94,6 +95,15 @@ public partial class MapTab : UserControl {
       // The tile highlight's toggle lives on the block editor, one level down, and that object is
       // replaced whenever the primary map changes - so the subscription has to follow it.
       if (e.PropertyName == nameof(MapEditorViewModel.PrimaryMap)) WatchBlockEditor();
+      UpdateStampPreviewVisibility();
+   }
+
+   private void UpdateStampPreviewVisibility() {
+      var vm = ViewModel;
+      StampPreviewLayer.IsVisible = vm != null && withinMapInteraction == MouseButton.XButton1 &&
+         vm.ShowHighlightCursor && !vm.ShowBeneath && vm.DrawBlockIndex >= 0 &&
+         vm.MultiTileDrawRender != null && (vm.DrawMultipleTiles || vm.IsSingleBlock) &&
+         !(vm.Use9Grid && vm.IsValid9GridSelection);
    }
 
    private CoreBlockEditor watchedBlockEditor;
@@ -248,6 +258,7 @@ public partial class MapTab : UserControl {
             ShowMenu(element);
          }
       }
+      UpdateStampPreviewVisibility();
    }
 
    /// <summary>
@@ -350,6 +361,7 @@ public partial class MapTab : UserControl {
       } else if (previousInteraction == MouseButton.Right) {
          vm.SelectUp(p.X, p.Y);
       }
+      UpdateStampPreviewVisibility();
    }
 
    private void ButtonLeave(object sender, PointerEventArgs e) {
@@ -377,6 +389,7 @@ public partial class MapTab : UserControl {
       e.Pointer.Capture(element);
       backgroundCaptured = true;
       withinMapInteraction = MouseButton.Middle;
+      UpdateStampPreviewVisibility();
       vm.DragDown(p.X, p.Y);
    }
 
@@ -405,6 +418,7 @@ public partial class MapTab : UserControl {
       e.Handled = true;
       var p = GetCoordinates(element, e);
       vm.DragUp(p.X, p.Y);
+      UpdateStampPreviewVisibility();
    }
 
    private void Wheel(object sender, PointerWheelEventArgs e) {

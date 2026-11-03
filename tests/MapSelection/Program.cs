@@ -13,6 +13,7 @@ using HavenSoft.HexManiac.Core.Models.Runs;
 using HavenSoft.HexManiac.Core.ViewModels;
 using HavenSoft.HexManiac.Performance;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
    .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
@@ -44,7 +45,7 @@ var window=new MainWindow{Width=1440,Height=1000,FileSystem=fs,Editor=editor};
 window.Resources["FileSystem"]=fs;window.Show();
 editor.Add(viewport);editor.Add(mapper);
 void Layout(){
-   Dispatcher.UIThread.RunJobs();window.Measure(new Size(1440,1000));window.Arrange(new Rect(0,0,1440,1000));
+   Dispatcher.UIThread.RunJobs();window.Measure(new Size(window.Width,window.Height));window.Arrange(new Rect(0,0,window.Width,window.Height));
    // Refresh the headless hit-test scene after zooming, as the native render timer would.
    AvaloniaHeadlessPlatform.ForceRenderTimerTick();
 }
@@ -55,6 +56,21 @@ while(!view.GetVisualDescendants().OfType<PixelImage>().Any(i=>ReferenceEquals(i
    Layout();if(clock.Elapsed.TotalSeconds>10)throw new TimeoutException("Map frame timed out.");Thread.Sleep(1);
 }
 var image=view.GetVisualDescendants().OfType<PixelImage>().Single(i=>ReferenceEquals(i.DataContext,mapper.PrimaryMap));
+var previewLayer=view.FindControl<Grid>("StampPreviewLayer")!;
+var previewBounds=view.FindControl<Avalonia.Controls.Border>("StampPreviewBounds")!;
+var previewImage=view.FindControl<PixelImage>("StampPreviewImage")!;
+Check(previewLayer!=null && previewBounds!=null && previewImage!=null,"Map must provide the stamp preview overlay.");
+Check(!previewLayer.IsHitTestVisible && previewLayer.ClipToBounds,"Preview must pass clicks through and clip to the map viewport.");
+Check(previewLayer.ZIndex<view.FindControl<ItemsControl>("MapButtons")!.ZIndex &&
+   previewLayer.ZIndex<view.FindControl<TutorialControl>("TutorialsControl")!.ZIndex,"Arrows and tutorials must remain above the preview.");
+Check(previewBounds.Opacity>0 && previewBounds.Opacity<1,"Preview must be translucent.");
+var previewUploads=0;previewImage.PropertyChanged+=(_,e)=>{if(e.Property==Image.SourceProperty)previewUploads++;};
+byte[] BitmapBytes(PixelImage source) {
+   var bitmap=(WriteableBitmap)source.Source;using var frame=bitmap.Lock();
+   var bytes=new byte[bitmap.PixelSize.Width*bitmap.PixelSize.Height*4];
+   for(int y=0;y<bitmap.PixelSize.Height;y++)Marshal.Copy(frame.Address+y*frame.RowBytes,bytes,y*bitmap.PixelSize.Width*4,bitmap.PixelSize.Width*4);
+   return bytes;
+}
 Avalonia.Point Cell(int x,int y) {
    var border=mapper.PrimaryMap.GetBorderThickness();var scale=mapper.PrimaryMap.SpriteScale;
    return image.TranslatePoint(new Avalonia.Point((border.West+x+.5)*16*scale,(border.North+y+.5)*16*scale),window)!.Value;
@@ -71,6 +87,7 @@ foreach(var (button,modifier,releaseControlFirst) in gestures)foreach(var scale 
    mapper.PrimaryMap.SpriteScale=scale;Layout();
    var start=Cell(2,2);var end=Cell(3,4);
    window.MouseDown(start,button,modifier);
+   Check(!previewLayer.IsVisible,"Selecting a new rectangle must hide the previous brush image.");
    window.MouseMove(end,modifier|(button==MouseButton.Left?RawInputModifiers.LeftMouseButton:RawInputModifiers.RightMouseButton));
    Layout();
    window.MouseUp(end,button,releaseControlFirst?RawInputModifiers.None:modifier);
@@ -79,9 +96,25 @@ foreach(var (button,modifier,releaseControlFirst) in gestures)foreach(var scale 
    Check(mapper.DrawMultipleTiles && mapper.MultiTileDrawRender.PixelWidth==32 && mapper.MultiTileDrawRender.PixelHeight==48,
       "Secondary/Control drag must capture the exact placed 2x3 block rectangle.");
    Check(model.RawData.SequenceEqual(baseline) && !viewport.Undo.CanExecute(null),"Selecting must not modify the ROM or create undo history.");
+   Check(previewLayer.IsVisible && ReferenceEquals(previewImage.DataContext,mapper.MultiTileDrawRender),"Ready preview must use the actual captured brush.");
+   Check(previewImage.Source is WriteableBitmap brushBitmap && brushBitmap.PixelSize==new PixelSize(32,48),"Copied 2x3 brush must produce a real source bitmap.");
+   var sidebar=view.GetVisualDescendants().OfType<PixelImage>().First(i=>!ReferenceEquals(i,previewImage)&&ReferenceEquals(i.DataContext,mapper.MultiTileDrawRender));
+   Check(BitmapBytes(previewImage).SequenceEqual(BitmapBytes(sidebar)) && mapper.MultiTileDrawRender.PixelData.Distinct().Count()>1,
+      "Cursor preview must contain the exact nonempty copied pixels shown in the sidebar.");
+   var previewSource=previewImage.Source;
    var expected=baseline.ToArray();
    foreach(var (left,top) in new[]{(10,8),(15,12)}) {
       var destination=Cell(left,top);
+      var oldUploads=previewUploads;var beforeHover=model.RawData.ToArray();
+      window.MouseMove(destination);Layout();
+      var topLeft=previewImage.TranslatePoint(new Avalonia.Point(),window)!.Value;
+      var bottomRight=previewImage.TranslatePoint(new Avalonia.Point(32,48),window)!.Value;
+      Check(Math.Abs(topLeft.X-(destination.X-8*scale))<.01 && Math.Abs(topLeft.Y-(destination.Y-8*scale))<.01,
+         "Preview must align with the exact destination tile corner.");
+      Check(Math.Abs(bottomRight.X-topLeft.X-32*scale)<.01 && Math.Abs(bottomRight.Y-topLeft.Y-48*scale)<.01,
+         "Preview must match map zoom without applying the brush's sidebar scale twice.");
+      Check(ReferenceEquals(previewSource,previewImage.Source) && previewUploads==oldUploads,"Pointer movement must reuse the preview bitmap without another upload.");
+      Check(beforeHover.SequenceEqual(model.RawData),"Moving the ghost preview must not write map data.");
       window.MouseDown(destination,MouseButton.Left);window.MouseUp(destination,MouseButton.Left);Layout();
       for(int x=0;x<2;x++)for(int y=0;y<3;y++) {
          var at=SyntheticMapFixture.Cells+((top+y)*24+left+x)*2;
@@ -97,8 +130,27 @@ foreach(var (button,modifier,releaseControlFirst) in gestures)foreach(var scale 
    Check(model.RawData.SequenceEqual(expected),"Redo must restore both stamped areas exactly.");
    viewport.Undo.Execute(null);viewport.Undo.Execute(null);
 }
+var cachedPreview=previewImage.Source;var cachedUploads=previewUploads;
+foreach(var width in new[]{1440d,1441d})foreach(var scale in new[]{.5,1d,2d}) {
+   window.Width=width;mapper.PrimaryMap.SpriteScale=scale;Layout();
+   var destination=Cell(10,8);window.MouseMove(destination);Layout();
+   var corner=previewImage.TranslatePoint(new Avalonia.Point(),window)!.Value;
+   var farCorner=previewImage.TranslatePoint(new Avalonia.Point(32,48),window)!.Value;
+   Check(Math.Abs(corner.X-(destination.X-8*scale))<.01 && Math.Abs(corner.Y-(destination.Y-8*scale))<.01 &&
+      Math.Abs(farCorner.X-corner.X-32*scale)<.01 && Math.Abs(farCorner.Y-corner.Y-48*scale)<.01,
+      "Preview must stay pixel-aligned through fractional zoom and odd/even viewport widths.");
+   Check(ReferenceEquals(cachedPreview,previewImage.Source) && previewUploads==cachedUploads,"Zoom/resizing must reuse the copied preview bitmap.");
+}
+Check(model.RawData.SequenceEqual(baseline),"Preview zoom and window resizing must not change any map bytes.");
+mapper.ShowBeneath=true;Layout();Check(!previewLayer.IsVisible,"Reveal-beneath mode must hide the brush overlay.");
+mapper.ShowBeneath=false;window.MouseMove(new Avalonia.Point(5,5));Layout();
+Check(!previewLayer.IsVisible,"Leaving the map must hide the preview.");
+window.MouseMove(Cell(10,8));Layout();Check(previewLayer.IsVisible,"Returning to the map must restore the ready brush.");
+mapper.Cancel();Layout();Check(!previewLayer.IsVisible,"Cancel must hide stale copied brush pixels.");
 // Command-drag must remain rectangle painting, rather than becoming map selection.
 mapper.AutoUpdateCollision=false;mapper.SelectBlock(1,0);mapper.ReleaseBlock(1,0);mapper.CollisionIndex=0;Layout();
+window.MouseMove(Cell(10,8));Layout();
+Check(previewLayer.IsVisible && previewImage.Source is WriteableBitmap single && single.PixelSize==new PixelSize(16,16),"Single-block brushes must also show the current preview.");
 var command=OperatingSystem.IsMacOS()?RawInputModifiers.Meta:RawInputModifiers.Control;
 window.MouseDown(Cell(10,8),MouseButton.Left,command);
 window.MouseMove(Cell(12,10),command|RawInputModifiers.LeftMouseButton);Layout();
@@ -108,5 +160,5 @@ for(int y=8;y<=10;y++)for(int x=10;x<=12;x++){var at=SyntheticMapFixture.Cells+(
 Check(model.RawData.SequenceEqual(rectangle),"Command-drag must still paint the intended rectangle with the selected block.");
 viewport.Undo.Execute(null);Check(model.RawData.SequenceEqual(baseline),"Rectangle fill must remain undoable.");
 window.Editor=null;window.Close();
-Console.WriteLine("PASS: Control/secondary map selection, early modifier release, exact repeated stamps including collision bits, two scales, undo/redo, metadata, and Command rectangle fill.");
+Console.WriteLine("PASS: Control/secondary selection, early release, exact repeated stamps, two scales, translucent aligned/cached previews, pointer pass-through, hiding/cancel, metadata, undo/redo, and Command rectangle fill.");
 Console.WriteLine($"CHECKS_PASSED:{checks}");

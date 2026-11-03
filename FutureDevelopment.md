@@ -28,16 +28,17 @@ ROMs, source files, metadata, and existing undo history.
 
 ## HMA-002 — Show the copied map brush beneath the cursor
 
-**Status:** Proposed; deferred until the text-renaming crash fix is confirmed in the app.
+**Status:** Implemented; automated preview checks pass, with native visual confirmation pending.
 
 **Requested behavior:** After selecting placed blocks, show a translucent image of that exact
 pattern at the stamp destination, so copying trees does not leave only an empty outline.
 
 **Existing support:** Shared Core already builds `MultiTileDrawRender` for the side-panel brush
-preview. Both Windows and the current Mac map view show only a rectangle at the cursor.
+preview. Windows and the Mac map view previously showed only a rectangle at the cursor.
 
-**Suggested scope:** Reuse the existing brush image as a non-interactive overlay at the map's
-current zoom and hover coordinates, with the selection outline remaining visible. Avoid creating
-bitmaps on each pointer movement, intercepting map input, or changing copied block/collision data.
-Check clipping and layering against map arrows, tutorials, events, and side panels; selection,
-stamping, and undo/redo should remain unchanged.
+**Implemented scope:** The Mac view reuses that image in a clipped, non-interactive overlay at
+55% opacity, aligned with the stamp footprint and map zoom, behind arrows/tutorials and the
+selection outline. Pointer movement and zoom reuse its bitmap. Active selection/painting,
+cancellation, reveal-beneath mode, and leaving the map hide it; auto-tiling brushes retain their
+outline. The 211-check map selection group preserves stamping, collision bits, metadata, and
+undo/redo. Shared Core editing algorithms are unchanged.

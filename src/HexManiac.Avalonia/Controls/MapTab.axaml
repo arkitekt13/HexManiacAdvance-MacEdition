@@ -1120,7 +1120,26 @@
          </ItemsControl.ItemTemplate>
       </ItemsControl>
 
-      <!-- The block-selection highlight that follows the cursor over the map. -->
+      <!-- Reuse the copied brush; Viewbox scales its source pixels to the stamp footprint.
+           Clip to the map viewport and stay behind arrows/tutorials without intercepting input. -->
+      <Grid Grid.Column="1" Grid.Row="1" Name="StampPreviewLayer" ZIndex="1"
+            IsHitTestVisible="False" ClipToBounds="True" IsVisible="False">
+         <Grid RenderTransform="{Binding #MapView.RenderTransform}">
+            <Border Name="StampPreviewBounds" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Width="{Binding HighlightCursorWidth}" Height="{Binding HighlightCursorHeight}"
+                    Padding="2" Opacity="0.55">
+               <Border.RenderTransform>
+                  <TranslateTransform X="{Binding HighlightCursorX}" Y="{Binding HighlightCursorY}"/>
+               </Border.RenderTransform>
+               <Viewbox Stretch="Fill">
+                  <local:PixelImage Name="StampPreviewImage" DataContext="{Binding MultiTileDrawRender}"
+                                    ScaleAffectsLayout="False"/>
+               </Viewbox>
+            </Border>
+         </Grid>
+      </Grid>
+
+      <!-- The block-selection highlight stays visible above the translucent brush. -->
       <Rectangle Grid.Column="1" Grid.Row="1" Name="HighlightCursorRect" StrokeThickness="2" IsHitTestVisible="False"
                  Margin="-2,-2,0,0" IsVisible="{Binding ShowHighlightCursor}" ZIndex="2"
                  HorizontalAlignment="Center" VerticalAlignment="Center" Stroke="{DynamicResource Backlight}"

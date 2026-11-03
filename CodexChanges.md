@@ -888,3 +888,19 @@ User verification update: The user retried and reports that `.hma` dropping stil
 Validation: The unchanged selection assertion fails on the original map handler and passes with the new mapping; the final build has zero warnings/errors, the selection group passes 117 checks, and the complete Mac suite passes 22 groups/2,873 assertions with no skipped groups.
 
 Scope: Mac input mapping and tutorial wording only; selection reuses shared Core's existing brush capture, block/collision copying, stamping, clipping, and history behavior without changing researched addresses or editing/repointing algorithms. Native macOS device interaction still needs a live check after relaunch.
+
+## 054 — Fix text-tool selection crash while editing map names
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml.cs](src/HexManiac.Avalonia/Controls/TabView.axaml.cs) | 188 | Apply bounded Core selection ranges to the Avalonia text box with a feedback guard that is restored even if an update fails. |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml.cs](src/HexManiac.Avalonia/Controls/TabView.axaml.cs) | 251 | Normalize directional text-box endpoints into a nonnegative Core start/length, bound them during text changes, and restore selection subscriptions in a finally block. |
+| [tests/TextSelection/Program.cs](tests/TextSelection/Program.cs) | 17 | Add 41 checks for real PCS/name-table text, reversed and forward ranges, caret collapse, shorter replacements, neighboring names, selection without edits, and exact undo/redo. |
+| [tests/TextSelection/TextSelection.csproj](tests/TextSelection/TextSelection.csproj) | 1 | Add a headless regression group using production TabView text selection and keyboard input. |
+| [tests/TextSelection/README.md](tests/TextSelection/README.md) | 1 | Document the logged negative-length failure, original-code reproduction, fixture history baseline, and native-map retest limits. |
+| [tests/README.md](tests/README.md) | 54 | Link text-tool selection and name-editing crash coverage. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 29 | Record the proposed translucent copied-brush preview as a separate follow-up after native verification of this crash fix. |
+
+Validation: The original bridge reproduces ArgumentOutOfRangeException in PCSTool.UpdateSelectionFromTool with a negative substring length, matching the user's crash path; the corrected project builds with zero warnings/errors, all 41 text-selection checks pass, and the full Mac suite passes 23 groups/2,914 assertions with no skipped groups.
+
+Scope: Avalonia text-selection synchronization only; shared Core's encoding, name-table updates, relocation, pointers, and undo algorithms are unchanged, and no user ROM was edited. The captured report was from the user's new map session, while automated reproduction uses synthetic text rather than map creation; native renaming still needs a retry after relaunch. The cursor stamp preview is planned, not implemented.

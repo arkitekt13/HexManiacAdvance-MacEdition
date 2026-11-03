@@ -50,3 +50,6 @@ Local file drag/drop routing and HMA imports from map or ROM tabs are checked in
 
 Control-drag map selection, repeated stamping, collision-bit preservation, and Command rectangle
 fill are checked in [MapSelection/README.md](MapSelection/README.md).
+
+Backward text selection, name replacement, and the reported text-tool crash are checked in
+[TextSelection/README.md](TextSelection/README.md).

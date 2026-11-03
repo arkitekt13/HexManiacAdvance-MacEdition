@@ -25,3 +25,19 @@ not reproduce the user's remaining native Finder/script-specific failure.
 **Completion criteria:** The user's reproduction reliably applies the intended edits or displays
 an actionable error, never silently opens the script as a binary tab, and preserves unrelated
 ROMs, source files, metadata, and existing undo history.
+
+## HMA-002 — Show the copied map brush beneath the cursor
+
+**Status:** Proposed; deferred until the text-renaming crash fix is confirmed in the app.
+
+**Requested behavior:** After selecting placed blocks, show a translucent image of that exact
+pattern at the stamp destination, so copying trees does not leave only an empty outline.
+
+**Existing support:** Shared Core already builds `MultiTileDrawRender` for the side-panel brush
+preview. Both Windows and the current Mac map view show only a rectangle at the cursor.
+
+**Suggested scope:** Reuse the existing brush image as a non-interactive overlay at the map's
+current zoom and hover coordinates, with the selection outline remaining visible. Avoid creating
+bitmaps on each pointer movement, intercepting map input, or changing copied block/collision data.
+Check clipping and layering against map arrows, tutorials, events, and side panels; selection,
+stamping, and undo/redo should remain unchanged.

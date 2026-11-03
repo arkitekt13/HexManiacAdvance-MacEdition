@@ -918,3 +918,17 @@ Scope: Avalonia text-selection synchronization only; shared Core's encoding, nam
 Validation: The final project builds with zero warnings/errors, all 211 map selection/preview checks pass, and the complete Mac suite passes 23 groups/3,008 assertions with no skipped groups; source bitmap identity/upload counts remain unchanged during pointer movement, zoom, and window resizing.
 
 Scope: Avalonia display only; the existing brush image and hover footprint drive the preview while shared Core's copying, block/collision writes, clipping, pointer/repointing, and history algorithms remain unchanged. Synthetic data only was used, and native appearance on the user's tree selection still needs a visual check after relaunch.
+
+User verification update: The user confirmed the translucent copied-block preview works well in the native Mac editor.
+
+## 056 — Protect mixed-elevation map stamps through saving and undo/redo
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 34 | Exercise all copy/stamp gestures with elevation-4 ground, Cross Layers stairs, elevation-3 ground, and a wall using repeated graphics with distinct permissions. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 165 | Verify production Save and independent file/model reload preserve exact block IDs, collision bits, elevations, unrelated bytes, metadata, and undo/redo across saves using disposable synthetic files. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 50 | Document mixed-elevation persistence coverage, temporary-file isolation, and the distinction between editor data checks and in-game movement validation. |
+
+Validation: The map selection project builds with zero warnings/errors and passes 340 checks on macOS; the complete Mac suite passes all 23 groups and 3,137 assertions with no skipped groups.
+
+Scope: Regression coverage only; no application editing, researched addresses, block behaviors, collision/elevation rules, or repointing algorithms were changed, and no user ROM was opened or modified.

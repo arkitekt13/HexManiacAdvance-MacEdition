@@ -34,7 +34,7 @@ Control-drag, which leaves no captured brush. The original gesture group passed 
 
 ## Translucent stamp preview
 
-The expanded group passes 211 checks on macOS. The overlay uses the existing copied brush at
+The preview expansion originally passed 211 checks on macOS. The overlay uses the existing copied brush at
 55% opacity, with a Viewbox mapping source pixels to the stamp footprint rather than applying
 the sidebar's intrinsic scale again. Its inner surface shares the map's fractional alignment
 transform, while a fixed outer viewport clips the preview behind arrows, tutorials, and outlines.
@@ -46,3 +46,20 @@ tests continue stamping through the non-interactive overlay and verify exact map
 metadata, and undo/redo. Selection/painting gestures, leaving the map, cancellation, and
 reveal-beneath mode hide the preview; a ready single-block brush also receives a preview.
 Auto-tiling 9-grid brushes retain their existing outline instead of showing a misleading image.
+
+## Mixed-elevation persistence
+
+The group now passes 340 checks on macOS. Its copied rectangle contains elevation-4 ground,
+elevation-0 Cross Layers transitions, elevation-3 ground, and an elevation-3 wall. The same
+block graphics appear with different permissions, so correct preview pixels alone cannot pass
+the data checks. Every existing gesture/zoom/repeated-stamp scenario uses this mixed pattern.
+
+An additional routed copy/stamp calls the production ViewPort Save command, writes fabricated
+bytes and serialized metadata to unique temporary files through AtomicFileWriter, and loads
+those files into a fresh PokemonModel. Assertions verify block IDs, collision bits, elevations,
+all unrelated bytes, and anchor/pointer metadata. Undo after saving, saving the undone state,
+redo after that save, and saving the redone state each preserve the exact expected data.
+Temporary files are removed in finally; no supplied ROM is opened or modified.
+
+This verifies editing and persistence, not player movement in an emulator or an automatic
+diagnosis of stair behavior. Cross Layers still requires appropriate block behavior in-game.

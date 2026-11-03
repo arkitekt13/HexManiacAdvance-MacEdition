@@ -31,8 +31,10 @@ var error=ArrayRun.TryParse(model,format[..^1]+"4",0x100,SortedSpan<int>.None,ou
 Check(!error.HasError,"Synthetic map banks must parse.");
 model.ObserveAnchorWritten(new NoDataChangeDeltaModel(),"data.maps.banks",root);
 ((IList<GotoShortcutModel>)model.GotoShortcuts).Add(new("synthetic.layout","data.maps.banks/3/maps/0/map/0/layout/","Maps"));
-// Distinct block/collision pairs establish that the brush preserves each cell, not just its art.
-int[,] pattern={{0x400,0x801,0xC00},{0x1001,0x1400,0x1801}};
+// Each column runs upper ground -> stair transition -> lower ground/wall.
+// Use the SAME block art at different elevations so pixel equality cannot hide data loss.
+// Permissions are collision | (elevation << 2), stored above the 10-bit block ID.
+int[,] pattern={{0x4000,0x0001,0x3000},{0x4001,0x0000,0x3401}};
 for(int x=0;x<2;x++)for(int y=0;y<3;y++)model.WriteMultiByteValue(SyntheticMapFixture.Cells+((y+2)*24+x+2)*2,2,token,pattern[x,y]);
 var fs=new StubFileSystem{MetadataFor=_=>Array.Empty<string>()};
 Application.Current!.Resources["FileSystem"]=fs;
@@ -159,6 +161,63 @@ var rectangle=baseline.ToArray();
 for(int y=8;y<=10;y++)for(int x=10;x<=12;x++){var at=SyntheticMapFixture.Cells+(y*24+x)*2;rectangle[at]=1;rectangle[at+1]=0;}
 Check(model.RawData.SequenceEqual(rectangle),"Command-drag must still paint the intended rectangle with the selected block.");
 viewport.Undo.Execute(null);Check(model.RawData.SequenceEqual(baseline),"Rectangle fill must remain undoable.");
+
+// Exercise the real Save command and reload its bytes/metadata into an independent model.
+// Only fabricated data is written, inside a unique temporary directory removed in finally.
+var folder=Path.Combine(Path.GetTempPath(),"hma-map-elevations-"+Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(folder);
+try {
+   var savedPath=Path.Combine(folder,"mixed-elevations.bin");
+   var savedMetadataPath=Path.Combine(folder,"mixed-elevations.toml");
+   var saves=0;var metadataSaves=0;
+   fs.Save=file=>{AtomicFileWriter.Write(savedPath,stream=>stream.Write(file.Contents));saves++;return true;};
+   fs.SaveMetadata=(_,lines)=>{AtomicFileWriter.WriteAllLines(savedMetadataPath,lines);metadataSaves++;return true;};
+   mapper.PrimaryMap.SpriteScale=1;Layout();
+   var selectionButton=OperatingSystem.IsMacOS()?MouseButton.Left:MouseButton.Right;
+   var selectionModifier=OperatingSystem.IsMacOS()?RawInputModifiers.Control:RawInputModifiers.None;
+   window.MouseDown(Cell(2,2),selectionButton,selectionModifier);
+   window.MouseMove(Cell(3,4),selectionModifier|(selectionButton==MouseButton.Left?RawInputModifiers.LeftMouseButton:RawInputModifiers.RightMouseButton));
+   window.MouseUp(Cell(3,4),selectionButton,selectionModifier);Layout();
+   Check(mapper.DrawMultipleTiles && model.RawData.SequenceEqual(baseline),"Copying mixed elevations must leave the source unchanged.");
+   window.MouseMove(Cell(10,8));window.MouseDown(Cell(10,8),MouseButton.Left);
+   window.MouseUp(Cell(10,8),MouseButton.Left);Layout();
+   var stamped=baseline.ToArray();
+   for(int x=0;x<2;x++)for(int y=0;y<3;y++) {
+      var at=SyntheticMapFixture.Cells+((8+y)*24+10+x)*2;
+      stamped[at]=(byte)pattern[x,y];stamped[at+1]=(byte)(pattern[x,y]>>8);
+   }
+   void SaveAndReopen(byte[] expected,string stage) {
+      var previousSaves=saves;var previousMetadataSaves=metadataSaves;
+      Check(viewport.Save.CanExecute(fs),$"{stage}: a changed map must be saveable.");
+      viewport.Save.Execute(fs);
+      Check(saves==previousSaves+1 && metadataSaves==previousMetadataSaves+1 && viewport.ChangeHistory.IsSaved,
+         $"{stage}: Save must write map bytes and metadata and mark the document saved.");
+      Check(File.ReadAllBytes(savedPath).SequenceEqual(expected),$"{stage}: all saved bytes must match, including unrelated data.");
+      var reloaded=new PokemonModel(File.ReadAllBytes(savedPath),new StoredMetadata(File.ReadAllLines(savedMetadataPath)),viewport.Singletons);
+      Check(reloaded.RawData.SequenceEqual(expected),$"{stage}: a newly loaded model must preserve every byte.");
+      Check(metadata.SequenceEqual(reloaded.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),
+         $"{stage}: saved anchors and pointer metadata must round-trip unchanged.");
+      foreach(var (left,top) in new[]{(2,2),(10,8)})for(int x=0;x<2;x++)for(int y=0;y<3;y++) {
+         var actual=reloaded.ReadMultiByteValue(SyntheticMapFixture.Cells+((top+y)*24+left+x)*2,2);
+         var cellExpected=BitConverter.ToUInt16(expected,SyntheticMapFixture.Cells+((top+y)*24+left+x)*2);
+         Check((actual&0x3FF)==(cellExpected&0x3FF),$"{stage}: block art must survive reload at ({left+x},{top+y}).");
+         Check(((actual>>10)&3)==((cellExpected>>10)&3),$"{stage}: collision bits must survive reload at ({left+x},{top+y}).");
+         Check((actual>>12)==(cellExpected>>12),$"{stage}: elevation must survive reload at ({left+x},{top+y}).");
+      }
+   }
+   Check(model.RawData.SequenceEqual(stamped),"Mixed-elevation stamp must change only its destination cells.");
+   SaveAndReopen(stamped,"Stamped map");
+   Check(viewport.Undo.CanExecute(null),"Saving must retain stamp undo history.");
+   viewport.Undo.Execute(null);
+   Check(model.RawData.SequenceEqual(baseline) && !viewport.ChangeHistory.IsSaved,"Undo after saving must restore exact source/destination bytes and mark the document dirty.");
+   SaveAndReopen(baseline,"Undone map");
+   Check(viewport.Redo.CanExecute(null),"Saving an undo must retain stamp redo history.");
+   viewport.Redo.Execute(null);
+   Check(model.RawData.SequenceEqual(stamped) && !viewport.ChangeHistory.IsSaved,"Redo after saving must restore the exact mixed-elevation stamp and mark the document dirty.");
+   SaveAndReopen(stamped,"Redone map");
+} finally {
+   Directory.Delete(folder,true);
+}
 window.Editor=null;window.Close();
-Console.WriteLine("PASS: Control/secondary selection, early release, exact repeated stamps, two scales, translucent aligned/cached previews, pointer pass-through, hiding/cancel, metadata, undo/redo, and Command rectangle fill.");
+Console.WriteLine("PASS: Control/secondary selection, early release, exact repeated stamps, aligned/cached previews, mixed elevations/collision, save/reload, metadata, undo/redo across saves, and Command rectangle fill.");
 Console.WriteLine($"CHECKS_PASSED:{checks}");

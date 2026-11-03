@@ -28,7 +28,7 @@ ROMs, source files, metadata, and existing undo history.
 
 ## HMA-002 — Show the copied map brush beneath the cursor
 
-**Status:** Implemented; automated preview checks pass, with native visual confirmation pending.
+**Status:** Implemented and confirmed by the user in the native Mac editor.
 
 **Requested behavior:** After selecting placed blocks, show a translucent image of that exact
 pattern at the stamp destination, so copying trees does not leave only an empty outline.
@@ -40,5 +40,6 @@ preview. Windows and the Mac map view previously showed only a rectangle at the 
 55% opacity, aligned with the stamp footprint and map zoom, behind arrows/tutorials and the
 selection outline. Pointer movement and zoom reuse its bitmap. Active selection/painting,
 cancellation, reveal-beneath mode, and leaving the map hide it; auto-tiling brushes retain their
-outline. The 211-check map selection group preserves stamping, collision bits, metadata, and
-undo/redo. Shared Core editing algorithms are unchanged.
+outline. The expanded 340-check map selection group preserves stamping, collision bits,
+elevations, metadata, saving/reloading, and undo/redo across saves. Shared Core editing
+algorithms are unchanged.

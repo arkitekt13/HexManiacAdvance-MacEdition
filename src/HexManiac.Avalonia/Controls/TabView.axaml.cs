@@ -185,19 +185,19 @@ public partial class TabView : UserControl {
    private bool updatingStringToolSelection;
 
    private void HandleStringToolPropertyChanged(object sender, PropertyChangedEventArgs e) {
+      if (e.PropertyName is not (nameof(PCSTool.ContentIndex) or nameof(PCSTool.ContentSelectionLength))) return;
       var tool = (PCSTool)sender;
       updatingStringToolSelection = true;
-      if (e.PropertyName is nameof(PCSTool.ContentIndex)) {
-         var length = StringToolTextBox.SelectionEnd - StringToolTextBox.SelectionStart;
-         StringToolTextBox.SelectionStart = tool.ContentIndex;
-         StringToolTextBox.SelectionEnd = tool.ContentIndex + length;
+      try {
+         var textLength = StringToolTextBox.Text?.Length ?? 0;
+         var start = Math.Clamp(tool.ContentIndex, 0, textLength);
+         var length = Math.Clamp(tool.ContentSelectionLength, 0, textLength - start);
+         StringToolTextBox.SelectionStart = start;
+         StringToolTextBox.SelectionEnd = start + length;
          UpdateManualSelection();
+      } finally {
+         updatingStringToolSelection = false;
       }
-      if (e.PropertyName is nameof(PCSTool.ContentSelectionLength)) {
-         StringToolTextBox.SelectionEnd = StringToolTextBox.SelectionStart + tool.ContentSelectionLength;
-         UpdateManualSelection();
-      }
-      updatingStringToolSelection = false;
    }
 
    private void UpdateManualSelection() {
@@ -248,10 +248,21 @@ public partial class TabView : UserControl {
       if (updatingStringToolSelection) return;
       if (StringToolTextBox.DataContext is not ToolTray tools || tools.StringTool == null) return;
       var tool = tools.StringTool;
+      // Avalonia endpoints retain drag direction; Core expects WPF's sorted start/length.
+      // Clamp against Core's current content while text and caret bindings settle independently.
+      var contentLength = tool.Content?.Length ?? 0;
+      var start = Math.Clamp(Math.Min(StringToolTextBox.SelectionStart, StringToolTextBox.SelectionEnd), 0, contentLength);
+      var end = Math.Clamp(Math.Max(StringToolTextBox.SelectionStart, StringToolTextBox.SelectionEnd), start, contentLength);
+      updatingStringToolSelection = true;
       tool.PropertyChanged -= HandleStringToolPropertyChanged;
-      tool.ContentIndex = StringToolTextBox.SelectionStart;
-      tool.ContentSelectionLength = StringToolTextBox.SelectionEnd - StringToolTextBox.SelectionStart;
-      tool.PropertyChanged += HandleStringToolPropertyChanged;
+      try {
+         tool.ContentSelectionLength = 0;
+         tool.ContentIndex = start;
+         tool.ContentSelectionLength = end - start;
+      } finally {
+         tool.PropertyChanged += HandleStringToolPropertyChanged;
+         updatingStringToolSelection = false;
+      }
    }
 
    #endregion

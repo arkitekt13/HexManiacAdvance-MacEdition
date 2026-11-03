@@ -799,3 +799,136 @@ Validation note: An initial Mac run hit the previously observed FocusAnimation c
 Measurement note: Baseline and both implementation benchmark runs pass 71 checks with identical ordered destinations, thumbnail pixels, ROM identity, and event/root counts; item-13 actual delayed callback execution changes from 224.856 to 160.445 ms (147.708 on repeat) and 302.558 to 187.903 MB per query, with approximately 115 MB less temporary allocation in all four queries and less benefit when eager thumbnail creation dominates.
 
 Scope: A dictionary confined to one query preserves the original parser/traversal and current per-event behavior, without persistent caching or changes to researched addresses, compiler, pointer/repointing/history algorithms, flags/variables, debounce timing, thread assignment, or thumbnail scheduling; the measured 29–36% sparse-query execution saving is not a whole-editor/native responsiveness or retained-memory claim.
+
+## 048 — Add full-editor wheel zoom and startup regression coverage
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/MapZoom/MapZoom.csproj](tests/MapZoom/MapZoom.csproj) | 1 | Add a headless regression executable using the production editor window and shared fabricated map fixture. |
+| [tests/MapZoom/Program.cs](tests/MapZoom/Program.cs) | 20 | Exercise fresh-tab wheel routing, border transitions, UI heartbeats, final rendering, and data integrity with synthetic data and optional local FireRed background initialization. |
+| [tests/MapZoom/README.md](tests/MapZoom/README.md) | 1 | Document watchdog-bounded reproduction commands, passing scenarios, native diagnostic limits, and how to capture a recurring freeze. |
+| [tests/README.md](tests/README.md) | 45 | Link the full-editor zoom checks and unresolved freeze investigation. |
+
+Validation: The new project builds with zero warnings/errors; three synthetic sessions pass 1,098 checks and three supplied FireRed 1.1 sessions pass 1,102 checks, each scenario sending 360 routed wheel events and preserving model bytes, metadata, history availability, and the source ROM.
+
+Scope: Tests and documentation only; no editor implementation or ROM addresses were changed, and the full pre-existing suites were not rerun for this test-only addition. The user's intermittent startup freeze remains unreproduced and unresolved; investigation stopped at the user's request after zoom worked normally on restart.
+
+## 049 — Restore secondary-click and macOS Control-click on map arrows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 622 | Restrict arrow resizing to primary clicks and explicitly open the connection menu for macOS Control-click while allowing Avalonia to handle ordinary secondary clicks. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 650 | Release arrow capture and complete resizing only for a primary drag that actually started so context-menu releases remain available. |
+| [tests/MapZoom/Program.cs](tests/MapZoom/Program.cs) | 93 | Verify routed secondary and Control clicks, menu bindings, the real Create New Map bank prompt with cancellation, primary drag capture, and unchanged map data. |
+| [tests/MapZoom/README.md](tests/MapZoom/README.md) | 30 | Document the arrow regression, original-code failure, passing synthetic and FireRed checks, and map-creation coverage limits. |
+
+Validation: The menu-opening assertion fails against the original arrow handlers and passes with the fix; the final build has zero warnings/errors, the supplied FireRed scenario passes 1,162 checks, and the full Mac repeat passes 20 groups/2,708 assertions, including 1,158 checks in the expanded synthetic group.
+
+Validation note: The first full Mac run hit the previously observed FocusAnimation timing failure; it passed unchanged in isolation and in the complete repeat, without weakening or suppressing any checks. The source ROM's SHA-256 remained unchanged.
+
+Scope: Arrow input routing only; core map creation, connection editing, resizing, repointing, researched addresses, and undo algorithms are unchanged, and this is separate from the unresolved zoom freeze. Native macOS click behavior still needs a live check after relaunch.
+
+## 050 — Match map tutorial modifier instructions to macOS input
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 32 | Translate Control wording and Ctrl icons to Command at display time on macOS without modifying shared tutorial records. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml](src/HexManiac.Avalonia/Controls/TutorialControl.axaml) | 42 | Apply platform-aware key icons and descriptions to tutorial cards so rectangle-fill and hide-events instructions match the existing input bindings. |
+| [src/HexManiac.Avalonia/Resources/Icons.axaml](src/HexManiac.Avalonia/Resources/Icons.axaml) | 251 | Add a Cmd key graphic for Mac tutorial cards while preserving the Ctrl graphic for other platforms. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 74 | Check platform-adjusted descriptions, full card fit, modifier icons, and unchanged Core tutorial text. |
+
+Validation: The editor and tutorial regression project build with zero warnings/errors, and all 332 tutorial layout, icon, content, and preview checks pass.
+
+Scope: Display instructions only; Command-left-drag already invokes rectangle fill on macOS, and no gesture, block-writing, selection, pointer, or history logic changed. Rectangle fill paints with the selected block rather than selecting an arbitrary area.
+
+## 051 — Clarify the single-block requirement for flood fill
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 35 | Explain in the Paint Blocks card that double-click fill requires one selected block and does not support multiple-block selections. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 23 | Verify the clarified description is displayed and fits the tutorial card at both tested widths. |
+
+Validation: The editor and tutorial project build with zero warnings/errors, and all 332 tutorial checks pass; an exploratory full-window synthetic test also fills a connected nine-cell region through two routed left clicks, including slight pointer movement.
+
+Scope: Tutorial wording only; the user confirmed multiple blocks were selected, which the existing shared Core intentionally excludes from flood fill, so no painting algorithm or input handler was changed and the provisional input trace was removed.
+
+## 052 — Route dropped HMA scripts to the ROM and restore file-drop acceptance
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/CoreSeam.cs](src/HexManiac.Avalonia/CoreSeam.cs) | 56 | Route HMA drops from map tabs to their owning ROM through the existing importer while rejecting missing, script-file, or busy targets and separating earlier undo transactions. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 90 | Receive local-file drag/drop events even when child controls handle them so the window can process dropped scripts. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 172 | Advertise copy for local file drags, recover from child drag rejection, and report copy on drop without moving source files. |
+| [tests/FileDrop/Program.cs](tests/FileDrop/Program.cs) | 19 | Add 24 routed-drop checks for real HMA edits, map-to-ROM targeting, repeated imports, undo/redo, earlier edits, metadata, other-ROM isolation, rejected targets, and ordinary file/text behavior. |
+| [tests/FileDrop/FileDrop.csproj](tests/FileDrop/FileDrop.csproj) | 1 | Add a separately executable headless file-drop group sharing the fabricated map fixture. |
+| [tests/FileDrop/README.md](tests/FileDrop/README.md) | 1 | Document the original failure, copy and targeting behavior, test storage-wrapper setup, and native/script-compatibility limits. |
+| [tests/README.md](tests/README.md) | 48 | Link the file-drop and HMA import regression group. |
+
+Validation: The final build passes with zero warnings/errors, all 24 file-drop checks pass, and the full Mac repeat passes 21 groups/2,756 assertions with no skipped groups; the original handlers fail the same regression by opening an HMA as binary data without a ROM target.
+
+Validation note: The initial full run hit the previously observed FocusAnimation timing failure, which passed unchanged in isolation and in the complete repeat without weakening or suppressing checks.
+
+Scope: Avalonia drop routing and undo-transaction boundaries only; the shared HMA parser, game/version guards, relative-asset path context, researched addresses, repointing rules, and Core history implementation are unchanged. Synthetic data only was used, no user ROM or source script was modified, and native Finder operation and the user's unprovided script still need a live retry after relaunch.
+
+User verification update: The user retried and reports that `.hma` dropping still does not work; this remains a partial fix rather than a resolved workflow and is deferred as HMA-001 in [FutureDevelopment.md](FutureDevelopment.md).
+
+## 053 — Support macOS Control-left-drag selection of placed map blocks
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 220 | Route macOS Control-left-click and drag through the existing secondary-button map selection path while preserving Command rectangle fill and native secondary dragging. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 337 | Match release to the physical left button for Control selection so releasing Control early still completes the brush and event creation resets the gesture state. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 37 | Explain Control-click picking and Control-left-drag selection with subsequent stamping in the Mac tutorial cards. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 25 | Add 117 synthetic checks for exact block/collision copying, repeated stamps, selection without edits, early modifier release, two scales, metadata, undo/redo, and preserved Command rectangle fill. |
+| [tests/MapSelection/MapSelection.csproj](tests/MapSelection/MapSelection.csproj) | 1 | Add a headless regression group using the production window and map controls with the fabricated map fixture. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 1 | Document gesture behavior, original-handler failure, render-timer setup, coverage, and native-device verification limits. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 23 | Verify the platform-specific selection instructions display in full within the tutorial cards. |
+| [tests/README.md](tests/README.md) | 51 | Link the map selection and stamping regression group. |
+
+Validation: The unchanged selection assertion fails on the original map handler and passes with the new mapping; the final build has zero warnings/errors, the selection group passes 117 checks, and the complete Mac suite passes 22 groups/2,873 assertions with no skipped groups.
+
+Scope: Mac input mapping and tutorial wording only; selection reuses shared Core's existing brush capture, block/collision copying, stamping, clipping, and history behavior without changing researched addresses or editing/repointing algorithms. Native macOS device interaction still needs a live check after relaunch.
+
+## 054 — Fix text-tool selection crash while editing map names
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml.cs](src/HexManiac.Avalonia/Controls/TabView.axaml.cs) | 188 | Apply bounded Core selection ranges to the Avalonia text box with a feedback guard that is restored even if an update fails. |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml.cs](src/HexManiac.Avalonia/Controls/TabView.axaml.cs) | 251 | Normalize directional text-box endpoints into a nonnegative Core start/length, bound them during text changes, and restore selection subscriptions in a finally block. |
+| [tests/TextSelection/Program.cs](tests/TextSelection/Program.cs) | 17 | Add 41 checks for real PCS/name-table text, reversed and forward ranges, caret collapse, shorter replacements, neighboring names, selection without edits, and exact undo/redo. |
+| [tests/TextSelection/TextSelection.csproj](tests/TextSelection/TextSelection.csproj) | 1 | Add a headless regression group using production TabView text selection and keyboard input. |
+| [tests/TextSelection/README.md](tests/TextSelection/README.md) | 1 | Document the logged negative-length failure, original-code reproduction, fixture history baseline, and native-map retest limits. |
+| [tests/README.md](tests/README.md) | 54 | Link text-tool selection and name-editing crash coverage. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 29 | Record the proposed translucent copied-brush preview as a separate follow-up after native verification of this crash fix. |
+
+Validation: The original bridge reproduces ArgumentOutOfRangeException in PCSTool.UpdateSelectionFromTool with a negative substring length, matching the user's crash path; the corrected project builds with zero warnings/errors, all 41 text-selection checks pass, and the full Mac suite passes 23 groups/2,914 assertions with no skipped groups.
+
+Scope: Avalonia text-selection synchronization only; shared Core's encoding, name-table updates, relocation, pointers, and undo algorithms are unchanged, and no user ROM was edited. The captured report was from the user's new map session, while automated reproduction uses synthetic text rather than map creation; native renaming still needs a retry after relaunch. The cursor stamp preview is planned, not implemented.
+
+## 055 — Show a translucent map-brush preview at the stamp destination
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 1124 | Display the existing copied brush at 55% opacity within the map viewport, sharing map alignment and zoom while remaining behind outlines, arrows, and tutorials and passing input through. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 101 | Show ready single/multi-block brushes and hide previews during map gestures, cancellation, reveal-beneath mode, or absent selection without changing Core editing behavior. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 58 | Expand coverage to 211 checks including real copied bitmap pixels, translucency, destination alignment, fractional zoom, window resizing, bitmap reuse, clipping/layering, visibility, and unchanged stamping/history. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 33 | Document the overlay, expanded coverage, bitmap reuse, and preserved auto-tiling behavior. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 31 | Mark the copied-brush preview implemented with native visual confirmation pending. |
+
+Validation: The final project builds with zero warnings/errors, all 211 map selection/preview checks pass, and the complete Mac suite passes 23 groups/3,008 assertions with no skipped groups; source bitmap identity/upload counts remain unchanged during pointer movement, zoom, and window resizing.
+
+Scope: Avalonia display only; the existing brush image and hover footprint drive the preview while shared Core's copying, block/collision writes, clipping, pointer/repointing, and history algorithms remain unchanged. Synthetic data only was used, and native appearance on the user's tree selection still needs a visual check after relaunch.
+
+User verification update: The user confirmed the translucent copied-block preview works well in the native Mac editor.
+
+## 056 — Protect mixed-elevation map stamps through saving and undo/redo
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 34 | Exercise all copy/stamp gestures with elevation-4 ground, Cross Layers stairs, elevation-3 ground, and a wall using repeated graphics with distinct permissions. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 165 | Verify production Save and independent file/model reload preserve exact block IDs, collision bits, elevations, unrelated bytes, metadata, and undo/redo across saves using disposable synthetic files. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 50 | Document mixed-elevation persistence coverage, temporary-file isolation, and the distinction between editor data checks and in-game movement validation. |
+
+Validation: The map selection project builds with zero warnings/errors and passes 340 checks on macOS; the complete Mac suite passes all 23 groups and 3,137 assertions with no skipped groups.
+
+Scope: Regression coverage only; no application editing, researched addresses, block behaviors, collision/elevation rules, or repointing algorithms were changed, and no user ROM was opened or modified.

@@ -6,6 +6,7 @@ using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using HavenSoft.HexManiac.AvaloniaUI.Resources;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.ViewModels.Map;
@@ -27,6 +28,24 @@ public partial class TutorialControl : UserControl {
    // Core tracks tutorial rows independently of the Mac interface's card size.
    public static readonly IValueConverter RowOffsetConverter =
       new FuncValueConverter<double, double>(row => row * ElementHeight);
+
+   // Shared Core tutorials retain Windows wording; match the Mac map input bindings at display time.
+   public static readonly IValueConverter ModifierTextConverter =
+      new FuncValueConverter<string, string>(text => {
+         if (text == "Double-Click over the map to paint an area with the selected block.")
+            return "Select one block, then double-click the map to fill an area. Multiple-block selections cannot fill.";
+         if (OperatingSystem.IsMacOS()) {
+            if (text == "Right-Click the map to select that block.")
+               return "Control-click the map to select that placed block.";
+            if (text == "Right-Click and drag on the map to select multiple blocks. When multiple blocks are selected, you can draw, but not paint.")
+               return "Hold Control and left-drag on the map to select placed blocks. Left-click elsewhere to stamp them.";
+         }
+         return OperatingSystem.IsMacOS() ? text?.Replace("Control", "Command (⌘)") : text;
+      });
+
+   public static readonly IValueConverter ModifierIconConverter =
+      new FuncValueConverter<string, Geometry>(icon => IconExtension.GetIcon(
+         OperatingSystem.IsMacOS() && icon == "CtrlKey" ? "CommandKey" : icon));
 
    public event EventHandler<MapTutorialViewModel> EnterTutorial;
 

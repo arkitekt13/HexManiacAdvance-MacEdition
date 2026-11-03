@@ -20,6 +20,14 @@ void Check(bool condition, string message) {
    checks++;
    if (!condition) throw new InvalidOperationException(message);
 }
+string ExpectedDescription(MapTutorialViewModel tutorial) {
+   if(tutorial.Title=="Paint Blocks") return "Select one block, then double-click the map to fill an area. Multiple-block selections cannot fill.";
+   if(OperatingSystem.IsMacOS() && tutorial.Content=="Right-Click the map to select that block.")
+      return "Control-click the map to select that placed block.";
+   if(OperatingSystem.IsMacOS() && tutorial.Content.StartsWith("Right-Click and drag on the map"))
+      return "Hold Control and left-drag on the map to select placed blocks. Left-click elsewhere to stamp them.";
+   return OperatingSystem.IsMacOS() ? tutorial.Content.Replace("Control", "Command (⌘)") : tutorial.Content;
+}
 
 foreach (var hostWidth in new[] { 800, 500 }) {
    var vm = new MapTutorialsViewModel();
@@ -72,7 +80,7 @@ foreach (var hostWidth in new[] { 800, 500 }) {
          var container = cards.ContainerFromItem(item) as Control;
          Check(container != null, "Tutorial cards must be realized.");
          var description = container.GetVisualDescendants().OfType<TextBlock>()
-            .Single(block => block.Text == item.Content);
+            .Single(block => block.Text == ExpectedDescription(item));
          var position = description.TranslatePoint(new Point(), viewport);
          Check(position.HasValue && new Rect(viewport.Bounds.Size)
             .Contains(new Rect(position.Value, description.Bounds.Size)),
@@ -81,9 +89,17 @@ foreach (var hostWidth in new[] { 800, 500 }) {
       foreach (var item in vm.Tutorials) {
          var container = (Control)cards.ContainerFromItem(item);
          var description = container.GetVisualDescendants().OfType<TextBlock>()
-            .Single(block => block.Text == item.Content);
+            .Single(block => block.Text == ExpectedDescription(item));
          Check(description.TextLayout.Height <= description.Bounds.Height + .01,
             $"Compact card must fit the full description: {item.Title}.");
+         if (item.Icon == "CtrlKey") {
+            var icon = container.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>().First();
+            var expected = HavenSoft.HexManiac.AvaloniaUI.Resources.IconExtension.GetIcon(
+               OperatingSystem.IsMacOS() ? "CommandKey" : "CtrlKey");
+            Check(icon.Data != null && expected != null && icon.Data.Bounds == expected.Bounds,
+               "Modifier tutorial icons must match the platform's gesture.");
+            Check(item.Content.Contains("Control"), "Display translation must not mutate shared Core tutorial records.");
+         }
       }
       tutorial.Leave();
       Layout();

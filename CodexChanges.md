@@ -762,3 +762,20 @@ Measurement note: Before/after benchmark runs each pass 762 checks with identica
 Repeat note: The second after run also passes 762 checks with identical integrity/presentation fields and stable allocation reductions, but synthetic icon-refresh times vary substantially (3.835/0.839/3.822 ms per 100 across the three icon cases), so the first paired speedup is not consistently reproduced and no stable elapsed-time gain is claimed.
 
 Scope: Presentation notifications only, with no new image cache or changes to decoding, palette resolution, conditional item semantics, researched addresses, import/export, compiler, pointer/repointing algorithms, or history; mixed whole-table timing, native responsiveness, retained RAM, other games, and delayed map-use search remain outside the claimed improvement.
+
+## 046 — Investigate delayed item map-usage searches
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ItemUsageBenchmark/ItemUsageBenchmark.csproj](tools/ItemUsageBenchmark/ItemUsageBenchmark.csproj) | 1 | Add a standalone Release investigation using the actual Mac delay timer and offscreen UI synchronization context. |
+| [tools/ItemUsageBenchmark/Program.cs](tools/ItemUsageBenchmark/Program.cs) | 20 | Measure real delayed callbacks and component costs while checking ordered event/pixel results and prototyping query-local repeated-root reuse. |
+| [tools/ItemUsageBenchmark/README.md](tools/ItemUsageBenchmark/README.md) | 1 | Document real timer scheduling, controlled dispatcher limits, explicit ROM use, and benchmark-only experiment semantics. |
+| [tests/ITEM_USAGE_PERFORMANCE.md](tests/ITEM_USAGE_PERFORMANCE.md) | 1 | Record UI-thread scan costs, closed-menu execution, correct coalescing, repeatable prototype savings, and implementation prerequisites. |
+| [tests/ITEM_PERFORMANCE.md](tests/ITEM_PERFORMANCE.md) | 147 | Link the separately measured delayed-search follow-up. |
+| [tests/README.md](tests/README.md) | 39 | Link usage-search performance and correctness evidence. |
+
+Validation: Both final-code runs pass 71 checks with identical ROM identity, ordered results, thumbnail hashes, event/root counts, and hidden-item counts, preserving source/model bytes, metadata, and empty history; the final Release build passes with zero warnings/errors.
+
+Measurement note: Repeated actual delayed callbacks cost roughly 186–449 ms and 240–623 MB of temporary allocation in the final repeat while the usage menu is closed; ten rapid selections correctly coalesce to one scan, and the tool-only repeated-root experiment preserves ordered matches while reducing matching from 142–146 to 82–85 ms and roughly 240 to 126 MB per query.
+
+Scope: Tools/docs only; no application parser, researched addresses, script traversal limits, pointer/repointing/history algorithms, or cache behavior changed, and the approximately 40% matching-time/48% allocation experiment is not a shipped whole-editor improvement; the report requires cancellation, mutation, reload, relocation, and history regression coverage before implementation.

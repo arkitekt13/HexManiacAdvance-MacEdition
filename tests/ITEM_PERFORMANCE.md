@@ -143,3 +143,7 @@ The repeat supports the allocation and notification reduction, not a stable elap
 speedup. No further run was selected to replace the less favorable measurements. The
 cleanup and added regression coverage are the outcome; larger optimization claims would
 require more controlled profiling and a larger bottleneck.
+
+The delayed search follow-up is now measured separately in
+[ITEM_USAGE_PERFORMANCE.md](ITEM_USAGE_PERFORMANCE.md), including the actual Mac timer,
+closed-menu behavior, ordered results, and a tool-only shared-script experiment.

@@ -35,3 +35,6 @@ not native-input or full-editor latency claims.
 Item-table preparation, actual-ROM limits, and icon notification findings are recorded in
 [ITEM_PERFORMANCE.md](ITEM_PERFORMANCE.md); bound editing, relocation/history, and dimension/scale
 regressions are documented in [ItemTablePresentation/README.md](ItemTablePresentation/README.md).
+
+The normal delayed item/map-use search, UI-thread cost, and query-local reuse experiment are
+reviewed separately in [ITEM_USAGE_PERFORMANCE.md](ITEM_USAGE_PERFORMANCE.md).

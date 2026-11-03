@@ -1201,3 +1201,20 @@ Complete Mac validation: All 29 groups pass 6,175 assertions with zero failed or
 Upstream verification: 1,779 passed / 1 failed / 935 skipped / zero engine errors; the sole ErrorInScript_ClickOff_ResetScriptEditor failure is the identical HMA-006 draft-retention baseline mismatch documented in entry 068, with no new failed cases.
 
 Scope: Table presentation lifecycle only; genuine group changes still replace controls and ordinary refresh/model notifications still run. Encounter parsing, numeric interpretation, relocation, history and engine behavior are unchanged. All new data is fabricated; native interaction on the user's ROM still needs confirmation after relaunch.
+
+## 072 — Check continuous editing across encounter tables, scripts and map names
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/WildEncounterEditing/Program.cs](tests/WildEncounterEditing/Program.cs) | 22 | Expand the focus/autocomplete matrix to production grass, surf, tree and fishing formats with their slot counts and comment sections. |
+| [tests/AutocompleteMapping/Program.cs](tests/AutocompleteMapping/Program.cs) | 128 | Exercise per-character variable typing and retained focus after compilation inside the actual TabView script template. |
+| [tests/TextSelection/Program.cs](tests/TextSelection/Program.cs) | 61 | Check per-character PCS/fixed-name typing and the real map-name pointer-table format through its stream editor and complete history. |
+| [tests/WildEncounterEditing/README.md](tests/WildEncounterEditing/README.md) | 7 | Document the expanded encounter formats and fabricated species source. |
+| [tests/AutocompleteMapping/README.md](tests/AutocompleteMapping/README.md) | 6 | Record the expanded 292-check script/autocomplete group and live tab coverage. |
+| [tests/TextSelection/README.md](tests/TextSelection/README.md) | 10 | Record 63 text/name checks and distinguish map-name editing from map-header dropdown selection. |
+
+Focused validation: All 124 encounter checks, 292 script/autocomplete checks and 63 text/name checks pass. Grass (12), surf (5), tree (5) and fishing (10) run across LF/CRLF, including percentage/rod comments; continuous input, visible offered/applied species suggestions, untouched slots/rate/pointers/metadata and history remain passing. Script compilation preserves the live focused editor, and map-name edits preserve neighboring names, pointer bytes and exact Undo/Redo states.
+
+Complete Mac validation: All 29 groups pass 6,300 assertions with zero failed or skipped groups; the broader coverage adds 125 assertions without changing application code.
+
+Scope: Tests and coverage documentation only; no further application change was needed beyond entry 071. Headless synthetic fixtures exercise actual TabView templates and production parsers; native map-header dropdown interaction, every game engine/script mode and real-ROM behavior are not claimed.

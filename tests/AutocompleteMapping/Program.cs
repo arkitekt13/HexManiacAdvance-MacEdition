@@ -125,9 +125,22 @@ foreach(var ending in new[]{"\n","\r\n"}) {
    m.WritePointer(token,0x100,0x1000);m.ObserveRunWritten(token,new PointerRun(0x100));
    viewport.Goto.Execute(0x1000);tool.Mode=CodeMode.Script;tool.IsSelected=true;dispatch.Flush();
    viewport.ChangeHistory.ClearHistory(false);var before=m.RawData.ToArray();var metadata=m.ExportMetadata(null,services.MetadataInfo).Serialize();
-   body=tool.Contents[0];control=new TextEditor{DataContext=body.Editor,FontSize=14};overlay=new AutocompleteOverlay{DataContext=body};
-   window.Content=new Grid{Children={control,overlay}};Layout();
-   var partial=string.Join(ending,new[]{"lock","setvar tem 1","release","end"});Prepare(partial,partial.IndexOf("tem",StringComparison.Ordinal)+3);Offer();
+   body=tool.Contents[0];
+   viewport.Tools.SelectedIndex=Enumerable.Range(0,viewport.Tools.Count).First(i=>ReferenceEquals(viewport.Tools[i],tool));
+   window.Content=new TabView{DataContext=viewport};Layout();
+   control=window.GetVisualDescendants().OfType<TextEditor>().Single(c=>ReferenceEquals(c.DataContext,body.Editor));
+   overlay=window.GetVisualDescendants().OfType<AutocompleteOverlay>().Single(o=>ReferenceEquals(o.Target,control));
+   var partial=string.Join(ending,new[]{"lock","setvar tem 1","release","end"});
+   var typing=partial.Replace("setvar tem 1","setvar  1");
+   Prepare(typing,typing.IndexOf("setvar ",StringComparison.Ordinal)+7);
+   control.EditBox.Focus();
+   foreach(var character in "tem") {
+      var caret=control.EditBox.CaretIndex;
+      window.KeyTextInput(character.ToString());Layout();
+      Check(control.EditBox.IsFocused && control.EditBox.CaretIndex==caret+1,
+         "Live script typing must retain focus and advance its caret on every character.");
+   }
+   Check(control.EditBox.Text==partial,"Continuous typing must preserve all surrounding script source.");Offer();
    Check(Items().Length>0,"Live CodeTool must offer variable suggestions without compiling incomplete text.");
    var wanted=Array.FindIndex(Items(),item=>item.CompletionText=="setvar temp1 1");Check(wanted>=0,"Fixture must offer the intended variable alias.");
    for(int i=0;i<wanted;i++)Press(Key.Down);
@@ -137,6 +150,8 @@ foreach(var ending in new[]{"\n","\r\n"}) {
    Check(Press(Key.Enter).Handled,"Live completion must be accepted through the actual key handler.");
    Check(control.EditBox.Text==partial.Replace("setvar tem 1","setvar temp1 1"),"Completion must preserve the entire surrounding live script.");
    dispatch.Flush();Layout();viewport.ChangeHistory.ChangeCompleted();
+   Check(control.EditBox.IsFocused && window.GetVisualDescendants().OfType<TextEditor>().Any(c=>ReferenceEquals(c,control)),
+      "Settled script compilation in the actual tab must retain the live focused editor.");
    var completed=before.ToArray();completed[0x1002]=1;
    Check(!body.HasError && !tool.ShowErrorText && m.RawData.SequenceEqual(completed),"Compiled completion must change only the intended variable byte.");
    Check(m.ReadPointer(0x100)==0x1000 && m.GetNextRun(0x1000).PointerSources.Contains(0x100),"Completion must preserve the script's caller pointer and source metadata.");

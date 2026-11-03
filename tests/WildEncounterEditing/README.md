@@ -4,6 +4,10 @@ Run `scripts/verify-mac.sh --no-restore` to rebuild and execute this group with 
 The fixture uses the real TabView, generic stream TextBox and autocomplete overlay in a headless
 Skia window. All ROM bytes, species names, pointers and encounter slots are fabricated.
 
+The matrix uses the production grass (12 slots with percentage comments), surf (5), tree/rock-smash
+(5) and fishing (10 with rod comments) list formats from tableReference.txt, substituting a fabricated
+species-name table. Each runs with LF and CRLF input and retains every unedited slot.
+
 The first level-edit assertion fails before the fix: refreshing the retained stream group emits
 CollectionChanged.Replace with identical old/new group references. Avalonia destroys the focused
 TextBox, detaches it and hides autocomplete even though the stream view model was retained.

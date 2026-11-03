@@ -19,16 +19,22 @@ var fs = new StubFileSystem(); Application.Current!.Resources["FileSystem"] = fs
 App.UpdateThemeDictionary(Application.Current.Resources, new EditorViewModel(fs, InstantDispatch.Instance).Theme);
 int checks = 0;
 void Check(bool value, string message) { checks++; if (!value) throw new InvalidOperationException(message); }
-foreach (var separator in new[] { "\n", "\r\n" }) {
+var formats = new[] {
+   (Kind: "grass", Count: 12, Format: "[basic|comment=0|20% common|comment=2|10% uncommon|comment=6|5% rare|comment=8|4% mythic|comment=10|1% lowLevel. highLevel. species:species]12"),
+   (Kind: "surf", Count: 5, Format: "[lowLevel. highLevel. species:species]5"),
+   (Kind: "tree", Count: 5, Format: "[lowLevel. highLevel. species:species]5"),
+   (Kind: "fish", Count: 10, Format: "[old|comment=0|old_rod: good|comment=2|good_rod: super|comment=5|super_rod: lowLevel. highLevel. species:species]10"),
+};
+foreach (var format in formats) foreach (var separator in new[] { "\n", "\r\n" }) {
    var bytes = Enumerable.Repeat((byte)0xFF, 0x4000).ToArray();
    BitConverter.GetBytes(20).CopyTo(bytes, 0x100); BitConverter.GetBytes(0x08000200).CopyTo(bytes, 0x104);
-   for (int i = 0; i < 2; i++) new byte[] { 2, 3, 0, 0 }.CopyTo(bytes, 0x200 + i * 4);
+   for (int i = 0; i < format.Count; i++) new byte[] { 2, 3, 0, 0 }.CopyTo(bytes, 0x200 + i * 4);
    var names = new[] { "RATTATA", "RATICATE", "PIKACHU" };
    for (int i = 0; i < names.Length; i++) PCSString.Convert("\"" + names[i] + "\"").CopyTo(bytes, 0x400 + i * 12);
    var services = new Singletons();
    var model = new PokemonModel(bytes, new StoredMetadata(anchors: new[] {
       new StoredAnchor(0x400, "species", "[name\"\"12]3"),
-      new StoredAnchor(0x100, "wild", "[rate:: list<[min. max. species:species]2>]1"),
+      new StoredAnchor(0x100, "wild", $"[rate:: list<{format.Format}>]1"),
    }), services);
    var view = new ViewPort("synthetic.gba", model, InstantDispatch.Instance, services, fs: fs);
    view.InitializationWorkload.GetAwaiter().GetResult(); view.Goto.Execute(0x100);
@@ -47,14 +53,17 @@ foreach (var separator in new[] { "\n", "\r\n" }) {
    view.Tools.TableTool.Groups.CollectionChanged += (_, e) => {
       if (e.OldItems?.Count == 1 && e.NewItems?.Count == 1 && ReferenceEquals(e.OldItems[0], e.NewItems[0])) redundantReplacements++;
    };
-   box.Focus(); box.SelectionStart = 0; box.SelectionEnd = 1;
+   int firstSlot = box.Text!.IndexOf("2, 3,", StringComparison.Ordinal);
+   box.Focus(); box.SelectionStart = firstSlot; box.SelectionEnd = firstSlot + 1;
    window.KeyTextInput("4"); Pump();
    Check(ReferenceEquals(box, Box()) && box.IsFocused, "Typing a level must preserve the live text box and keyboard focus.");
-   Check(box.CaretIndex == 1 && model[0x200] == 4, "The level edit updates its byte and retains the caret.");
+   Check(box.CaretIndex == firstSlot + 1 && model[0x200] == 4, "The level edit updates its byte and retains the caret.");
    Check(redundantReplacements == 0, "Refreshing a retained stream group must not emit a same-object Replace.");
 
    // Prepare a partial species field, then deliver real input one character at a time.
-   box.Text = "4, 3, " + separator + "2, 3, RATTATA"; box.CaretIndex = 6; Pump();
+   var prepared = box.Text!.Replace("\r\n", "\n").Replace("\n", separator);
+   int speciesStart = prepared.IndexOf("RATTATA", StringComparison.Ordinal);
+   box.Text = prepared.Remove(speciesStart, "RATTATA".Length); box.CaretIndex = speciesStart; Pump();
    foreach (var character in "RAT") {
       var caret = box.CaretIndex; window.KeyTextInput(character.ToString()); Pump();
       Check(ReferenceEquals(box, Box()) && box.IsFocused && box.CaretIndex == caret + 1,
@@ -89,6 +98,7 @@ foreach (var separator in new[] { "\n", "\r\n" }) {
    Check(edited.SequenceEqual(model.RawData), "Redo restores the edited encounter bytes.");
    view.Goto.Execute(0x400); Pump(); view.Goto.Execute(0x100); Pump();
    Check(Box().Text!.Contains("RATICATE"), "Navigation refreshes the stream from the edited model.");
+   Console.WriteLine($"PASS: {format.Kind}, {format.Count} slots, {(separator.Length == 1 ? "LF" : "CRLF")}, focus/caret, mouse/Enter suggestions, bytes/metadata and history.");
    window.Close(); Pump();
 }
 Console.WriteLine($"CHECKS_PASSED:{checks}");

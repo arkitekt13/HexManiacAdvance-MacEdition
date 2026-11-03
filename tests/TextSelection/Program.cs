@@ -2,10 +2,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using HavenSoft.HexManiac.AvaloniaUI;
 using HavenSoft.HexManiac.AvaloniaUI.Controls;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.ViewModels;
+using HavenSoft.HexManiac.Core.ViewModels.Tools;
 
 AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
    .UseHeadless(new AvaloniaHeadlessPlatformOptions{UseHeadlessDrawing=false}).WithInterFont().SetupWithoutStarting();
@@ -52,8 +54,46 @@ foreach(var table in new[]{false,true}) {
    viewport.Redo.Execute(null);Layout();Check(renamed.SequenceEqual(model.RawData),"Redo must restore renamed text bytes.");
    box.SelectionStart=0;box.SelectionEnd=0;window.KeyTextInput("X");Layout();
    Check(tool.Content.StartsWith("XNEWNAME"),"Subsequent typing and selection subscriptions must still work after undo/redo.");
+   box.Focus();box.CaretIndex=0;
+   foreach(var character in "ABC") {
+      var caret=box.CaretIndex;window.KeyTextInput(character.ToString());Layout();
+      Check(box.IsFocused && box.CaretIndex==caret+1,"Name/text editing must retain focus and advance the caret for every keystroke.");
+   }
    Check(errors.Count==0,"Valid text edits must not report errors.");
    window.Close();Dispatcher.UIThread.RunJobs();
 }
-Console.WriteLine("PASS: real PCS and fixed-name table text, reversed/forward selections, collapsed caret, text replacement/shrink, subsequent typing, immutable selection, metadata, and undo/redo.");
+// Map names use a pointer table, unlike the fixed-width names above.
+{
+   var singletons=new Singletons();var data=Enumerable.Repeat((byte)0xFF,0x1000).ToArray();
+   BitConverter.GetBytes(0x08000200).CopyTo(data,0x100);BitConverter.GetBytes(0x08000240).CopyTo(data,0x104);
+   PCSString.Convert("\"PALLET TOWN\"").CopyTo(data,0x200);PCSString.Convert("\"ROUTE ONE\"").CopyTo(data,0x240);
+   var model=new PokemonModel(data,new StoredMetadata(anchors:new[]{
+      new StoredAnchor(0x100,HardcodeTablesModel.MapNameTable,"[name<\"\">]2"),
+   }),singletons);
+   var viewport=new ViewPort("map-names-fixture.bin",model,InstantDispatch.Instance,singletons,fs:new StubFileSystem());
+   viewport.InitializationWorkload.GetAwaiter().GetResult();viewport.Goto.Execute(0x100);
+   var view=new TabView{DataContext=viewport};var window=new Window{Width=1440,Height=1000,Content=view};window.Show();
+   void Layout(){Dispatcher.UIThread.RunJobs();window.Measure(new Size(1440,1000));window.Arrange(new Rect(0,0,1440,1000));AvaloniaHeadlessPlatform.ForceRenderTimerTick();}
+   TextBox Box()=>view.GetVisualDescendants().OfType<TextBox>().Single(b=>b.Name=="StreamTextBox" && b.DataContext is TextStreamElementViewModel);
+   Layout();var box=Box();Check(box.Text=="PALLET TOWN","The actual map-name pointer format must open its name stream.");
+   viewport.ChangeHistory.ClearHistory(false);viewport.ChangeHistory.TagAsSaved();
+   var before=model.RawData.ToArray();var metadata=model.ExportMetadata(null,singletons.MetadataInfo).Serialize();
+   box.Focus();box.SelectAll();
+   foreach(var character in "NEW TOWN") {
+      window.KeyTextInput(character.ToString());Layout();
+      Check(ReferenceEquals(box,Box()) && box.IsFocused,"Map-name stream refresh must retain the same focused editor for every keystroke.");
+   }
+   Check(box.Text=="NEW TOWN" && model.ReadPointer(0x100)==0x200,"Typing a shorter map name must keep its pointer and final text.");
+   var expected=PCSString.Convert("\"NEW TOWN\"");
+   Check(model.RawData.Skip(0x200).Take(expected.Count).SequenceEqual(expected),"The map name must have exact encoded bytes.");
+   Check(model.ReadPointer(0x104)==0x240 && model.RawData.Skip(0x240).Take(16).SequenceEqual(before.Skip(0x240).Take(16)),"Renaming a map must preserve its neighboring name and pointer.");
+   viewport.ChangeHistory.ChangeCompleted();var renamed=model.RawData.ToArray();
+   viewport.Undo.Execute(null);Layout();
+   Check(before.SequenceEqual(model.RawData) && metadata.SequenceEqual(model.ExportMetadata(null,singletons.MetadataInfo).Serialize()),"Undo restores all map-name bytes and metadata.");
+   viewport.Redo.Execute(null);Layout();Check(renamed.SequenceEqual(model.RawData),"Redo restores the renamed map exactly.");
+   viewport.Goto.Execute(0x104);Layout();Check(Box().Text=="ROUTE ONE","Map-name navigation must refresh to the other entry.");
+   viewport.Goto.Execute(0x100);Layout();Check(Box().Text=="NEW TOWN","Returning to the edited name must refresh to its saved model content.");
+   window.Close();Dispatcher.UIThread.RunJobs();
+}
+Console.WriteLine("PASS: PCS/fixed names and map-name pointer streams, continuous focus/caret, selections, exact bytes/metadata, navigation and undo/redo.");
 Console.WriteLine($"CHECKS_PASSED:{checks}");

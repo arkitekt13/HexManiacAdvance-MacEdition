@@ -194,7 +194,7 @@ public sealed class McpServer : IDisposable {
                ["serverInfo"] = new JsonObject {
                   ["name"] = ServerName,
                   ["title"] = "HexManiacAdvance",
-                  ["version"] = typeof(McpServer).Assembly.GetName().Version?.ToString() ?? "0.0.0",
+                  ["version"] = AppIdentity.VersionNumber,
                },
                ["instructions"] =
                   "Tools act on the ROM currently open in HexManiacAdvance, including edits the user has not saved. " +

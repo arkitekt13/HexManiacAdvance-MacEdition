@@ -14,7 +14,9 @@ AppBuilder.Configure<Application>().UseStandardRuntimePlatformSubsystem()
 var font = new Typeface("Menlo, Consolas, monospace");
 double Width(string text) => new FormattedText(text, CultureInfo.InvariantCulture,
    FlowDirection.LeftToRight, font, 12, Brushes.White).WidthIncludingTrailingWhitespace;
+var checks = 0;
 void Check(bool condition, string message) {
+   checks++;
    if (!condition) throw new InvalidOperationException(message);
 }
 
@@ -54,4 +56,53 @@ foreach (var (name, raw) in layers) {
    }
 }
 Check(vm.Content == content && editor.EditBox.Text == content, "The editable script must remain unchanged.");
-Console.WriteLine("PASS: reproduced zero-width placeholders; checked monospaced font, all six display layers, token positions, comments, line endings, and unchanged editable text.");
+// A single validation pass can publish dozens of diagnostics synchronously.
+// Count actual inline-list clears to detect repeated rebuilding of the visible document.
+var diagnosticVm = new TextEditorViewModel { LineCommentHeader = "#" };
+diagnosticVm.Content = string.Join("\n", Enumerable.Range(0, 32).Select(i => "# warning " + i));
+var diagnosticEditor = new TextEditor { FontSize = 12, DataContext = diagnosticVm };
+Dispatcher.UIThread.RunJobs();
+var commentLayer = diagnosticEditor.FindControl<TextBlock>("CommentLayer");
+var decorationRebuilds = 0;
+commentLayer.Inlines.CollectionChanged += (_, _) => {
+   if (commentLayer.Inlines.Count == 0) decorationRebuilds++;
+};
+diagnosticVm.ErrorLocations.Clear();
+for (int i = 0; i < 32; i++) diagnosticVm.ErrorLocations.Add(new TextSegment(i, 2, 7,
+   i % 2 == 0 ? SegmentType.Error : SegmentType.Warning));
+var diagnostics = diagnosticVm.ErrorLocations.ToArray();
+Dispatcher.UIThread.RunJobs();
+Console.WriteLine($"DIAGNOSTIC_REBUILDS:{decorationRebuilds}");
+Check(decorationRebuilds == 1, "One diagnostic burst must rebuild error decorations once.");
+Check(commentLayer.Inlines.OfType<Run>().Count(run => run.TextDecorations?.Count > 0) == 32,
+   "Every error and warning must remain decorated after coalescing.");
+Check(string.Concat(commentLayer.Inlines.OfType<Run>().Select(run => run.Text)) == diagnosticVm.CommentContent,
+   "Diagnostic decorations must preserve every character and line break.");
+Check(diagnosticVm.ErrorLocations.SequenceEqual(diagnostics), "Rendering must preserve all diagnostic records.");
+Check(diagnosticEditor.EditBox.Text == diagnosticVm.Content, "Rendering must not change editable text.");
+
+decorationRebuilds = 0;
+diagnosticVm.ErrorLocations.Clear();
+Dispatcher.UIThread.RunJobs();
+Check(decorationRebuilds == 1 && commentLayer.Inlines.OfType<Run>().All(run => run.TextDecorations?.Count is not > 0),
+   "Cleared diagnostics must remove all old underlines in one update.");
+
+// Switch scripts while an update is queued: only the current model may be rendered.
+decorationRebuilds = 0;
+diagnosticVm.ErrorLocations.Add(new TextSegment(0, 2, 7, SegmentType.Warning));
+var replacementVm = new TextEditorViewModel { LineCommentHeader = "#", Content = "# current script" };
+replacementVm.ErrorLocations.Add(new TextSegment(0, 2, 7, SegmentType.Error));
+diagnosticEditor.DataContext = replacementVm;
+Dispatcher.UIThread.RunJobs();
+Check(decorationRebuilds == 1, "A context switch during a diagnostic burst must render the current script once.");
+Check(string.Concat(commentLayer.Inlines.OfType<Run>().Select(run => run.Text)) == replacementVm.CommentContent,
+   "Queued updates must use the current script, not the previous model.");
+Check(commentLayer.Inlines.OfType<Run>().Count(run => run.TextDecorations?.Count > 0) == 1,
+   "The replacement model's diagnostic must be displayed.");
+decorationRebuilds = 0;
+diagnosticVm.ErrorLocations.Clear();
+Dispatcher.UIThread.RunJobs();
+Check(decorationRebuilds == 0, "The old script must be unsubscribed after switching models.");
+
+Console.WriteLine("PASS: checked script layout, diagnostic coalescing, complete underlines, unchanged content, and context switching.");
+Console.WriteLine($"CHECKS_PASSED:{checks}");

@@ -15,7 +15,9 @@ using HavenSoft.HexManiac.Core.ViewModels.Map;
 AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem()
    .UseWindowingSubsystem(() => { }, "offscreen").UseSkia().WithInterFont().SetupWithoutStarting();
 
+var checks = 0;
 void Check(bool condition, string message) {
+   checks++;
    if (!condition) throw new InvalidOperationException(message);
 }
 
@@ -122,6 +124,7 @@ previewController.Update(null);
 Check(ToolTip.GetTip(mapSurface) == null, "An empty map cell must clear cached NPC content.");
 Console.WriteLine("PASS: tutorial stacking configuration, map-only preview sources, dismissal, same-NPC re-entry, and empty-cell clearing.");
 
+Console.WriteLine($"CHECKS_PASSED:{checks}");
 class TutorialProbe : TutorialControl {
    private PointerEventArgs Args(Avalonia.Interactivity.RoutedEvent routedEvent) =>
       new(routedEvent, this, new Pointer(1, PointerType.Mouse, true), null,

@@ -219,36 +219,17 @@ namespace HavenSoft.HexManiac.WPF.Implementations {
       }
 
       public bool Save(LoadedFile file) {
-         // make sure the required directory exists
-         var path = Path.GetDirectoryName(file.Name);
-         Directory.CreateDirectory(path);
-
-         // disable watchers for this file since we're about to save it ourselves
-         if (watchers.TryGetValue(file.Name, out var watcherList) && listeners.TryGetValue(file.Name, out var listenerList)) {
-            foreach (var watcher in watcherList) watcher.EnableRaisingEvents = false;
-         } else {
-            watcherList = null;
-            listenerList = null;
-         }
-
-         bool result = true;
+         watchers.TryGetValue(file.Name, out var watcherList);
          try {
-            // use FileShare ReadWrite so we can write the file while another program is holding it.
-            using (var stream = new FileStream(file.Name, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)) {
-               stream.Write(file.Contents, 0, file.Contents.Length);
-               stream.SetLength(file.Contents.Length);
-            }
+            if (watcherList != null) foreach (var watcher in watcherList) watcher.EnableRaisingEvents = false;
+            AtomicFileWriter.Write(file.Name, stream => stream.Write(file.Contents, 0, file.Contents.Length));
+            return true;
          } catch (Exception) {
-            ShowCustomMessageBox("Could not save. The file might be ReadOnly or in use by another application.", showYesNoCancel: false);
-            result = false;
+            ShowCustomMessageBox("Could not save. The previous file was not replaced. Check permissions, available space, or whether another application is locking the file.", showYesNoCancel: false);
+            return false;
+         } finally {
+            if (watcherList != null) foreach (var watcher in watcherList) watcher.EnableRaisingEvents = true;
          }
-
-         // re-enable watchers for this file
-         if (watcherList != null && listenerList != null) {
-            foreach (var watcher in watcherList) watcher.EnableRaisingEvents = true;
-         }
-
-         return result;
       }
 
       public bool SaveMetadata(string originalFileName, string[] metadata) {
@@ -260,7 +241,7 @@ namespace HavenSoft.HexManiac.WPF.Implementations {
          int tryCount = 0;
          while (tryCount < 5) {
             try {
-               File.WriteAllLines(metadataName, metadata);
+               AtomicFileWriter.WriteAllLines(metadataName, metadata);
                break;
             } catch (Exception ex) {
                tryCount += 1;
@@ -282,7 +263,8 @@ namespace HavenSoft.HexManiac.WPF.Implementations {
          if (result != true) return result;
          if (displayName == string.Empty) displayName = RequestNewName(displayName);
          if (string.IsNullOrEmpty(displayName)) return null;
-         return Save(new LoadedFile(displayName.Trim(), file.Contents));
+         // IFileSystem reserves false for an intentional discard, not a failed save.
+         return Save(new LoadedFile(displayName.Trim(), file.Contents)) ? true : null;
       }
 
       public bool? ShowCustomMessageBox(string message, bool showYesNoCancel = true, params ProcessModel[] links) {

@@ -11,6 +11,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Threading;
 using HavenSoft.HexManiac.AvaloniaUI.Resources;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.ViewModels;
@@ -66,6 +67,7 @@ public partial class TextEditor : UserControl {
    private readonly Dictionary<TextBlock, TranslateTransform> layerTransforms = new();
    private ScrollViewer scrollViewer;
    private TextEditorViewModel subscribed;
+   private bool errorDecorationUpdateQueued;
 
    static TextEditor() {
       IsReadOnlyProperty.Changed.AddClassHandler<TextEditor>((self, e) => self.OnIsReadOnlyChanged());
@@ -123,13 +125,13 @@ public partial class TextEditor : UserControl {
          subscribed.RequestCaretMove += HandleViewModelCaretMove;
          subscribed.RequestKeyboardFocus += HandleViewModelRequestKeyboardFocus;
          subscribed.ErrorLocations.CollectionChanged += HandleViewModelErrorUpdate;
-         UpdateErrorDecorations();
+         QueueErrorDecorationUpdate();
       }
    }
 
    private void HandleViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
       if (e.PropertyName == nameof(TextEditorViewModel.CommentContent)) {
-         UpdateErrorDecorations();
+         QueueErrorDecorationUpdate();
       }
    }
 
@@ -142,7 +144,19 @@ public partial class TextEditor : UserControl {
    /// scroll ancestors, so the plain call is equivalent.
    private void HandleViewModelRequestKeyboardFocus(object sender, EventArgs e) => TransparentLayer.Focus();
 
-   private void HandleViewModelErrorUpdate(object sender, EventArgs e) => UpdateErrorDecorations();
+   private void HandleViewModelErrorUpdate(object sender, EventArgs e) => QueueErrorDecorationUpdate();
+
+   // Validation publishes diagnostics individually. Paint their final state once per UI turn,
+   // without delaying validation or changing the script, diagnostic records, or ROM model.
+   private void QueueErrorDecorationUpdate() {
+      if (errorDecorationUpdateQueued) return;
+      errorDecorationUpdateQueued = true;
+      Dispatcher.UIThread.Post(() => {
+         errorDecorationUpdateQueued = false;
+         // Resolve the current DataContext here: the user may have switched scripts meanwhile.
+         UpdateErrorDecorations();
+      }, DispatcherPriority.Render);
+   }
 
    public void ScrollToVerticalOffset(double offset) {
       if (scrollViewer != null) scrollViewer.Offset = new Vector(scrollViewer.Offset.X, offset);

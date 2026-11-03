@@ -273,6 +273,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
 
       private int[,] lastPixels;
       private IReadOnlyList<short> lastColors;
+      private int publishedWidth, publishedHeight;
       private void UpdateTiles(int start, int page, bool exitPaletteSearchEarly) {
          needsUpdate = false;
          var run = GetRun();
@@ -291,9 +292,18 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
 
          PixelData = SpriteTool.Render(pixels, palette, paletteFormat.InitialBlankPages, CurrentPage);
 
-         NotifyPropertyChanged(nameof(PixelWidth));
-         NotifyPropertyChanged(nameof(PixelHeight));
+         // PixelImage uploads on dimension notifications as well as PixelData. Fixed-size
+         // table icons need only the fresh pixels, while real format changes still notify.
+         if (publishedWidth != PixelWidth) {
+            publishedWidth = PixelWidth;
+            NotifyPropertyChanged(nameof(PixelWidth));
+         }
+         if (publishedHeight != PixelHeight) {
+            publishedHeight = PixelHeight;
+            NotifyPropertyChanged(nameof(PixelHeight));
+         }
          NotifyPropertyChanged(nameof(PixelData));
+         var previousScale = SpriteScale;
          if (SpriteTool.MaxSpriteWidth < PixelWidth) {
             SpriteScale = .5;
          } else if (SpriteTool.MaxSpriteWidth > PixelWidth * 2) {
@@ -301,7 +311,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          } else {
             SpriteScale = 1;
          }
-         NotifyPropertyChanged(nameof(SpriteScale));
+         if (SpriteScale != previousScale) NotifyPropertyChanged(nameof(SpriteScale));
       }
 
       /// <summary>

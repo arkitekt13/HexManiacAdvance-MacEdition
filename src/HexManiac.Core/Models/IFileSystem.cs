@@ -201,7 +201,7 @@ namespace HavenSoft.HexManiac.Core.Models {
    }
 
    public class ControlledDispatch : IWorkDispatcher {
-      private record Dispatch(Action Action, CancellationTokenSource CancellationSource);
+      private record Dispatch(Action Action, TaskCompletionSource<bool> Completion);
       private readonly List<Dispatch> workloads = new();
 
       public Task WaitForRenderingAsync { get; set; } = Task.CompletedTask;
@@ -210,9 +210,10 @@ namespace HavenSoft.HexManiac.Core.Models {
       public void BlockOnUIWork(Action action) => action();
 
       public Task DispatchWork(Action action) {
-         var source = new CancellationTokenSource();
-         workloads.Add(new(action, source));
-         return Task.Delay(-1, source.Token);
+         // Deliberately allow synchronous continuations so a controlled drain includes initialization followups.
+         var completion = new TaskCompletionSource<bool>();
+         workloads.Add(new(action, completion));
+         return completion.Task;
       }
 
       public Task RunBackgroundWork(Action action) => DispatchWork(action);
@@ -221,8 +222,13 @@ namespace HavenSoft.HexManiac.Core.Models {
       public void RunWorkloadAndContinuations(int index) {
          var workload = workloads[index];
          workloads.RemoveAt(index);
-         workload.Action?.Invoke();
-         workload.CancellationSource.Cancel(); // ends the delay task, causing any children to run
+         try {
+            workload.Action?.Invoke();
+            workload.Completion.SetResult(true);
+         } catch (Exception error) {
+            workload.Completion.SetException(error);
+            throw;
+         }
       }
 
       public void RunAllWorkloads() {

@@ -29,7 +29,7 @@ public class CustomTraceListener : TraceListener {
    public CustomTraceListener(IFileSystem fs, EditorViewModel editor) {
       fileSystem = fs;
       this.editor = editor;
-      versionNumber = $" (Version {editor?.Singletons?.MetadataInfo?.VersionNumber})";
+      versionNumber = $" (Mac {AppIdentity.VersionNumber}, {AppIdentity.BuildConfiguration})";
    }
 
    public override void Fail(string message, string detailMessage) {
@@ -89,7 +89,7 @@ public class CustomTraceListener : TraceListener {
                   "Attach a debugger and click 'Debug' to get more information about the following assertion:" + Environment.NewLine +
                   message + Environment.NewLine +
                   detailMessage + Environment.NewLine +
-                  "To report the assert, copy & paste the stack trace to the Discord's #hma-bug-reports channel." +
+                  "To report this assertion, copy the stack trace into an issue on the Mac fork." +
                   Environment.NewLine + Environment.NewLine +
                   logs + Environment.NewLine +
                   "Stack Trace:" + Environment.NewLine +
@@ -105,13 +105,13 @@ public class CustomTraceListener : TraceListener {
                      new VisualOption {
                         Index = 2,
                         Option = "Report",
-                        ShortDescription = "Go to Discord",
-                        Description = "Copy the stack trace, and paste it into #hma-bug-reports."
+                        ShortDescription = "Open Mac GitHub Issues",
+                        Description = "Review and paste the stack trace into an issue on the Mac fork."
                      },
                   });
             });
             if (result == 2) {
-               NativeProcess.Start("https://discord.gg/x9eQuBg");
+               NativeProcess.Start(AppIdentity.IssuesUrl);
                result = 1;
             }
          }

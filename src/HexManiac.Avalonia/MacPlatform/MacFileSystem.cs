@@ -42,10 +42,15 @@ namespace HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
 ///      return path == null ? null : new LoadedFile(path, File.ReadAllBytes(path));
 ///   }
 /// </summary>
-public partial class MacFileSystem : IFileSystem, IWorkDispatcher {
+public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IDisposable {
    readonly Func<Window> getOwner;
 
-   public MacFileSystem(Func<Window> getOwner) => this.getOwner = getOwner;
+   private readonly Action<Action> dispatchFileChange;
+   private readonly AsyncLocal<LoadedFile> reloadSnapshot = new();
+   public MacFileSystem(Func<Window> getOwner, Action<Action> dispatchFileChange = null) {
+      this.getOwner = getOwner;
+      this.dispatchFileChange = dispatchFileChange ?? (action => Dispatcher.UIThread.Post(action, DispatcherPriority.ApplicationIdle));
+   }
 
    TopLevel Owner => getOwner();
 
@@ -171,17 +176,6 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher {
    protected static void OpenInDefaultApp(string pathOrUrl) =>
       Process.Start(new ProcessStartInfo("open", $"\"{pathOrUrl}\"") { UseShellExecute = false });
 
-   /// HMA reloads when a ROM changes on disk (e.g. after an emulator or patcher writes it).
-   /// FileSystemWatcher works on macOS via FSEvents.
-   protected static IDisposable WatchFile(string path, Action onChanged) {
-      var watcher = new FileSystemWatcher(Path.GetDirectoryName(path), Path.GetFileName(path)) {
-         NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
-         EnableRaisingEvents = true,
-      };
-      watcher.Changed += (_, _) => Avalonia.Threading.Dispatcher.UIThread.Post(onChanged);
-      return watcher;
-   }
-
    // ==================================================================================
    // IFileSystem
    // Signatures copied from src/HexManiac.Core/Models/IFileSystem.cs; behavior mirrors
@@ -260,56 +254,38 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher {
    }
 
    public LoadedFile LoadFile(string fileName) {
+      var snapshot = reloadSnapshot.Value;
+      if (snapshot != null && Path.GetFullPath(snapshot.Name) == Path.GetFullPath(fileName))
+         return new LoadedFile(fileName, (byte[])snapshot.Contents.Clone());
       if (!File.Exists(fileName)) return null;
       byte[] data;
-
-      // FileShare.ReadWrite so the ROM can be opened while an emulator is holding it.
       try {
-         using var stream = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+         using var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
          data = new byte[stream.Length];
-         var totalRead = 0;
-         while (totalRead < data.Length) {
-            var readCount = stream.Read(data, totalRead, data.Length - totalRead);
-            if (readCount == 0) break;
-            totalRead += readCount;
-         }
-      } catch (UnauthorizedAccessException) {
-         ShowCustomMessageBox("Unauthorized Access! Could not read file.", false);
+         stream.ReadExactly(data);
+      } catch (Exception error) when (error is IOException or UnauthorizedAccessException) {
+         ShowCustomMessageBox("Could not read file. Check permissions or whether another application is locking the file.", false);
          return null;
-      } catch (IOException) {
-         // the file is open read-only somewhere else: retry without asking for write access
-         try {
-            data = File.ReadAllBytes(fileName);
-         } catch (Exception) {
-            ShowCustomMessageBox("Could not read file.", false);
-            return null;
-         }
       }
 
       return new LoadedFile(fileName, data);
    }
 
    public bool Save(LoadedFile file) {
-      var directory = Path.GetDirectoryName(file.Name);
-      if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
-
-      // stop our own write from looking like an outside edit
-      watchers.TryGetValue(file.Name, out var watcherList);
-      if (watcherList != null) foreach (var watcher in watcherList) watcher.EnableRaisingEvents = false;
-
-      var result = true;
+      FileSubscription[] subscriptions;
+      lock (watcherGate) subscriptions = watchers.TryGetValue(Path.GetFullPath(file.Name), out var list) ? list.ToArray() : Array.Empty<FileSubscription>();
+      foreach (var subscription in subscriptions) subscription.Monitor.Suspend();
+      var saved = false;
       try {
-         using var stream = new FileStream(file.Name, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-         stream.Write(file.Contents, 0, file.Contents.Length);
-         stream.SetLength(file.Contents.Length);
+         AtomicFileWriter.Write(file.Name, stream => stream.Write(file.Contents, 0, file.Contents.Length));
+         saved = true;
+         return true;
       } catch (Exception) {
-         ShowCustomMessageBox("Could not save. The file might be ReadOnly or in use by another application.", showYesNoCancel: false);
-         result = false;
+         ShowCustomMessageBox("Could not save. The previous file was not replaced. Check permissions, available space, or whether another application is locking the file.", showYesNoCancel: false);
+         return false;
+      } finally {
+         foreach (var subscription in subscriptions) subscription.Monitor.Resume(saved ? file.Contents : null);
       }
-
-      if (watcherList != null) foreach (var watcher in watcherList) watcher.EnableRaisingEvents = true;
-
-      return result;
    }
 
    public bool? TrySavePrompt(LoadedFile file) {
@@ -319,7 +295,8 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher {
       if (result != true) return result;
       if (displayName == string.Empty) displayName = RequestNewName(displayName);
       if (string.IsNullOrEmpty(displayName)) return null;
-      return Save(new LoadedFile(displayName.Trim(), file.Contents));
+      // IFileSystem reserves false for an intentional discard, not a failed save.
+         return Save(new LoadedFile(displayName.Trim(), file.Contents)) ? true : null;
    }
 
    public string RequestNewName(string currentName, string extensionDescription = null, params string[] extensionOptions) =>
@@ -360,7 +337,7 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher {
       var metadataName = MetadataPath(originalFileName);
       for (int tryCount = 1; ; tryCount++) {
          try {
-            File.WriteAllLines(metadataName, metadata);
+            AtomicFileWriter.WriteAllLines(metadataName, metadata);
             return true;
          } catch (Exception ex) {
             if (tryCount >= 5) {
@@ -374,47 +351,49 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher {
 
    // ---------------- File watching ----------------
 
-   readonly Dictionary<string, List<FileSystemWatcher>> watchers = new();
-   readonly Dictionary<string, List<Action<IFileSystem>>> listeners = new();
+   private record FileSubscription(Action<IFileSystem> Listener, ExternalFileMonitor Monitor);
+   private readonly object watcherGate = new();
+   private readonly Dictionary<string, List<FileSubscription>> watchers = new(StringComparer.Ordinal);
+   private bool watchersDisposed;
 
    public void AddListenerToFile(string fileName, Action<IFileSystem> listener) {
-      var directory = Path.GetDirectoryName(fileName);
-      if (string.IsNullOrEmpty(directory)) directory = Directory.GetCurrentDirectory();
-      var watcher = new FileSystemWatcher(directory) {
-         NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName,
-      };
-      var scheduled = false;
-      watcher.Changed += (sender, e) => {
-         if (!e.FullPath.EndsWith(fileName)) return;
-         if (scheduled) return; // several changes in quick succession should only reload once
-         scheduled = true;
-         Avalonia.Threading.Dispatcher.UIThread.Post(() => {
-            listener(this);
-            scheduled = false;
-         }, Avalonia.Threading.DispatcherPriority.ApplicationIdle);
-      };
-      watcher.EnableRaisingEvents = true;
-
-      if (!watchers.ContainsKey(fileName)) {
-         watchers[fileName] = new();
-         listeners[fileName] = new();
+      var path = Path.GetFullPath(fileName);
+      lock (watcherGate) {
+         if (watchersDisposed) return;
+         if (!watchers.TryGetValue(path, out var subscriptions)) watchers[path] = subscriptions = new();
+         if (subscriptions.Any(s => s.Listener == listener)) return;
+         var monitor = new ExternalFileMonitor(path, dispatchFileChange, data => {
+            var previous = reloadSnapshot.Value;
+            reloadSnapshot.Value = new LoadedFile(path, data);
+            try { listener(this); }
+            finally { reloadSnapshot.Value = previous; }
+         });
+         subscriptions.Add(new FileSubscription(listener, monitor));
       }
-      watchers[fileName].Add(watcher);
-      listeners[fileName].Add(listener);
    }
 
    public void RemoveListenerForFile(string fileName, Action<IFileSystem> listener) {
-      if (!watchers.ContainsKey(fileName)) return;
+      var path = Path.GetFullPath(fileName);
+      FileSubscription subscription;
+      lock (watcherGate) {
+         if (!watchers.TryGetValue(path, out var subscriptions)) return;
+         subscription = subscriptions.FirstOrDefault(s => s.Listener == listener);
+         if (subscription == null) return;
+         subscriptions.Remove(subscription);
+         if (subscriptions.Count == 0) watchers.Remove(path);
+      }
+      subscription.Monitor.Dispose();
+   }
 
-      var index = listeners[fileName].IndexOf(listener);
-      if (index == -1) return;
-
-      var watcher = watchers[fileName][index];
-      watcher.EnableRaisingEvents = false;
-      watcher.Dispose();
-
-      listeners[fileName].RemoveAt(index);
-      watchers[fileName].RemoveAt(index);
+   public void Dispose() {
+      FileSubscription[] subscriptions;
+      lock (watcherGate) {
+         if (watchersDisposed) return;
+         watchersDisposed = true;
+         subscriptions = watchers.Values.SelectMany(s => s).ToArray();
+         watchers.Clear();
+      }
+      foreach (var subscription in subscriptions) subscription.Monitor.Dispose();
    }
 
    // ---------------- Images ----------------

@@ -5,10 +5,15 @@ using System.Linq;
 
 namespace HavenSoft.HexManiac.Core {
    public static class Patcher {
+      // Bound untrusted patch allocations while allowing expanded GBA ROMs up to 64 MiB.
+      public const int MaximumPatchedLength = 64 * 1024 * 1024;
       #region IPS Patching
 
       public static byte[] BuildIpsPatch(byte[] source, byte[] destination) {
+         if (destination.Length == 0x1000000 && source.Length > destination.Length) throw new ArgumentOutOfRangeException(nameof(destination), "IPS cannot encode this truncation length; use UPS.");
+         if (destination.Length > 0x1000000) throw new ArgumentOutOfRangeException(nameof(destination), "IPS addresses are limited to 24 bits; use UPS for larger ROMs.");
          var patch = new List<byte>();
+         var originalLength = source.Length;
          if (source.Length < destination.Length) {
             source = source.Concat(new byte[destination.Length - source.Length]).ToArray();
          }
@@ -19,16 +24,27 @@ namespace HavenSoft.HexManiac.Core {
          // body
          for (int i = 0; i < destination.Length; i++) {
             if (source[i] == destination[i]) continue;
+            // The reserved EOF offset must be encoded by a record beginning one byte earlier.
+            if (i == 0x454F46) i--;
             int j = i + 1;
             while (j < destination.Length && source[j] != destination[j] && j - i < 0xFFFF) j++;
             patch.AddRange(BuildChunk(destination, i, j - i));
-            if (source[j] != destination[j]) j -= 1; // need to re-check this byte, we exited due to the length limit
+            if (j < destination.Length && source[j] != destination[j]) j -= 1; // need to re-check this byte, we exited due to the length limit
             i = j;
          }
 
          // footer
+         // Force expansion even when the newly added tail consists entirely of zero bytes.
+         if (destination.Length > originalLength && destination.Length > 0) {
+            var last = destination.Length - 1;
+            patch.AddRange(BuildChunk(destination, last == 0x454F46 ? last - 1 : last, last == 0x454F46 ? 2 : 1));
+         }
          patch.AddRange("EOF".Select(c => (byte)c));
-
+         if (destination.Length < originalLength) {
+            patch.Add((byte)(destination.Length >> 16));
+            patch.Add((byte)(destination.Length >> 8));
+            patch.Add((byte)destination.Length);
+         }
          return patch.ToArray();
       }
 
@@ -54,45 +70,54 @@ namespace HavenSoft.HexManiac.Core {
          return chunk.ToArray();
       }
 
-      /// <returns>The first offset that was edited</returns>
+      /// <returns>The first edited offset, or -1 for malformed input without changing the model.</returns>
       public static int ApplyIPSPatch(IDataModel model, byte[] patch, ModelDelta token) {
-         // 5 byte header (PATCH) and 3 byte footer (EOF)
-         // hunk type 1: offset (3 bytes), length (2 bytes), payload (length bytes). Write the payload at offset.
-         // RLE hunk:    offset (3 bytes), 00 00, length (2 bytes), target (1 byte). Write the target, length times, at offset
-
-         var start = 5;
-         var firstOffset = -1;
-
-         while (patch.Length - start >= 6) {
-            var offset = (patch[start] << 16) + (patch[start + 1] << 8) + patch[start + 2];
-            if (firstOffset < 0) firstOffset = offset;
-            start += 3;
-            var length = (patch[start] << 8) + patch[start + 1];
-            start += 2;
-            if (length > 0) {
-               // normal
-               model.ExpandData(token, offset + length - 1);
-               while (length > 0) {
-                  token.ChangeData(model, offset, patch[start]);
-                  offset += 1;
-                  start += 1;
-                  length -= 1;
-               }
-            } else {
-               length = (patch[start] << 8) + patch[start + 1];
-               start += 2;
-               model.ExpandData(token, offset + length - 1);
-               // rle
-               while (length > 0) {
-                  token.ChangeData(model, offset, patch[start]);
-                  offset += 1;
-                  length -= 1;
-               }
-               start += 1;
+         if (patch == null || patch.Length < 8 || !patch.Take(5).Select(v => (char)v).SequenceEqual("PATCH")) return -1;
+         if (model.Count > MaximumPatchedLength) return -1;
+         var candidate = model.RawData.ToArray();
+         var index = 5;
+         var first = -1;
+         while (index <= patch.Length - 3) {
+            if (patch[index] == 'E' && patch[index + 1] == 'O' && patch[index + 2] == 'F') {
+               index += 3;
+               if (patch.Length - index == 3) {
+                  var size = (patch[index] << 16) | (patch[index + 1] << 8) | patch[index + 2];
+                  Array.Resize(ref candidate, size);
+               } else if (index != patch.Length) return -1;
+               CommitCandidate(model, candidate, token);
+               return first < 0 ? 0 : first;
             }
+            if (patch.Length - index < 5) return -1;
+            var offset = (patch[index] << 16) | (patch[index + 1] << 8) | patch[index + 2];
+            var length = (patch[index + 3] << 8) | patch[index + 4];
+            index += 5;
+            var repeated = length == 0;
+            if (repeated) {
+               if (patch.Length - index < 3) return -1;
+               length = (patch[index] << 8) | patch[index + 1];
+               index += 2;
+               if (length == 0) return -1;
+            }
+            if (patch.Length - index < (repeated ? 1 : length) || offset > MaximumPatchedLength - length) return -1;
+            if (candidate.Length < offset + length) Array.Resize(ref candidate, offset + length);
+            if (repeated) { Array.Fill(candidate, patch[index++], offset, length); }
+            else { Array.Copy(patch, index, candidate, offset, length); index += length; }
+            if (first < 0) first = offset;
          }
+         return -1;
+      }
 
-         return firstOffset;
+      // Only validated candidates reach the model; record changed spans rather than every byte.
+      private static void CommitCandidate(IDataModel model, byte[] candidate, ModelDelta token) {
+         if (candidate.Length > model.Count) model.ExpandData(token, candidate.Length - 1);
+         int index = 0;
+         while (index < candidate.Length) {
+            if (model[index] == candidate[index]) { index++; continue; }
+            var start = index++;
+            while (index < candidate.Length && model[index] != candidate[index]) index++;
+            token.ChangeData(model, start, candidate.Skip(start).Take(index - start).ToArray());
+         }
+         if (candidate.Length < model.Count) model.ContractData(token, candidate.Length - 1);
       }
 
       #endregion
@@ -112,9 +137,11 @@ namespace HavenSoft.HexManiac.Core {
          // body
          int offset = 0;
          bool writing = false;
-         for (int i = 0; i < destination.Length; i++) {
+         // Include a truncated source tail in the XOR stream so reverse application is lossless.
+         for (int i = 0; i < Math.Max(source.Length, destination.Length); i++) {
             var sourceVal = source.Length > i ? source[i] : (byte)0;
-            if (sourceVal == destination[i]) {
+            var destinationVal = destination.Length > i ? destination[i] : (byte)0;
+            if (sourceVal == destinationVal) {
                if (writing) {
                   writing = false;
                   offset = i + 1;
@@ -126,7 +153,7 @@ namespace HavenSoft.HexManiac.Core {
                patch.AddRange(WriteVariableWidthInteger(i - offset));
                writing = true;
             }
-            patch.Add((byte)(sourceVal ^ destination[i]));
+            patch.Add((byte)(sourceVal ^ destinationVal));
          }
          if (writing) patch.Add(0);
 
@@ -147,76 +174,69 @@ namespace HavenSoft.HexManiac.Core {
       // return -7 if trying to write past the end of the destination file
       // returns a positive integer, the address of the first change, if everything worked correctly
       public static int ApplyUPSPatch(IDataModel model, byte[] patch, Func<ModelDelta> tokenFactory, bool ignoreChecksums, out UpsPatchDirection direction) {
-         // 4 byte header: "UPS1"
-         // variable width source-size
-         // variable width destination-size
-         // 12 byte footer: 3 CRC32 checksums. Source file, destination file, patch file (CRC of everything except the last 4 bytes)
          direction = UpsPatchDirection.Fail;
-
-         // check header
-         var headerMatches = patch.Take(4).Select(b => (char)b).SequenceEqual("UPS1");
-         if (!headerMatches) return -1;
-
-         // check source CRC
-         var currentCRC = CalcCRC32(model.RawData);
-         var patchSourceFileCRC = patch.ReadMultiByteValue(patch.Length - 12, 4);
-         var patchDestinationFileCRC = patch.ReadMultiByteValue(patch.Length - 8, 4);
-         if (currentCRC == patchSourceFileCRC) direction = UpsPatchDirection.SourceToDestination;
-         if (currentCRC == patchDestinationFileCRC) direction = UpsPatchDirection.DestinationToSource;
-         if (direction == UpsPatchDirection.Fail && !ignoreChecksums) return -2;
-         if (direction == UpsPatchDirection.Fail) direction = UpsPatchDirection.SourceToDestination;
-
-         // check patch CRC
-         var patchWithoutCRC = new byte[patch.Length - 4];
-         Array.Copy(patch, patchWithoutCRC, patchWithoutCRC.Length);
-         var patchCRC = CalcCRC32(patchWithoutCRC);
-         if (patchCRC != patch.ReadMultiByteValue(patch.Length - 4, 4)) return -3;
-
-         // resize (bigger)
-         int readIndex = 4, firstEdit = int.MaxValue;
-         int sourceSize = ReadVariableWidthInteger(patch, ref readIndex);
-         int destinationSize = ReadVariableWidthInteger(patch, ref readIndex);
-         int writeLength = destinationSize;
-         if (direction == UpsPatchDirection.DestinationToSource) (sourceSize, destinationSize) = (destinationSize, sourceSize);
-         if (sourceSize != model.Count && !ignoreChecksums) return -4;
-         var token = tokenFactory.Invoke();
-         model.ExpandData(token, destinationSize - 1);
-         token.ChangeData(model, sourceSize, new byte[Math.Max(0, destinationSize - sourceSize)]);
-         token.ChangeData(model, destinationSize, new byte[Math.Max(0, sourceSize - destinationSize)]);
-
-         // run algorithm
-         firstEdit = RunUPSPatchAlgorithm(model, patch, token, writeLength, destinationSize, ref readIndex);
-         if (firstEdit < 0) return firstEdit;
-
-         // resize (smaller)
-         model.ContractData(token, destinationSize - 1);
-
-         // check result CRC
-         if (!ignoreChecksums) {
-            var finalCRC = CalcCRC32(model.RawData);
-            if (direction == UpsPatchDirection.SourceToDestination && finalCRC != patchDestinationFileCRC) return -5;
-            if (direction == UpsPatchDirection.DestinationToSource && finalCRC != patchSourceFileCRC) return -5;
-         }
-
-         // check that the chunk ended cleanly
-         if (direction == UpsPatchDirection.SourceToDestination && readIndex != patch.Length - 12) return -6;
-
-         return firstEdit;
+         if (patch == null || patch.Length < 18 || !patch.Take(4).Select(v => (char)v).SequenceEqual("UPS1")) return -1;
+         var footer = patch.Length - 12;
+         if (CalcCRC32(patch.Take(patch.Length - 4).ToArray()) != ReadChecksum(patch, patch.Length - 4)) return -3;
+         var original = model.RawData;
+         var sourceCrc = ReadChecksum(patch, footer);
+         var destinationCrc = ReadChecksum(patch, footer + 4);
+         var currentCrc = CalcCRC32(original);
+         if (currentCrc == sourceCrc) direction = UpsPatchDirection.SourceToDestination;
+         else if (currentCrc == destinationCrc) direction = UpsPatchDirection.DestinationToSource;
+         else if (!ignoreChecksums) return -2;
+         else direction = UpsPatchDirection.SourceToDestination;
+         int index = 4;
+         try {
+            var sourceSize = ReadVariableWidthInteger(patch, ref index, footer);
+            var destinationSize = ReadVariableWidthInteger(patch, ref index, footer);
+            if (direction == UpsPatchDirection.DestinationToSource) (sourceSize, destinationSize) = (destinationSize, sourceSize);
+            if (!ignoreChecksums && sourceSize != model.Count) return -4;
+            var workLength = Math.Max(model.Count, Math.Max(sourceSize, destinationSize));
+            if (workLength > MaximumPatchedLength) return -7;
+            var candidate = new byte[workLength];
+            Array.Copy(original, candidate, original.Length);
+            int position = 0, first = -1;
+            while (index < footer) {
+               var skip = ReadVariableWidthInteger(patch, ref index, footer);
+               if (position > workLength || skip > workLength - position) return -7;
+               position += skip;
+               var terminated = false;
+               while (index < footer) {
+                  var value = patch[index++];
+                  if (value == 0) { position++; terminated = true; break; }
+                  if (position >= workLength) return -7;
+                  if (first < 0) first = position;
+                  candidate[position++] ^= value;
+               }
+               if (!terminated) return -6;
+            }
+            Array.Resize(ref candidate, destinationSize);
+            var expected = direction == UpsPatchDirection.SourceToDestination ? destinationCrc : sourceCrc;
+            if (!ignoreChecksums && CalcCRC32(candidate) != expected) return -5;
+            CommitCandidate(model, candidate, tokenFactory());
+            return first < 0 ? 0 : first;
+         } catch (FormatException) { return -6; }
       }
+
+      private static int ReadChecksum(byte[] bytes, int index) =>
+         bytes[index] | (bytes[index + 1] << 8) | (bytes[index + 2] << 16) | (bytes[index + 3] << 24);
 
       public static int CalcCRC32(byte[] array) => (int)Force.Crc32.Crc32Algorithm.Compute(array);
 
-      public static int ReadVariableWidthInteger(byte[] data, ref int index) {
-         int result = 0, shift = 0;
-         while (true) {
-            result += (data[index] & 0x7F) << shift;
-            if (shift != 0) result += 1 << shift;
-            shift += 7;
-            index += 1;
-            if ((data[index - 1] & 0x80) != 0) {
-               return result;
-            }
+      public static int ReadVariableWidthInteger(byte[] data, ref int index) => ReadVariableWidthInteger(data, ref index, data.Length);
+
+      private static int ReadVariableWidthInteger(byte[] data, ref int index, int limit) {
+         long result = 0, shift = 1;
+         for (int count = 0; count < 5 && index < limit; count++) {
+            var value = data[index++];
+            result += (value & 0x7F) * shift;
+            if (result > int.MaxValue) throw new FormatException("Patch integer exceeds supported bounds.");
+            if ((value & 0x80) != 0) return (int)result;
+            shift <<= 7;
+            result += shift;
          }
+         throw new FormatException("Truncated or oversized patch integer.");
       }
 
       public static IEnumerable<byte> WriteVariableWidthInteger(int value) {
@@ -229,27 +249,6 @@ namespace HavenSoft.HexManiac.Core {
          } while (value >= 0);
       }
 
-      private static int RunUPSPatchAlgorithm(IDataModel model, byte[] patch, ModelDelta token, int writeLength, int destinationSize, ref int readIndex) {
-         int writeIndex = 0;
-         int firstEdit = int.MaxValue;
-         while (readIndex < patch.Length - 12 && writeIndex < destinationSize) {
-            var skipSize = ReadVariableWidthInteger(patch, ref readIndex);
-            writeIndex += skipSize;
-            if (writeIndex > writeLength) return -7;
-            if (firstEdit == int.MaxValue) firstEdit = skipSize;
-
-            while (patch[readIndex] != 0 && writeIndex < destinationSize) {
-               token.ChangeData(model, writeIndex, (byte)(patch[readIndex] ^ model[writeIndex]));
-               readIndex += 1;
-               writeIndex += 1;
-               if (writeIndex > writeLength) return -7;
-            }
-            readIndex += 1;
-            writeIndex += 1;
-         }
-
-         return firstEdit;
-      }
 
       #endregion
    }

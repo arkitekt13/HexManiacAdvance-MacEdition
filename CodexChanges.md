@@ -140,3 +140,662 @@ Pending verification: Relaunch and confirm the full button highlights under a re
 Validation: The app and welcome regression project built with zero warnings and zero errors; the existing layout and button checks passed, and the rendered preview was visually inspected.
 
 Pending verification: Relaunch to review the new title in the running app.
+
+## 009 — Add one reliable Mac verification command
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [scripts/verify-mac.sh](scripts/verify-mac.sh) | 1 | Discover, rebuild, and run every headless regression group while failing empty runs and missing, duplicate, zero, or unsuccessful assertion reports. |
+| [tests/README.md](tests/README.md) | 1 | Document the unified command, assertion-count contract, and the original xUnit suite's remaining portability work. |
+| [tests/FocusAnimation/Program.cs](tests/FocusAnimation/Program.cs) | 13 | Count completed assertions and emit a machine-readable successful-run report. |
+| [tests/MapArrowIcons/Program.cs](tests/MapArrowIcons/Program.cs) | 16 | Count completed assertions and emit a machine-readable successful-run report. |
+| [tests/ScriptEditorLayout/Program.cs](tests/ScriptEditorLayout/Program.cs) | 18 | Count completed assertions and emit a machine-readable successful-run report. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 18 | Count completed assertions and emit a machine-readable successful-run report. |
+| [tests/WelcomeScreen/Program.cs](tests/WelcomeScreen/Program.cs) | 20 | Count completed assertions and emit a machine-readable successful-run report. |
+| [tests/VerificationRunner/VerificationRunner.csproj](tests/VerificationRunner/VerificationRunner.csproj) | 1 | Add a dependency-free executable for verification-runner failure cases. |
+| [tests/VerificationRunner/Program.cs](tests/VerificationRunner/Program.cs) | 1 | Exercise empty discovery, silent or ambiguous success, restore/build/process failure, and successful totals using isolated fake processes. |
+| [tests/VerificationRunner/README.md](tests/VerificationRunner/README.md) | 1 | Describe the runner checks and their isolation from ROMs and native windows. |
+
+Validation: All six regression groups passed with 547 assertions; the runner's platform guard was then rebuilt and its nine failure-path assertions passed with zero warnings or errors.
+
+Scope note: The original xUnit suite is not part of this count and is not claimed as passing; its restoration and platform-specific build configuration remain separate work.
+
+## 010 — Preserve documents and existing files when saving fails
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/AtomicFileWriter.cs](src/HexManiac.Core/Models/AtomicFileWriter.cs) | 1 | Stage and flush complete files beside their destinations before replacement while retaining permissions, symbolic links, read-only protection, and cleanup after failed writes. |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 654 | Keep Save, Save As, and close operations unsaved or open when writing ROM metadata fails so the user can retry. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 292 | Replace ROM and metadata writes through the staged writer, restore file watchers in finally, and return cancellation rather than discard after a requested save fails. |
+| [src/HexManiac.WPF/Implementations/WindowsFileSystem.cs](src/HexManiac.WPF/Implementations/WindowsFileSystem.cs) | 221 | Apply the same staged-write and null-on-save-error contract to the original Windows adapter. |
+| [tests/SaveSafety/SaveSafety.csproj](tests/SaveSafety/SaveSafety.csproj) | 1 | Add headless save regressions using the actual shared engine and copied reference resources. |
+| [tests/SaveSafety/Program.cs](tests/SaveSafety/Program.cs) | 1 | Test save failures, metadata retry, close cancellation, shrinking replacements, UTF-8, permissions, symbolic links, and read-only files with synthetic data. |
+| [tests/SaveSafety/README.md](tests/SaveSafety/README.md) | 1 | Document the save checks and the separate-file and external-lock limitations. |
+
+Validation: All seven regression groups passed with 564 assertions; Mac application and regression builds passed, including staged-write failure injection and the previously failing metadata-save case.
+
+Limitations: ROM and metadata remain separate writes rather than a two-file power-loss transaction; a failed metadata write retains an open unsaved document for retry, and the Windows WPF application/native dialogs have not been built or exercised on this Mac.
+
+## 011 — Validate patches before changing ROM data
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Code/Patcher.cs](src/HexManiac.Core/Models/Code/Patcher.cs) | 8 | Parse bounded IPS and UPS candidates off-model and commit changed spans only after complete structural and checksum validation. |
+| [src/HexManiac.Core/Models/Code/Patcher.cs](src/HexManiac.Core/Models/Code/Patcher.cs) | 12 | Fix IPS generation at the last changed byte, reserved EOF offset, zero-filled expansion, and truncation boundaries. |
+| [src/HexManiac.Core/Models/Code/Patcher.cs](src/HexManiac.Core/Models/Code/Patcher.cs) | 124 | Include truncated source tails in UPS generation so reverse application restores the original bytes. |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 1468 | Preserve existing edits and undo history after rejected patch imports and report that validation failures leave the ROM unchanged. |
+| [tests/PatchSafety/PatchSafety.csproj](tests/PatchSafety/PatchSafety.csproj) | 1 | Add synthetic patch regressions with shared engine reference resources. |
+| [tests/PatchSafety/Program.cs](tests/PatchSafety/Program.cs) | 1 | Check randomized forward and reverse round trips, empty and zero-tail cases, malformed inputs, reserved offsets, size limits, and undo preservation. |
+| [tests/PatchSafety/README.md](tests/PatchSafety/README.md) | 1 | Document patch validation, supported bounds, and the retained history-reset behavior for successful UI patch imports. |
+
+Validation: All eight regression groups passed with 921 assertions, including the previously failing output-checksum and truncated-IPS cases; the final added IPS truncation guard is covered by subsequent verification runs.
+
+Limitations: Successful whole-ROM patch imports still rebuild metadata and reset history as before; failed imports preserve history, and this entry does not claim successful patch imports are undoable or that native dialogs were tested.
+
+## 012 — Validate complete project imports before applying edits
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 66 | Version new exports and fingerprint table layouts so imports can reject incompatible structures before editing data. |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 94 | Preserve escaped carriage returns and reject incomplete or unknown text escapes instead of silently dropping characters. |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 111 | Validate manifests, tables, columns, indices, numeric widths, and lossless text encoding with structured file/row/field diagnostics before requesting a change token. |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 205 | Apply a standalone undo token only after validation and roll it back on failure without discarding earlier undo or redo history. |
+| [tests/ProjectImport/ProjectImport.csproj](tests/ProjectImport/ProjectImport.csproj) | 1 | Add synthetic import regressions with shared reference resources. |
+| [tests/ProjectImport/Program.cs](tests/ProjectImport/Program.cs) | 1 | Test invalid numeric/text input, diagnostics, unchanged round trips, one-step undo, redo retention, and rollback after an injected second-field failure. |
+| [tests/ProjectImport/README.md](tests/ProjectImport/README.md) | 1 | Document import validation and the legacy-export and context-only-field compatibility rules. |
+| [PORTING.md](PORTING.md) | 3 | Clarify that this fork allows targeted shared correctness fixes while prohibiting UI-specific workarounds in Core. |
+| [PORT_STATUS.md](PORT_STATUS.md) | 3 | Distinguish the original port's historical status from this fork's subsequent shared-engine fixes. |
+| [README.md](README.md) | 130 | Document the fork's shared fixes, verification command, and checkpoint-based revision workflow. |
+
+Validation: All nine regression groups passed with 951 assertions; the previous 999-to-231 truncation is rejected without mutation, valid imports undo in one step, and injected commit failure restores both data and metadata while retaining redo history.
+
+Compatibility: Legacy exports still require matching game code and ROM size and receive a missing-fingerprint note; pointers, calculated fields, and unsupported field types remain context only, and project import is not a full ROM serializer.
+
+## 013 — Publish consistent, recoverable project exports
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Project/ProjectExport.cs](src/HexManiac.Avalonia/Project/ProjectExport.cs) | 60 | Prepare deterministic table files and an explicit ownership manifest before publishing, reject filename collisions, and import only the declared files under a read lock. |
+| [src/HexManiac.Avalonia/Project/ProjectExportFiles.cs](src/HexManiac.Avalonia/Project/ProjectExportFiles.cs) | 10 | Stage complete exports with a recovery journal and exclusive writer lock while preserving unrelated files and restoring the previous set after failed publication. |
+| [tests/ProjectExportSafety/ProjectExportSafety.csproj](tests/ProjectExportSafety/ProjectExportSafety.csproj) | 1 | Add synthetic export regressions with shared reference resources. |
+| [tests/ProjectExportSafety/Program.cs](tests/ProjectExportSafety/Program.cs) | 1 | Verify stable output, owned-file cleanup, unrelated-file preservation, interrupted-export recovery, path rejection, locking, and publication rollback. |
+| [tests/ProjectExportSafety/README.md](tests/ProjectExportSafety/README.md) | 1 | Document ownership, recovery, external-editor limitations, and the persistent coordination lock. |
+
+Validation: All ten regression groups passed with 964 assertions, including 13 export checks using temporary folders and simulated interruption or publication failure.
+
+Limitations: Recovery covers process interruption rather than guaranteed physical power-loss durability; external editors do not honor the app's lock, and project export remains a table project rather than a full ROM serializer.
+
+## 014 — Report Mac crashes to this fork with consistent app versions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/AppIdentity.cs](src/HexManiac.Avalonia/AppIdentity.cs) | 7 | Define the Mac fork URLs and assembly-based app version with build configuration independently of Core metadata migration versions. |
+| [src/HexManiac.Avalonia/Windows/CrashReporter.cs](src/HexManiac.Avalonia/Windows/CrashReporter.cs) | 31 | Save reports to a stable user log folder, report write failures truthfully, and offer Finder only after a successful write. |
+| [src/HexManiac.Avalonia/Windows/CrashReporter.cs](src/HexManiac.Avalonia/Windows/CrashReporter.cs) | 71 | Open a bounded issue draft on the Mac fork and retain complete clipboard diagnostics with platform details, inner exceptions, and guarded editor-state collection. |
+| [src/HexManiac.Avalonia/Windows/CustomTraceListener.cs](src/HexManiac.Avalonia/Windows/CustomTraceListener.cs) | 32 | Use the shared app identity for assertions and direct their reporting action to this fork instead of upstream Discord. |
+| [src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs](src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs) | 7 | Read the welcome version label from the shared Mac app identity. |
+| [src/HexManiac.Avalonia/Windows/AboutWindow.axaml.cs](src/HexManiac.Avalonia/Windows/AboutWindow.axaml.cs) | 17 | Show the app version and build configuration in About and identify the Mac fork as the preview-report destination. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 257 | Point the Help menu's Report an Issue action to the shared Mac fork issues URL. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 492 | Use the app version in the window title instead of Core's metadata version. |
+| [src/HexManiac.Avalonia/Mcp/McpServer.cs](src/HexManiac.Avalonia/Mcp/McpServer.cs) | 197 | Report the same app version during MCP initialization. |
+| [tests/CrashReporting/CrashReporting.csproj](tests/CrashReporting/CrashReporting.csproj) | 1 | Add a headless diagnostic regression group referencing the actual Mac application. |
+| [tests/CrashReporting/Program.cs](tests/CrashReporting/Program.cs) | 1 | Verify identity, fork routing, inner exceptions, full clipboard content, saved-log actions, append behavior, and failure reporting with synthetic exceptions. |
+| [tests/CrashReporting/README.md](tests/CrashReporting/README.md) | 1 | Document the crash checks, new log location, issue-draft workflow, and native integration checks that remain manual. |
+
+Validation: All eleven regression groups passed with 993 assertions, including 29 crash-report checks; the Mac application builds successfully and no real crash, ROM edit, browser launch, or issue submission was required.
+
+Limitations: Native dialog appearance and actual Finder/browser/clipboard interaction still require manual confirmation; existing logs in old working directories are retained, and Core metadata migration versions remain unchanged.
+
+## 015 — Check compatible Mac updates without blocking startup
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Updates/MacUpdateChecker.cs](src/HexManiac.Avalonia/Updates/MacUpdateChecker.cs) | 16 | Query this fork's release API with a timeout and response limit, select newer stable versions with compatible Mac assets, and cache successful results by repository, version, and architecture. |
+| [src/HexManiac.Avalonia/App.axaml.cs](src/HexManiac.Avalonia/App.axaml.cs) | 46 | Direct the existing Update action to this fork's releases page. |
+| [src/HexManiac.Avalonia/App.axaml.cs](src/HexManiac.Avalonia/App.axaml.cs) | 126 | Start update discovery after the window opens and cancel pending work when the window closes. |
+| [src/HexManiac.Avalonia/App.axaml.cs](src/HexManiac.Avalonia/App.axaml.cs) | 308 | Discard legacy upstream update flags and replace synchronous HTML scraping with background discovery and a guarded UI-thread result update. |
+| [src/HexManiac.Core/ViewModels/EditorViewModel.cs](src/HexManiac.Core/ViewModels/EditorViewModel.cs) | 383 | Notify bindings when update availability changes so asynchronously discovered updates enable the menu action. |
+| [tests/StartupUpdates/StartupUpdates.csproj](tests/StartupUpdates/StartupUpdates.csproj) | 1 | Add headless startup-update regressions with shared reference resources. |
+| [tests/StartupUpdates/Program.cs](tests/StartupUpdates/Program.cs) | 1 | Verify compatible release filtering, yielding requests, cache rules, property notifications, size limits, offline behavior, timeout, and cancellation with fake HTTP responses. |
+| [tests/StartupUpdates/README.md](tests/StartupUpdates/README.md) | 1 | Document release tag and asset conventions, daily caching, startup behavior, and the native and live-network checks that remain manual. |
+
+Validation: All twelve regression groups passed with 1,035 assertions, including 42 startup-update checks; no live GitHub access, downloads, installs, or ROM edits were required.
+
+Limitations: Discovery considers the most recent 30 releases and requires documented numeric tags and compatible Mac asset names; native startup appearance and live browser/network behavior remain manual checks, and Update opens the releases page rather than installing software.
+
+## 016 — Reload external ROM changes safely across replacement and rapid saves
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/MacPlatform/ExternalFileMonitor.cs](src/HexManiac.Avalonia/MacPlatform/ExternalFileMonitor.cs) | 12 | Combine native change/create/delete/rename/error notifications with metadata reconciliation, debounced stable content snapshots, retry batches, duplicate suppression, and cancellation of stale deliveries. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 50 | Allow injected UI delivery and provide verified reload snapshots without rereading temporarily locked files. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 256 | Read ROMs without requiring write access and reject incomplete stream reads instead of returning zero-padded tails. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 274 | Suspend external deliveries during local saves and acknowledge successful bytes before resuming monitoring in finally. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 354 | Canonicalize and deduplicate listener registrations, dispose removed monitors, and clear all remaining subscriptions on filesystem disposal. |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 2466 | Recheck saved state when queued UI reload work runs so intervening user edits cannot be overwritten. |
+| [src/HexManiac.Avalonia/App.axaml.cs](src/HexManiac.Avalonia/App.axaml.cs) | 128 | Dispose file monitoring when the main window closes. |
+| [tests/ExternalFileChanges/ExternalFileChanges.csproj](tests/ExternalFileChanges/ExternalFileChanges.csproj) | 1 | Add real-filesystem watcher regressions using synthetic ROM data and copied reference resources. |
+| [tests/ExternalFileChanges/Program.cs](tests/ExternalFileChanges/Program.cs) | 1 | Verify rapid saves, replacements, renames, locks, snapshots, local-save suppression, callback recovery, disposal, and protection of unsaved edits. |
+| [tests/ExternalFileChanges/README.md](tests/ExternalFileChanges/README.md) | 1 | Document monitoring behavior, reconciliation, retries, and limitations around external writers and conflict handling. |
+
+Validation: All thirteen regression groups passed with 1,073 assertions, including 38 external-file checks; native rapid writes initially exposed a missed notification that the reconciliation fallback resolves.
+
+Limitations: Unsaved edits remain untouched without automatic merging or a new conflict dialog; stable reads reduce but cannot eliminate partial-write risk, nonempty ROMs up to 64 MiB are supported, and renamed paths or retargeted links may require reopening as detailed in the regression README.
+
+## 017 — Run the original engine tests on Mac and record their baseline
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/Directory.Build.props](src/Directory.Build.props) | 2 | Supply a solution-root fallback scoped to upstream test project names so standalone test builds have predictable output paths without moving Mac application outputs. |
+| [src/HexManiac.Tests/HexManiac.Tests.csproj](src/HexManiac.Tests/HexManiac.Tests.csproj) | 4 | Target the test host at .NET 8 and use portable project references and resource copying while retaining Core's target and existing package versions. |
+| [src/HexManiac.Tests/TestEnvironment.cs](src/HexManiac.Tests/TestEnvironment.cs) | 6 | Initialize relative test paths from the output directory and reject missing or empty required reference resources before fixtures load. |
+| [src/HexManiac.Tests/Integration/UpgradeTests.cs](src/HexManiac.Tests/Integration/UpgradeTests.cs) | 37 | Resolve historical metadata from copied fixtures instead of a fixed parent-directory traversal without changing assertions. |
+| [scripts/verify-upstream.sh](scripts/verify-upstream.sh) | 1 | Restore isolated dependencies, build fresh tests, require discovery, and retain validated results for normal VSTest or explicitly selected in-process xUnit execution. |
+| [scripts/summarize-upstream.py](scripts/summarize-upstream.py) | 1 | Validate TRX or xUnit XML against discovery and case outcomes while rejecting empty, entirely skipped, inconsistent, aborted, or unsuccessful runs. |
+| [scripts/run-upstream-command.py](scripts/run-upstream-command.py) | 1 | Enforce discovery/execution deadlines and terminate the command's own process group after timeout or interruption. |
+| [tools/UpstreamTestRunner/UpstreamTestRunner.csproj](tools/UpstreamTestRunner/UpstreamTestRunner.csproj) | 1 | Reference the original test project and a runner utility pinned to its xUnit 2.4.1 engine. |
+| [tools/UpstreamTestRunner/Program.cs](tools/UpstreamTestRunner/Program.cs) | 1 | Discover and execute unchanged upstream cases through xUnit's engine in one process and retain standard XML without requiring VSTest's socket connection. |
+| [tests/UpstreamVerificationRunner/UpstreamVerificationRunner.csproj](tests/UpstreamVerificationRunner/UpstreamVerificationRunner.csproj) | 1 | Add a dependency-free regression group for the upstream verification infrastructure. |
+| [tests/UpstreamVerificationRunner/Program.cs](tests/UpstreamVerificationRunner/Program.cs) | 1 | Exercise both result formats, discovery/process failures, skipped-only and inconsistent runs, retained summaries, and watchdog timeout behavior using disposable fake processes. |
+| [tests/UpstreamVerificationRunner/README.md](tests/UpstreamVerificationRunner/README.md) | 1 | Document runner failure checks and their separation from upstream case totals. |
+| [src/HexManiac.Tests/README.md](src/HexManiac.Tests/README.md) | 1 | Document runner commands, dependency isolation, resource setup, environment restrictions, and the unchanged optional-ROM policy. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 1 | Record two identical failing-case baselines, classify the 33 failures, account for 1,047 missing-ROM skips, and list pending follow-up work. |
+| [tests/README.md](tests/README.md) | 11 | Link the independent upstream runner and baseline while distinguishing the still-unported second integration project. |
+
+Validation: Two complete Debug in-process xUnit runs each discovered 2,570 cases with 1,490 passed, 33 failed, 1,047 skipped, and zero engine errors; the runner correctly returns failure, and the failed-case sets are identical.
+
+Validation note: Mac regression verification passed all fourteen groups with 1,102 assertions, including 29 new runner checks, on its repeat run; an existing FocusAnimation check failed during the first run and then passed both isolated and full reruns without assertion changes.
+
+Limitations: VSTest's localhost socket is denied in this session and its full execution is not verified; the separate HexManiac.Integration project remains unported, upstream failures are retained for triage, and optional ROM fixtures were not supplied or copied.
+
+## 018 — Configure complete successful saves in the upstream fixtures
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Tests/Before_Baseclass/ViewPortSaveTests.cs](src/HexManiac.Tests/Before_Baseclass/ViewPortSaveTests.cs) | 111 | Explicitly return metadata-save success in three successful-save scenarios while retaining their close-event, save-count, filename, and notification assertions. |
+| [src/HexManiac.Tests/DiffTests.cs](src/HexManiac.Tests/DiffTests.cs) | 309 | Configure metadata-save success for both shared-model Save As cases before expecting the other viewport to close. |
+| [src/HexManiac.Tests/Before_Baseclass/ChangeHistoryTests.cs](src/HexManiac.Tests/Before_Baseclass/ChangeHistoryTests.cs) | 473 | Complete the simulated close-save with a successful metadata write before asserting that history is saved. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 97 | Record the six resolved cases, updated upstream counts, unchanged remaining failures, and separate save-failure validation. |
+
+Validation: The full Debug in-process upstream run discovered 2,570 cases with 1,496 passed, 27 failed, 1,047 skipped, and zero engine errors; exactly the six intended cases changed from failing to passing with no new failures, and all existing assertion lines in the modified test files remain unchanged.
+
+Validation note: The existing SaveSafety group rebuilt successfully and passed all 17 assertions, including metadata failure, retry, Save As, and cancellation of close after a requested save fails.
+
+Scope: Only individual successful-save fixtures were configured; production save behavior and the shared stub's default failure behavior remain unchanged, and the upstream suite still correctly returns failure for the remaining 27 cases.
+
+## 019 — Keep trainer validation working when evolution data is unavailable
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Map/Flags.cs](src/HexManiac.Core/ViewModels/Map/Flags.cs) | 272 | Return empty minimum-level hints when the model has no evolution table instead of enumerating null during trainer validation. |
+| [src/HexManiac.Core/ViewModels/Map/Flags.cs](src/HexManiac.Core/ViewModels/Map/Flags.cs) | 294 | Return empty predecessor hints for the same missing-table condition so cached trainer and map-template consumers remain safe. |
+| [src/HexManiac.Tests/TrainerValidationTests.cs](src/HexManiac.Tests/TrainerValidationTests.cs) | 10 | Add nine cases proving missing-table safety without mutation while retaining valid minimum-level, inherited, non-level, and multiple-slot behavior. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 125 | Record the reproduced application defect, 15 resolved original failures, passing new cases, and remaining upstream counts. |
+
+Validation: Before the fix, two new missing-table cases reproduced the crash while seven positive evolution-data cases passed; afterward all nine passed and exactly the 15 original trainer/table failures disappeared with no new failures or changes to existing test assertions or fixtures.
+
+Validation note: The full Debug in-process upstream run discovered 2,579 cases with 1,520 passed, 12 failed, 1,047 skipped, and zero engine errors; all fourteen Mac regression groups passed with 1,102 assertions.
+
+Scope: This is a shared application fix rather than a fixture adjustment; it omits only hints that cannot be derived without evolution data, retains the existing valid-table algorithms and warnings, and leaves the twelve unrelated upstream failures for separate work.
+
+## 020 — Complete script braces without corrupting dialogue or commands
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Code/ScriptParser.cs](src/HexManiac.Core/Models/Code/ScriptParser.cs) | 419 | Recognize existing LF, CRLF, and CR separators during brace completion so inserted boundaries preserve dialogue, command tokens, compiled lengths, and caret positions. |
+| [src/HexManiac.Tests/ScriptNewlineTests.cs](src/HexManiac.Tests/ScriptNewlineTests.cs) | 11 | Add nineteen cases covering newline variants, mixed input, brace boundaries, caret movement, exact encoded text and pointers, intentional blank lines, and undo/redo round trips. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 154 | Record the shared newline root cause, eight resolved original failures, new regression coverage, and the four remaining upstream failures. |
+
+Validation: All eight original script failures and nineteen new cases passed without modifying existing assertions or fixtures; the full Debug in-process upstream run discovered 2,598 cases with 1,547 passed, four failed, 1,047 skipped, and zero engine errors, with no new failures.
+
+Validation note: All fourteen Mac regression groups passed with 1,102 assertions, including script editor layout and the existing save, patch, import/export, and UI regressions.
+
+Limitations: Native keyboard/caret appearance remains a manual check, script compilation retains its existing separate undo-history entries, and large-script performance and the four unrelated upstream failures remain separate work.
+
+## 021 — Include Core's declared version in standalone builds
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/HexManiac.Core.csproj](src/HexManiac.Core/HexManiac.Core.csproj) | 22 | Include SharedAssemblyInfo through a project-relative path so standalone builds retain the declared Core version used by metadata migration. |
+| [src/HexManiac.Tests/MetadataIdentityTests.cs](src/HexManiac.Tests/MetadataIdentityTests.cs) | 7 | Check declared version attributes, metadata export round trips, release identity, and recognition of older metadata. |
+
+Validation: The new checks exposed missing assembly attributes and version 0.0.0 before the fix; afterward all three passed, and the original list and table-group migration failures passed without changing their assertions or the migration algorithms.
+
+Scope: The first version-only upstream run recorded 2,601 cases with 1,552 passed, two failed, and 1,047 skipped; the remaining warning-timing and missing-fixture cases are addressed in subsequent entries.
+
+## 022 — Complete controlled test work deterministically
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/IFileSystem.cs](src/HexManiac.Core/Models/IFileSystem.cs) | 203 | Complete controlled workloads through task-completion sources so synchronous initialization continuations drain reliably and workload failures fault their returned tasks. |
+| [src/HexManiac.Tests/ControlledDispatchTests.cs](src/HexManiac.Tests/ControlledDispatchTests.cs) | 7 | Verify successful completion, draining of continuation-created work, and propagation of workload failures without timing sleeps. |
+
+Validation: All three new dispatcher checks failed before the fix and passed afterward, along with the unchanged matched-word warning assertion that previously raced initialization completion.
+
+Scope: ControlledDispatch is the test dispatcher used by that warning fixture; production Mac dispatching and the warning's validation logic are unchanged.
+
+## 023 — Report absent optional ROM fixtures explicitly
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Tests/Integration/BasicLoadTests.cs](src/HexManiac.Tests/Integration/BasicLoadTests.cs) | 13 | Discover sorted ROM paths case-insensitively and emit one explained skip only when no optional fixture is supplied while retaining actual file-load failures. |
+| [src/HexManiac.Tests/RomFixtureDiscoveryTests.cs](src/HexManiac.Tests/RomFixtureDiscoveryTests.cs) | 7 | Check missing and empty folders, extension filtering and order, the explicit absence skip, and failure for a missing specified file. |
+| [src/HexManiac.Tests/README.md](src/HexManiac.Tests/README.md) | 42 | Document the optional-fixture discovery policy and distinguish absence skips from failures while loading supplied paths. |
+| [tests/README.md](tests/README.md) | 12 | Point to the zero-failure first-project baseline while retaining the separate integration-project limitation. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 194 | Record the confirmed build-version and test-dispatcher causes, fixture policy, two green runs, and remaining coverage limits. |
+
+Validation: Two complete Debug in-process upstream runs each discovered 2,609 cases with 1,561 passed, zero failed, 1,048 skipped, and zero engine errors; all eleven new regression cases pass, the three original metadata/warning assertions are unchanged, and the former no-data failure is one explicit absence skip rather than a claimed successful load.
+
+Validation note: All fourteen Mac regression groups passed with 1,102 assertions on the full repeat; the first run hit the already recorded intermittent FocusAnimation clock assertion, which then passed isolated and in the full repeat without test changes.
+
+Limitations: The 1,048 skips are unavailable optional-ROM cases, the separate HexManiac.Integration project remains unported, and full VSTest execution remains unavailable through this session's blocked localhost connection.
+
+## 024 — Detect lost or duplicated metadata in reopening tests
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Tests/Integration/UpgradeTests.cs](src/HexManiac.Tests/Integration/UpgradeTests.cs) | 177 | Compare complete identity multisets before the existing reopening value assertions so missing or duplicated metadata cannot pass silently. |
+| [src/HexManiac.Tests/MetadataReopenAssertionTests.cs](src/HexManiac.Tests/MetadataReopenAssertionTests.cs) | 6 | Add seventeen synthetic cases covering missing, extra, duplicated, reordered, and matching entries across the four collections checked by the ROM reopening test. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 232 | Record stronger first-project reopening assertions and their ROM-free regression evidence. |
+
+Validation: Before strengthening the assertions, eight missing/duplicate scenarios were incorrectly accepted and four extra-entry scenarios raised lookup exceptions; afterward all seventeen regression cases passed, including reordered and matching metadata.
+
+Validation note: The Debug in-process first-project run recorded 2,626 cases with 1,578 passed, zero failed, 1,048 optional-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.Co2QcJ`).
+
+Scope: Only test code changed; application metadata algorithms, ROM definitions, and historical-upgrade exemptions are unchanged, and the second test project remains deferred.
+
+## 025 — Load uncached optional fixtures and explain missing paths
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Tests/Integration/AutoSearchTests.cs](src/HexManiac.Tests/Integration/AutoSearchTests.cs) | 927 | Allow isolated synthetic preload lists, load uncached files before copying models, and identify missing fixture paths in skips. |
+| [src/HexManiac.Tests/Integration/UpgradeTests.cs](src/HexManiac.Tests/Integration/UpgradeTests.cs) | 34 | Include the required ROM path in both metadata-upgrade and reopening absence skips. |
+| [src/HexManiac.Tests/AutoSearchFixtureTests.cs](src/HexManiac.Tests/AutoSearchFixtureTests.cs) | 8 | Add six synthetic checks for explained skips, cold-cache loading, independent copies, and preservation of the cached template and source bytes. |
+| [src/HexManiac.Tests/README.md](src/HexManiac.Tests/README.md) | 55 | Document exact fixture filename expectations and distinguish the three disabled expansion methods from missing-ROM skips. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 247 | Record the fixture-loader defect, six regression checks, current counts, and unresolved disabled-feature coverage. |
+
+Validation: The cold-cache copy case reproduced KeyNotFoundException and both AutoSearch absence checks exposed missing path diagnostics before the fix; afterward all six new cases passed, including unchanged isolation behavior.
+
+Validation note: The final Debug in-process first-project run recorded 2,632 cases with 1,584 passed, zero failed, 1,048 optional-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.sugxmj`); git diff whitespace checks passed.
+
+Scope: Only tests and documentation changed; exceptions while loading supplied fixtures are not converted into skips, game definitions and application code are unchanged, and the second project remains deferred.
+
+## 026 — Run the second upstream test project on Mac
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Integration/HexManiac.Integration.csproj](src/HexManiac.Integration/HexManiac.Integration.csproj) | 4 | Target the integration host at .NET 8 with relative references and shared initialization while replacing Windows build commands with transitive portable resources. |
+| [src/HexManiac.Integration/HarnessTests.cs](src/HexManiac.Integration/HarnessTests.cs) | 7 | Check four required host resources without commercial ROMs. |
+| [tools/UpstreamTestRunner/UpstreamTestRunner.csproj](tools/UpstreamTestRunner/UpstreamTestRunner.csproj) | 10 | Build and copy the second test assembly into the existing in-process host. |
+| [tools/UpstreamTestRunner/Program.cs](tools/UpstreamTestRunner/Program.cs) | 5 | Select either the default first assembly or the explicitly requested integration assembly for xUnit discovery and execution. |
+| [scripts/verify-upstream.sh](scripts/verify-upstream.sh) | 8 | Add explicit integration-suite selection and bounded single-node restore while retaining result validation and default first-project behavior. |
+| [src/HexManiac.Integration/README.md](src/HexManiac.Integration/README.md) | 1 | Document integration commands, resources, fixture requirements, and coverage limits. |
+| [tests/INTEGRATION_BASELINE.md](tests/INTEGRATION_BASELINE.md) | 1 | Record the original 41-case baseline, added resource checks, and the exposed stale script reference. |
+| [tests/README.md](tests/README.md) | 14 | Point to the newly runnable second project's separate baseline. |
+| [src/HexManiac.Tests/README.md](src/HexManiac.Tests/README.md) | 53 | Replace the obsolete unported-project note with the new integration selector and baseline. |
+
+Validation: Portable Debug builds succeeded; the original 41 cases reported one stale-script failure and 40 absent-ROM skips, then four resource checks passed for a 45-case checkpoint with one failure, 40 skips, and zero engine errors (`artifacts/upstream-tests/run.qmzYAL`).
+
+Scope: Original integration assertions and package versions are retained at this checkpoint; no application code or researched ROM definitions changed, and the failing baseline remains visible for the next isolated fix.
+
+## 027 — Point the integration type-swap test at its current script fixture
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Integration/DataTests.cs](src/HexManiac.Integration/DataTests.cs) | 10 | Replace the nonexistent ability_type_swaps script path with the existing Pixilate fixture that declares the expected type-swap table. |
+| [src/HexManiac.Integration/HarnessTests.cs](src/HexManiac.Integration/HarnessTests.cs) | 8 | Verify the exact fixture path used by the upgrade test and its required table declaration without a ROM. |
+| [tests/INTEGRATION_BASELINE.md](tests/INTEGRATION_BASELINE.md) | 31 | Record the resolved stale reference and distinguish resource validation from still-skipped ROM migration coverage. |
+
+Validation: The original missing-script failure was reproduced before the reference fix; afterward the Debug integration run reported 46 cases with five passed, zero failed, 41 absent-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.EHaCxt`).
+
+Scope: The existing table assertion and checked-in script contents are unchanged; the former failure now reaches its existing missing-ROM guard, so no successful ROM import or migration is claimed.
+
+## 028 — Read the calculated dialogue pointer in integration overflow tests
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Integration/ScriptTests.cs](src/HexManiac.Integration/ScriptTests.cs) | 13 | Share the existing opcode-offset calculation between both dialogue scans and use its result when reading the text pointer. |
+| [src/HexManiac.Integration/DialoguePointerTests.cs](src/HexManiac.Integration/DialoguePointerTests.cs) | 7 | Add seven ROM-free cases covering both pointer layouts, null pointers, unsupported commands, and source-byte preservation. |
+| [tests/INTEGRATION_BASELINE.md](tests/INTEGRATION_BASELINE.md) | 44 | Record the reproduced preparemsg misread, existing command-definition evidence, and passing synthetic coverage. |
+
+Validation: Both non-null preparemsg cases failed before the offset fix and all seven new cases passed afterward; the Debug integration run recorded 53 cases with twelve passed, zero failed, 41 absent-ROM skips, and zero engine errors (`artifacts/upstream-tests/run.LDHMpz`).
+
+Scope: Only test code changed; opcode definitions, researched ROM addresses, parser behavior, and the original scans' range/buffer exclusions and overflow assertions are unchanged.
+
+## 029 — Preserve default suite selection under macOS Bash
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [scripts/verify-upstream.sh](scripts/verify-upstream.sh) | 34 | Keep the required result-directory argument in the runner array so Bash nounset mode handles default suite selection without an empty-array error. |
+
+Validation: Running the default first-project selector exposed an unbound-array error before test execution; afterward the complete first-project Debug run recorded 2,632 cases with 1,584 passed, zero failed, 1,048 skipped, and zero engine errors (`artifacts/upstream-tests/run.xBVE8W`).
+
+Scope: This corrects the newly introduced shell invocation; test selection defaults, assertions, result validation, application code, and ROM definitions are unchanged.
+
+## 030 — Assert integration model consistency in Debug and Release
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Integration/IntegrationTests.cs](src/HexManiac.Integration/IntegrationTests.cs) | 93 | Replace the conditional Debug diagnostic call with explicit model-type and consistency assertions. |
+| [src/HexManiac.Integration/ModelConsistencyAssertions.cs](src/HexManiac.Integration/ModelConsistencyAssertions.cs) | 8 | Mirror the original consistency diagnostic through public inspection APIs and xUnit assertions while preserving its ROM-pointer exemptions. |
+| [src/HexManiac.Integration/ConflictAssertionTests.cs](src/HexManiac.Integration/ConflictAssertionTests.cs) | 11 | Add fourteen synthetic cases for valid and corrupted pointer relationships, overlapping runs, dependent lengths, nonmutation, and permitted out-of-range pointers. |
+| [tests/INTEGRATION_BASELINE.md](tests/INTEGRATION_BASELINE.md) | 64 | Record the reproduced Release no-op, final Debug/Release counts, first-project cross-check, and unavailable game-workflow coverage. |
+| [src/HexManiac.Integration/README.md](src/HexManiac.Integration/README.md) | 26 | Explain synthetic versus ROM-dependent coverage and build-independent test assertions. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 6 | Point the first project's current scope note to the second project's separate baseline without rewriting historical results. |
+
+Validation: Before the fix, Release accepted deliberately stale pointer metadata and overlapping runs; afterward all fourteen synthetic consistency cases passed in Debug and Release, with each integration run recording 67 cases, 26 passed, zero failed, 41 absent-ROM skips, and zero engine errors (`run.9rmBl7` Debug and `run.HQ2wDZ` Release under artifacts/upstream-tests).
+
+Validation note: The default first-project selector retained 2,632 cases with 1,584 passed, zero failed, 1,048 skipped, and zero engine errors (`artifacts/upstream-tests/run.xBVE8W`); syntax and whitespace checks passed, and the diff confirms no Core or Avalonia application changes.
+
+Scope: All 41 original integration cases still require optional ROM fixtures; only host/synthetic coverage is claimed, production diagnostics and researched ROM definitions are unchanged, and the Mac UI regression suite was not rerun for this test-only work.
+
+## 031 — Coalesce script diagnostic painting on Mac
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs](src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs) | 149 | Coalesce error-decoration updates at render priority and resolve the current script when painting without delaying validation or changing diagnostic records. |
+| [tests/ScriptEditorLayout/Program.cs](tests/ScriptEditorLayout/Program.cs) | 57 | Verify one rebuild for a 32-diagnostic burst while preserving all underlines, text, model records, clear behavior, and script-switch isolation. |
+| [tests/ScriptEditorLayout/README.md](tests/ScriptEditorLayout/README.md) | 17 | Explain the real-renderer diagnostic coalescing checks and their scope. |
+| [tests/SCRIPT_PERFORMANCE.md](tests/SCRIPT_PERFORMANCE.md) | 1 | Record the Windows-only symptom report, reproduced redundant Mac painting, measured rebuild reduction, and validation limits. |
+
+Validation: The regression reproduced 33 actual underline-list rebuilds before the fix and one afterward; ScriptEditorLayout passed 102 assertions, and all fourteen Mac regression groups passed with 1,112 assertions (`/tmp/hma-diagnostic-coalescing-mac.log`).
+
+Scope: Only Mac diagnostic presentation changes; the compiler, on-the-fly relocation/repointing, flag and variable allocation, validation rules, ROM models, and researched definitions are untouched, and end-to-end script latency has not been measured.
+
+## 032 — Cache exact syntax-highlight dictionary lookups
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/TextEditorViewModel.cs](src/HexManiac.Core/ViewModels/TextEditorViewModel.cs) | 19 | Replace repeated keyword/constant scans with lazily cached ordinal lookups while retaining precedence, invalidation, indices, and the old bounds rejection. |
+| [src/HexManiac.Tests/SyntaxHighlightingTests.cs](src/HexManiac.Tests/SyntaxHighlightingTests.cs) | 8 | Add twenty-four semantic cases covering coloring, dictionary changes, duplicates, source/caret preservation, large mixed-line-ending input, and quoted EOF. |
+| [tools/ScriptHighlightBenchmark/ScriptHighlightBenchmark.csproj](tools/ScriptHighlightBenchmark/ScriptHighlightBenchmark.csproj) | 1 | Add a ROM-free Release benchmark host referencing the shared Core project. |
+| [tools/ScriptHighlightBenchmark/Program.cs](tools/ScriptHighlightBenchmark/Program.cs) | 8 | Measure highlighting time and allocations at three sizes and record exact hashes of all six layers. |
+| [tools/ScriptHighlightBenchmark/README.md](tools/ScriptHighlightBenchmark/README.md) | 1 | Document benchmark inputs, execution, output comparisons, and measurement limits. |
+| [tests/SCRIPT_PERFORMANCE.md](tests/SCRIPT_PERFORMANCE.md) | 23 | Record measured before/after costs, identical layer output, the caught bounds regression, allocation tradeoff, and full regression evidence. |
+
+Validation: The 2,000-line synthetic Release median fell from 197.034 ms to 94.978 ms with identical hashes for all six layers at every benchmark size; allocations rose from 21,558,024 to 21,902,200 bytes per large edit, so this checkpoint claims CPU savings only.
+
+Validation note: The first upstream project passed 1,608 cases with 1,048 optional-ROM skips; the second passed 26 with 41 skips, both with zero failures or engine errors, and all fourteen Mac regression groups passed 1,112 assertions.
+
+Scope: Compiler, relocation/repointing, empty-space allocation, unused flag/variable discovery, ROM caches, and game definitions are unchanged; end-to-end latency and real-ROM behavior remain unmeasured here.
+
+## 033 — Remove temporary allocation from highlight whitespace passes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/TextEditorViewModel.cs](src/HexManiac.Core/ViewModels/TextEditorViewModel.cs) | 304 | Use direct CR/LF/tab comparisons in the two highlighting whitespace loops to avoid per-character params-array allocations without changing their output. |
+| [src/HexManiac.Tests/SyntaxHighlightingTests.cs](src/HexManiac.Tests/SyntaxHighlightingTests.cs) | 131 | Guard repeated whitespace passes with a warmed allocation budget and exact source/output preservation checks. |
+| [tests/SCRIPT_PERFORMANCE.md](tests/SCRIPT_PERFORMANCE.md) | 56 | Record the reproduced allocation overhead, final exact-output benchmark, full regression results, and explicit compiler/model scope exclusions. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 9 | Update the current first-project counts and link to the highlighting performance evidence while retaining historical checkpoints. |
+
+Validation: The new whitespace regression allocated 23,040,040 bytes before the fix and passed its 4,096-byte budget afterward; all six layer hashes remain identical at every benchmark size, and the combined 2,000-line Release median changed from 197.034 to 89.860 ms with allocations reduced from 21,558,024 to 3,332,424 bytes per edit.
+
+Validation note: Final checks passed 1,609 first-project cases and 26 second-project cases with zero failures/engine errors, while retaining 1,048 and 41 absent-ROM skips respectively; all fourteen Mac groups passed 1,112 assertions.
+
+Scope: Only highlighting character comparisons change; compiler, live script relocation, pointer updates, free-space allocation, unused flags/variables, undo/model behavior, game definitions, and compiler scheduling are untouched, and real-ROM/end-to-end stutter remains unmeasured.
+
+## 034 — Reuse map bitmaps for zoom-only presentation changes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TileImage.cs](src/HexManiac.Avalonia/Controls/TileImage.cs) | 250 | Route zoom and layout-scaling changes through layout sizing while preserving current bitmaps, pending frames, and the existing pixel-update path for actual changes. |
+| [tests/MapRendering/MapRendering.csproj](tests/MapRendering/MapRendering.csproj) | 1 | Add an automatically discovered offscreen map regression group with the required reference resources. |
+| [tests/MapRendering/SyntheticMapFixture.cs](tests/MapRendering/SyntheticMapFixture.cs) | 10 | Build fabricated binary map tables and two-color blocksets for the real model, renderer, editing, and history paths without a ROM. |
+| [tests/MapRendering/Program.cs](tests/MapRendering/Program.cs) | 1 | Check three sizes for zoom reuse, exact pixels/bytes/metadata, painting, undo/redo, masks, selection overlays, sprites, and pending/context-switched frames. |
+| [tests/MapRendering/README.md](tests/MapRendering/README.md) | 1 | Document the regression group and distinguish synthetic history/render checks from native-tab and NPC coverage. |
+| [tools/MapRenderingBenchmark/MapRenderingBenchmark.csproj](tools/MapRenderingBenchmark/MapRenderingBenchmark.csproj) | 1 | Add a Release benchmark host sharing the same synthetic map fixture. |
+| [tools/MapRenderingBenchmark/Program.cs](tools/MapRenderingBenchmark/Program.cs) | 1 | Record cold/cached rendering and repeated offscreen zoom processing with raw timings, UI allocations, immutable source checks, pixel hashes, and bitmap-publication counts. |
+| [tools/MapRenderingBenchmark/README.md](tools/MapRenderingBenchmark/README.md) | 1 | Document benchmark execution, reproducibility, and component-level measurement limits. |
+| [tests/MAP_PERFORMANCE.md](tests/MAP_PERFORMANCE.md) | 1 | Record the reproduced redundant zoom refresh, before/after benchmarks, exact-output checks, regression results, and untouched Core scope. |
+| [tests/README.md](tests/README.md) | 22 | Link separate map and script benchmark evidence without implying full-editor latency measurements. |
+
+Validation: At each of three map sizes, 70 zoom steps published 70 bitmaps before the fix and zero afterward, with identical rendered-pixel hashes; the largest fixture's ten-step offscreen median changed from 33.917 to 0.019 ms, excluding native layout, GPU work, and input latency.
+
+Validation note: MapRendering passed 93 assertions, all fifteen Mac groups passed 1,205 assertions, and both upstream suites remained green with 1,609 and 26 passes plus their existing 1,048 and 41 optional-ROM skips; zero engine errors were reported.
+
+Scope: No Core code, compiler, repointing, pointer definitions, flag/variable allocation, map-editing algorithms, cache invalidation, or undo implementation changed; real-ROM/NPC workflows and native interaction remain unverified.
+
+## 035 — Benchmark Pokémon table preparation and production UI bindings
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/PokemonTableBenchmark/PokemonTableBenchmark.csproj](tools/PokemonTableBenchmark/PokemonTableBenchmark.csproj) | 1 | Add a standalone Release benchmark host with benchmark-only Avalonia.Headless services and existing model resources. |
+| [tools/PokemonTableBenchmark/SyntheticPokemonFixture.cs](tools/PokemonTableBenchmark/SyntheticPokemonFixture.cs) | 7 | Construct fabricated names/base-stats tables using the existing stats schema, with optional unrelated tables and separate untimed model-access counters. |
+| [tools/PokemonTableBenchmark/Program.cs](tools/PokemonTableBenchmark/Program.cs) | 17 | Measure real navigation, selector/field preparation, list discovery, production bindings/layout, and separate forced drawing while guarding visible values, bytes, metadata, and rename undo/redo. |
+| [tools/PokemonTableBenchmark/README.md](tools/PokemonTableBenchmark/README.md) | 1 | Document reproducible benchmark execution, synthetic coverage, experimental choice reuse, and native-UI measurement limits. |
+| [tests/TABLE_PERFORMANCE.md](tests/TABLE_PERFORMANCE.md) | 1 | Record baseline/repeat evidence, repeated table-discovery and lookup-token allocations, existing control reuse, and prioritized optimization requirements. |
+| [tests/README.md](tests/README.md) | 23 | Link the table investigation alongside the existing script and map performance reports. |
+
+Validation: The final Release build passed with zero warnings/errors and all four fixtures passed 1,304 correctness checks; repeated runs reproduced control-free navigation allocations exactly, including 28.49 MB versus 208.57 MB per 100 switches when 250 unrelated tables were added to the 412-species fixture.
+
+Measurement note: Isolated section/table-list discovery allocated 174.81 MB per 100 paired reads with those extra tables; source inspection and a 1,360-byte lookup-token allocation probe identify repeated read-only discovery as the first optimization candidate, without claiming any editor speedup yet.
+
+Scope: This checkpoint changes tools and documentation only; application code, game definitions/addresses, compiler, relocation/repointing, unused flag/variable discovery, undo, and existing tests are unchanged, while real-ROM workflows and native Mac input/compositor performance remain unmeasured.
+
+## 036 — Reuse table-navigation discovery within each refresh
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/TableTool.cs](src/HexManiac.Core/ViewModels/Tools/TableTool.cs) | 25 | Share lazily discovered names/sections during one synchronous refresh and use one discovery per external TableList read while preserving live getters, sorting, filtering, and notifications. |
+| [src/HexManiac.Tests/TableNavigationTests.cs](src/HexManiac.Tests/TableNavigationTests.cs) | 10 | Add seven regression cases for discovery reuse, live getters, creation/removal, renames, matched-length formats, reload, and forced relocation with real pointer and undo/redo preservation. |
+| [tools/PokemonTableBenchmark/Program.cs](tools/PokemonTableBenchmark/Program.cs) | 206 | Clarify the report scope so the unchanged benchmark workloads describe both baseline and optimized editor revisions accurately. |
+| [tests/TABLE_PERFORMANCE.md](tests/TABLE_PERFORMANCE.md) | 159 | Record the refresh-scoped implementation, before/after measurements, unchanged outputs, regression results, and known offscreen animation-test instability. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts to include the seven new table-navigation regression cases. |
+
+Validation: The final uncontended Release benchmark passed all 1,304 checks with identical fixture hashes/control counts; for 412 species plus 250 extra tables, 100-switch preparation changed from 57.336 to 29.889 ms and 208.574 to 80.245 MB allocated, while headless binding/layout changed from 923.608 to 674.841 ms and 636.998 to 327.007 MB allocated.
+
+Validation note: The first upstream project passed 1,616 cases with 1,048 optional-ROM skips and the second passed 26 with 41 skips, both with zero failures/engine errors; all fifteen Mac groups passed 1,205 assertions on the complete repeat after the unchanged intermittent FocusAnimation clock check passed in isolation.
+
+Scope: Only table-navigation preparation changes; no persistent ROM cache, lookup-token behavior, dropdown-choice cache, researched game addresses, compiler, relocation/repointing, pointer definitions, free-space/flag/variable allocation, or undo implementation changes, and native Mac/real-ROM responsiveness remains unmeasured.
+
+## 037 — Investigate trainer presentation, validation, and template selection
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/TrainerTableBenchmark/TrainerTableBenchmark.csproj](tools/TrainerTableBenchmark/TrainerTableBenchmark.csproj) | 1 | Add a standalone Release trainer benchmark with benchmark-only headless services and existing format resources. |
+| [tools/TrainerTableBenchmark/SyntheticTrainerFixture.cs](tools/TrainerTableBenchmark/SyntheticTrainerFixture.cs) | 9 | Build six fabricated trainer/team scenarios with the existing 40-byte schema, symbolic lists/partitions, optional uncompressed artwork, and occupied growth guards. |
+| [tools/TrainerTableBenchmark/Program.cs](tools/TrainerTableBenchmark/Program.cs) | 20 | Measure navigation and component preparation while checking bindings, immutable data, real team resizing/repointing/history, and an isolated in-memory template-ordering experiment. |
+| [tools/TrainerTableBenchmark/README.md](tools/TrainerTableBenchmark/README.md) | 1 | Document benchmark execution, current versus experimental UI behavior, measurement semantics, and real-ROM/default-command coverage limits. |
+| [tests/TRAINER_PERFORMANCE.md](tests/TRAINER_PERFORMANCE.md) | 1 | Record trainer baseline measurements, the shadowed specialized template, discarded stream candidates, fuzzy validation, portrait preparation, and prioritized follow-up work. |
+| [tests/README.md](tests/README.md) | 25 | Link the trainer investigation alongside the existing table, script, and map performance reports. |
+
+Validation: The final Release build passed with zero warnings/errors and all six fixtures passed 7,831 checks, including exact read-only bytes/metadata, all unrelated team pointers, real growth relocation or shrinkage, and undo/redo restoration; repeated runs retained identical fixture/text/preview hashes.
+
+Measurement note: Six-member explicit-team validation cost 84.054 ms / 106.562 MB per 100 teams, an unused generic stream candidate cost 85.472 ms / 109.148 MB, and preparing 64 portrait choices cost 87.171 ms / 171.853 MB per 100 dropdowns; these are isolated baseline costs, not shipped speed improvements.
+
+Finding note: All production cases selected the generic stream TextBox; moving only the trainer template ahead of its base template in one in-memory probe revealed the specialized editor, four exact previews, and both default command buttons without writing model bytes.
+
+Scope: Investigation tools/docs only; no application XAML, compiler, ROM definitions/addresses, write/repointing logic, cache, or undo implementation changes, while native responsiveness, shared teams, default command behavior, and real move legality remain unverified.
+
+## 038 — Restore specialized trainer, sprite, and palette templates
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml](src/HexManiac.Avalonia/Controls/TabView.axaml) | 553 | Place the generic stream fallback after derived templates so Avalonia displays the intended trainer editor, previews/buttons, sprite controls, and palette controls. |
+| [tests/StreamTemplates/StreamTemplates.csproj](tests/StreamTemplates/StreamTemplates.csproj) | 1 | Add an automatically discovered headless regression group sharing the existing synthetic trainer fixture. |
+| [tests/StreamTemplates/Program.cs](tests/StreamTemplates/Program.cs) | 1 | Verify specialized controls and text fallback with real bindings, default-button fallback actions, read-only data preservation, and actual UI team growth/repointing/undo/redo. |
+| [tests/StreamTemplates/README.md](tests/StreamTemplates/README.md) | 1 | Document production-template coverage and distinguish fixture default-command checks from real-ROM behavior. |
+| [tests/TRAINER_PERFORMANCE.md](tests/TRAINER_PERFORMANCE.md) | 202 | Record the separately verified template restoration and establish that the optimization comparison must use the corrected UI. |
+| [tests/README.md](tests/README.md) | 17 | Link the production stream-template regression coverage. |
+
+Validation: The new regression reproduced the missing trainer TextEditor before the fix and passed 123 assertions afterward; all sixteen Mac groups passed 1,328 assertions with no skipped groups.
+
+Scope: Template ordering only; template contents, Core preparation, compiler, ROM definitions/addresses, relocation/pointer algorithms, and history implementation are unchanged, while native appearance and real-ROM default-move/item behavior remain unverified.
+
+## 039 — Avoid discarded generic stream preparation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/TableGroupViewModel.cs](src/HexManiac.Core/ViewModels/Tools/TableGroupViewModel.cs) | 232 | Select the trainer, palette, sprite, or text presentation before constructing it while preserving the original type precedence and pointer-validation/editing paths. |
+| [src/HexManiac.Tests/TrainerPresentationTests.cs](src/HexManiac.Tests/TrainerPresentationTests.cs) | 7 | Guard warmed trainer-refresh allocation while preserving the live editor, exact text/layers/diagnostics, ROM bytes, metadata, and empty undo history. |
+| [src/HexManiac.Tests/HexManiac.Tests.csproj](src/HexManiac.Tests/HexManiac.Tests.csproj) | 32 | Link the existing trainer fixture into the upstream test assembly without adding package dependencies. |
+| [tools/TrainerTableBenchmark/SyntheticTrainerFixture.cs](tools/TrainerTableBenchmark/SyntheticTrainerFixture.cs) | 1 | Add explicit imports so the unchanged fixture can compile in the upstream project with implicit usings disabled. |
+| [tools/TrainerTableBenchmark/Program.cs](tools/TrainerTableBenchmark/Program.cs) | 244 | Clarify report scope for implementation follow-ups without changing benchmark workloads. |
+| [tests/TRAINER_PERFORMANCE.md](tests/TRAINER_PERFORMANCE.md) | 224 | Record the separate construction optimization, failing-before/passing-after allocation regression, corrected-UI comparison, and final verification. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts for the additional trainer-presentation regression case. |
+
+Validation: The new regression failed before the change at 2,603,048 bytes per warmed refresh and passed the unchanged 1,800,000-byte budget afterward with exact presentation/data preservation; the first upstream suite passed 1,617 cases and the second passed 26, retaining 1,048 and 41 optional-ROM skips with zero failures/engine errors.
+
+Validation note: All sixteen Mac groups again passed 1,328 assertions, including restored trainer/sprite/palette controls, actual default-button fallback actions, and bound text-box editing with forced team relocation and undo/redo.
+
+Measurement note: Both corrected-UI benchmark revisions passed 7,831 checks with identical fixture/text/pixel hashes, UI summaries, and diagnostics; custom-six preparation changed from 282.514 to 196.459 ms and 379.810 to 270.662 MB allocated per 100 switches, while bound-phase timing varied across scenarios and does not support a uniform native/UI speedup claim.
+
+Scope: Stream presentation construction only; specialized constructors, shared enum/move matching, portrait/palette caches, compiler, researched addresses, relocation/pointer algorithms, unused flag/variable discovery, and history implementation remain unchanged, while native responsiveness and real-ROM default behavior remain unverified.
+
+## 040 — Validate trainer move tokens and align warning spans
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Runs/TrainerPokemonTeamRun.cs](src/HexManiac.Core/Models/Runs/TrainerPokemonTeamRun.cs) | 646 | Strip the move-list prefix before shared name matching and position unlearnable-move warnings on the actual token after indentation. |
+| [src/HexManiac.Tests/TrainerMoveValidationTests.cs](src/HexManiac.Tests/TrainerMoveValidationTests.cs) | 11 | Add twenty-four cases with real synthetic learnsets covering matching variants, warning ranges, species/rename updates, immutable data, and a validation allocation budget. |
+| [tests/TRAINER_PERFORMANCE.md](tests/TRAINER_PERFORMANCE.md) | 298 | Record the separate move-validation implementation, failing-before/passing-after evidence, benchmark comparison, and coverage limits for publishing. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts for the twenty-four trainer move-validation cases. |
+
+Validation: The initial twenty-case pre-fix run reproduced two indented-warning span failures and 1,087,728 bytes per warmed validation against an 800,000-byte budget; the final twenty-four-case set passes with the unchanged budget, and both upstream suites pass with 1,641 and 26 cases plus their existing 1,048 and 41 optional-ROM skips and zero failures/engine errors.
+
+Validation note: The complete Mac repeat passed sixteen groups and 1,328 assertions after the unchanged intermittent offscreen FocusAnimation clock check passed in isolation; no animation assertion was weakened or suppressed.
+
+Measurement note: Both benchmark revisions passed 7,831 checks with matching fixture/text/preview hashes, UI summaries, and diagnostics; six-member custom-team validation changed from 83.076 to 14.971 ms and 106.562 to 27.391 MB allocated per 100 teams, while navigation preparation changed from 196.459 to 51.954 ms and 270.662 to 112.319 MB per 100 switches, without claiming those component ratios as whole-editor speedups.
+
+Scope: Advisory trainer move validation only; shared enum matching, learnability-source algorithms, compiler/deserialization, ROM definitions/addresses, pointer/repointing and history logic, caches, emulator integration, and AI/custom features remain unchanged, while real-ROM legality and native responsiveness remain unverified.
+
+## 041 — Benchmark portrait preparation and audit image freshness
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/TrainerPortraitBenchmark/TrainerPortraitBenchmark.csproj](tools/TrainerPortraitBenchmark/TrainerPortraitBenchmark.csproj) | 1 | Add a standalone Release portrait benchmark with test-only headless services and existing resources. |
+| [tools/TrainerPortraitBenchmark/PortraitFixture.cs](tools/TrainerPortraitBenchmark/PortraitFixture.cs) | 10 | Isolate the real portrait enum path with fabricated palettes and 16/64/128 uncompressed or 64 compressed 64x64 images. |
+| [tools/TrainerPortraitBenchmark/Program.cs](tools/TrainerPortraitBenchmark/Program.cs) | 20 | Measure candidate/navigation/popup preparation and existing image-cache reads while probing edit, palette, repoint, history, reload, and invalid-enum freshness. |
+| [tools/TrainerPortraitBenchmark/README.md](tools/TrainerPortraitBenchmark/README.md) | 1 | Document reproducible execution, experimental-cache limits, recorded staleness, and native/import coverage exclusions. |
+| [tests/PORTRAIT_PERFORMANCE.md](tests/PORTRAIT_PERFORMANCE.md) | 1 | Record portrait scaling, the existing label-only reuse defect, invalidation review, and a conservative correctness-first recommendation. |
+| [tests/README.md](tests/README.md) | 29 | Link the portrait-specific performance and freshness evidence. |
+
+Validation: The final Release build passed with zero warnings/errors and the repeated investigation passed 66 checks with identical source/pixel hashes and freshness findings; 64 uncompressed portrait candidates cost 88.263 ms / 171.856 MB per 100 constructions and 128 cost 176.679 ms / 343.125 MB, with first-case warmup and native-UI limits recorded separately.
+
+Finding note: Sprite edits, palette edits, repoint-then-edit, and model reload produced correct fresh/model-cached pixels but retained stale live choice images when labels stayed unchanged; edit/repoint probes preserved exact bytes/pointers through undo/redo and invalid portrait 255 retained its numeric fallback.
+
+Scope: Tools/docs only, with no application cache or behavior changes; the report recommends fixing existing visual-choice freshness before any bounded model-cache reuse experiment, and leaves item profiling, real-ROM/native behavior, image-import orchestration, and broader palette/format equivalence for follow-up work.
+
+## 042 — Refresh edited portrait choices and retain Mac selection
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/FilteringComboOptions.cs](src/HexManiac.Core/ViewModels/Tools/FilteringComboOptions.cs) | 13 | Compare visual content and enum indices before retaining choice collections so unchanged labels cannot hide edited portraits. |
+| [src/HexManiac.Avalonia/Controls/AngleComboBox.cs](src/HexManiac.Avalonia/Controls/AngleComboBox.cs) | 181 | Restore the VM selection after replacing choice items without detaching the existing selection binding. |
+| [src/HexManiac.Tests/VisualComboOptionsTests.cs](src/HexManiac.Tests/VisualComboOptionsTests.cs) | 6 | Add ten regression cases for visual changes, index changes, equal-image reuse, and text filtering. |
+| [tests/PortraitFreshness/Program.cs](tests/PortraitFreshness/Program.cs) | 34 | Exercise actual bound bitmaps, popup state, selection, sprite/palette edits, shared-pointer repointing, reload, and exact-byte undo/redo for both sprite encodings. |
+| [tests/PortraitFreshness/PortraitFreshness.csproj](tests/PortraitFreshness/PortraitFreshness.csproj) | 1 | Add a separately executable Mac regression group sharing the existing synthetic portrait fixture. |
+| [tests/PortraitFreshness/README.md](tests/PortraitFreshness/README.md) | 1 | Document reproduced failures and the new control-level coverage and limits. |
+| [tools/TrainerPortraitBenchmark/PortraitFixture.cs](tools/TrainerPortraitBenchmark/PortraitFixture.cs) | 1 | Add explicit imports so the unchanged fixture also supports projects without implicit usings. |
+| [tests/PORTRAIT_PERFORMANCE.md](tests/PORTRAIT_PERFORMANCE.md) | 140 | Record the correctness checkpoint before attempting image reuse. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts for the ten visual-choice cases. |
+| [tests/README.md](tests/README.md) | 29 | Link the new live portrait regression coverage. |
+
+Validation: Both upstream suites pass with 1,651/26 cases, 1,048/41 optional-ROM skips, and zero failures/engine errors; the complete Mac repeat passes 17 groups and 1,396 assertions, including 68 new portrait assertions.
+
+Validation note: The new test first reproduced stale live pixels, then a blank Mac selector after item replacement; both pass after the fixes, while an initial unrelated FocusAnimation timing failure passed unchanged in isolation and in the full repeat.
+
+Scope: Choice freshness and Mac selection synchronization only; portrait rendering/cache behavior, ROM definitions and researched addresses, compiler, pointer/repointing algorithms, and history implementation remain unchanged, with native appearance and real-ROM/import orchestration still unverified.
+
+## 043 — Reuse portrait enum rendering within the model cache lifetime
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Runs/ModelCacheScope.cs](src/HexManiac.Core/Models/Runs/ModelCacheScope.cs) | 106 | Retain original enum-rendered images by sprite/palette reference and enum index for known immutable-format runs while rendering other implementations fresh. |
+| [src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs](src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs) | 246 | Reuse model-scoped portrait pixels after the existing palette lookup while preserving enum labels, dimensions, indices, and renderer policy. |
+| [src/HexManiac.Tests/PortraitPreparationTests.cs](src/HexManiac.Tests/PortraitPreparationTests.cs) | 12 | Add sixteen regression cases for allocation, exact renderer equivalence, invalidation, metadata contexts, palette variants, aliases, model isolation, and custom sprite fallback. |
+| [src/HexManiac.Tests/HexManiac.Tests.csproj](src/HexManiac.Tests/HexManiac.Tests.csproj) | 33 | Link the existing synthetic portrait fixture into the upstream test assembly. |
+| [tools/TrainerPortraitBenchmark/Program.cs](tools/TrainerPortraitBenchmark/Program.cs) | 97 | Clarify freshness/report descriptions for implementation follow-ups without changing timed workloads. |
+| [tools/TrainerPortraitBenchmark/README.md](tools/TrainerPortraitBenchmark/README.md) | 28 | Distinguish the untouched address-only-cache experiment from the implemented context-aware enum-image reuse. |
+| [tests/PORTRAIT_PERFORMANCE.md](tests/PORTRAIT_PERFORMANCE.md) | 158 | Record the separate reuse change, pre-fix allocation failures, controlled measurements, repeat results, regression evidence, and retained-memory tradeoff. |
+| [tests/UPSTREAM_BASELINE.md](tests/UPSTREAM_BASELINE.md) | 10 | Update first-project counts and coverage for the sixteen portrait-preparation cases. |
+
+Validation: Both upstream suites pass 1,667/26 cases with 1,048/41 optional-ROM skips and zero failures/engine errors, and all 17 Mac groups pass 1,396 assertions including live portrait edits/repoint/reload/history checks; the unchanged 400,000-byte candidate budget failed before the change at 1,726,968/1,859,576 bytes and passes afterward.
+
+Validation note: One intermediate run exceeded the existing whitespace-allocation test budget at 8,152 bytes; the full final run passes that unchanged test, with no assertion weakened or suppressed, and the Release build retains eight existing Core warnings with zero errors.
+
+Measurement note: Before and both after benchmark runs pass 66 checks with identical fixture/pixel hashes and freshness results; 64 uncompressed candidate preparation changed from 77.406 to 3.014 ms and 171.856 to 13.136 MB per 100 constructions, with the repeat at 2.959 ms and identical allocation, while bound headless navigation changed from 435.055 to 324.568 ms and 383.108 to 220.846 MB without claiming a native or whole-editor multiplier.
+
+Scope: A small context-keyed dictionary within the existing model-cache lifetime preserves the original enum renderer and existing invalidation, with no persistent/global cache or changes to the address-only image cache, researched addresses, compiler, pointer/repointing algorithms, or history implementation; retained RAM reduction, native responsiveness, real ROMs, and import orchestration remain unverified, and items are left for the next profiling task.
+
+
+Validation follow-up for 043 — supplied ROM, 2026-11-02: The provided file identifies as
+FireRed 1.1 (BPRE1), so its host copy uses the existing v1.1 fixture name; all 113 newly
+enabled first-project cases pass, bringing that run to 1,780 passes/935 skips with zero
+failures/engine errors, while integration remains 26 passes/41 skips because its ROM
+workflows require FireRed 1.0 or Emerald. Both original and staged ROM hashes are unchanged;
+no application/test assertions changed and no ROM was committed. Full evidence and limits
+are recorded in tests/UPSTREAM_BASELINE.md rather than a separate change entry.
+
+## 044 — Benchmark item preparation and bound presentation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ItemTableBenchmark/ItemTableBenchmark.csproj](tools/ItemTableBenchmark/ItemTableBenchmark.csproj) | 1 | Add a standalone Release item benchmark using the existing app and test-only headless services. |
+| [tools/ItemTableBenchmark/ItemFixture.cs](tools/ItemTableBenchmark/ItemFixture.cs) | 15 | Provide fabricated grouped item fixtures and an optional read-only ROM loader with deferred timers controlled through both dispatcher paths. |
+| [tools/ItemTableBenchmark/Program.cs](tools/ItemTableBenchmark/Program.cs) | 20 | Measure preparation, dropdowns, descriptions, icon/palette candidates, bound navigation, and selected-icon refresh while capturing integrity and presentation hashes. |
+| [tools/ItemTableBenchmark/README.md](tools/ItemTableBenchmark/README.md) | 1 | Document workload sizes, optional ROM use, timer exclusions, notification diagnostics, and interpretation limits. |
+| [tests/ITEM_PERFORMANCE.md](tests/ITEM_PERFORMANCE.md) | 1 | Record corrected baselines, discarded exploratory measurements, a modest notification-reduction candidate, and coverage limits. |
+| [tests/README.md](tests/README.md) | 36 | Link item-specific performance evidence. |
+
+Validation: The completed baseline passes 762 checks across four synthetic cases and the supplied BPRE1 ROM, preserving bytes/metadata/history and bound descriptions/icon dimensions; the Release build passes with zero errors, and no application code changed at this checkpoint.
+
+Measurement note: Correctly deferred real-ROM foreground navigation costs 22.955 ms / 25.883 MB per ten selections and bound navigation/layout 213.020 ms / 107.215 MB; preliminary multi-GB runs forced normally delayed map searches because of an immediate shared dispatcher, are explicitly excluded from the baseline, and do not establish a native browsing regression.
+
+Scope: Measurement tools/docs only; existing formats and researched ROM addresses, conditional item fields, decoding, palette lookup, pointer/repointing algorithms, and history remain unchanged, with delayed map-use latency and native/other-game workflows left for separate review.
+
+## 045 — Avoid redundant item icon geometry notifications
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/SpriteElementViewModel.cs](src/HexManiac.Core/ViewModels/Tools/SpriteElementViewModel.cs) | 276 | Notify width/height/scale only when published values change while retaining fresh pixel rendering and notifications. |
+| [tests/ItemTablePresentation/Program.cs](tests/ItemTablePresentation/Program.cs) | 21 | Add 48 offscreen checks for actual icon bitmaps, dimension/scale transitions, bound item edits, forced description relocation, palette/sprite freshness, and exact-byte undo/redo. |
+| [tests/ItemTablePresentation/ItemTablePresentation.csproj](tests/ItemTablePresentation/ItemTablePresentation.csproj) | 1 | Add the item presentation regression group using the existing app and shared fabricated item fixture. |
+| [tests/ItemTablePresentation/README.md](tests/ItemTablePresentation/README.md) | 1 | Document the pre-fix failure, editing/history coverage, synthetic geometry-copy check, and deferred/native exclusions. |
+| [tests/ITEM_PERFORMANCE.md](tests/ITEM_PERFORMANCE.md) | 75 | Record the separate notification change, unchanged pixels/format evidence, modest component savings, and mixed whole-table timings. |
+| [tests/README.md](tests/README.md) | 36 | Link the new item editing and presentation regression coverage. |
+
+Validation: The new regression first fails on unchanged dimensions requesting redundant uploads, then passes all 48 checks; both upstream suites pass 1,780/26 cases with 935/41 optional-ROM skips and zero failures/engine errors, and all 18 Mac groups pass 1,444 assertions without weakened thresholds or suppressed cases.
+
+Measurement note: Before/after benchmark runs each pass 762 checks with identical fixture/description/pixel/bound-bitmap hashes, formats, and field counts; fixed-size diagnostics drop width/height/scale notifications from 103 synthetic or 13 ROM to zero while retaining every PixelData update, and synthetic selected-icon refresh changes from 1.257 to 0.833 ms and 0.848800 to 0.763200 MB per 100, a small component saving rather than a general browsing-speedup claim.
+
+Repeat note: The second after run also passes 762 checks with identical integrity/presentation fields and stable allocation reductions, but synthetic icon-refresh times vary substantially (3.835/0.839/3.822 ms per 100 across the three icon cases), so the first paired speedup is not consistently reproduced and no stable elapsed-time gain is claimed.
+
+Scope: Presentation notifications only, with no new image cache or changes to decoding, palette resolution, conditional item semantics, researched addresses, import/export, compiler, pointer/repointing algorithms, or history; mixed whole-table timing, native responsiveness, retained RAM, other games, and delayed map-use search remain outside the claimed improvement.
+
+## 046 — Investigate delayed item map-usage searches
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ItemUsageBenchmark/ItemUsageBenchmark.csproj](tools/ItemUsageBenchmark/ItemUsageBenchmark.csproj) | 1 | Add a standalone Release investigation using the actual Mac delay timer and offscreen UI synchronization context. |
+| [tools/ItemUsageBenchmark/Program.cs](tools/ItemUsageBenchmark/Program.cs) | 20 | Measure real delayed callbacks and component costs while checking ordered event/pixel results and prototyping query-local repeated-root reuse. |
+| [tools/ItemUsageBenchmark/README.md](tools/ItemUsageBenchmark/README.md) | 1 | Document real timer scheduling, controlled dispatcher limits, explicit ROM use, and benchmark-only experiment semantics. |
+| [tests/ITEM_USAGE_PERFORMANCE.md](tests/ITEM_USAGE_PERFORMANCE.md) | 1 | Record UI-thread scan costs, closed-menu execution, correct coalescing, repeatable prototype savings, and implementation prerequisites. |
+| [tests/ITEM_PERFORMANCE.md](tests/ITEM_PERFORMANCE.md) | 147 | Link the separately measured delayed-search follow-up. |
+| [tests/README.md](tests/README.md) | 39 | Link usage-search performance and correctness evidence. |
+
+Validation: Both final-code runs pass 71 checks with identical ROM identity, ordered results, thumbnail hashes, event/root counts, and hidden-item counts, preserving source/model bytes, metadata, and empty history; the final Release build passes with zero warnings/errors.
+
+Measurement note: Repeated actual delayed callbacks cost roughly 186–449 ms and 240–623 MB of temporary allocation in the final repeat while the usage menu is closed; ten rapid selections correctly coalesce to one scan, and the tool-only repeated-root experiment preserves ordered matches while reducing matching from 142–146 to 82–85 ms and roughly 240 to 126 MB per query.
+
+Scope: Tools/docs only; no application parser, researched addresses, script traversal limits, pointer/repointing/history algorithms, or cache behavior changed, and the approximately 40% matching-time/48% allocation experiment is not a shipped whole-editor improvement; the report requires cancellation, mutation, reload, relocation, and history regression coverage before implementation.
+
+## 047 — Reuse shared script outcomes within each map-usage query
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/ButtonArrayElementViewModel.cs](src/HexManiac.Core/ViewModels/Tools/ButtonArrayElementViewModel.cs) | 140 | Reuse script-match booleans and one opcode-filter buffer within a query while retaining per-event destinations/previews and cancellation checks. |
+| [tests/MapUsageSearch/Program.cs](tests/MapUsageSearch/Program.cs) | 14 | Add 106 synthetic checks for ordered shared-root contexts, hidden/negative matches, branches/cycles/invalid roots, preview validity, edits/pointers/reload/history, cancellation, and warmed allocation. |
+| [tests/MapUsageSearch/MapUsageSearch.csproj](tests/MapUsageSearch/MapUsageSearch.csproj) | 1 | Add a separately executable Mac regression group sharing the existing fabricated map fixture. |
+| [tests/MapUsageSearch/README.md](tests/MapUsageSearch/README.md) | 1 | Document public-query coverage and the unchanged allocation budget's failing-before/passing-after evidence. |
+| [tests/ITEM_USAGE_PERFORMANCE.md](tests/ITEM_USAGE_PERFORMANCE.md) | 156 | Record the separate application change, integrity checks, regression results, actual callback improvements, and remaining thumbnail/UI-thread cost. |
+| [tests/README.md](tests/README.md) | 42 | Link the query-local freshness, cancellation, and allocation regression group. |
+| [tools/ItemUsageBenchmark/README.md](tools/ItemUsageBenchmark/README.md) | 29 | Distinguish the original tool-side experiment from the implemented and separately measured application callback. |
+
+Validation: Both upstream suites pass 1,780/26 cases with 935/41 optional-ROM skips and zero failures/engine errors, and the complete Mac repeat passes 19 groups/1,550 assertions; the new 2,000,000-byte allocation guard fails with the original implementation at 16,811,032 bytes and passes unchanged at about 1,178,552 bytes with reuse.
+
+Validation note: An initial Mac run hit the previously observed FocusAnimation clock check; it passed unchanged in isolation and in the complete repeat, with no assertion weakened or case suppressed.
+
+Measurement note: Baseline and both implementation benchmark runs pass 71 checks with identical ordered destinations, thumbnail pixels, ROM identity, and event/root counts; item-13 actual delayed callback execution changes from 224.856 to 160.445 ms (147.708 on repeat) and 302.558 to 187.903 MB per query, with approximately 115 MB less temporary allocation in all four queries and less benefit when eager thumbnail creation dominates.
+
+Scope: A dictionary confined to one query preserves the original parser/traversal and current per-event behavior, without persistent caching or changes to researched addresses, compiler, pointer/repointing/history algorithms, flags/variables, debounce timing, thread assignment, or thumbnail scheduling; the measured 29–36% sparse-query execution saving is not a whole-editor/native responsiveness or retained-memory claim.

@@ -1,4 +1,4 @@
-﻿using HavenSoft.HexManiac.Core;
+using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.Models.Code;
 using HavenSoft.HexManiac.Core.Models.Runs;
@@ -924,8 +924,11 @@ namespace HavenSoft.HexManiac.Tests {
 
       public Singletons Singletons { get; } = new Singletons();
 
-      public AutoSearchFixture() {
-         Parallel.ForEach(AutoSearchTests.PokemonGames.Select(array => (string)array[0]), AddCache);
+      public AutoSearchFixture() : this(AutoSearchTests.PokemonGames.Select(array => (string)array[0])) { }
+
+      // Synthetic fixture checks supply an empty preload list instead of loading personal ROMs.
+      internal AutoSearchFixture(IEnumerable<string> preloadPaths) {
+         Parallel.ForEach(preloadPaths, AddCache);
       }
 
       private void AddCache(string name) {
@@ -938,7 +941,7 @@ namespace HavenSoft.HexManiac.Tests {
 
       public PokemonModel LoadModel(string name) {
          if (!modelCache.ContainsKey(name)) AddCache(name);
-         Skip.IfNot(modelCache.ContainsKey(name));
+         Skip.IfNot(modelCache.ContainsKey(name), "Optional ROM fixture was not supplied: " + name);
          return modelCache[name];
       }
 
@@ -948,8 +951,8 @@ namespace HavenSoft.HexManiac.Tests {
       /// <param name="name"></param>
       /// <returns></returns>
       public IDataModel LoadModelNoCache(string name) {
-         Skip.IfNot(File.Exists(name));
-         var template = modelCache[name];
+         Skip.IfNot(File.Exists(name), "Optional ROM fixture was not supplied: " + name);
+         var template = LoadModel(name);
          var metadata = template.ExportMetadata(Singletons.MetadataInfo);
          var model = new PokemonModel(template.RawData.ToArray(), metadata);
          return model;

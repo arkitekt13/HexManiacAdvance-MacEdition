@@ -1,4 +1,4 @@
-﻿using HavenSoft.HexManiac.Core.Models;
+using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.Models.Runs;
 using HavenSoft.HexManiac.Core.ViewModels.Visitors;
 using HavenSoft.HexManiac.Tests;
@@ -7,6 +7,8 @@ using Xunit;
 
 namespace HavenSoft.HexManiac.Integration {
    public class DataTests : IntegrationTests {
+      internal const string TypeSwapScriptPath = "resources/Scripts/Add Mechanics From Later Generations/AnyGame_PixilateStyleAbilities.hma";
+
       [SkippableFact]
       public void PokemonNameEnum_3ByteValue_NoTooltipError() {
          var firered = LoadReadOnlyFireRed();
@@ -44,7 +46,7 @@ namespace HavenSoft.HexManiac.Integration {
 
       [SkippableFact]
       public void UseTypeSwapScript_UpgradeVersion_TableStillIncluded() {
-         var contents = File.ReadAllBytes("resources/scripts/ability_type_swaps.hma");
+         var contents = File.ReadAllBytes(TypeSwapScriptPath);
          var firered = LoadFireRed();
          firered.TryImport(new("script.hma", contents), FileSystem);
 

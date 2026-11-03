@@ -380,7 +380,11 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          set => Set(ref focusOnGotoShortcuts, value);
       }
 
-      public bool IsNewVersionAvailable { get; set; }
+      private bool isNewVersionAvailable;
+      public bool IsNewVersionAvailable {
+         get => isNewVersionAvailable;
+         set => Set(ref isNewVersionAvailable, value);
+      }
       public DateTime LastUpdateCheck { get; set; }
 
       private bool showMatrix = true;

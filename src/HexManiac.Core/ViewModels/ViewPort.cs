@@ -661,7 +661,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
          var metadata = Model.ExportMetadata(RefTable, Singletons.MetadataInfo);
          if (fileSystem.Save(new LoadedFile(FileName, Model.RawData))) {
-            fileSystem.SaveMetadata(FileName, metadata?.Serialize());
+            // ROM and metadata are separate writes: keep the document dirty if the second fails.
+            if (!fileSystem.SaveMetadata(FileName, metadata?.Serialize())) return;
             history.TagAsSaved();
             Model.ResetChanges();
          }
@@ -674,7 +675,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          var metadata = Model.ExportMetadata(RefTable, Singletons.MetadataInfo);
          if (fileSystem.Save(new LoadedFile(newName, Model.RawData))) {
             FileName = newName; // don't bother notifying, because tagging the history will cause a notify;
-            fileSystem.SaveMetadata(FileName, metadata?.Serialize());
+            // ROM and metadata are separate writes: keep the document dirty if the second fails.
+            if (!fileSystem.SaveMetadata(FileName, metadata?.Serialize())) return;
             history.TagAsSaved();
             Model.ResetChanges();
             RequestCloseOtherViewports?.Invoke(this, Model);
@@ -708,7 +710,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
             var result = fileSystem.TrySavePrompt(new LoadedFile(FileName, Model.RawData));
             if (result == null) return;
             if (result == true) {
-               fileSystem.SaveMetadata(FileName, metadata?.Serialize());
+               // A requested save must complete before closing the last view of the model.
+               if (!fileSystem.SaveMetadata(FileName, metadata?.Serialize())) return;
                history.TagAsSaved();
             }
          }
@@ -1466,9 +1469,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
             return true;
          } else if (file.Name.ToLower().EndsWith(".ips")) {
             history.ChangeCompleted();
-            history.ClearHistory(needsSave: true);
             var destination = Patcher.ApplyIPSPatch(Model, file.Contents, new NoTrackChange());
-            if (destination >= 0) ReloadMetadata(Model.RawData, Model.ExportMetadata(RefTable, Singletons.MetadataInfo).Serialize());
+            if (destination < 0) { RaiseError("IPS patch is malformed. The ROM was not changed."); return true; }
+            history.ClearHistory(needsSave: true);
+            ReloadMetadata(Model.RawData, Model.ExportMetadata(RefTable, Singletons.MetadataInfo).Serialize());
             Goto.Execute(destination);
             return true;
          } else if (file.Name.ToLower().EndsWith(".ups")) {
@@ -1488,17 +1492,17 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
                   } else {
                      return false;
                   }
-                  if (destination == -3) RaiseError("Patch file is corrupt! (CRC doesn't match!)");
+                  if (destination < 0) RaiseError("The patch could not be validated. The ROM was not changed.");
                   break;
                case -3: RaiseError("Patch file is corrupt! (CRC doesn't match!)"); break;
                case -4: RaiseError("Source file size doesn't match!"); break;
-               case -5: RaiseError("Result file CRC doesn't match! Patch was still applied."); break;
-               case -6: RaiseError("UPS chunks are corrupted! Patch was still applied."); break;
-               case -7: RaiseError("Tried to write past the end of the result file! Patch was still applied."); break;
+               case -5: RaiseError("Result file CRC doesn't match! The ROM was not changed."); break;
+               case -6: RaiseError("UPS chunks are corrupted! The ROM was not changed."); break;
+               case -7: RaiseError("Tried to write past the end of the result file! The ROM was not changed."); break;
             }
 
-            history.ClearHistory(needsSave: true);
             if (destination >= 0) {
+               history.ClearHistory(needsSave: true);
                ReloadMetadata(Model.RawData, Model.ExportMetadata(RefTable, Singletons.MetadataInfo).Serialize());
                Goto.Execute(destination);
                if (direction == Patcher.UpsPatchDirection.SourceToDestination) {
@@ -2459,6 +2463,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          if (!history.IsSaved) return; // don't overwrite local changes
 
          void action() {
+            if (!history.IsSaved) return; // edits may have arrived while UI work was queued
             try {
                var file = fileSystem.LoadFile(FileName);
                if (file == null) return; // asked to load the file, but the file wasn't found... carry on

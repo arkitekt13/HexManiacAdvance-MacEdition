@@ -13,7 +13,9 @@ using ShapePath = Avalonia.Controls.Shapes.Path;
 AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem()
    .UseWindowingSubsystem(() => { }, "offscreen").UseSkia().WithInterFont().SetupWithoutStarting();
 
+var checks = 0;
 void Check(bool condition, string message) {
+   checks++;
    if (!condition) throw new InvalidOperationException(message);
 }
 
@@ -120,3 +122,4 @@ foreach (var (kind, pixels) in themed)
    Check(Enumerable.Range(0, 400).Count(i => pixels[i * 4] == backgroundColor.R && pixels[i * 4 + 1] == backgroundColor.G && pixels[i * 4 + 2] == backgroundColor.B && pixels[i * 4 + 3] == 255) > 80,
       $"Arrow button does not render the shared solid background color: {kind}");
 Console.WriteLine($"PASS: all six arrow buttons render the same opaque background: {backgroundColor}.");
+Console.WriteLine($"CHECKS_PASSED:{checks}");

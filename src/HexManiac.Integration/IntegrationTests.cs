@@ -1,4 +1,4 @@
-﻿using HavenSoft.HexManiac.Core.Models;
+using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -91,8 +91,8 @@ namespace HavenSoft.HexManiac.Integration {
       }
 
       protected static void AssertNoConflicts(IViewPort viewPort) {
-         var model = viewPort.Model as PokemonModel;
-         model.ResolveConflicts();
+         var model = Assert.IsAssignableFrom<PokemonModel>(viewPort.Model);
+         ModelConsistencyAssertions.AssertNoConflicts(model);
       }
    }
 }

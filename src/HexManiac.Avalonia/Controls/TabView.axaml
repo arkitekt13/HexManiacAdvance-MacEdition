@@ -451,32 +451,6 @@
                                              </StackPanel>
                                           </Grid>
                                        </DataTemplate>
-                                       <DataTemplate DataType="{x:Type hsg3hvmtr:StreamElementViewModel}">
-                                          <Grid HorizontalAlignment="Stretch" IsVisible="{Binding Visible}">
-                                             <StackPanel ToolTip.Tip="{Binding ParentName}">
-                                                <hsg3hv:CommonTableStreamControl />
-                                                <Grid Margin="20,2,2,2" Background="{DynamicResource Backlight}">
-                                                   <!--
-                                                      UndoLimit=0 turns off the TextBox's own undo
-                                                      so these reach the editor's change history
-                                                      instead, as they do everywhere else.
-                                                   -->
-                                                   <TextBox Name="StreamTextBox" UndoLimit="0" Text="{Binding Content, Mode=TwoWay}"
-                                                      Background="Transparent"
-                                                      VerticalAlignment="Top"
-                                                      CaretBrush="{DynamicResource Secondary}"
-                                                      AcceptsReturn="True" FontFamily="Consolas"
-                                                      IsVisible="{Binding ShowContent}">
-                                                      <TextBox.KeyBindings>
-                                                         <KeyBinding Gesture="Ctrl+Z" Command="{Binding Undo}"/>
-                                                         <KeyBinding Gesture="Ctrl+Y" Command="{Binding Redo}"/>
-                                                      </TextBox.KeyBindings>
-                                                   </TextBox>
-                                                   <hsg3hv:AutocompleteOverlay Target="{Binding #StreamTextBox}"/>
-                                                </Grid>
-                                             </StackPanel>
-                                          </Grid>
-                                       </DataTemplate>
                                        <DataTemplate DataType="{x:Type hsg3hvmtr:SpriteElementViewModel}">
                                           <Grid IsVisible="{Binding Visible}">
                                              <StackPanel>
@@ -573,6 +547,34 @@
                                                       </ToolTip.Tip>
                                                    </hsg3hv:AngleButton>
                                                 </StackPanel>
+                                             </StackPanel>
+                                          </Grid>
+                                       </DataTemplate>
+                                       <!-- Avalonia uses the first matching template: keep the stream base
+                                            fallback after trainer, sprite, and palette specializations. -->
+                                       <DataTemplate DataType="{x:Type hsg3hvmtr:StreamElementViewModel}">
+                                          <Grid HorizontalAlignment="Stretch" IsVisible="{Binding Visible}">
+                                             <StackPanel ToolTip.Tip="{Binding ParentName}">
+                                                <hsg3hv:CommonTableStreamControl />
+                                                <Grid Margin="20,2,2,2" Background="{DynamicResource Backlight}">
+                                                   <!--
+                                                      UndoLimit=0 turns off the TextBox's own undo
+                                                      so these reach the editor's change history
+                                                      instead, as they do everywhere else.
+                                                   -->
+                                                   <TextBox Name="StreamTextBox" UndoLimit="0" Text="{Binding Content, Mode=TwoWay}"
+                                                      Background="Transparent"
+                                                      VerticalAlignment="Top"
+                                                      CaretBrush="{DynamicResource Secondary}"
+                                                      AcceptsReturn="True" FontFamily="Consolas"
+                                                      IsVisible="{Binding ShowContent}">
+                                                      <TextBox.KeyBindings>
+                                                         <KeyBinding Gesture="Ctrl+Z" Command="{Binding Undo}"/>
+                                                         <KeyBinding Gesture="Ctrl+Y" Command="{Binding Redo}"/>
+                                                      </TextBox.KeyBindings>
+                                                   </TextBox>
+                                                   <hsg3hv:AutocompleteOverlay Target="{Binding #StreamTextBox}"/>
+                                                </Grid>
                                              </StackPanel>
                                           </Grid>
                                        </DataTemplate>

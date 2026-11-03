@@ -124,3 +124,12 @@ For information on the achitecture of the application, see the [Developer Guide]
 
 # License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Changes in this fork
+
+Our Mac improvements and regression-covered shared-engine correctness fixes are recorded in
+[CodexChanges.md](CodexChanges.md). Core is no longer strictly unmodified in this fork: save
+failure handling and patch validation have targeted fixes that preserve the shared UI contracts.
+Run `scripts/verify-mac.sh` for the headless regression groups; this command does not claim that
+the separate original xUnit suite has run. Work is committed in separate checkpoints on feature
+branches so individual changes can be reviewed or reverted before merging.

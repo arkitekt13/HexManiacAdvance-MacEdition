@@ -273,6 +273,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var evolutions = model.GetTableModel(HardcodeTablesModel.EvolutionTableName);
          var levelMethods = new[] { 4, 8, 9, 10, 11, 12, 13, 14 };
          var results = new Dictionary<int, int>();
+         // Evolution-derived hints are unavailable when this model has no evolution table.
+         if (evolutions == null) return results;
          foreach (var evo in evolutions) {
             // method1:evolutionmethods arg1:|s=method1(6=data.items.stats|7=data.items.stats) species1:data.pokemon.names unused1:
             for (int i = 0; i < evo.Length; i += 8) {
@@ -293,6 +295,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var evolutions = model.GetTableModel(HardcodeTablesModel.EvolutionTableName);
          var levelMethods = new[] { 4, 8, 9, 10, 11, 12, 13, 14 };
          var results = new Dictionary<int, int>();
+         // Evolution-derived hints are unavailable when this model has no evolution table.
+         if (evolutions == null) return results;
          foreach (var evo in evolutions) {
             // method1:evolutionmethods arg1:|s=method1(6=data.items.stats|7=data.items.stats) species1:data.pokemon.names unused1:
             for (int i = 0; i < evo.Length; i += 8) {

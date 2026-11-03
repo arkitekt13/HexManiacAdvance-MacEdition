@@ -644,10 +644,13 @@ namespace HavenSoft.HexManiac.Core.Models.Runs {
       }
 
       private void CheckMoveError(int species, int lineNumber, string line, IList<TextSegment> errors) {
-         var moveName = line.Substring(1).Trim();
+         // FindErrors identifies the list marker after indentation. Match only the move
+         // token so exact names avoid a full fuzzy scan, retaining the shared matcher.
+         var marker = line.IndexOf('-');
+         var moveName = line.Substring(marker + 1).Trim();
          var cache = ModelCacheScope.GetCache(Model);
          var moveNames = cache.GetOptions(HardcodeTablesModel.MoveNamesTable);
-         if (!moveNames.TryMatch(line, out var move)) return;
+         if (!moveNames.TryMatch(moveName, out var move)) return;
 
          var allMoves = new HashSet<int>();
          for (int i = 0; i < 5; i++) {
@@ -660,8 +663,9 @@ namespace HavenSoft.HexManiac.Core.Models.Runs {
          }
 
          // error: pokemon cannot learn move
-         if (!allMoves.Contains(move) && line.Length > 2) {
-            errors.Add(new(lineNumber, 2, line.Length - 2, SegmentType.Warning));
+         if (!allMoves.Contains(move)) {
+            var start = line.IndexOf(moveName, marker + 1, StringComparison.Ordinal);
+            errors.Add(new(lineNumber, start, moveName.Length, SegmentType.Warning));
          }
       }
    }

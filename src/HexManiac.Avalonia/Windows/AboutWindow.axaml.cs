@@ -14,13 +14,13 @@ public partial class AboutWindow : Window {
 
    public AboutWindow(IMetadataInfo metadata) {
       InitializeComponent();
-      Version.Text = $"Version {metadata?.VersionNumber}";
+      Version.Text = AppIdentity.VersionLabel;
       Usage.Text = GetUsageText(metadata);
    }
 
    public static string GetUsageText(IMetadataInfo metadata) {
       if (metadata != null && metadata.IsPublicRelease) {
-         return "This is a preview release. Please report bugs via GitHub / Discord.";
+         return "This is a Mac preview release. Please report bugs to the Mac fork on GitHub.";
       } else {
          return "This is an unstable version: use at your own risk!";
       }

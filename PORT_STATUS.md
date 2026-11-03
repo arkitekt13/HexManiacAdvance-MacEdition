@@ -1,5 +1,8 @@
 # HexManiac.WPF → HexManiac.Avalonia port status
 
+Fork note: the historical port notes below describe the original port; our subsequent shared
+Core correctness fixes and Mac changes are tracked in [CodexChanges.md](CodexChanges.md).
+
 Every file in `src/HexManiac.WPF` (84 files, ~17,300 lines), in dependency order.
 Rule: **no changes to HexManiac.Core.** If Core needs the platform, it goes behind an interface.
 

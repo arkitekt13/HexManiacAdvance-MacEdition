@@ -1163,3 +1163,23 @@ Validation: The new group passes 18 assertions and the Mac app builds with zero 
 Complete Mac validation: All 28 groups pass 6,130 assertions with zero failed or skipped groups, including the 598-check script workflow group and the existing save, file-drop and external-reload protections.
 
 Scope: Mac launch UI and a separate app preference only; shared Core RunFile behavior, Finder associations and built-in F6 emulation are unchanged. Pending script edits are saved through the existing HMA-007 barrier; cancellation, rejected drafts and failed saves never start the emulator.
+
+## 070 — Restore object script creation and select native emulator applications
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 268 | Restore the Windows object-panel Create Script plus button with Core's existing command and visibility condition. |
+| [src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorPicker.cs](src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorPicker.cs) | 9 | Select an application alias through macOS Standard Additions and normalize its path while handling cancellation and errors. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 95 | Replace the file-filter application picker that disabled installed apps on the user's Mac. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 221 | Exercise the live object-panel button, attached script bytes/pointers and exact-byte Undo/Redo with fabricated data. |
+| [tests/ExternalEmulatorLaunch/Program.cs](tests/ExternalEmulatorLaunch/Program.cs) | 10 | Check application-chooser arguments, cancellation, errors, spaces and alias trailing-slash normalization. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 6 | Document object-panel creation coverage and fixture limits. |
+| [tests/ExternalEmulatorLaunch/README.md](tests/ExternalEmulatorLaunch/README.md) | 3 | Describe the system application chooser and remaining native selection/launch confirmation. |
+
+Focused validation: MapSelection passes 348 checks and ExternalEmulatorLaunch passes 24 checks. The native chooser script compiles through macOS osacompile without executing a dialog or launching an emulator. Restored object creation allocates the existing lock/faceplayer/release/end starter, attaches its pointer and preserves Undo/Redo without changing Core algorithms.
+
+Complete Mac validation: All 28 groups pass 6,144 assertions with zero failed or skipped groups. The 14 additional checks cover the restored object button and application chooser behavior.
+
+Scope: UI restoration and native application selection; no user ROM or preference is modified by tests. Actual mGBA selection/launch still requires confirmation after saving work and restarting the editor. The new chooser lists registered applications and supports Browse, avoiding the file-filter path observed to disable app bundles.
+
+Native confirmation, 2026-11-03: The user confirmed that the restored object-script creation button and external mGBA launch both work. mGBA was absent from the chooser's initial application list, but Browse allowed selection of its application bundle and the ROM launched successfully; that Browse fallback remains part of the supported flow.

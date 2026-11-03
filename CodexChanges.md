@@ -1106,3 +1106,19 @@ Scope: Tests, review tooling and documentation only; no production application s
 Validation: The new navigation regression fails against unchanged production code, then all 563 focused checks pass; the complete Mac suite passes all 27 groups / 6,113 assertions with no skipped groups. Existing numeric interpretation, caller pointers, script/dialogue relocation, neighboring data and full model history tests remain passing.
 
 Scope: Editor scheduling, draft retention and command boundaries only; compiler, researched addresses, flag/variable allocation and engine behavior are unchanged. Synthetic data only; persistence barriers and failed-compilation resource rollback remain subsequent fixes.
+
+## 067 — Include pending script source in persistence and reload decisions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 654 | Settle source before Save/Save As/Close and retain rejected drafts with an explanation instead of writing an older snapshot or silently closing. |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 70 | Include uncompiled source in unsaved indicators, Save eligibility and both external-reload guards. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 35 | Identify rejected script addresses in persistence error messages. |
+| [tests/ScriptWorkflowSafety/Program.cs](tests/ScriptWorkflowSafety/Program.cs) | 144 | Test pending-source Save/Save As, clean post-save callbacks, invalid-draft retention/discard, Close cancellation/discard and external-reload protection. |
+| [tests/ScriptWorkflowSafety/README.md](tests/ScriptWorkflowSafety/README.md) | 1 | Record the 579-check persistence and context baseline. |
+| [tests/SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md) | 7 | Link the HMA-007 implementation while retaining original evidence. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 129 | Mark HMA-007 fixed and retain native full-shell and separate failed-resource-compilation boundaries. |
+
+Validation: The new pending-source Save/unsaved-marker assertion fails before the fix; all 579 workflow checks pass after it. The complete Mac suite passes all 27 groups / 6,129 assertions with no skipped groups, including existing save failure, close cancellation, external file handling, numeric/relocation/history and UI regressions.
+
+Scope: Editor persistence/dirty-state/reload boundaries only; no engine or flag/variable behavior changes, researched-address changes or supplied ROM edits. Invalid drafts require correction or explicit Undo before closing; valid drafts use the existing save/discard/cancel prompt. Compiler resource rollback remains HMA-008.

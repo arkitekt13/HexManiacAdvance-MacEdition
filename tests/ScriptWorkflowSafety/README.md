@@ -1,7 +1,7 @@
 # Script workflow safety baseline
 
-**563 checks** pass, including the LF/CRLF baseline and pending-context regressions. The full Mac runner passes **27 groups /
-6,113 assertions**, with no groups skipped. Application code is unchanged.
+**579 checks** pass, including the LF/CRLF baseline and pending-context regressions. The full Mac runner passes **27 groups /
+6,129 assertions**, with no groups skipped. Application code is unchanged.
 
 ```sh
 dotnet build tests/ScriptWorkflowSafety/ScriptWorkflowSafety.csproj --no-restore --nologo --disable-build-servers -p:UseSharedCompilation=false -m:1 -nr:false
@@ -43,3 +43,8 @@ stale posted callbacks are invalidated, rejected drafts survive navigation, and 
 work before changing history. Public Undo is intentionally available for a pending first edit
 while ROM history is still unchanged. The original navigation regression fails against the
 investigation baseline. Save/Close and failed-resource compilation remain separate work.
+
+HMA-007 follow-up: pending source enables Save and an unsaved marker; Save/Save As include the
+settled edit, Close honors the normal prompt, rejected drafts retain their tab/source and block
+persistence, and external reload does not replace pending source. The first new assertion
+fails before the persistence fix. Resource mutation on compiler failure is subsequent work.

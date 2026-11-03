@@ -129,17 +129,19 @@ Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_IN
 
 ## HMA-007 — Account for pending script edits during Save and Close
 
-**Status:** Confirmed through production ViewPort commands on disposable synthetic files;
-investigation only, not fixed.
+**Status:** Fixed with source-aware Save/Save As/Close barriers, unsaved indicators and
+external-reload guards; 579 workflow checks and all 27 Mac groups pass.
 
 **Reproduction:** Save As before debounce writes the older binary; ordinary Save does likewise
 when an unrelated compiled change makes Save enabled. The later callback makes memory dirty.
 A saved tab can close with no prompt and a compile callback still pending, losing the unsaved
 draft from the file. Settled Save/reopen and settled Close pass the new safety baseline.
 
-**Required scope:** Define a pending-source state and compile/validation barrier for save/close,
-including invalid-draft retention, Cancel and failure handling, without breaking existing
-ROM/metadata save failure protections. Native full-window event ordering remains to be checked.
+**Implemented:** Save and Save As settle source before writing; rejected drafts block persistence
+with an explanatory error and remain available for correction or explicit Undo. Close settles
+valid source before the existing save/discard/cancel prompt. Pending source enables Save, marks
+the tab unsaved and prevents external reload, including after queued UI work. Existing ROM/
+metadata failure protections remain passing; native full-window event ordering is not claimed.
 
 Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md).
 

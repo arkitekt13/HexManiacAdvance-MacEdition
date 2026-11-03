@@ -31,6 +31,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       public bool HasPendingScriptChanges => pendingScriptCompile != null;
       public bool HasUncompiledScriptChanges => HasPendingScriptChanges || scriptDrafts.Count > 0;
       public bool HasActiveScriptDraft => Contents.Any(scriptDrafts.Contains);
+      public string UncompiledScriptAddresses => string.Join(", ", scriptDrafts.Select(body => body.Address.ToString("X6")).Distinct());
       public event EventHandler ScriptStateChanged;
 
       // Execute before reusing a body or crossing a persistence/history boundary.

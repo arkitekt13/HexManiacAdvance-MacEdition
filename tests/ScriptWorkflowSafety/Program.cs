@@ -141,4 +141,42 @@ using (var f = new WorkflowFixture()) {
    f.Dispatch.Flush();
    Check(f.Model[WorkflowFixture.Root + 4] == 2, "A mode switch must finish the source with its original parser before changing modes.");
 }
+foreach (bool saveAs in new[] { false, true }) using (var f = new WorkflowFixture()) {
+   f.Edit(WorkflowFixture.Source(1, 2), settle: false);
+   Check(f.View.Save.CanExecute(f.FileSystem) && f.View.Name.EndsWith("*"), "Pending source must enable Save and display an unsaved marker.");
+   (saveAs ? f.View.SaveAs : f.View.Save).Execute(f.FileSystem);
+   Check(File.ReadAllBytes(f.FileName)[WorkflowFixture.Root + 4] == 2, "Save/Save As must include source pending at command time.");
+   Check(f.View.ChangeHistory.IsSaved && !f.Tool.HasUncompiledScriptChanges, "A successful source-inclusive save must leave no unsaved draft.");
+   f.Dispatch.Flush();
+   Check(f.View.ChangeHistory.IsSaved && File.ReadAllBytes(f.FileName).SequenceEqual(f.Model.RawData), "Canceled compile callbacks must not dirty the saved document later.");
+}
+using (var f = new WorkflowFixture()) {
+   var baseline = f.State(); bool closed = false; f.View.Closed += (_, _) => closed = true;
+   f.Edit("setvar MissingAlias 1\nend", settle: false);
+   f.View.Save.Execute(f.FileSystem);
+   Check(f.Saves == 0 && File.ReadAllBytes(f.FileName).SequenceEqual(baseline.Bytes), "Invalid pending source must not be saved as a successful edit.");
+   f.View.Close.Execute(f.FileSystem);
+   Check(!closed && f.Tool.HasUncompiledScriptChanges && f.Model.ReferenceCount == 1, "Closing rejected source must retain the tab, draft and model.");
+   Check(f.Messages.Count > 0, "A rejected persistence action must explain how to resolve the draft.");
+   f.View.Undo.Execute(null); f.Dispatch.Flush();
+   Check(!f.Tool.HasUncompiledScriptChanges && baseline.EqualsModel(f), "Undo can explicitly discard the rejected draft without altering the last compiled model.");
+}
+using (var f = new WorkflowFixture()) {
+   bool closed = false; f.View.Closed += (_, _) => closed = true;
+   f.Edit(WorkflowFixture.Source(1, 2), settle: false);
+   var stale = f.Dispatch.CapturePendingCallbacks();
+   f.View.Close.Execute(f.FileSystem);
+   Check(!closed && f.Prompts == 1 && f.Model.ReferenceCount == 1, "Close must settle pending source and honor cancellation of the normal save prompt.");
+   Check(f.Model[WorkflowFixture.Root + 4] == 2 && File.ReadAllBytes(f.FileName)[WorkflowFixture.Root + 4] == 1, "Canceled close retains the compiled edit in memory without changing disk.");
+   f.FileSystem.TrySavePrompt = _ => false;
+   f.View.Close.Execute(f.FileSystem);
+   foreach (var callback in stale) callback(); f.Dispatch.Flush();
+   Check(closed && f.Model.ReferenceCount == 0 && f.Model[WorkflowFixture.Root + 4] == 2, "Explicit discard closes safely with no later callback writes.");
+}
+using (var f = new WorkflowFixture()) {
+   int reads = 0;
+   f.Edit(WorkflowFixture.Source(1, 2), settle: false);
+   f.View.ConsiderReload(new StubFileSystem { LoadFile = _ => { reads++; return null; } });
+   Check(reads == 0 && f.Tool.HasPendingScriptChanges, "External reload must not overwrite a pending source draft on an otherwise saved model.");
+}
 Console.WriteLine($"CHECKS_PASSED:{checks}");

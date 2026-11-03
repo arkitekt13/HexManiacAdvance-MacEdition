@@ -92,6 +92,8 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IDisposable {
 
    // ---------------- File dialogs ----------------
 
+   public Task<string> ChooseExternalEmulatorAsync() => ExternalEmulatorPicker.ChooseAsync();
+
    protected string PickFileToOpen(string description, IEnumerable<string> extensions) =>
       UiSync.Run(async () => {
          var files = await Owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions {

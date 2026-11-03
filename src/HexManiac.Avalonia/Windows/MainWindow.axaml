@@ -71,7 +71,7 @@
             <!-- Not in HexManiac.WPF: dumps the tables as text so a hack can live in git. -->
             <NativeMenuItem Header="Export Project as Text..." Click="ExportProjectClick" />
             <NativeMenuItem Header="Import Project from Text..." Click="ImportProjectClick" />
-            <NativeMenuItem Header="Run" Gesture="F5" Command="{Binding RunFile}" CommandParameter="{DynamicResource FileSystem}" />
+            <NativeMenuItem Header="Launch in External Emulator" Gesture="F5" Click="LaunchExternalEmulatorClick" />
             <NativeMenuItem Header="Test in Emulator" Gesture="F6" Click="OpenEmulatorClick" />
             <NativeMenuItemSeparator />
             <NativeMenuItem Header="Close Current Tab" Gesture="Cmd+W" Command="{Binding Close}" CommandParameter="{DynamicResource FileSystem}" />
@@ -395,7 +395,7 @@
           </ToggleButton>
         </StackPanel>
         <Rectangle Width="5"/>
-        <Button ToolTip.Tip="Launch Saved File (F5)" Command="{Binding RunFile}" CommandParameter="{DynamicResource FileSystem}">
+        <Button ToolTip.Tip="Launch in External Emulator (F5)" Click="LaunchExternalEmulatorClick">
           <!-- WPF drew this triangle inline rather than from Icons.xaml, and there is no
                "Play" icon to reference: {hsv:Icon Play} resolved to nothing and left the
                button blank. -->

@@ -137,12 +137,15 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
          return table[value - EnumOffset];
       }
 
-      private string Convert(IDataModel model, string value, out int result) {
+      private string Convert(IDataModel model, string value, LabelLibrary labels, out int result) {
          result = 0;
          var parseType = "as a number";
          if (!string.IsNullOrEmpty(EnumTableName)) {
             if (!EnumTableName.StartsWith("|")) parseType = "from " + EnumTableName;
-            if (ArrayRunEnumSegment.TryParse(EnumTableName, model, value, out result)) {
+            var matched = labels == null
+               ? ArrayRunEnumSegment.TryParse(EnumTableName, model, value, out result)
+               : labels.TryMatchEnumArgument(model, EnumTableName, value, out result);
+            if (matched) {
                result += EnumOffset;
                return null;
             }
@@ -197,16 +200,16 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
       public string Build(IDataModel model, int address, string token, int shift, IList<byte> results, LabelLibrary labels) {
          int value;
          if (Type == ArgType.Byte) {
-            var error = Convert(model, token, out value);
+            var error = Convert(model, token, labels, out value);
             if (error != null) return error;
             results.Add((byte)(value >> shift));
          } else if (Type == ArgType.Short) {
-            var error = Convert(model, token, out value);
+            var error = Convert(model, token, labels, out value);
             if (error != null) return error;
             results.Add((byte)(value >> shift));
             results.Add((byte)(value >> (shift + 8)));
          } else if (Type == ArgType.Word) {
-            var error = Convert(model, token, out value);
+            var error = Convert(model, token, labels, out value);
             if (error != null) return error;
             results.Add((byte)value);
             results.Add((byte)(value >> 0x8));

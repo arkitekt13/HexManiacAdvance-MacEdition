@@ -932,3 +932,254 @@ User verification update: The user confirmed the translucent copied-block previe
 Validation: The map selection project builds with zero warnings/errors and passes 340 checks on macOS; the complete Mac suite passes all 23 groups and 3,137 assertions with no skipped groups.
 
 Scope: Regression coverage only; no application editing, researched addresses, block behaviors, collision/elevation rules, or repointing algorithms were changed, and no user ROM was opened or modified.
+
+## 057 — Benchmark script editing and identify sparse variable-alias lookup costs
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ScriptEditingBenchmark/ScriptEditingBenchmark.csproj](tools/ScriptEditingBenchmark/ScriptEditingBenchmark.csproj) | 1 | Add an independently runnable Release benchmark referencing production Core and Avalonia controls with cached headless dependencies and shipped script definitions. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 19 | Measure immediate edits, deferred compilation, and attached text-control presentation across synthetic command/comment/dialogue scripts while checking exact byte changes, deferred writes, stable addresses, and matching outputs. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 82 | Compare equivalent hexadecimal, decimal, and named-alias operands and isolate compiler/traversal/formatting costs with timing samples, managed allocations, timer owners, and output hashes. |
+| [tools/ScriptEditingBenchmark/README.md](tools/ScriptEditingBenchmark/README.md) | 1 | Document reproduction commands, fixture isolation, measurement phases, report completeness, and native-input/relocation limits. |
+| [tests/SCRIPT_EDIT_PIPELINE.md](tests/SCRIPT_EDIT_PIPELINE.md) | 1 | Record measured compiler and UI baselines, the sparse alias-list bottleneck, and required semantic/safety coverage before optimization. |
+| [tests/SCRIPT_PERFORMANCE.md](tests/SCRIPT_PERFORMANCE.md) | 3 | Link the pipeline investigation from the earlier highlighting checkpoints to distinguish existing optimizations from newly measured costs. |
+| [tests/README.md](tests/README.md) | 57 | Link the new pipeline measurements and benchmark instructions alongside the existing regression documentation. |
+
+Validation: The Release benchmark builds successfully; all 18 pipeline cases, two component cases, and three equivalent-spelling cases finish with 1,596 checks, identical paired UI/Core layer hashes, and identical equivalent-spelling compiled-byte hashes. At 500 repeated commands, isolated compilation measures 702.73 ms/1,068,447,352 allocated bytes for hexadecimal variables versus 7.68 ms/24,153,352 bytes for equivalent decimal variables; these are diagnostic baselines, not an implemented speedup or retained-RAM measurements.
+
+Scope: Investigation tooling and documentation only; application sources, script matching semantics, researched addresses, compiler/relocation/repointing, flag/variable allocation, and history are unchanged. No user ROM was opened or modified, and the user's prior Windows stuttering is not claimed reproduced or resolved.
+
+## 058 — Protect script argument semantics and relocation before lookup optimization
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/ScriptArgumentSafety/ScriptArgumentSafety.csproj](tests/ScriptArgumentSafety/ScriptArgumentSafety.csproj) | 1 | Add an automatically discovered portable regression group using production Core and shipped script definitions without a ROM or native UI. |
+| [tests/ScriptArgumentSafety/Program.cs](tests/ScriptArgumentSafety/Program.cs) | 25 | Freeze exact/partial/quoted/duplicate and numeric-looking alias precedence, sparse names, widths, numeric prefixes, offsets, rejected arguments, and model/cache-boundary isolation. |
+| [tests/ScriptArgumentSafety/Program.cs](tests/ScriptArgumentSafety/Program.cs) | 99 | Exercise hexadecimal, decimal, and named-variable script growth, forced relocation, shrinking, two callers, dialogue and neighbor preservation, exact history round-trips, and recovery from invalid input. |
+| [tests/ScriptArgumentSafety/README.md](tests/ScriptArgumentSafety/README.md) | 1 | Document safety contracts, reproduction commands, existing relocation history/cache behavior, the non-undoable free-space cursor, and coverage limits. |
+| [tests/README.md](tests/README.md) | 61 | Link the script argument and mutation safety group from the regression index. |
+| [tests/SCRIPT_EDIT_PIPELINE.md](tests/SCRIPT_EDIT_PIPELINE.md) | 90 | Link the completed safety baseline while keeping argument lookup optimization explicitly unimplemented. |
+
+Validation: The new project builds with zero warnings/errors in the final incremental build and passes 641 checks against unchanged application code; the complete Mac suite passes all 24 groups and 3,778 assertions with no skipped groups.
+
+Scope: Tests and documentation only; argument matching, compiler/relocation/repointing, researched addresses, flags/variables, and history are unchanged, and no supplied ROM was opened or modified. Relocation's existing multiple history records are fully round-tripped; all bytes and serialized metadata must restore except the existing FreeSpaceSearch cursor, which is maintained outside undo, and option-list freshness is checked after the normal explicit cache invalidation boundary.
+
+## 059 — Reuse script argument matches within each compilation without changing numeric interpretation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Code/LabelLibrary.cs](src/HexManiac.Core/Models/Code/LabelLibrary.cs) | 12 | Add opt-in compilation-local reuse of the unchanged enum matcher's success/value, invalidated by model scope or read-only culture changes and bypassed for foreign models or mutable cultures. |
+| [src/HexManiac.Core/Models/Code/ScriptArg.cs](src/HexManiac.Core/Models/Code/ScriptArg.cs) | 140 | Use the compilation context for repeated enum lookups while retaining numeric fallback order, alias precedence, offsets, emitted widths, and the separate pointer path. |
+| [src/HexManiac.Core/Models/Code/ScriptParser.cs](src/HexManiac.Core/Models/Code/ScriptParser.cs) | 713 | Enable lookup reuse only in the fresh local-label context constructed for each compilation. |
+| [tests/ScriptArgumentSafety/Program.cs](tests/ScriptArgumentSafety/Program.cs) | 102 | Expand safety coverage to 1,565 checks with cached/uncached differential cases, three cultures, explicit decimal/pointer distinctions, invalidation, and helper/production-compiler allocation budgets. |
+| [tests/ScriptArgumentSafety/README.md](tests/ScriptArgumentSafety/README.md) | 61 | Document the original reference path, differential coverage, allocation budgets, and separately tracked existing sparse-match exception. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 31 | Read checkpoint identity from HMA_BENCHMARK_REVISION rather than falsely labeling new measurements as the original baseline. |
+| [tools/ScriptEditingBenchmark/README.md](tools/ScriptEditingBenchmark/README.md) | 10 | Preserve historical baseline reports and document current-output names and revision labeling. |
+| [tests/SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md](tests/SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md) | 1 | Record parsing invariants, complete before/after compiler and editor measurements, hash equivalence, test evidence, and repeated-operand/native-input limits. |
+| [tests/SCRIPT_EDIT_PIPELINE.md](tests/SCRIPT_EDIT_PIPELINE.md) | 3 | Link the implemented follow-up while retaining the original investigation and safety checkpoints as historical evidence. |
+| [tests/README.md](tests/README.md) | 65 | Link the argument-reuse performance and correctness report. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 47 | Record HMA-003 for an existing sparse-alias partial-match exception reproduced by both uncached and cached matching. |
+
+Validation: All 24 Mac groups pass 4,702 assertions with no groups skipped; the first upstream project passes 1,780 cases with 0 failures/935 optional skips and the second passes 26 with 0 failures/41 optional skips, both with zero engine errors. All 1,596 benchmark invariants and original/current layer/compiled-byte hashes match; the isolated 500-command hexadecimal compile falls from 702.73 ms/1,068,447,352 temporary allocated bytes to 20.58 ms/26,623,472 bytes, while the attached 2,000-command deferred update falls from 2,795.41 ms to 90.19 ms.
+
+Scope: No numeric syntax or alias-priority change, pointer parsing change, global/cross-edit result cache, relocation/history rewrite, researched-address change, or flag/variable allocation change; existing mutable-culture and model-refresh behavior are retained. Figures are synthetic Release medians and temporary managed allocation volumes, not retained RAM or native typing latency; UI/highlighting costs remain, HMA-003 is unchanged, and source/staged FireRed fixture hashes are unchanged after upstream verification.
+
+## 060 — Benchmark 100–500-line NPC-style scripts and characterize autocomplete mapping
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 22 | Add an NPC mode with ten warmups, exact source-line sizes, numeric/dialogue/comment edits, settled-address checks, and explicit fixture-size/hash metadata. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 44 | Generate compound NPC conversations with conditional shared-routine calls, varied variables/flags, comments, and fixed-address dialogue instead of only repeated commands. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 198 | Measure core command/variable completions separately and characterize routed production overlay results with first-line controls and explicit later-line mismatches. |
+| [tools/ScriptEditingBenchmark/README.md](tools/ScriptEditingBenchmark/README.md) | 50 | Document realistic-size reproduction, measurement/setup boundaries, autocomplete controls, and native-input limits. |
+| [tests/NPC_SCRIPT_BENCHMARK.md](tests/NPC_SCRIPT_BENCHMARK.md) | 1 | Record two complete runs, per-edit timing ranges, hash equivalence, fast core completions, and the confirmed headless Mac caret-mapping finding. |
+| [tests/README.md](tests/README.md) | 68 | Link the NPC-style editing and autocomplete benchmark report. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 65 | Track HMA-004 for the original overlay's two-character newline assumption and the required offered/applied-completion regressions. |
+
+Validation: The final Release benchmark builds with zero warnings/errors; two complete runs each pass 2,892 measurement/invariant checks across 18 edit cases and 24 completion probes, with identical paired UI/Core and cross-run source/layer hashes, and the legacy lookup mode still passes 58 checks. All six first-line overlay controls match Core in each run, while all 18 tested later-line probes disagree and remain explicitly unfixed; immediate 500-line edits measure about 10–13 ms, deferred updates 34–38 ms, and core autocomplete query medians 0.0135–0.0784 ms.
+
+Scope: Benchmark tooling and documentation only; no application sources, numeric/alias parsing, script/compiler/relocation/history algorithms, or supplied ROMs were changed or opened. Measurements exclude native keyboard/full TabView bindings, initial source consolidation, the debounce wait, script growth, and new auto-stream allocation; later-line UI mismatches are characterization findings rather than successful autocomplete checks, and no native UI fix is claimed.
+
+## 061 — Fix autocomplete caret mapping and exact line replacement on Mac
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 90 | Map bounded caret positions to logical line spans using actual separators instead of assuming two-character host line endings. |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 135 | Query the correct line/column, anchor the popup to the active caret line, and clear stale options at document start or when no suggestions apply. |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 182 | Use the same bounded mapping for quote/space acceptance without negative substring offsets. |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 231 | Splice only the active source line when applying a suggestion, preserving surrounding text, original separators, suffixes, and the correct caret. |
+| [tests/AutocompleteMapping/AutocompleteMapping.csproj](tests/AutocompleteMapping/AutocompleteMapping.csproj) | 1 | Add an automatically discovered headless regression group using production controls and shipped script definitions. |
+| [tests/AutocompleteMapping/Program.cs](tests/AutocompleteMapping/Program.cs) | 49 | Add 282 checks for LF/CRLF/mixed offered/applied completions, keyboard/mouse input, selection and boundary carets, quotes, live compiled bytes, caller pointers, and undo/redo. |
+| [tests/AutocompleteMapping/README.md](tests/AutocompleteMapping/README.md) | 1 | Document the original-handler failure, focused coverage, controlled compilation timer, and native visual limits. |
+| [tests/NPC_SCRIPT_BENCHMARK.md](tests/NPC_SCRIPT_BENCHMARK.md) | 3 | Record the fixed benchmark with all 24 UI/Core probes agreeing while preserving the original mismatch evidence and unchanged hashes/options. |
+| [tools/ScriptEditingBenchmark/README.md](tools/ScriptEditingBenchmark/README.md) | 82 | Link the fixed benchmark checkpoint and retain the older mismatch reports. |
+| [tests/README.md](tests/README.md) | 71 | Link the autocomplete mapping regression group. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 67 | Mark HMA-004 fixed with automated query/acceptance/history coverage while leaving native screen appearance for normal-use verification. |
+
+Validation: The original handler fails the unchanged exact-suggestion regression; the corrected group builds with zero warnings/errors and passes 282 checks. The realistic NPC benchmark passes all 2,892 invariants, all 24 overlay probes match Core, and all 18 original source/layer hash sets and Core option arrays are unchanged; the complete Mac suite passes all 25 groups and 4,984 assertions with no skipped groups.
+
+Scope: Avalonia autocomplete UI mapping/replacement only; shared-Core matching, decimal/hexadecimal and pointer interpretation, compilation, relocation, researched addresses, flag/variable allocation, and history algorithms are unchanged. Synthetic models only were used, no supplied ROM was opened or modified, and native screen appearance and every scroll/font configuration are not claimed validated.
+
+## 062 — Fix sparse script aliases and preserve explicit hexadecimal values
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs](src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs) | 294 | Exclude implicit decimal names of unnamed slots from unquoted explicit-hex matches while preserving real alias precedence and quoted name queries. |
+| [src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs](src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs) | 329 | Rank partial matches using null-safe numeric display names to prevent sparse-list exceptions. |
+| [tests/ScriptArgumentSafety/Program.cs](tests/ScriptArgumentSafety/Program.cs) | 85 | Add crash and silent numeric-misinterpretation regressions, real/quoted alias controls, offsets, and exact end-to-end compiled bytes. |
+| [tests/ScriptArgumentSafety/README.md](tests/ScriptArgumentSafety/README.md) | 81 | Explain HMA-003, the narrow matching correction, and the expanded safety coverage. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 47 | Mark HMA-003 fixed with reproduction details and verified scope. |
+
+Validation: The original implementation fails the new regression; the corrected focused group passes 1,596 checks, and all 25 Mac groups pass 5,015 assertions with no skipped groups. The first upstream project passes 1,780 cases with zero failures and 935 optional skips; the second passes 26 with zero failures and 41 optional skips, both with zero engine errors. Source and staged FireRed fixture SHA-256 hashes are unchanged after verification.
+
+Scope: The only application change is the shared enum matcher; real named alias precedence, decimal parsing, quoted queries, pointer parsing, compilation-local cache boundaries, relocation/history and researched addresses retain their existing behavior. Flag/variable scanning and allocation are unchanged.
+
+## 063 — Document existing unused flag/variable helpers and characterize their limits
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/FlagVariableReview/FlagVariableReview.csproj](tools/FlagVariableReview/FlagVariableReview.csproj) | 1 | Add a standalone synthetic review tool referencing production scanners and template helpers without opening a supplied ROM. |
+| [tools/FlagVariableReview/Program.cs](tools/FlagVariableReview/Program.cs) | 12 | Characterize source operands, stale usage snapshots, header conditions, exhausted ranges and session reservations with connected-root setup checks. |
+| [tools/FlagVariableReview/README.md](tools/FlagVariableReview/README.md) | 1 | Document reproducible characterization commands and distinguish current findings from required regression behavior. |
+| [tests/FLAG_VARIABLE_REVIEW.md](tests/FLAG_VARIABLE_REVIEW.md) | 1 | Explain existing insertion shortcuts, scan coverage, reservations, reproduced limitations and recommended future hardening with primary engine references. |
+| [tests/README.md](tests/README.md) | 75 | Link the existing-helper review from the test documentation index. |
+
+Validation: The review tool builds successfully with zero warnings/errors and completes all six synthetic characterization scenarios; connected destination-variable and detached header-root checks confirm the production scan paths are reached. The report is written to artifacts/script-safety/flag-variable-review.json.
+
+Scope: Review tooling and documentation only; Flags.cs, EventTemplate.cs, insertion controls, allocator behavior, researched addresses and user ROMs are unchanged. These findings describe shared-Core behavior in this fork and do not establish conflicts in any actual user ROM or claim a comparison with the latest upstream revision.
+
+## 064 — Investigate flag/variable usage detection before implementation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/FlagUsageSafety/FlagUsageSafety.csproj](tests/FlagUsageSafety/FlagUsageSafety.csproj) | 1 | Add an automatically discovered headless safety group linked to fabricated usage fixtures and the unchanged production scanners. |
+| [tests/FlagUsageSafety/Program.cs](tests/FlagUsageSafety/Program.cs) | 12 | Protect supported detection, literal distinctions, native reserve controls, event roots, recursive cycles and read-only scans with 535 checks across five game identities. |
+| [tests/FlagUsageSafety/README.md](tests/FlagUsageSafety/README.md) | 1 | Document regression commands, safety contracts and the distinction between supported behavior and diagnostic omissions. |
+| [tools/FlagVariableReview/UsageDetectionFixture.cs](tools/FlagVariableReview/UsageDetectionFixture.cs) | 1 | Add fabricated event/header layouts and twenty command vectors with independently specified expected operand roles. |
+| [tools/FlagVariableReview/UsageDetectionAudit.cs](tools/FlagVariableReview/UsageDetectionAudit.cs) | 14 | Report bounded engine-role coverage and real BPRE1 references while verifying model and source-ROM byte immutability. |
+| [tools/FlagVariableReview/Program.cs](tools/FlagVariableReview/Program.cs) | 14 | Route optional usage-review arguments without changing the original helper-characterization mode. |
+| [tools/FlagVariableReview/primary-source-manifest.json](tools/FlagVariableReview/primary-source-manifest.json) | 1 | Record primary engine reference URLs, content hashes and twelve verified byte-to-handler mappings for reproducible review. |
+| [tools/FlagVariableReview/README.md](tools/FlagVariableReview/README.md) | 26 | Explain synthetic and read-only real-ROM review commands, scope and shared-decoder limits. |
+| [tests/FLAG_USAGE_INVESTIGATION.md](tests/FLAG_USAGE_INVESTIGATION.md) | 1 | Record engine operand semantics, current reserve inventories, synthetic gaps, real-ROM corroboration and approval gates for future work. |
+| [tests/FLAG_VARIABLE_REVIEW.md](tests/FLAG_VARIABLE_REVIEW.md) | 3 | Link the follow-up usage-detection evidence while retaining the original allocator characterization. |
+| [tests/README.md](tests/README.md) | 79 | Link the new investigation and supported-behavior safety group from the test index. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 91 | Track HMA-005 as investigation complete with implementation explicitly awaiting approval. |
+
+Validation: The new group passes 535 checks; the complete Mac runner passes all 26 groups / 5,550 assertions with no skipped groups. The review tool builds successfully and completes 100 synthetic command cases plus conditional-header cases across five identities. Twelve engine byte-to-handler mappings and operand roles were checked against FireRed/Emerald/Ruby references. The supplied BPRE1 scan examines 4,762 selected references across 3,979 decoded segments from 2,143 roots: no additional ordinary persistent ID is missing within that bounded coverage, and one special-variable ID (0x8013) is missed. No traversal-limit/unknown-command stops occur in that review; full native/command coverage is not claimed. Model bytes and both source/staged ROM hashes remain unchanged.
+
+Scope: Tests, review tooling and documentation only; no production application sources, scanner/allocator/reservation behavior, researched addresses, script compilation, engine data or user ROM files are changed. Existing omissions are diagnostic findings rather than passing regression expectations; future scanner repairs and allocation changes require separate approval. Native UI/gameplay, modified-game conflicts, reserve-list completeness and unavailable real-game fixtures are outside the validation.
+
+## 065 — Investigate realistic script editing, recovery and persistence workflows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ScriptWorkflowReview/ScriptWorkflowReview.csproj](tools/ScriptWorkflowReview/ScriptWorkflowReview.csproj) | 1 | Add a standalone production-CodeTool investigation executable with real headless Avalonia control probes. |
+| [tools/ScriptWorkflowReview/WorkflowFixture.cs](tools/ScriptWorkflowReview/WorkflowFixture.cs) | 13 | Create fabricated scripts, callers, blocked neighbors, deterministic debounce and temporary atomic ROM/metadata saves shared with safety tests. |
+| [tools/ScriptWorkflowReview/Program.cs](tools/ScriptWorkflowReview/Program.cs) | 1 | Characterize 23 error/recovery, pending-context/history/persistence and resource-write scenarios without changing application behavior. |
+| [tools/ScriptWorkflowReview/README.md](tools/ScriptWorkflowReview/README.md) | 1 | Document review commands, evidence interpretation, temporary-file cleanup and native/full-shell limits. |
+| [tests/ScriptWorkflowSafety/ScriptWorkflowSafety.csproj](tests/ScriptWorkflowSafety/ScriptWorkflowSafety.csproj) | 1 | Add an automatically discovered portable workflow safety group using the production compiler and save/history paths. |
+| [tests/ScriptWorkflowSafety/Program.cs](tests/ScriptWorkflowSafety/Program.cs) | 1 | Protect supported LF/CRLF error correction, coalescing, script/dialogue relocation, exact model history, save/reopen and settled close with 548 checks. |
+| [tests/ScriptWorkflowSafety/README.md](tests/ScriptWorkflowSafety/README.md) | 1 | Document safety contracts and explicitly disclose root reselection after history traversal while retaining the presentation finding separately. |
+| [tests/SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md) | 1 | Record confirmed wrong-target/undo callbacks, pending save/close gaps, partial resource writes and diagnostic loss with controls, provenance and proposed boundaries. |
+| [tests/README.md](tests/README.md) | 83 | Link the supported workflow safety group and separate diagnostic investigation. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 112 | Track HMA-006 through HMA-008 as confirmed findings awaiting separate reviewed implementation. |
+
+Validation: The new LF/CRLF group passes 548 checks; all 27 Mac groups pass 6,098 assertions with no groups skipped. Two complete 23-probe diagnostic runs produce identical observations with no unexpected exceptions, including actual TextEditor binding/focus-loss corroboration; final tool build has zero warnings/errors, and a non-JSON output guard rejects a fabricated .gba target without modifying it. Supported relocation, caller pointers, neighboring bytes, complete binary/serialized-metadata history (excluding the existing FreeSpaceSearch preference), temporary-file save/reopen and saved-tag round-trips pass.
+
+Findings: Pending source can write another script after navigation, reapply after Undo and clear Redo, or miss a save/close boundary; existing-stream writes can precede a later compile failure and relocated-source replacement can clear its diagnostics. These remain unfixed and are tracked as HMA-006/007/008. History restores model bytes/metadata but does not automatically navigate the editor back to the root anchor; safety checks explicitly reselect it, and the presentation observation remains in the review rather than being counted as a UI pass.
+
+Scope: Tests, review tooling and documentation only; no production application sources, compiler/repointing/history algorithms, researched addresses, flags/variables, engine behavior or supplied ROMs are changed. All model/file data is fabricated and temporary; diagnostic findings are not passing requirements that defects persist. Manual callback ordering is not native/full-shell timing, game execution or performance benchmarking, and no speedup or fixed defect is claimed.
+
+## 066 — Keep pending script edits bound to their context and history
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 28 | Flush pending compilation before context reuse, invalidate stale callbacks by generation, and retain rejected drafts without reusing their bodies for another address. |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 1152 | Settle source before Undo/Redo and enable Undo for pending or active rejected drafts without clearing a valid Redo branch later. |
+| [tests/ScriptWorkflowSafety/Program.cs](tests/ScriptWorkflowSafety/Program.cs) | 94 | Add wrong-target, pending Undo/Redo, retained-draft, stale-callback and mode-switch regressions against production editor paths. |
+| [tests/AutocompleteMapping/Program.cs](tests/AutocompleteMapping/Program.cs) | 134 | Check unchanged underlying ROM history while allowing the new public Undo behavior for pending source. |
+| [tools/ScriptWorkflowReview/WorkflowFixture.cs](tools/ScriptWorkflowReview/WorkflowFixture.cs) | 108 | Expose captured scheduled callbacks so regressions can simulate callbacks already posted before timer cancellation. |
+| [tests/ScriptWorkflowSafety/README.md](tests/ScriptWorkflowSafety/README.md) | 1 | Document the 563-check baseline and pending-context/history contracts. |
+| [tests/SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md) | 7 | Link the implemented HMA-006 follow-up without replacing the original failure evidence. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 112 | Mark HMA-006 fixed while keeping Save/Close and failed-resource compilation separately tracked. |
+
+Validation: The new navigation regression fails against unchanged production code, then all 563 focused checks pass; the complete Mac suite passes all 27 groups / 6,113 assertions with no skipped groups. Existing numeric interpretation, caller pointers, script/dialogue relocation, neighboring data and full model history tests remain passing.
+
+Scope: Editor scheduling, draft retention and command boundaries only; compiler, researched addresses, flag/variable allocation and engine behavior are unchanged. Synthetic data only; persistence barriers and failed-compilation resource rollback remain subsequent fixes.
+
+## 067 — Include pending script source in persistence and reload decisions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 654 | Settle source before Save/Save As/Close and retain rejected drafts with an explanation instead of writing an older snapshot or silently closing. |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 70 | Include uncompiled source in unsaved indicators, Save eligibility and both external-reload guards. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 35 | Identify rejected script addresses in persistence error messages. |
+| [tests/ScriptWorkflowSafety/Program.cs](tests/ScriptWorkflowSafety/Program.cs) | 144 | Test pending-source Save/Save As, clean post-save callbacks, invalid-draft retention/discard, Close cancellation/discard and external-reload protection. |
+| [tests/ScriptWorkflowSafety/README.md](tests/ScriptWorkflowSafety/README.md) | 1 | Record the 579-check persistence and context baseline. |
+| [tests/SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md) | 7 | Link the HMA-007 implementation while retaining original evidence. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 129 | Mark HMA-007 fixed and retain native full-shell and separate failed-resource-compilation boundaries. |
+
+Validation: The new pending-source Save/unsaved-marker assertion fails before the fix; all 579 workflow checks pass after it. The complete Mac suite passes all 27 groups / 6,129 assertions with no skipped groups, including existing save failure, close cancellation, external file handling, numeric/relocation/history and UI regressions.
+
+Scope: Editor persistence/dirty-state/reload boundaries only; no engine or flag/variable behavior changes, researched-address changes or supplied ROM edits. Invalid drafts require correction or explicit Undo before closing; valid drafts use the existing save/discard/cancel prompt. Compiler resource rollback remains HMA-008.
+
+## 068 — Roll back rejected script/resource compilation and retain diagnostics
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Code/ScriptParser.cs](src/HexManiac.Core/Models/Code/ScriptParser.cs) | 519 | Compile resource edits into an isolated delta, merge it only on success and restore source, allocation state and model state on failure. |
+| [src/HexManiac.Core/Models/ModelDelta.cs](src/HexManiac.Core/Models/ModelDelta.cs) | 43 | Merge already-applied deltas while preserving earliest before-images for bytes, lengths and metadata. |
+| [src/HexManiac.Core/Models/IDataModel.cs](src/HexManiac.Core/Models/IDataModel.cs) | 200 | Capture byte-change highlighting for restoration after a rejected attempt. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 490 | Extend the transaction through placement, relocation, recompilation and formatting, then publish one history record and move notifications after success. |
+| [tests/ScriptWorkflowSafety/Program.cs](tests/ScriptWorkflowSafety/Program.cs) | 8 | Add late-error, raw-parser, allocation/expansion, placement, exception, diagnostics, correction and history regressions. |
+| [tests/ScriptWorkflowSafety/README.md](tests/ScriptWorkflowSafety/README.md) | 1 | Document transaction coverage and the assertion-count effect of fewer history records. |
+| [tests/SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md) | 7 | Preserve historical findings and identify the implemented HMA-008 follow-up. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 146 | Mark HMA-008 implemented with its tested scope and native limitations. |
+
+Evidence: The new late-resource atomicity assertion fails against untouched commit 3aa58ab7 in a temporary snapshot and passes after the fix. The workflow group passes 598 assertions. All 23 current diagnostic probes complete without exceptions; late errors leave model bytes/metadata unchanged, correction restores the baseline and the real headless TextEditor retains its error location.
+
+Mac validation: All 27 groups pass 6,112 assertions with zero failed or skipped groups. Compared with 6,129, existing workflow traversal checks execute 42 fewer assertions and argument-history traversal checks execute 36 fewer because successful compilation has fewer intermediate history records; 61 new explicit workflow assertions are added. No existing assertion is removed or weakened.
+
+Upstream verification: 1,779 passed / 1 failed / 935 skipped / zero engine errors. The sole failure, ErrorInScript_ClickOff_ResetScriptEditor, also fails with the identical source mismatch on untouched 3aa58ab7; its discard-on-navigation expectation predates HMA-006 draft retention and is left unchanged. That temporary snapshot has 1,666 passed / 1 failed / 1,048 skipped because optional ROM fixtures are absent. The separate integration suite passes 26 cases with 41 optional-fixture skips and zero failures.
+
+Scope: Synthetic regressions and existing local test fixtures; no fixture edits, numeric-rule changes, researched-address changes or game-engine changes. Successful editor compilation is one undoable operation; history traversal loops therefore execute fewer assertions without removing or weakening existing checks. Native full-window timing and gameplay remain unverified.
+
+## 069 — Remember an external emulator for the Mac Play button
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorLauncher.cs](src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorLauncher.cs) | 12 | Remember a selected application, prompt again when missing and launch saved ROMs through explicit macOS application arguments with save/draft barriers. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 95 | Offer a native application-bundle picker for first-use emulator selection. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 543 | Route F5 and click handlers through the external launcher and offer Save and Launch or Cancel for unsaved work. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 74 | Label and wire the Run menu and triangle as Launch in External Emulator while retaining F6 for the built-in emulator. |
+| [src/HexManiac.Avalonia/Windows/EmulatorWindow.axaml](src/HexManiac.Avalonia/Windows/EmulatorWindow.axaml) | 3 | Update the F5 comparison comment to describe explicit external-emulator selection. |
+| [tests/ExternalEmulatorLaunch/Program.cs](tests/ExternalEmulatorLaunch/Program.cs) | 1 | Exercise first-use cancellation, remembered/missing applications, path arguments, pending/rejected drafts, save failures and launch errors with temporary data. |
+| [tests/ExternalEmulatorLaunch/ExternalEmulatorLaunch.csproj](tests/ExternalEmulatorLaunch/ExternalEmulatorLaunch.csproj) | 1 | Add the automatically discovered Mac regression group using the existing fabricated workflow fixture. |
+| [tests/ExternalEmulatorLaunch/README.md](tests/ExternalEmulatorLaunch/README.md) | 1 | Document automated coverage, preference location and remaining native mGBA checks. |
+| [tests/README.md](tests/README.md) | 17 | Link the external emulator launch regression. |
+
+Validation: The new group passes 18 assertions and the Mac app builds with zero warnings/errors. Tests inject process launch and use disposable synthetic ROM/application files; no real emulator, user preference or user ROM is changed. Native application-bundle picking and actual mGBA launch remain for manual confirmation after rebuilding.
+
+Complete Mac validation: All 28 groups pass 6,130 assertions with zero failed or skipped groups, including the 598-check script workflow group and the existing save, file-drop and external-reload protections.
+
+Scope: Mac launch UI and a separate app preference only; shared Core RunFile behavior, Finder associations and built-in F6 emulation are unchanged. Pending script edits are saved through the existing HMA-007 barrier; cancellation, rejected drafts and failed saves never start the emulator.
+
+## 070 — Restore object script creation and select native emulator applications
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 268 | Restore the Windows object-panel Create Script plus button with Core's existing command and visibility condition. |
+| [src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorPicker.cs](src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorPicker.cs) | 9 | Select an application alias through macOS Standard Additions and normalize its path while handling cancellation and errors. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 95 | Replace the file-filter application picker that disabled installed apps on the user's Mac. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 221 | Exercise the live object-panel button, attached script bytes/pointers and exact-byte Undo/Redo with fabricated data. |
+| [tests/ExternalEmulatorLaunch/Program.cs](tests/ExternalEmulatorLaunch/Program.cs) | 10 | Check application-chooser arguments, cancellation, errors, spaces and alias trailing-slash normalization. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 6 | Document object-panel creation coverage and fixture limits. |
+| [tests/ExternalEmulatorLaunch/README.md](tests/ExternalEmulatorLaunch/README.md) | 3 | Describe the system application chooser and remaining native selection/launch confirmation. |
+
+Focused validation: MapSelection passes 348 checks and ExternalEmulatorLaunch passes 24 checks. The native chooser script compiles through macOS osacompile without executing a dialog or launching an emulator. Restored object creation allocates the existing lock/faceplayer/release/end starter, attaches its pointer and preserves Undo/Redo without changing Core algorithms.
+
+Complete Mac validation: All 28 groups pass 6,144 assertions with zero failed or skipped groups. The 14 additional checks cover the restored object button and application chooser behavior.
+
+Scope: UI restoration and native application selection; no user ROM or preference is modified by tests. Actual mGBA selection/launch still requires confirmation after saving work and restarting the editor. The new chooser lists registered applications and supports Browse, avoiding the file-filter path observed to disable app bundles.
+
+Native confirmation, 2026-11-03: The user confirmed that the restored object-script creation button and external mGBA launch both work. mGBA was absent from the chooser's initial application list, but Browse allowed selection of its application bundle and the ROM launched successfully; that Browse fallback remains part of the supported flow.

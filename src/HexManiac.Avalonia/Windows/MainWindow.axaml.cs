@@ -17,6 +17,7 @@ using Avalonia.Styling;
 using Avalonia.VisualTree;
 using HavenSoft.HexManiac.AvaloniaUI.Controls;
 using HavenSoft.HexManiac.AvaloniaUI.Emulation;
+using HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
 using HavenSoft.HexManiac.AvaloniaUI.Mcp;
 using HavenSoft.HexManiac.AvaloniaUI.Project;
 using HavenSoft.HexManiac.AvaloniaUI.Resources;
@@ -125,9 +126,9 @@ public partial class MainWindow : Window {
       Add(Key.A, cmd | KeyModifiers.Shift, nameof(EditorViewModel.SaveAll));
       Add(Key.E, cmd, nameof(EditorViewModel.ExportBackup));
       Add(Key.A, cmd, nameof(EditorViewModel.SelectAll));
-      Add(Key.F5, KeyModifiers.None, nameof(EditorViewModel.RunFile), FileSystem);
-      // F6 is the emulator's: F5 hands the *saved* file to whatever the OS runs .gba with, F6
-      // boots what is in the editor right now. They are different enough to deserve their own key.
+      KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.F5),
+         Command = new StubCommand { Execute = _ => LaunchExternalEmulator(), CanExecute = _ => true } });
+      // F5 launches the saved ROM in the chosen external app; F6 runs the editor's current bytes.
       KeyBindings.Add(new KeyBinding {
          Gesture = new KeyGesture(Key.F6),
          Command = new StubCommand { CanExecute = _ => true, Execute = _ => OpenEmulator() },
@@ -538,6 +539,25 @@ public partial class MainWindow : Window {
    #endregion
 
    #region Emulator
+
+   private ExternalEmulatorLauncher externalEmulator;
+   private void LaunchExternalEmulatorClick(object sender, EventArgs e) => LaunchExternalEmulator();
+   private void LaunchExternalEmulatorClick(object sender, RoutedEventArgs e) => LaunchExternalEmulator();
+
+   private async void LaunchExternalEmulator() {
+      if (Editor == null || FileSystem is not MacFileSystem fileSystem) return;
+      try {
+         externalEmulator ??= new ExternalEmulatorLauncher(
+            System.IO.Path.Combine(MacFileSystem.AppSupportDirectory, "external-emulator.txt"), fileSystem.ChooseExternalEmulatorAsync);
+         var view = Editor.SelectedTab is MapEditorViewModel map ? map.ViewPort as ViewPort : Editor.SelectedTab as ViewPort;
+         await externalEmulator.LaunchAsync(view, fileSystem, () => fileSystem.ShowOptions(
+            "Launch in External Emulator", "Save changes before launching this ROM?", null,
+            new VisualOption { Index = 0, Option = "Save and Launch" },
+            new VisualOption { Index = 1, Option = "Cancel" }) == 0, message => Editor.ErrorMessage = message);
+      } catch (Exception exception) when (exception is System.IO.IOException or UnauthorizedAccessException) {
+         Editor.ErrorMessage = "Could not access external emulator settings: " + exception.Message;
+      }
+   }
 
    private EmulatorWindow emulatorWindow;
 

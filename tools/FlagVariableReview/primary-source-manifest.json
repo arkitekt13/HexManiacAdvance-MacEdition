@@ -1,0 +1,76 @@
+{
+  "retrieved": "2026-11-03",
+  "note": "Reference snapshots only; no engine code is copied into application sources. Master URLs can change; hashes identify reviewed content.",
+  "verifiedByteToHandlerMappings": {
+    "16": "setvar",
+    "17": "addvar",
+    "18": "subvar",
+    "19": "copyvar",
+    "1A": "setorcopyvar",
+    "21": "compare_var_to_value",
+    "22": "compare_var_to_var",
+    "26": "specialvar",
+    "44": "additem",
+    "47": "checkitem",
+    "8F": "random",
+    "B3": "checkcoins"
+  },
+  "files": [
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokeemerald/master/include/constants/flags.h",
+      "sha256": "98aa1c819f1155673d7826a45f9a0d244e2a15b8f603fdfa661be3cef1b4de41"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokeemerald/master/src/scrcmd.c",
+      "sha256": "8226d6ed9ee3bbc15c77a387890130b184f142044f6191197f0816be31abffb4"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokeemerald/master/data/script_cmd_table.inc",
+      "sha256": "6b35a00e504c0c88b18eaf777dcccb7cc6d4f31bd7474838b91d86b008c4fa99"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokeemerald/master/include/constants/vars.h",
+      "sha256": "e777facba3356ef3fdbfa5bf8a662367be2416160cee2e3a5df62f9769b26de5"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokefirered/master/src/event_data.c",
+      "sha256": "163fcef03561426fc185b499eef1088dc7a4334b612968a82df3a0fa6131d06f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokefirered/master/include/constants/flags.h",
+      "sha256": "45f31e4dc3d42c1054463974cd31b1173bdd4cb6d9f94b2cdbf2c88b0f745493"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokefirered/master/src/scrcmd.c",
+      "sha256": "898dad5a07ce0a125731b998654d86808885a8d48163d607478a5e70c1cac553"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokefirered/master/src/script.c",
+      "sha256": "1cc4aade1f821e5f218ba7c191b1217e5a3cf942d0bfd0f32f775ce1f808437c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokefirered/master/data/script_cmd_table.inc",
+      "sha256": "6b59babf9b8a33bdc37a322a1a4b6e2261426126097330f305823e53415b1389"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokefirered/master/include/constants/vars.h",
+      "sha256": "be26624aac5cbc9ea4d364d5cc33500b4b6c7ecd47812a50b961d948f6914b12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokeruby/master/include/constants/flags.h",
+      "sha256": "d681c699073a1b446d9350a0a6061da559913ced98d347a747f384d024d9399a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokeruby/master/src/scrcmd.c",
+      "sha256": "4084b31c2f7f1db9fbfe9936486c4686d718ca19c4081f31557f005c4f707334"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokeruby/master/data/script_cmd_table.inc",
+      "sha256": "9838797ce8c213209ce7a2ab61686426f3a8991a6955c3d979a12499466aae58"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pret/pokeruby/master/include/constants/vars.h",
+      "sha256": "4fd1ecf1eb39b81cd365a8658de6ebad2ecf450d438d4c416cda570d6b1af0b5"
+    }
+  ]
+}

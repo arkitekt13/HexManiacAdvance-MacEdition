@@ -71,7 +71,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          get {
             var name = Path.GetFileNameWithoutExtension(FileName);
             if (string.IsNullOrEmpty(name)) name = "Untitled";
-            if (history.HasDataChange) name += "*";
+            if (history.HasDataChange || HasUncompiledScriptChanges) name += "*";
             return name;
          }
       }
@@ -638,7 +638,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          exportBackup = new StubCommand(),
          close = new StubCommand();
 
-      public bool IsMetadataOnlyChange => !history.IsSaved && !ChangeHistory.HasDataChange;
+      private bool HasUncompiledScriptChanges => tools?.CodeTool.HasUncompiledScriptChanges == true;
+      public bool IsMetadataOnlyChange => !history.IsSaved && !ChangeHistory.HasDataChange && !HasUncompiledScriptChanges;
       public ICommand Save => save;
 
       public ICommand SaveAs => saveAs;
@@ -651,7 +652,14 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
       private GameReferenceTables RefTable => Singletons.GameReferenceTables.TryGetValue(Model.GetGameCode(), out var refTable) ? refTable : null;
 
+      private bool TryFlushScriptChanges() {
+         if (tools == null || tools.CodeTool.FlushPendingScriptChanges()) return true;
+         RaiseError($"Script edits at {tools.CodeTool.UncompiledScriptAddresses} could not compile. Correct the source, or use Undo in that script to discard the rejected draft, before saving or closing.");
+         return false;
+      }
+
       private void SaveExecuted(IFileSystem fileSystem) {
+         if (!TryFlushScriptChanges()) return;
          if (history.IsSaved) return;
 
          if (string.IsNullOrEmpty(FileName)) {
@@ -669,6 +677,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       }
 
       private void SaveAsExecuted(IFileSystem fileSystem) {
+         if (!TryFlushScriptChanges()) return;
          var newName = fileSystem.RequestNewName(FileName, "Game Boy Advance", "gba");
          if (newName == null) return;
 
@@ -705,6 +714,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       }
 
       private void CloseExecuted(IFileSystem fileSystem) {
+         if (!TryFlushScriptChanges()) return;
          if (!history.IsSaved && Model.ReferenceCount == 1) {
             var metadata = Model.ExportMetadata(RefTable, Singletons.MetadataInfo);
             var result = fileSystem.TrySavePrompt(new LoadedFile(FileName, Model.RawData));
@@ -1149,8 +1159,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
       private bool ignoreFurtherCommands = false;
       private void ImplementCommands() {
-         undoWrapper.CanExecute = history.Undo.CanExecute;
+         undoWrapper.CanExecute = arg => tools?.CodeTool.HasPendingScriptChanges == true || tools?.CodeTool.HasActiveScriptDraft == true || history.Undo.CanExecute(arg);
          undoWrapper.Execute = arg => {
+            tools?.CodeTool.FlushPendingScriptChanges();
+            if (tools?.CodeTool.DiscardActiveScriptDraft() == true) return;
             history.Undo.Execute(arg);
             if (!ownsHistory) RefreshBackingData();
             tools.RefreshContent();
@@ -1159,11 +1171,19 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
          redoWrapper.CanExecute = history.Redo.CanExecute;
          redoWrapper.Execute = arg => {
+            tools?.CodeTool.FlushPendingScriptChanges();
+            if (tools?.CodeTool.HasUncompiledScriptChanges == true) return;
             history.Redo.Execute(arg);
             if (!ownsHistory) RefreshBackingData();
             tools.RefreshContent();
          };
          history.Redo.CanExecuteChanged += (sender, e) => redoWrapper.CanExecuteChanged.Invoke(redoWrapper, e);
+         if (tools != null) tools.CodeTool.ScriptStateChanged += (_, _) => {
+            undoWrapper.RaiseCanExecuteChanged();
+            save.RaiseCanExecuteChanged();
+            NotifyPropertyChanged(nameof(Name));
+            NotifyPropertyChanged(nameof(IsMetadataOnlyChange));
+         };
 
          clear.CanExecute = CanAlwaysExecute;
          clear.Execute = arg => {
@@ -1251,7 +1271,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          isText.CanExecute = CanAlwaysExecute;
          isText.Execute = IsTextExecuted;
 
-         save.CanExecute = arg => !history.IsSaved;
+         save.CanExecute = arg => !history.IsSaved || HasUncompiledScriptChanges;
          save.Execute = arg => SaveExecuted((IFileSystem)arg);
 
          saveAs.CanExecute = CanAlwaysExecute;
@@ -2460,10 +2480,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       }
 
       public void ConsiderReload(IFileSystem fileSystem) {
-         if (!history.IsSaved) return; // don't overwrite local changes
+         if (!history.IsSaved || HasUncompiledScriptChanges) return; // don't overwrite local changes
 
          void action() {
-            if (!history.IsSaved) return; // edits may have arrived while UI work was queued
+            if (!history.IsSaved || HasUncompiledScriptChanges) return; // edits may have arrived while UI work was queued
             try {
                var file = fileSystem.LoadFile(FileName);
                if (file == null) return; // asked to load the file, but the file wasn't found... carry on

@@ -197,6 +197,11 @@ namespace HavenSoft.HexManiac.Core.Models {
       public int ChangeCount => changes.Count;
       public void ResetChanges() => changes.Clear();
 
+      internal Action CaptureChangeTracking() {
+         var previous = changes.ToArray();
+         return () => { changes.Clear(); changes.UnionWith(previous); };
+      }
+
       byte IReadOnlyList<byte>.this[int index] => RawData[index];
 
       public int Count => RawData.Length;

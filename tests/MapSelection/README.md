@@ -3,6 +3,10 @@
 Uses the real MapTab/MainWindow input handlers and shared Core selection, drawing, and history
 with fabricated map data. No ROM or native desktop session is required.
 
+The object panel also checks the restored Create Script (+) action for a blank object: visibility,
+command availability, exact starter bytes, attached pointer/source metadata and Undo/Redo.
+Its standalone fabricated object table does not depend on a real game's event tables or sprites.
+
 ```sh
 dotnet build tests/MapSelection/MapSelection.csproj --no-restore --disable-build-servers -p:UseSharedCompilation=false -m:1 -nr:false
 python3 scripts/run-upstream-command.py 60 dotnet tests/MapSelection/bin/Debug/net8.0/MapSelection.dll

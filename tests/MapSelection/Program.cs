@@ -218,6 +218,38 @@ try {
 } finally {
    Directory.Delete(folder,true);
 }
+// The None object template intentionally has no script; the Mac panel must expose Core's creator.
+model.FreeSpaceStart=0x18000;
+viewport.ChangeHistory.CurrentChange.ChangeData(model,0x18000,Enumerable.Repeat((byte)0xFF,0x2000).ToArray());
+var objectFormat=new HavenSoft.HexManiac.Core.Models.Map.Format(model).ObjectsFormat;
+objectFormat=objectFormat[..(objectFormat.LastIndexOf(']')+1)]+"1";
+var objectError=ArrayRun.TryParse(model,objectFormat,0x17000,SortedSpan<int>.None,out var objectRun);
+Check(!objectError.HasError,"The fabricated object table must parse.");
+model.ObserveAnchorWritten(viewport.CurrentChange,"synthetic.object",objectRun);
+var sprite=new HavenSoft.HexManiac.Core.ViewModels.Images.ReadonlyPixelViewModel(1,1,new short[]{0},0);
+model.SetList(viewport.CurrentChange,"FacingOptions","NoMovement");
+var objectEvent=new HavenSoft.HexManiac.Core.ViewModels.Map.ObjectEventViewModel(mapper.PrimaryMap,
+   address=>viewport.GotoScript(address),model.GetTableModel("synthetic.object",()=>viewport.CurrentChange)[0],
+   mapper.Templates,new[]{sprite},sprite,null);
+Check(objectEvent!=null && objectEvent.CanCreateScript,"A new blank object must support script creation.");
+mapper.SelectedEvent=objectEvent;Layout();
+var createScript=view.GetVisualDescendants().OfType<AngleButton>().Single(b=>
+   ReferenceEquals(b.DataContext,objectEvent) && (b.GetValue(ToolTip.TipProperty) as string)?.StartsWith("Create a new script") == true);
+Check(createScript.IsVisible && createScript.Command.CanExecute(null),"The object panel must show an enabled Create Script button for a null pointer.");
+viewport.ChangeHistory.ChangeCompleted();
+var beforeScript=model.RawData.ToArray();
+createScript.Command.Execute(null);Layout();
+var scriptAddress=objectEvent.ScriptAddress;
+Check(scriptAddress>=0 && model.RawData.Skip(scriptAddress).Take(4).SequenceEqual(new byte[]{0x6A,0x5A,0x6C,0x02}),
+   "The button allocates and attaches the lock/faceplayer/release/end starter.");
+Check(model.ReadPointer(objectEvent.Start+16)==scriptAddress && model.GetNextRun(scriptAddress).PointerSources.Contains(objectEvent.Start+16),
+   "The created script retains the object pointer and source metadata.");
+Check(!objectEvent.CanCreateScript,"An existing script must hide the creation action.");
+viewport.ChangeHistory.ChangeCompleted();
+viewport.Undo.Execute(null);
+Check(model.RawData.SequenceEqual(beforeScript),"Undo restores the bytes preceding script creation.");
+viewport.Redo.Execute(null);
+Check(model.ReadPointer(objectEvent.Start+16)==scriptAddress,"Redo restores the attached script pointer.");
 window.Editor=null;window.Close();
 Console.WriteLine("PASS: Control/secondary selection, early release, exact repeated stamps, aligned/cached previews, mixed elevations/collision, save/reload, metadata, undo/redo across saves, and Command rectangle fill.");
 Console.WriteLine($"CHECKS_PASSED:{checks}");

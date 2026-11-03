@@ -14,6 +14,8 @@ has zero failures with explicit optional-ROM skips; see [UPSTREAM_BASELINE.md](U
 The second upstream project, `src/HexManiac.Integration`, now has a portable host; select it
 with `--integration` and see [INTEGRATION_BASELINE.md](INTEGRATION_BASELINE.md) for its separate results.
 See individual group READMEs for any manual GUI checks that remain.
+External emulator first-use selection, remembered application paths and source-aware Save and
+Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Production trainer, sprite, palette, and ordinary text-stream template checks are documented
 in [StreamTemplates/README.md](StreamTemplates/README.md).
 
@@ -53,3 +55,33 @@ fill are checked in [MapSelection/README.md](MapSelection/README.md).
 
 Backward text selection, name replacement, and the reported text-tool crash are checked in
 [TextSelection/README.md](TextSelection/README.md).
+
+The script-edit pipeline, deferred compiler/component probes, and sparse variable-alias lookup
+investigation are recorded in [SCRIPT_EDIT_PIPELINE.md](SCRIPT_EDIT_PIPELINE.md); reproduction
+commands and scope limits are in [../tools/ScriptEditingBenchmark/README.md](../tools/ScriptEditingBenchmark/README.md).
+
+Existing argument precedence, sparse alias lookup freshness, and script expansion/relocation,
+shrinking, caller/dialogue preservation, and complete history round-trips are protected in
+[ScriptArgumentSafety/README.md](ScriptArgumentSafety/README.md).
+
+Per-compilation argument reuse, unchanged numeric/name interpretation, before/after metrics,
+and invalidation/coverage limits are recorded in [SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md](SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md).
+
+NPC-style 100–500-source-line editing, dialogue/comment changes, core completion cost, and the
+separate Mac autocomplete mapping finding are recorded in [NPC_SCRIPT_BENCHMARK.md](NPC_SCRIPT_BENCHMARK.md).
+
+The autocomplete mapping fix, LF/CRLF/mixed offered/applied options, keyboard/mouse dispatch,
+caret/selection boundaries, and live compiled-script history are protected in
+[AutocompleteMapping/README.md](AutocompleteMapping/README.md).
+
+The existing unused-flag/variable insertion helpers and their synthetic characterization
+are documented in [FLAG_VARIABLE_REVIEW.md](FLAG_VARIABLE_REVIEW.md); this is a review tool,
+not a regression group requiring the observed limitations to remain.
+
+The follow-up [usage-detection investigation](FLAG_USAGE_INVESTIGATION.md) records primary-engine
+cross-checks and read-only FireRed fixture findings; [FlagUsageSafety](FlagUsageSafety/README.md)
+protects currently supported detection and literal distinctions without changing the helpers.
+
+[ScriptWorkflowSafety](ScriptWorkflowSafety/README.md) protects settled script correction,
+relocation/history and save/reopen; the separate [workflow investigation](SCRIPT_WORKFLOW_INVESTIGATION.md)
+records pending-context/persistence and late-resource-error findings without changing the editor.

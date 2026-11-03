@@ -25,6 +25,35 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       private readonly ChangeHistory<ModelDelta> history;
       private readonly IRaiseMessageTab messageTab;
       private readonly IDelayWorkTimer recompileTimer;
+      private Action pendingScriptCompile;
+      private long scriptCompileGeneration;
+      private readonly HashSet<CodeBody> scriptDrafts = new();
+      public bool HasPendingScriptChanges => pendingScriptCompile != null;
+      public bool HasUncompiledScriptChanges => HasPendingScriptChanges || scriptDrafts.Count > 0;
+      public bool HasActiveScriptDraft => Contents.Any(scriptDrafts.Contains);
+      public string UncompiledScriptAddresses => string.Join(", ", scriptDrafts.Select(body => body.Address.ToString("X6")).Distinct());
+      public event EventHandler ScriptStateChanged;
+
+      // Execute before reusing a body or crossing a persistence/history boundary.
+      // Reset alone cannot invalidate a timer callback already posted to the UI thread.
+      public bool FlushPendingScriptChanges() {
+         var action = pendingScriptCompile;
+         pendingScriptCompile = null;
+         scriptCompileGeneration++;
+         recompileTimer.Reset();
+         action?.Invoke();
+         if (action != null) ScriptStateChanged?.Invoke(this, EventArgs.Empty);
+         return scriptDrafts.Count == 0;
+      }
+
+      public bool DiscardActiveScriptDraft() {
+         var active = Contents.Where(scriptDrafts.Contains).ToArray();
+         if (active.Length == 0) return false;
+         foreach (var body in active) scriptDrafts.Remove(body);
+         ScriptStateChanged?.Invoke(this, EventArgs.Empty);
+         UpdateContent();
+         return true;
+      }
 
       public event EventHandler<ErrorInfo> ModelDataChanged;
       public event EventHandler AttentionNewContent;
@@ -53,6 +82,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       public CodeMode Mode {
          get => mode;
          set {
+            if (mode != value) FlushPendingScriptChanges();
             if (!TryUpdateEnum(ref mode, value)) return;
             UpdateContent();
             NotifyPropertyChanged(nameof(IsReadOnly));
@@ -152,6 +182,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
 
       public void UpdateContent() {
          if (ignoreContentUpdates || !isSelected) return;
+         FlushPendingScriptChanges();
          var start = Math.Min(model.Count - 1, selection.Scroll.ViewPointToDataIndex(selection.SelectionStart));
          var end = Math.Min(model.Count - 1, selection.Scroll.ViewPointToDataIndex(selection.SelectionEnd));
 
@@ -253,7 +284,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
 
             var label = scriptStart.ToString("X6");
             CodeBody body;
-            if (Contents.Count > i && Contents[i].Parser == parser) {
+            var draft = scriptDrafts.FirstOrDefault(candidate => candidate.Parser == parser && candidate.Address == scriptStart);
+            if (draft != null) {
+               body = draft;
+            } else if (Contents.Count > i && Contents[i].Parser == parser && Contents[i].Address == scriptStart) {
                body = Contents[i];
             } else {
                body = new CodeBody(model, parser, Investigator) { Address = scriptStart, Label = label };
@@ -266,8 +300,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
             if (Contents.Count > i) {
                body.ContentChanged -= ScriptChanged;
                body.HelpSourceChanged -= UpdateScriptHelpFromLine;
-               body.Content = string.Empty;
-               body.Content = info.Content;
+               if (draft == null) {
+                  body.Content = string.Empty;
+                  body.Content = info.Content;
+               }
                body.Address = scriptStart;
                body.CompiledLength = info.Length;
                body.Label = label;
@@ -276,7 +312,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                Contents[i] = body;
             } else {
                body.CompiledLength = info.Length;
-               body.Content = info.Content;
+               if (draft == null) body.Content = info.Content;
                body.ContentChanged += ScriptChanged;
                body.HelpSourceChanged += UpdateScriptHelpFromLine;
                body.RequestShowSearchResult += ShowSearchResults;
@@ -302,6 +338,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
             _ => null,
          };
          var body = (CodeBody)viewModel;
+         // A different body can be edited without navigating (multiple script panels).
+         // Finish its predecessor before replacing the single debounce slot.
+         if (HasPendingScriptChanges && !scriptDrafts.Contains(body)) FlushPendingScriptChanges();
+         scriptDrafts.Add(body);
          body.TryCompleteCommandToken();
          if (InsertAutoActive && body.TryInsertAuto()) {
             // update the caret later, or weird stuff happens
@@ -325,20 +365,26 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          if (run != null && run.Start != body.Address) run = null;
 
          int length = parser.FindLength(model, body.Address);
+         var editMode = mode;
+         var editAddress = body.Address;
          Action action = () => {
+            if (body.Address != editAddress || body.Parser != parser) return;
             var initialStart = selection.Scroll.ViewPointToDataIndex(selection.SelectionStart);
             var initialEnd = selection.Scroll.ViewPointToDataIndex(selection.SelectionEnd);
             if (initialStart > initialEnd) (initialStart, initialEnd) = (initialEnd, initialStart);
 
-            if (mode == CodeMode.Script) {
-               CompileScriptChanges<XSERun>(body, run, ref codeContent, e.OldValue, parser, body == Contents[0]);
-            } else if (mode == CodeMode.AnimationScript) {
-               CompileScriptChanges<ASERun>(body, run, ref codeContent, e.OldValue, parser, body == Contents[0]);
-            } else if (mode == CodeMode.BattleScript) {
-               CompileScriptChanges<BSERun>(body, run, ref codeContent, e.OldValue, parser, body == Contents[0]);
-            } else if (mode == CodeMode.TrainerAiScript) {
-               CompileScriptChanges<TSERun>(body, run, ref codeContent, e.OldValue, parser, body == Contents[0]);
+            bool updateSelection = Contents.Count > 0 && body == Contents[0] && initialStart == editAddress;
+            bool compiled = false;
+            if (editMode == CodeMode.Script) {
+               compiled = CompileScriptChanges<XSERun>(body, run, ref codeContent, e.OldValue, parser, updateSelection);
+            } else if (editMode == CodeMode.AnimationScript) {
+               compiled = CompileScriptChanges<ASERun>(body, run, ref codeContent, e.OldValue, parser, updateSelection);
+            } else if (editMode == CodeMode.BattleScript) {
+               compiled = CompileScriptChanges<BSERun>(body, run, ref codeContent, e.OldValue, parser, updateSelection);
+            } else if (editMode == CodeMode.TrainerAiScript) {
+               compiled = CompileScriptChanges<TSERun>(body, run, ref codeContent, e.OldValue, parser, updateSelection);
             }
+            if (compiled) scriptDrafts.Remove(body);
 
             body.ContentChanged -= ScriptChanged;
             body.HelpSourceChanged -= UpdateScriptHelpFromLine;
@@ -363,7 +409,12 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          /*/
          body.CaretPosition += ScriptParser.InsertMissingClosers(ref codeContent, body.CaretPosition);
          body.Content = codeContent;
-         recompileTimer.DelayCall(TimeSpan.FromSeconds(.5), action);
+         pendingScriptCompile = action;
+         var generation = ++scriptCompileGeneration;
+         recompileTimer.DelayCall(TimeSpan.FromSeconds(.5), () => {
+            if (generation == scriptCompileGeneration) FlushPendingScriptChanges();
+         });
+         ScriptStateChanged?.Invoke(this, EventArgs.Empty);
          //*/
       }
 
@@ -436,131 +487,164 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          return new StubDisposable { Dispose = () => ignoreContentUpdates = false };
       }
 
-      private void CompileScriptChanges<SERun>(CodeBody body, IFormattedRun run, ref string codeContent, string previousText, ScriptParser parser, bool updateSelection) where SERun : IScriptStartRun {
+      private bool CompileScriptChanges<SERun>(CodeBody body, IFormattedRun run, ref string codeContent, string previousText, ScriptParser parser, bool updateSelection) where SERun : IScriptStartRun {
          ShowErrorText = false;
          ErrorText = string.Empty;
          var sources = run?.PointerSources ?? null;
          int start = body.Address;
          int length = body.CompiledLength;
-
+         var attempt = new ModelDelta();
+         var originalSource = codeContent;
+         var originalStreamTypes = body.StreamTypes;
+         var originalCaret = body.CaretPosition;
+         var freeSpaceStart = model.FreeSpaceStart;
+         var restoreChangeTracking = (model as BaseModel)?.CaptureChangeTracking();
+         var notifications = new List<(int, int)>();
+         bool committed = false;
          using (CreateRecursionGuard()) {
-            var oldScripts = parser.CollectScripts(model, start);
-            var originalCodeContent = codeContent;
-            int caret = body.CaretPosition;
-            body.ClearErrors();
-            body.EvaluateTextLength();
-            parser.CompileError += body.WatchForCompileErrors;
-            var code = parser.Compile(history.CurrentChange, model, start, ref codeContent, ref caret, body, out var movedData, out int ignoreCharacterCount);
-            parser.CompileError -= body.WatchForCompileErrors;
-            if (originalCodeContent != codeContent) body.Editor.CaretIndex = caret + codeContent.Length - previousText.Length - ignoreCharacterCount;
-            if (code == null) {
-               return;
-            }
+            try {
+               var oldScripts = parser.CollectScripts(model, start);
+               var originalCodeContent = codeContent;
+               int caret = body.CaretPosition;
+               body.ClearErrors();
+               body.EvaluateTextLength();
+               parser.CompileError += body.WatchForCompileErrors;
+               byte[] code;
+               IReadOnlyList<(int originalLocation, int newLocation)> movedData;
+               int ignoreCharacterCount;
+               try {
+                  code = parser.Compile(attempt, model, start, ref codeContent, ref caret, body, out movedData, out ignoreCharacterCount);
+               } finally { parser.CompileError -= body.WatchForCompileErrors; }
+               if (originalCodeContent != codeContent) body.Editor.CaretIndex = caret + codeContent.Length - previousText.Length - ignoreCharacterCount;
+               if (code == null) {
+                  return false;
+               }
 
-            if (code.Length > length) {
-               model.ExpandData(history.CurrentChange, start + code.Length - 1);
-               selection.Scroll.DataLength = model.RawData.Length;
-               if (run == null) {
-                  var availableLength = length;
-                  for (int i = start + length; i < start + code.Length; i++) {
-                     // if it's freespace, then it's available
-                     if (model[i] == 0xFF) {
-                        availableLength++;
-                        continue;
-                     }
-                     if (model.GetNextRun(i) is IScriptStartRun scriptRun && scriptRun.Start == i) {
-                        // the next byte is a script... maybe it's ok to overwrite it
-                        // we can overwrite it if it passes 2 checks
-                        // (1) the only pointers to that script are contained within the script we're currently compiling
-                        // (2) the script is contained completely within the compiled code (meaning it's actually part of the script as written)
-                        if (scriptRun.PointerSources.All(source => start < source && source < start + length)) {
-                           var scriptLength = parser.FindLength(model, scriptRun.Start, model.CurrentCacheScope.ScriptDestinations(start));
-                           if (i + scriptLength <= start + code.Length) {
-                              i += scriptLength - 1;
-                              availableLength += scriptLength;
-                              continue;
+               if (code.Length > length) {
+                  model.ExpandData(attempt, start + code.Length - 1);
+                  selection.Scroll.DataLength = model.RawData.Length;
+                  if (run == null) {
+                     var availableLength = length;
+                     for (int i = start + length; i < start + code.Length; i++) {
+                        // if it's freespace, then it's available
+                        if (model[i] == 0xFF) {
+                           availableLength++;
+                           continue;
+                        }
+                        if (model.GetNextRun(i) is IScriptStartRun scriptRun && scriptRun.Start == i) {
+                           // the next byte is a script... maybe it's ok to overwrite it
+                           // we can overwrite it if it passes 2 checks
+                           // (1) the only pointers to that script are contained within the script we're currently compiling
+                           // (2) the script is contained completely within the compiled code (meaning it's actually part of the script as written)
+                           if (scriptRun.PointerSources.All(source => start < source && source < start + length)) {
+                              var scriptLength = parser.FindLength(model, scriptRun.Start, model.CurrentCacheScope.ScriptDestinations(start));
+                              if (i + scriptLength <= start + code.Length) {
+                                 i += scriptLength - 1;
+                                 availableLength += scriptLength;
+                                 continue;
+                              }
                            }
                         }
+                        ErrorText = $"Script is {code.Length} bytes long, but only {availableLength} bytes are available.";
+                        ShowErrorText = true;
+                        return false;
                      }
-                     ErrorText = $"Script is {code.Length} bytes long, but only {availableLength} bytes are available.";
-                     ShowErrorText = true;
-                     return;
-                  }
-               } else {
-                  if (run is NoInfoRun) run = Construct<SERun>(run.Start, run.PointerSources);
-                  run = model.RelocateForExpansion(history.CurrentChange, run, body.CompiledLength, code.Length);
-                  if (start != run.Start) {
-                     ModelDataMoved?.Invoke(this, (start, run.Start));
-                     start = run.Start;
-                     int changedCaret = body.CaretPosition;
-                     code = parser.Compile(history.CurrentChange, model, start, ref codeContent, ref changedCaret, body, out movedData, out var _); // recompile for the new location. Could update pointers.
-                     // assume that changedCaret == body.CaretPosition? But it's probably not important
-                     sources = run.PointerSources;
-                  }
-               }
-            }
-
-            // pre-clear the format before we change the data
-            // waiting beyond this point won't clear anchors correctly, since pointer values will be changed
-            var changeStart = code.Length;
-            for (int i = 0; i < code.Length; i++) {
-               if (model[start + i] == code[i]) continue;
-               changeStart = Math.Max(1, i); // changeStart should never be zero: we don't want to clear the script anchor
-               break;
-            }
-            if (changeStart < code.Length) {
-               // use a nodatachange token here: we want to keep bytes, not anchor names
-               var change = history.InsertCustomChange(new NoDataChangeDeltaModel());
-               model.ClearFormat(change, start + changeStart, code.Length - changeStart);
-            }
-
-            var anyChanges = history.CurrentChange.ChangeData(model, start, code);
-            if (anyChanges || body.CompiledLength != code.Length) {
-               body.CompiledLength = code.Length;
-               model.ClearFormatAndData(history.CurrentChange, start + code.Length, length - code.Length);
-            }
-            var formatted = parser.FormatScript<SERun>(history.CurrentChange, model, start, code.Length);
-            if (sources != null) {
-               foreach (var source in sources) {
-                  // skip the source if it's within one of the added scripts: it may have moved, and we've already added it.
-                  if (formatted.Any(kvp => source.InRange(kvp.Key, kvp.Key + kvp.Value))) continue;
-                  var existingRun = model.GetNextRun(source);
-                  if (existingRun.Start > source || !(existingRun is ITableRun)) {
-                     model.ObserveRunWritten(history.CurrentChange, new PointerRun(source));
-                  }
-               }
-            }
-
-            // this change may have orphaned some existing scripts. Don't lose them!
-            var newScripts = parser.CollectScripts(model, start);
-            var orphans = oldScripts.Except(newScripts).ToList();
-            foreach (var orphan in orphans) {
-               var orphanRun = model.GetNextRun(orphan);
-               if (orphanRun.Start == orphan && orphanRun.PointerSources.IsNullOrEmpty() && string.IsNullOrEmpty(model.GetAnchorFromAddress(-1, orphan))) {
-                  parser.FormatScript<SERun>(history.CurrentChange, model, orphan);
-                  if (typeof(SERun) == typeof(XSERun)) {
-                     model.ObserveAnchorWritten(history.CurrentChange, $"orphans.xse{orphan:X6}", new XSERun(orphan));
-                  } else if (typeof(SERun) == typeof(BSERun)) {
-                     model.ObserveAnchorWritten(history.CurrentChange, $"orphans.bse{orphan:X6}", new BSERun(orphan));
-                  } else if (typeof(SERun) == typeof(ASERun)) {
-                     model.ObserveAnchorWritten(history.CurrentChange, $"orphans.ase{orphan:X6}", new ASERun(orphan));
-                  } else if (typeof(SERun) == typeof(TSERun)) {
-                     model.ObserveAnchorWritten(history.CurrentChange, $"orphans.tse{orphan:X6}", new TSERun(orphan));
                   } else {
-                     throw new NotImplementedException();
+                     if (run is NoInfoRun) run = Construct<SERun>(run.Start, run.PointerSources);
+                     run = model.RelocateForExpansion(attempt, run, body.CompiledLength, code.Length);
+                     if (start != run.Start) {
+                        notifications.Add((start, run.Start));
+                        start = run.Start;
+                        int changedCaret = body.CaretPosition;
+                        notifications.AddRange(movedData);
+                        parser.CompileError += body.WatchForCompileErrors;
+                        try {
+                           code = parser.Compile(attempt, model, start, ref codeContent, ref changedCaret, body, out movedData, out var _);
+                        } finally { parser.CompileError -= body.WatchForCompileErrors; }
+                        if (code == null) return false;
+                        // assume that changedCaret == body.CaretPosition? But it's probably not important
+                        sources = run.PointerSources;
+                     }
                   }
                }
-            }
 
-            if (updateSelection) {
-               selection.SelectionStart = selection.Scroll.DataIndexToViewPoint(start);
-               selection.SelectionEnd = selection.Scroll.DataIndexToViewPoint(start + code.Length - 1);
-            }
+               // pre-clear the format before we change the data
+               // waiting beyond this point won't clear anchors correctly, since pointer values will be changed
+               var changeStart = code.Length;
+               for (int i = 0; i < code.Length; i++) {
+                  if (model[start + i] == code[i]) continue;
+                  changeStart = Math.Max(1, i); // changeStart should never be zero: we don't want to clear the script anchor
+                  break;
+               }
+               if (changeStart < code.Length) {
+                  // use a nodatachange token here: we want to keep bytes, not anchor names
+                  var change = new NoDataChangeDeltaModel();
+                  try { model.ClearFormat(change, start + changeStart, code.Length - changeStart); } finally { attempt.MergeAppliedChange(change); }
+               }
 
-            foreach (var movedResource in movedData) ModelDataMoved?.Invoke(this, movedResource);
+               var anyChanges = attempt.ChangeData(model, start, code);
+               if (anyChanges || body.CompiledLength != code.Length) {
+                  body.CompiledLength = code.Length;
+                  model.ClearFormatAndData(attempt, start + code.Length, length - code.Length);
+               }
+               var formatted = parser.FormatScript<SERun>(attempt, model, start, code.Length);
+               if (sources != null) {
+                  foreach (var source in sources) {
+                     // skip the source if it's within one of the added scripts: it may have moved, and we've already added it.
+                     if (formatted.Any(kvp => source.InRange(kvp.Key, kvp.Key + kvp.Value))) continue;
+                     var existingRun = model.GetNextRun(source);
+                     if (existingRun.Start > source || !(existingRun is ITableRun)) {
+                        model.ObserveRunWritten(attempt, new PointerRun(source));
+                     }
+                  }
+               }
+
+               // this change may have orphaned some existing scripts. Don't lose them!
+               var newScripts = parser.CollectScripts(model, start);
+               var orphans = oldScripts.Except(newScripts).ToList();
+               foreach (var orphan in orphans) {
+                  var orphanRun = model.GetNextRun(orphan);
+                  if (orphanRun.Start == orphan && orphanRun.PointerSources.IsNullOrEmpty() && string.IsNullOrEmpty(model.GetAnchorFromAddress(-1, orphan))) {
+                     parser.FormatScript<SERun>(attempt, model, orphan);
+                     if (typeof(SERun) == typeof(XSERun)) {
+                        model.ObserveAnchorWritten(attempt, $"orphans.xse{orphan:X6}", new XSERun(orphan));
+                     } else if (typeof(SERun) == typeof(BSERun)) {
+                        model.ObserveAnchorWritten(attempt, $"orphans.bse{orphan:X6}", new BSERun(orphan));
+                     } else if (typeof(SERun) == typeof(ASERun)) {
+                        model.ObserveAnchorWritten(attempt, $"orphans.ase{orphan:X6}", new ASERun(orphan));
+                     } else if (typeof(SERun) == typeof(TSERun)) {
+                        model.ObserveAnchorWritten(attempt, $"orphans.tse{orphan:X6}", new TSERun(orphan));
+                     } else {
+                        throw new NotImplementedException();
+                     }
+                  }
+               }
+
+               if (attempt.HasAnyChange) history.InsertCustomChange(attempt);
+               committed = true;
+               if (updateSelection) {
+                  selection.SelectionStart = selection.Scroll.DataIndexToViewPoint(start);
+                  selection.SelectionEnd = selection.Scroll.DataIndexToViewPoint(start + code.Length - 1);
+               }
+
+               notifications.AddRange(movedData);
+               foreach (var movedResource in notifications) ModelDataMoved?.Invoke(this, movedResource);
+            } finally {
+               if (!committed) {
+                  attempt.Revert(model);
+                  restoreChangeTracking?.Invoke();
+                  model.FreeSpaceStart = freeSpaceStart;
+                  body.CompiledLength = length;
+                  body.StreamTypes = originalStreamTypes;
+                  body.CaretPosition = originalCaret;
+                  codeContent = originalSource;
+                  selection.Scroll.DataLength = model.Count;
+               }
+            }
          }
 
          ModelDataChanged?.Invoke(this, ErrorInfo.NoError);
+         return true;
       }
 
       private string RawParse(IDataModel model, int start, int length) {

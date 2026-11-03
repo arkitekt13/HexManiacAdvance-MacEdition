@@ -265,6 +265,13 @@
                            <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
                         </local:AngleButton>
 
+                        <local:AngleButton Grid.Row="8" Grid.Column="1" HorizontalAlignment="Right" Direction="Right"
+                              Command="{res:MethodCommand CreateScript}" IsVisible="{Binding CanCreateScript}"
+                              ToolTip.Tip="Create a new script in free space and attach it to this object."
+                              Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
+                           <Path Data="{res:Icon Add}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
+                        </local:AngleButton>
+
                         <local:AngleBorder Grid.Row="9" VerticalAlignment="Top" Direction="Out" Margin="2,2,0,2" Content="Flag:" />
                         <local:AngleButton Grid.Row="9" Grid.Column="0" HorizontalAlignment="Right" Direction="Right" Command="{res:MethodCommand GenerateNewFlag}"
                            IsVisible="{Binding CanGenerateNewFlag}"

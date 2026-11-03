@@ -40,6 +40,37 @@ namespace HavenSoft.HexManiac.Core.Models {
 
       public bool DoNotClearConstants { get; init; }
 
+      // Incorporate an already-applied isolated operation without writing its data again.
+      // Keep the earliest before-image and the latest after-image for each entry.
+      public void MergeAppliedChange(ModelDelta change) {
+         if (ReferenceEquals(this, change)) throw new ArgumentException("Cannot merge a change into itself.", nameof(change));
+         if (this is NoDataChangeDeltaModel && change.HasDataChange)
+            throw new InvalidOperationException("This operation is not allowed to change model data!");
+         var hadChanges = HasAnyChange;
+         foreach (var pair in change.oldData) if (!oldData.ContainsKey(pair.Key)) oldData.Add(pair.Key, pair.Value);
+         Merge(addedRuns, removedRuns, change.addedRuns, change.removedRuns);
+         Merge(addedNames, removedNames, change.addedNames, change.removedNames);
+         Merge(addedUnmappedPointers, removedUnmappedPointers, change.addedUnmappedPointers, change.removedUnmappedPointers);
+         Merge(addedMatchedWords, removedMatchedWords, change.addedMatchedWords, change.removedMatchedWords);
+         Merge(addedOffsetPointers, removedOffsetPointers, change.addedOffsetPointers, change.removedOffsetPointers);
+         Merge(addedUnmappedConstants, removedUnmappedConstants, change.addedUnmappedConstants, change.removedUnmappedConstants);
+         Merge(addedLists, removedLists, change.addedLists, change.removedLists);
+         if (change.oldDataLength != -1) {
+            if (oldDataLength == -1) oldDataLength = change.oldDataLength;
+            newDataLength = change.newDataLength;
+         }
+         HasDataChange |= change.HasDataChange;
+         if (!hadChanges && HasAnyChange) NotifyOnNewChange();
+      }
+
+      private static void Merge<K, V>(Dictionary<K, V> added, Dictionary<K, V> removed,
+         Dictionary<K, V> nextAdded, Dictionary<K, V> nextRemoved) {
+         foreach (var pair in nextRemoved) {
+            if (!added.Remove(pair.Key) && !removed.ContainsKey(pair.Key)) removed.Add(pair.Key, pair.Value);
+         }
+         foreach (var pair in nextAdded) added[pair.Key] = pair.Value;
+      }
+
       public event EventHandler OnNewChange;
       protected void NotifyOnNewChange() => OnNewChange?.Invoke(this, EventArgs.Empty);
       public bool HasDataChange { get; protected set; }

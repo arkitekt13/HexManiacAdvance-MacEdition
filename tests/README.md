@@ -57,3 +57,7 @@ Backward text selection, name replacement, and the reported text-tool crash are 
 The script-edit pipeline, deferred compiler/component probes, and sparse variable-alias lookup
 investigation are recorded in [SCRIPT_EDIT_PIPELINE.md](SCRIPT_EDIT_PIPELINE.md); reproduction
 commands and scope limits are in [../tools/ScriptEditingBenchmark/README.md](../tools/ScriptEditingBenchmark/README.md).
+
+Existing argument precedence, sparse alias lookup freshness, and script expansion/relocation,
+shrinking, caller/dialogue preservation, and complete history round-trips are protected in
+[ScriptArgumentSafety/README.md](ScriptArgumentSafety/README.md).

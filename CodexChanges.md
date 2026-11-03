@@ -948,3 +948,18 @@ Scope: Regression coverage only; no application editing, researched addresses, b
 Validation: The Release benchmark builds successfully; all 18 pipeline cases, two component cases, and three equivalent-spelling cases finish with 1,596 checks, identical paired UI/Core layer hashes, and identical equivalent-spelling compiled-byte hashes. At 500 repeated commands, isolated compilation measures 702.73 ms/1,068,447,352 allocated bytes for hexadecimal variables versus 7.68 ms/24,153,352 bytes for equivalent decimal variables; these are diagnostic baselines, not an implemented speedup or retained-RAM measurements.
 
 Scope: Investigation tooling and documentation only; application sources, script matching semantics, researched addresses, compiler/relocation/repointing, flag/variable allocation, and history are unchanged. No user ROM was opened or modified, and the user's prior Windows stuttering is not claimed reproduced or resolved.
+
+## 058 — Protect script argument semantics and relocation before lookup optimization
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/ScriptArgumentSafety/ScriptArgumentSafety.csproj](tests/ScriptArgumentSafety/ScriptArgumentSafety.csproj) | 1 | Add an automatically discovered portable regression group using production Core and shipped script definitions without a ROM or native UI. |
+| [tests/ScriptArgumentSafety/Program.cs](tests/ScriptArgumentSafety/Program.cs) | 25 | Freeze exact/partial/quoted/duplicate and numeric-looking alias precedence, sparse names, widths, numeric prefixes, offsets, rejected arguments, and model/cache-boundary isolation. |
+| [tests/ScriptArgumentSafety/Program.cs](tests/ScriptArgumentSafety/Program.cs) | 99 | Exercise hexadecimal, decimal, and named-variable script growth, forced relocation, shrinking, two callers, dialogue and neighbor preservation, exact history round-trips, and recovery from invalid input. |
+| [tests/ScriptArgumentSafety/README.md](tests/ScriptArgumentSafety/README.md) | 1 | Document safety contracts, reproduction commands, existing relocation history/cache behavior, the non-undoable free-space cursor, and coverage limits. |
+| [tests/README.md](tests/README.md) | 61 | Link the script argument and mutation safety group from the regression index. |
+| [tests/SCRIPT_EDIT_PIPELINE.md](tests/SCRIPT_EDIT_PIPELINE.md) | 90 | Link the completed safety baseline while keeping argument lookup optimization explicitly unimplemented. |
+
+Validation: The new project builds with zero warnings/errors in the final incremental build and passes 641 checks against unchanged application code; the complete Mac suite passes all 24 groups and 3,778 assertions with no skipped groups.
+
+Scope: Tests and documentation only; argument matching, compiler/relocation/repointing, researched addresses, flags/variables, and history are unchanged, and no supplied ROM was opened or modified. Relocation's existing multiple history records are fully round-tripped; all bytes and serialized metadata must restore except the existing FreeSpaceSearch cursor, which is maintained outside undo, and option-list freshness is checked after the normal explicit cache invalidation boundary.

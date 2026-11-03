@@ -87,6 +87,12 @@ not an implemented optimization or a recommendation that users rewrite scripts i
 
 ## Recommended next step
 
+Safety baseline added after this investigation: [ScriptArgumentSafety/README.md](ScriptArgumentSafety/README.md)
+records 641 checks against the unchanged lookup/compiler, including existing matching precedence,
+refresh boundaries, blocked expansion with two callers/dialogue, shrinking, and full history
+round-trips. Lookup optimization is still unimplemented; the remaining checks below are
+requirements for evaluating its eventual scope rather than a claim of exhaustive coverage.
+
 Add focused argument-matching correctness and allocation coverage before implementing a
 fast path or lookup preparation. Preserve existing exact/partial/quoted name priority,
 duplicate `~n` selection, explicit numeric forms, offsets, sparse numeric entries, and

@@ -1033,3 +1033,17 @@ Scope: Avalonia autocomplete UI mapping/replacement only; shared-Core matching, 
 Validation: The original implementation fails the new regression; the corrected focused group passes 1,596 checks, and all 25 Mac groups pass 5,015 assertions with no skipped groups. The first upstream project passes 1,780 cases with zero failures and 935 optional skips; the second passes 26 with zero failures and 41 optional skips, both with zero engine errors. Source and staged FireRed fixture SHA-256 hashes are unchanged after verification.
 
 Scope: The only application change is the shared enum matcher; real named alias precedence, decimal parsing, quoted queries, pointer parsing, compilation-local cache boundaries, relocation/history and researched addresses retain their existing behavior. Flag/variable scanning and allocation are unchanged.
+
+## 063 — Document existing unused flag/variable helpers and characterize their limits
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/FlagVariableReview/FlagVariableReview.csproj](tools/FlagVariableReview/FlagVariableReview.csproj) | 1 | Add a standalone synthetic review tool referencing production scanners and template helpers without opening a supplied ROM. |
+| [tools/FlagVariableReview/Program.cs](tools/FlagVariableReview/Program.cs) | 12 | Characterize source operands, stale usage snapshots, header conditions, exhausted ranges and session reservations with connected-root setup checks. |
+| [tools/FlagVariableReview/README.md](tools/FlagVariableReview/README.md) | 1 | Document reproducible characterization commands and distinguish current findings from required regression behavior. |
+| [tests/FLAG_VARIABLE_REVIEW.md](tests/FLAG_VARIABLE_REVIEW.md) | 1 | Explain existing insertion shortcuts, scan coverage, reservations, reproduced limitations and recommended future hardening with primary engine references. |
+| [tests/README.md](tests/README.md) | 75 | Link the existing-helper review from the test documentation index. |
+
+Validation: The review tool builds successfully with zero warnings/errors and completes all six synthetic characterization scenarios; connected destination-variable and detached header-root checks confirm the production scan paths are reached. The report is written to artifacts/script-safety/flag-variable-review.json.
+
+Scope: Review tooling and documentation only; Flags.cs, EventTemplate.cs, insertion controls, allocator behavior, researched addresses and user ROMs are unchanged. These findings describe shared-Core behavior in this fork and do not establish conflicts in any actual user ROM or claim a comparison with the latest upstream revision.

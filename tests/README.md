@@ -71,3 +71,7 @@ separate Mac autocomplete mapping finding are recorded in [NPC_SCRIPT_BENCHMARK.
 The autocomplete mapping fix, LF/CRLF/mixed offered/applied options, keyboard/mouse dispatch,
 caret/selection boundaries, and live compiled-script history are protected in
 [AutocompleteMapping/README.md](AutocompleteMapping/README.md).
+
+The existing unused-flag/variable insertion helpers and their synthetic characterization
+are documented in [FLAG_VARIABLE_REVIEW.md](FLAG_VARIABLE_REVIEW.md); this is a review tool,
+not a regression group requiring the observed limitations to remain.

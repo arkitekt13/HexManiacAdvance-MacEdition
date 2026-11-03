@@ -1,6 +1,8 @@
 # Existing flag/variable helpers — 2026-11-03
 
 Scope: information and synthetic characterization, not an allocator implementation change.
+Follow-up: [usage-detection investigation and safety baseline](FLAG_USAGE_INVESTIGATION.md)
+adds engine-role cross-checks and read-only supplied-ROM corroboration; helpers remain unchanged.
 Flags.cs, EventTemplate.cs, CodeBody.cs and insertion UI/shortcut code are unchanged by this
 review. No supplied ROM was opened by the characterization tool. Do not infer that an actual
 user ROM already has the demonstrated collisions.

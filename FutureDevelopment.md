@@ -87,3 +87,24 @@ and absent suggestions clear stale options. The new AutocompleteMapping group re
 the old failure and verifies LF/CRLF/mixed documents, selection/caret boundaries, actual
 TextInput, keyboard/mouse acceptance, caller pointers and live CodeTool undo/redo. Matching,
 numeric interpretation and shared-Core compilation are unchanged.
+
+## HMA-005 — Harden unused-ID usage detection after evidence review
+
+**Status:** Investigation and safety baseline completed; production changes await approval.
+
+**Evidence:** [FLAG_USAGE_INVESTIGATION.md](tests/FLAG_USAGE_INVESTIGATION.md) cross-checks twelve
+command handlers and byte mappings against FireRed/Emerald/Ruby engine references. Synthetic
+cases reproduce missed additional variable operands, selected commands outside the scanner's
+opcode list, and both conditional-header comparison fields across five game identities.
+The supplied BPRE1 review finds one globally missing special-variable reference, with no
+additional ordinary persistent ID missing within its bounded coverage; this is not a safety
+guarantee for modified games or native-code usage.
+
+**Preservation requirements:** Retain existing native reserves, command widths, literal versus
+variable distinctions, flag/event/root coverage and read-only analysis. Do not treat every high
+number as a variable or change researched addresses. FlagUsageSafety protects supported behavior;
+the review tool reports omissions without requiring them to persist.
+
+**Possible next scope, requiring approval:** Add only engine-confirmed missing operands/header
+fields with failing-before/passing-after tests. Handle freshness, reservations, native-reserve
+audits, legal ranges, custom engines and incomplete-scan reporting as separately reviewed work.

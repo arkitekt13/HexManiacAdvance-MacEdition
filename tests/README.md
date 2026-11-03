@@ -75,3 +75,7 @@ caret/selection boundaries, and live compiled-script history are protected in
 The existing unused-flag/variable insertion helpers and their synthetic characterization
 are documented in [FLAG_VARIABLE_REVIEW.md](FLAG_VARIABLE_REVIEW.md); this is a review tool,
 not a regression group requiring the observed limitations to remain.
+
+The follow-up [usage-detection investigation](FLAG_USAGE_INVESTIGATION.md) records primary-engine
+cross-checks and read-only FireRed fixture findings; [FlagUsageSafety](FlagUsageSafety/README.md)
+protects currently supported detection and literal distinctions without changing the helpers.

@@ -11,6 +11,10 @@ using HavenSoft.HexManiac.Performance;
 
 // Characterization only: report current helper behavior, without making shortcomings
 // required behavior in the normal regression suite. No supplied ROM or native UI.
+if (args.Length > 0 && args[0] == "--usage") {
+   HavenSoft.HexManiac.Review.UsageDetectionAudit.Run(args.Skip(1).ToArray());
+   return;
+}
 if(args.Length!=1)throw new ArgumentException("Expected a JSON report path.");
 var output=Path.GetFullPath(args[0]);Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 const int code=0x12000;

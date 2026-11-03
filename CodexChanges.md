@@ -1047,3 +1047,24 @@ Scope: The only application change is the shared enum matcher; real named alias 
 Validation: The review tool builds successfully with zero warnings/errors and completes all six synthetic characterization scenarios; connected destination-variable and detached header-root checks confirm the production scan paths are reached. The report is written to artifacts/script-safety/flag-variable-review.json.
 
 Scope: Review tooling and documentation only; Flags.cs, EventTemplate.cs, insertion controls, allocator behavior, researched addresses and user ROMs are unchanged. These findings describe shared-Core behavior in this fork and do not establish conflicts in any actual user ROM or claim a comparison with the latest upstream revision.
+
+## 064 — Investigate flag/variable usage detection before implementation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/FlagUsageSafety/FlagUsageSafety.csproj](tests/FlagUsageSafety/FlagUsageSafety.csproj) | 1 | Add an automatically discovered headless safety group linked to fabricated usage fixtures and the unchanged production scanners. |
+| [tests/FlagUsageSafety/Program.cs](tests/FlagUsageSafety/Program.cs) | 12 | Protect supported detection, literal distinctions, native reserve controls, event roots, recursive cycles and read-only scans with 535 checks across five game identities. |
+| [tests/FlagUsageSafety/README.md](tests/FlagUsageSafety/README.md) | 1 | Document regression commands, safety contracts and the distinction between supported behavior and diagnostic omissions. |
+| [tools/FlagVariableReview/UsageDetectionFixture.cs](tools/FlagVariableReview/UsageDetectionFixture.cs) | 1 | Add fabricated event/header layouts and twenty command vectors with independently specified expected operand roles. |
+| [tools/FlagVariableReview/UsageDetectionAudit.cs](tools/FlagVariableReview/UsageDetectionAudit.cs) | 14 | Report bounded engine-role coverage and real BPRE1 references while verifying model and source-ROM byte immutability. |
+| [tools/FlagVariableReview/Program.cs](tools/FlagVariableReview/Program.cs) | 14 | Route optional usage-review arguments without changing the original helper-characterization mode. |
+| [tools/FlagVariableReview/primary-source-manifest.json](tools/FlagVariableReview/primary-source-manifest.json) | 1 | Record primary engine reference URLs, content hashes and twelve verified byte-to-handler mappings for reproducible review. |
+| [tools/FlagVariableReview/README.md](tools/FlagVariableReview/README.md) | 26 | Explain synthetic and read-only real-ROM review commands, scope and shared-decoder limits. |
+| [tests/FLAG_USAGE_INVESTIGATION.md](tests/FLAG_USAGE_INVESTIGATION.md) | 1 | Record engine operand semantics, current reserve inventories, synthetic gaps, real-ROM corroboration and approval gates for future work. |
+| [tests/FLAG_VARIABLE_REVIEW.md](tests/FLAG_VARIABLE_REVIEW.md) | 3 | Link the follow-up usage-detection evidence while retaining the original allocator characterization. |
+| [tests/README.md](tests/README.md) | 79 | Link the new investigation and supported-behavior safety group from the test index. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 91 | Track HMA-005 as investigation complete with implementation explicitly awaiting approval. |
+
+Validation: The new group passes 535 checks; the complete Mac runner passes all 26 groups / 5,550 assertions with no skipped groups. The review tool builds successfully and completes 100 synthetic command cases plus conditional-header cases across five identities. Twelve engine byte-to-handler mappings and operand roles were checked against FireRed/Emerald/Ruby references. The supplied BPRE1 scan examines 4,762 selected references across 3,979 decoded segments from 2,143 roots: no additional ordinary persistent ID is missing within that bounded coverage, and one special-variable ID (0x8013) is missed. No traversal-limit/unknown-command stops occur in that review; full native/command coverage is not claimed. Model bytes and both source/staged ROM hashes remain unchanged.
+
+Scope: Tests, review tooling and documentation only; no production application sources, scanner/allocator/reservation behavior, researched addresses, script compilation, engine data or user ROM files are changed. Existing omissions are diagnostic findings rather than passing regression expectations; future scanner repairs and allocation changes require separate approval. Native UI/gameplay, modified-game conflicts, reserve-list completeness and unavailable real-game fixtures are outside the validation.

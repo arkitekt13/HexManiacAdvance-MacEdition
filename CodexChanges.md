@@ -1144,3 +1144,22 @@ Upstream verification: 1,779 passed / 1 failed / 935 skipped / zero engine error
 
 Scope: Synthetic regressions and existing local test fixtures; no fixture edits, numeric-rule changes, researched-address changes or game-engine changes. Successful editor compilation is one undoable operation; history traversal loops therefore execute fewer assertions without removing or weakening existing checks. Native full-window timing and gameplay remain unverified.
 
+## 069 — Remember an external emulator for the Mac Play button
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorLauncher.cs](src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorLauncher.cs) | 12 | Remember a selected application, prompt again when missing and launch saved ROMs through explicit macOS application arguments with save/draft barriers. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 95 | Offer a native application-bundle picker for first-use emulator selection. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 543 | Route F5 and click handlers through the external launcher and offer Save and Launch or Cancel for unsaved work. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 74 | Label and wire the Run menu and triangle as Launch in External Emulator while retaining F6 for the built-in emulator. |
+| [src/HexManiac.Avalonia/Windows/EmulatorWindow.axaml](src/HexManiac.Avalonia/Windows/EmulatorWindow.axaml) | 3 | Update the F5 comparison comment to describe explicit external-emulator selection. |
+| [tests/ExternalEmulatorLaunch/Program.cs](tests/ExternalEmulatorLaunch/Program.cs) | 1 | Exercise first-use cancellation, remembered/missing applications, path arguments, pending/rejected drafts, save failures and launch errors with temporary data. |
+| [tests/ExternalEmulatorLaunch/ExternalEmulatorLaunch.csproj](tests/ExternalEmulatorLaunch/ExternalEmulatorLaunch.csproj) | 1 | Add the automatically discovered Mac regression group using the existing fabricated workflow fixture. |
+| [tests/ExternalEmulatorLaunch/README.md](tests/ExternalEmulatorLaunch/README.md) | 1 | Document automated coverage, preference location and remaining native mGBA checks. |
+| [tests/README.md](tests/README.md) | 17 | Link the external emulator launch regression. |
+
+Validation: The new group passes 18 assertions and the Mac app builds with zero warnings/errors. Tests inject process launch and use disposable synthetic ROM/application files; no real emulator, user preference or user ROM is changed. Native application-bundle picking and actual mGBA launch remain for manual confirmation after rebuilding.
+
+Complete Mac validation: All 28 groups pass 6,130 assertions with zero failed or skipped groups, including the 598-check script workflow group and the existing save, file-drop and external-reload protections.
+
+Scope: Mac launch UI and a separate app preference only; shared Core RunFile behavior, Finder associations and built-in F6 emulation are unchanged. Pending script edits are saved through the existing HMA-007 barrier; cancellation, rejected drafts and failed saves never start the emulator.

@@ -1,6 +1,6 @@
 <!--
    The embedded emulator. This has no counterpart in HexManiac.WPF, which only ever shelled the
-   ROM out to whatever program the OS associates with .gba (EditorViewModel.RunFile, F5). It is a
+   ROM out to the selected external emulator (F5). It is a
    separate window rather than a tab because the tab list belongs to HexManiac.Core, and Core is
    not modified by this port.
 -->

@@ -14,6 +14,8 @@ has zero failures with explicit optional-ROM skips; see [UPSTREAM_BASELINE.md](U
 The second upstream project, `src/HexManiac.Integration`, now has a portable host; select it
 with `--integration` and see [INTEGRATION_BASELINE.md](INTEGRATION_BASELINE.md) for its separate results.
 See individual group READMEs for any manual GUI checks that remain.
+External emulator first-use selection, remembered application paths and source-aware Save and
+Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Production trainer, sprite, palette, and ordinary text-stream template checks are documented
 in [StreamTemplates/README.md](StreamTemplates/README.md).
 

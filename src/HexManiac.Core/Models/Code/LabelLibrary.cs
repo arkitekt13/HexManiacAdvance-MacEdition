@@ -9,11 +9,41 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
       private readonly IDataModel model;
       private readonly IDictionary<string, int> labels;
       private readonly IDictionary<string, List<int>> unresolvedLabels;
+      private readonly Dictionary<(string EnumName, string Text), (bool Success, int Value)> argumentMatches;
+      private ModelCacheScope argumentScope;
+      private CultureInfo argumentCulture;
       public bool RequireCompleteAddresses { get; init; } = true;
       public ITableRun Table(string table) => model.GetTable(table);
-      public LabelLibrary(IDataModel data, IDictionary<string, int> additionalLabels) {
+      public LabelLibrary(IDataModel data, IDictionary<string, int> additionalLabels) : this(data, additionalLabels, false) { }
+
+      /// <summary>Reuse enum matches only within this compilation's label context.</summary>
+      public LabelLibrary(IDataModel data, IDictionary<string, int> additionalLabels, bool cacheArgumentMatches) {
          (model, labels) = (data, additionalLabels);
          unresolvedLabels = new Dictionary<string, List<int>>();
+         if (cacheArgumentMatches) argumentMatches = new();
+      }
+
+      internal bool TryMatchEnumArgument(IDataModel source, string enumName, string text, out int value) {
+         // Keep the original matcher, including failed matches and numeric/name precedence.
+         // A model write/Refresh replaces the scope. Mutable cultures must be read afresh.
+         var culture = CultureInfo.CurrentCulture;
+         if (argumentMatches == null || !ReferenceEquals(source, model) || !culture.IsReadOnly) {
+            argumentMatches?.Clear();
+            return ArrayRunEnumSegment.TryParse(enumName, source, text, out value);
+         }
+         var scope = source.CurrentCacheScope;
+         if (!ReferenceEquals(scope, argumentScope) || !ReferenceEquals(culture, argumentCulture)) {
+            argumentMatches.Clear();
+            argumentScope = scope;
+            argumentCulture = culture;
+         }
+         var key = (enumName, text);
+         if (!argumentMatches.TryGetValue(key, out var match)) {
+            var success = ArrayRunEnumSegment.TryParse(enumName, source, text, out var parsed);
+            argumentMatches[key] = match = (success, parsed);
+         }
+         value = match.Value;
+         return match.Success;
       }
 
       public int ResolveLabel(string label) {

@@ -69,6 +69,9 @@ try {
    }
    Value(model,"value.","0xFF",255,1);Value(model,"value:","0xFFFF",65535,2);
    Value(model,"value::","0xFFFFFFFF",-1,4);
+   Value(model,"value::","1234",1234,4);
+   Value(model,"target<>","<001234>",0x08001234,4);
+   Value(model,"target<>","<0x001234>",0x08001234,4);
    model.SetList(new NoDataChangeDeltaModel(),"SafetyAliases", "Other","0x4001","0xCAFE token","$2A");
    Value(model,"value:SafetyAliases","0x4001",1,2);
    Value(model,"value:SafetyAliases","0xCAFE",2,2);
@@ -95,6 +98,72 @@ try {
    Build(model,"value:MutableAliases","Target",false);
    var other=Model();other.SetList(new NoDataChangeDeltaModel(),"MutableAliases","Unused","Only");
    Value(other,"value:MutableAliases","Only",1,2);Value(model,"value:MutableAliases","Only",0,2);
+
+   // Differential oracle: the two-argument LabelLibrary retains uncached matching.
+   // Reused contexts must return the same bytes/errors for every spelling and offset.
+   var differential=Model();var names=sparse.ToArray();
+   names[1]="Potion";names[2]="Potion~2";names[3]="Super Potion";names[4]="Potion Super";
+   names[5]="\"Mixed Name\"";names[6]="0xCAFE token";names[7]="$2A";names[8]="0X2A";
+   names[9]="1";names[10]="";names[11]="ITEM";names[12]="item";names[16]="0x4001";
+   differential.SetList(new NoDataChangeDeltaModel(),"DifferentialAliases",names);
+   var cached=new LabelLibrary(differential,new Dictionary<string,int>(),cacheArgumentMatches:true);
+   var legacyExceptions=new HashSet<string>();
+   var tokens=new[]{"temp1","TEMP1","result","Potion","potion~2","super","super~2","spotion","\"Mixed Name\"",
+      "0x4001","0X4001","$4001","16385","\"16384\"","\"16385\"","1","\"1\"","-1","0xFFFFFFFF",
+      "0X2A","$2A","0xCAFE","0x1234","NoSuchAlias","","0x","Potion~bad","0x4001 ","ITEM","item"};
+   void Same(PokemonModel source,LabelLibrary context,string declaration,string input) {
+      var expected=new List<byte>();var actual=new List<byte>();var arg=new ScriptArg(declaration);
+      string error=null,cachedError=null;Exception originalException=null,cachedException=null;
+      try {error=arg.Build(source,0x500,input,expected,new LabelLibrary(source,new Dictionary<string,int>()));}
+      catch(Exception exception){originalException=exception;legacyExceptions.Add(input);}
+      try {cachedError=arg.Build(source,0x500,input,actual,context);}
+      catch(Exception exception){cachedException=exception;}
+      Check(cachedError==error && actual.SequenceEqual(expected) && cachedException?.GetType()==originalException?.GetType() &&
+         cachedException?.InnerException?.GetType()==originalException?.InnerException?.GetType(),
+         $"Cached lookup changed {declaration}/{input} under {CultureInfo.CurrentCulture.Name}.");
+   }
+   foreach(var culture in new[]{CultureInfo.InvariantCulture,CultureInfo.ReadOnly(new CultureInfo("en-US")),CultureInfo.ReadOnly(new CultureInfo("tr-TR"))}) {
+      CultureInfo.CurrentCulture=culture;
+      foreach(var declaration in new[]{"value.DifferentialAliases","value:DifferentialAliases","value::DifferentialAliases","value:DifferentialAliases+3","value:DifferentialAliases-2"})
+         for(int repeat=0;repeat<2;repeat++)foreach(var input in tokens)Same(differential,cached,declaration,input);
+   }
+   CultureInfo.CurrentCulture=CultureInfo.InvariantCulture;
+   Same(differential,cached,"target<>","<001234>");Same(differential,cached,"target<>","<0x001234>");
+   differential.SetList(new NoDataChangeDeltaModel(),"DifferentialAliases","Other","Target");differential.ClearCacheScope();
+   Same(differential,cached,"value:DifferentialAliases","Target");
+   Same(differential,cached,"value:DifferentialAliases","Added"); // cache a failed match too
+   differential.SetList(new NoDataChangeDeltaModel(),"DifferentialAliases","Added","Other","Target");differential.ClearCacheScope();
+   Same(differential,cached,"value:DifferentialAliases","Target");Same(differential,cached,"value:DifferentialAliases","Added");
+   other.SetList(new NoDataChangeDeltaModel(),"DifferentialAliases","Target");other.ClearCacheScope();
+   Same(other,cached,"value:DifferentialAliases","Target"); // a foreign model must never use this context's cache
+   var mutableCulture=new CultureInfo("en-US");CultureInfo.CurrentCulture=mutableCulture;
+   Same(differential,cached,"value:DifferentialAliases","+42");
+   mutableCulture.NumberFormat.PositiveSign="plus";
+   Same(differential,cached,"value:DifferentialAliases","+42");Same(differential,cached,"value:DifferentialAliases","plus42");
+   CultureInfo.CurrentCulture=CultureInfo.InvariantCulture;
+   // Warm a successful alias and a failed enum search followed by numeric fallback.
+   var allocationContext=new LabelLibrary(model,new Dictionary<string,int>(),cacheArgumentMatches:true);
+   var allocationArg=new ScriptArg("value:scriptvariablealiases");var buffer=new List<byte>(2);
+   foreach(var input in new[]{"temp1","0x4001"}){buffer.Clear();allocationArg.Build(model,0x500,input,buffer,allocationContext);}
+   var allocationStart=GC.GetAllocatedBytesForCurrentThread();var allValid=true;
+   for(int repeat=0;repeat<32;repeat++)foreach(var input in new[]{"temp1","0x4001"}) {
+      buffer.Clear();allValid &= allocationArg.Build(model,0x500,input,buffer,allocationContext)==null;
+   }
+   var allocated=GC.GetAllocatedBytesForCurrentThread()-allocationStart;
+   Check(allValid && buffer.SequenceEqual(new byte[]{1,0x40}),"Cached argument reuse must retain exact variable bytes.");
+   Check(allocated<32768,$"Warm repeated enum matches must not rescan/allocate sparse aliases: {allocated} bytes.");
+   var allocationParser=new ScriptParser(model.GetShortGameCode(),singletons.ScriptLines,0x02);
+   var allocationScript=string.Concat(Enumerable.Repeat("setvar 0x4001 1\n",64))+"end";
+   var warmScript=allocationScript;allocationParser.Compile(new ModelDelta(),model,0x5000,ref warmScript,out _,out _);
+   var compileBefore=model.RawData.ToArray();var compileScript=allocationScript;
+   var compileAllocationStart=GC.GetAllocatedBytesForCurrentThread();
+   var allocationCode=allocationParser.Compile(new ModelDelta(),model,0x5000,ref compileScript,out _,out _);
+   var compileAllocated=GC.GetAllocatedBytesForCurrentThread()-compileAllocationStart;
+   Check(allocationCode!=null && allocationCode.Length==321 && allocationCode[^1]==2,"Compiler allocation check must compile all 64 commands.");
+   Check(model.RawData.SequenceEqual(compileBefore),"Compiler allocation check must leave model bytes untouched.");
+   Check(compileAllocated<8_000_000,$"Each compilation must reuse argument matches rather than rescan them: {compileAllocated} bytes.");
+   Console.WriteLine($"PASS: cached/uncached differential checks; warm reuse allocated {allocated} bytes; existing sparse-match exception inputs: {string.Join(", ",legacyExceptions)}.");
+   Console.WriteLine($"PASS: compiler-scoped lookup reuse allocated {compileAllocated} bytes for 64 commands.");
 
    // Run each spelling through actual script relocation with two callers and embedded text.
    foreach(var variable in new[]{"0x4001","16385","temp1"}) {

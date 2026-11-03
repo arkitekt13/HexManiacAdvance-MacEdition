@@ -28,7 +28,7 @@ Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 var rows=new List<object>();
 var checks=0;
 void WriteReport(bool complete)=>File.WriteAllText(output,JsonSerializer.Serialize(new {
-   revision="8aaa6755 baseline; benchmark only",runtime=RuntimeInformation.FrameworkDescription,
+   revision=Environment.GetEnvironmentVariable("HMA_BENCHMARK_REVISION")??"working tree; identify revision before comparison",runtime=RuntimeInformation.FrameworkDescription,
    platform=RuntimeInformation.OSDescription,architecture=RuntimeInformation.ProcessArchitecture.ToString(),
    warmups=2,samplesPerCase=7,checks,complete,componentProbe=probe,lookupProbe=lookupOnly,
    scope="Synthetic one-character same-size edits; standalone production TextEditor/CodeTool, manually flushed debounce; excludes the 500ms wait, full TabView/map/event bindings, native input/compositor, relocation and real ROM workloads. UI-thread allocations only. Component probes are isolated calls, not additive attribution of a complete update.",results=rows,

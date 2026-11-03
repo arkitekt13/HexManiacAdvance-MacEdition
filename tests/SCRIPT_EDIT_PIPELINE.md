@@ -1,5 +1,9 @@
 # Script editing investigation — 2026-11-03
 
+Implemented follow-up: [SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md](SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md)
+records per-compilation reuse of the existing matcher, without changing decimal/hex/name priority,
+and preserves this report as the original measured baseline.
+
 Baseline: `8aaa6755`, macOS ARM64, .NET 8, Release. Investigation branch:
 `investigate/script-edit-pipeline`. Application code is unchanged. No supplied ROM was opened.
 
@@ -92,6 +96,9 @@ records 641 checks against the unchanged lookup/compiler, including existing mat
 refresh boundaries, blocked expansion with two callers/dialogue, shrinking, and full history
 round-trips. Lookup optimization is still unimplemented; the remaining checks below are
 requirements for evaluating its eventual scope rather than a claim of exhaustive coverage.
+
+The later optimization and its 1,565-check expanded safety group are documented in the
+follow-up linked above; the text below retains the original investigation recommendations.
 
 Add focused argument-matching correctness and allocation coverage before implementing a
 fast path or lookup preparation. Preserve existing exact/partial/quoted name priority,

@@ -710,7 +710,7 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
                break;
             }
          }
-         return new LabelLibrary(model, labels) { RequireCompleteAddresses = RequireCompleteAddresses };
+         return new LabelLibrary(model, labels, cacheArgumentMatches: true) { RequireCompleteAddresses = RequireCompleteAddresses };
       }
 
       public static IEnumerable<T> SortOptions<T>(IEnumerable<T> options, string token, Func<T, string> compare) {

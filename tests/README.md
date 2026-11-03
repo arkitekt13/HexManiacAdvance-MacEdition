@@ -61,3 +61,6 @@ commands and scope limits are in [../tools/ScriptEditingBenchmark/README.md](../
 Existing argument precedence, sparse alias lookup freshness, and script expansion/relocation,
 shrinking, caller/dialogue preservation, and complete history round-trips are protected in
 [ScriptArgumentSafety/README.md](ScriptArgumentSafety/README.md).
+
+Per-compilation argument reuse, unchanged numeric/name interpretation, before/after metrics,
+and invalidation/coverage limits are recorded in [SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md](SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md).

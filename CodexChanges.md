@@ -963,3 +963,23 @@ Scope: Investigation tooling and documentation only; application sources, script
 Validation: The new project builds with zero warnings/errors in the final incremental build and passes 641 checks against unchanged application code; the complete Mac suite passes all 24 groups and 3,778 assertions with no skipped groups.
 
 Scope: Tests and documentation only; argument matching, compiler/relocation/repointing, researched addresses, flags/variables, and history are unchanged, and no supplied ROM was opened or modified. Relocation's existing multiple history records are fully round-tripped; all bytes and serialized metadata must restore except the existing FreeSpaceSearch cursor, which is maintained outside undo, and option-list freshness is checked after the normal explicit cache invalidation boundary.
+
+## 059 — Reuse script argument matches within each compilation without changing numeric interpretation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Code/LabelLibrary.cs](src/HexManiac.Core/Models/Code/LabelLibrary.cs) | 12 | Add opt-in compilation-local reuse of the unchanged enum matcher's success/value, invalidated by model scope or read-only culture changes and bypassed for foreign models or mutable cultures. |
+| [src/HexManiac.Core/Models/Code/ScriptArg.cs](src/HexManiac.Core/Models/Code/ScriptArg.cs) | 140 | Use the compilation context for repeated enum lookups while retaining numeric fallback order, alias precedence, offsets, emitted widths, and the separate pointer path. |
+| [src/HexManiac.Core/Models/Code/ScriptParser.cs](src/HexManiac.Core/Models/Code/ScriptParser.cs) | 713 | Enable lookup reuse only in the fresh local-label context constructed for each compilation. |
+| [tests/ScriptArgumentSafety/Program.cs](tests/ScriptArgumentSafety/Program.cs) | 102 | Expand safety coverage to 1,565 checks with cached/uncached differential cases, three cultures, explicit decimal/pointer distinctions, invalidation, and helper/production-compiler allocation budgets. |
+| [tests/ScriptArgumentSafety/README.md](tests/ScriptArgumentSafety/README.md) | 61 | Document the original reference path, differential coverage, allocation budgets, and separately tracked existing sparse-match exception. |
+| [tools/ScriptEditingBenchmark/Program.cs](tools/ScriptEditingBenchmark/Program.cs) | 31 | Read checkpoint identity from HMA_BENCHMARK_REVISION rather than falsely labeling new measurements as the original baseline. |
+| [tools/ScriptEditingBenchmark/README.md](tools/ScriptEditingBenchmark/README.md) | 10 | Preserve historical baseline reports and document current-output names and revision labeling. |
+| [tests/SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md](tests/SCRIPT_ARGUMENT_LOOKUP_PERFORMANCE.md) | 1 | Record parsing invariants, complete before/after compiler and editor measurements, hash equivalence, test evidence, and repeated-operand/native-input limits. |
+| [tests/SCRIPT_EDIT_PIPELINE.md](tests/SCRIPT_EDIT_PIPELINE.md) | 3 | Link the implemented follow-up while retaining the original investigation and safety checkpoints as historical evidence. |
+| [tests/README.md](tests/README.md) | 65 | Link the argument-reuse performance and correctness report. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 47 | Record HMA-003 for an existing sparse-alias partial-match exception reproduced by both uncached and cached matching. |
+
+Validation: All 24 Mac groups pass 4,702 assertions with no groups skipped; the first upstream project passes 1,780 cases with 0 failures/935 optional skips and the second passes 26 with 0 failures/41 optional skips, both with zero engine errors. All 1,596 benchmark invariants and original/current layer/compiled-byte hashes match; the isolated 500-command hexadecimal compile falls from 702.73 ms/1,068,447,352 temporary allocated bytes to 20.58 ms/26,623,472 bytes, while the attached 2,000-command deferred update falls from 2,795.41 ms to 90.19 ms.
+
+Scope: No numeric syntax or alias-priority change, pointer parsing change, global/cross-edit result cache, relocation/history rewrite, researched-address change, or flag/variable allocation change; existing mutable-culture and model-refresh behavior are retained. Figures are synthetic Release medians and temporary managed allocation volumes, not retained RAM or native typing latency; UI/highlighting costs remain, HMA-003 is unchanged, and source/staged FireRed fixture hashes are unchanged after upstream verification.

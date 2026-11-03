@@ -7,9 +7,9 @@ to a headless Skia window. Restore cached dependencies before building.
 
 ```sh
 dotnet build tools/ScriptEditingBenchmark/ScriptEditingBenchmark.csproj -c Release --no-restore --nologo --disable-build-servers -p:UseSharedCompilation=false -m:1 -nr:false
-python3 scripts/run-upstream-command.py 600 dotnet tools/ScriptEditingBenchmark/bin/Release/net8.0/ScriptEditingBenchmark.dll artifacts/script-performance/edit-pipeline-baseline.json
-python3 scripts/run-upstream-command.py 300 dotnet tools/ScriptEditingBenchmark/bin/Release/net8.0/ScriptEditingBenchmark.dll artifacts/script-performance/edit-pipeline-components.json --probe
-python3 scripts/run-upstream-command.py 90 dotnet tools/ScriptEditingBenchmark/bin/Release/net8.0/ScriptEditingBenchmark.dll artifacts/script-performance/edit-pipeline-lookups.json --lookup
+python3 scripts/run-upstream-command.py 600 dotnet tools/ScriptEditingBenchmark/bin/Release/net8.0/ScriptEditingBenchmark.dll artifacts/script-performance/edit-pipeline-current.json
+python3 scripts/run-upstream-command.py 300 dotnet tools/ScriptEditingBenchmark/bin/Release/net8.0/ScriptEditingBenchmark.dll artifacts/script-performance/edit-pipeline-components-current.json --probe
+python3 scripts/run-upstream-command.py 90 dotnet tools/ScriptEditingBenchmark/bin/Release/net8.0/ScriptEditingBenchmark.dll artifacts/script-performance/edit-pipeline-lookups-current.json --lookup
 ```
 
 The baseline has 18 cases: 100/500/2,000 repeated statements, commands/comments/embedded
@@ -17,6 +17,10 @@ dialogue, with and without the text control. Each case has two warmups and seven
 one-character immediate-argument changes. Dialogue uses fixed, separate synthetic text
 addresses so repeated edits do not request fresh `<auto>` allocations. Source comments are
 retained rather than silently lost through decompilation.
+
+Set HMA_BENCHMARK_REVISION to the tested commit/checkpoint when running; the report otherwise
+explicitly labels itself as a working-tree run. Keep the original baseline reports rather
+than overwriting them when measuring a new revision.
 
 The dispatcher retains the production debounce API but queues its action for explicit
 execution. This separates immediate content work, deferred compilation, and queued layout/

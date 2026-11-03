@@ -43,3 +43,21 @@ cancellation, reveal-beneath mode, and leaving the map hide it; auto-tiling brus
 outline. The expanded 340-check map selection group preserves stamping, collision bits,
 elevations, metadata, saving/reloading, and undo/redo across saves. Shared Core editing
 algorithms are unchanged.
+
+## HMA-003 — Review sparse-alias partial-match exceptions
+
+**Status:** Confirmed in synthetic differential tests of the existing uncached matcher; deferred.
+
+**Reproduction:** A sparse option list with high-ID aliases such as `temp1` at 0x4001 and
+`result` at 0x8000, plus ordinary named options, can throw for `$4001`. The original
+ArrayRunEnumSegment.TryMatch includes empty slots as numeric partial matches, then sorts
+using the original null option strings; SystemExtensions.SkipCount dereferences null.
+ScriptArgumentSafety retains this reproduction and compares exception types between the
+original and cached paths without suppressing production exceptions.
+
+**Next investigation:** Minimize the option list, determine intended numeric/partial-name
+precedence, and test existing valid name/numeric/duplicate ordering before changing the
+partial-match ranking. Verify the actual game/model workflow before claiming a native fix.
+
+**Scope boundary:** Per-compilation argument reuse deliberately preserves matching semantics;
+this pre-existing failure is a separate correctness issue, not introduced or fixed by caching.

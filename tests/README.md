@@ -16,6 +16,8 @@ with `--integration` and see [INTEGRATION_BASELINE.md](INTEGRATION_BASELINE.md) 
 See individual group READMEs for any manual GUI checks that remain.
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
+Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered
+by [WildEncounterEditing](WildEncounterEditing/README.md).
 Production trainer, sprite, palette, and ordinary text-stream template checks are documented
 in [StreamTemplates/README.md](StreamTemplates/README.md).
 

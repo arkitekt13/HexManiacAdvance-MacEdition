@@ -1183,3 +1183,21 @@ Complete Mac validation: All 28 groups pass 6,144 assertions with zero failed or
 Scope: UI restoration and native application selection; no user ROM or preference is modified by tests. Actual mGBA selection/launch still requires confirmation after saving work and restarting the editor. The new chooser lists registered applications and supports Browse, avoiding the file-filter path observed to disable app bundles.
 
 Native confirmation, 2026-11-03: The user confirmed that the restored object-script creation button and external mGBA launch both work. mGBA was absent from the chooser's initial application list, but Browse allowed selection of its application bundle and the ROM launched successfully; that Browse fallback remains part of the supported flow.
+
+## 071 — Keep wild encounter editing focused during table refresh
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/TableTool.cs](src/HexManiac.Core/ViewModels/Tools/TableTool.cs) | 476 | Avoid replacing a retained stream group with itself so Avalonia preserves its active text editor and autocomplete. |
+| [tests/WildEncounterEditing/Program.cs](tests/WildEncounterEditing/Program.cs) | 1 | Exercise continuous level/species typing, live focus/caret retention, mouse/Enter autocomplete, exact bytes/metadata, Undo/Redo and navigation with synthetic encounters. |
+| [tests/WildEncounterEditing/WildEncounterEditing.csproj](tests/WildEncounterEditing/WildEncounterEditing.csproj) | 1 | Add an automatically discovered headless regression group referencing the production Mac editor. |
+| [tests/WildEncounterEditing/README.md](tests/WildEncounterEditing/README.md) | 1 | Document the failing-before reproduction, input coverage and deterministic headless limits. |
+| [tests/README.md](tests/README.md) | 19 | Link wild-encounter editing regression coverage. |
+
+Evidence: The new first-keystroke assertion fails before the fix, recording a same-group Replace notification, detached/replaced text box and lost focus while the view model remains unchanged. After the reference-identity guard, all 31 focused checks pass across LF/CRLF; existing species matching and parser output drive the visible suggestions without new parsing rules.
+
+Complete Mac validation: All 29 groups pass 6,175 assertions with zero failed or skipped groups, including the new 31-check wild-encounter group and existing script/persistence, trainer, text and table presentation checks.
+
+Upstream verification: 1,779 passed / 1 failed / 935 skipped / zero engine errors; the sole ErrorInScript_ClickOff_ResetScriptEditor failure is the identical HMA-006 draft-retention baseline mismatch documented in entry 068, with no new failed cases.
+
+Scope: Table presentation lifecycle only; genuine group changes still replace controls and ordinary refresh/model notifications still run. Encounter parsing, numeric interpretation, relocation, history and engine behavior are unchanged. All new data is fabricated; native interaction on the user's ROM still needs confirmation after relaunch.

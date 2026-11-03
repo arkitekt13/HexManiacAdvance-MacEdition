@@ -85,6 +85,24 @@ try {
    Value(model,"value:scriptvariablealiases","temp1",0x4001,2);
    Value(model,"value:scriptvariablealiases","0x4001",0x4001,2);
    Value(model,"value:scriptvariablealiases","16385",0x4001,2);
+   // Explicit hex must not fuzzy-match decimal names synthesized for unnamed slots.
+   Value(model,"value:scriptvariablealiases","$4001",0x4001,2);
+   model.SetList(new NoDataChangeDeltaModel(),"SingleNumericHole",new string[124]);
+   Value(model,"value:SingleNumericHole","$123",0x123,2);
+   var numericHoles=new string[1024];
+   model.SetList(new NoDataChangeDeltaModel(),"MultipleNumericHoles",numericHoles);
+   Value(model,"value:MultipleNumericHoles","$123",0x123,2);
+   Check(!ArrayRunEnumSegment.TryMatch("$123",numericHoles,out _),"Unnamed decimal slots must not intercept explicit hexadecimal literals.");
+   numericHoles[123]="Other";
+   Match("\"123\"",numericHoles,1023); // preserve existing quoted numeric-name partial matching
+   var quotedHoles=new string[1024];
+   Match("\"$123\"",quotedHoles,123); // quoted input remains a name query, now sorted without null dereferences
+   model.SetList(new NoDataChangeDeltaModel(),"DollarAliases","Other","$123","$123~2","token123");
+   Value(model,"value:DollarAliases","$123",1,2);
+   Value(model,"value:DollarAliases","$123~2",2,2); // duplicate selector keeps the existing name path
+   model.SetList(new NoDataChangeDeltaModel(),"RealDollarPartial","Other","token123");
+   Value(model,"value:RealDollarPartial","$123",1,2); // real named partials still precede numeric fallback
+   Value(model,"value:MultipleNumericHoles+3","$123",0x126,2);
 
    // SetList is a low-level metadata operation; normal Refresh clears the model cache.
    // Future lookup preparation must follow that boundary and never leak across models.
@@ -153,6 +171,10 @@ try {
    Check(allValid && buffer.SequenceEqual(new byte[]{1,0x40}),"Cached argument reuse must retain exact variable bytes.");
    Check(allocated<32768,$"Warm repeated enum matches must not rescan/allocate sparse aliases: {allocated} bytes.");
    var allocationParser=new ScriptParser(model.GetShortGameCode(),singletons.ScriptLines,0x02);
+   var literalSource="setvar $4001 $123\nend";var literalBefore=model.RawData.ToArray();
+   var literalCode=allocationParser.Compile(new ModelDelta(),model,0x5000,ref literalSource,out _,out _);
+   Check(literalCode!=null && literalCode.SequenceEqual(new byte[]{0x16,1,0x40,0x23,1,2}),"Full script compilation must retain explicit hexadecimal variable/value interpretation.");
+   Check(model.RawData.SequenceEqual(literalBefore),"Compiling explicit hexadecimal operands must not write model bytes.");
    var allocationScript=string.Concat(Enumerable.Repeat("setvar 0x4001 1\n",64))+"end";
    var warmScript=allocationScript;allocationParser.Compile(new ModelDelta(),model,0x5000,ref warmScript,out _,out _);
    var compileBefore=model.RawData.ToArray();var compileScript=allocationScript;
@@ -162,7 +184,8 @@ try {
    Check(allocationCode!=null && allocationCode.Length==321 && allocationCode[^1]==2,"Compiler allocation check must compile all 64 commands.");
    Check(model.RawData.SequenceEqual(compileBefore),"Compiler allocation check must leave model bytes untouched.");
    Check(compileAllocated<8_000_000,$"Each compilation must reuse argument matches rather than rescan them: {compileAllocated} bytes.");
-   Console.WriteLine($"PASS: cached/uncached differential checks; warm reuse allocated {allocated} bytes; existing sparse-match exception inputs: {string.Join(", ",legacyExceptions)}.");
+   Check(legacyExceptions.Count==0,"The valid differential corpus must no longer throw sparse-alias matching exceptions.");
+   Console.WriteLine($"PASS: cached/uncached differential checks; warm reuse allocated {allocated} bytes; no sparse-match exceptions.");
    Console.WriteLine($"PASS: compiler-scoped lookup reuse allocated {compileAllocated} bytes for 64 commands.");
 
    // Run each spelling through actual script relocation with two callers and embedded text.

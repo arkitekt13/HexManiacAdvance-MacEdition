@@ -1019,3 +1019,17 @@ Scope: Benchmark tooling and documentation only; no application sources, numeric
 Validation: The original handler fails the unchanged exact-suggestion regression; the corrected group builds with zero warnings/errors and passes 282 checks. The realistic NPC benchmark passes all 2,892 invariants, all 24 overlay probes match Core, and all 18 original source/layer hash sets and Core option arrays are unchanged; the complete Mac suite passes all 25 groups and 4,984 assertions with no skipped groups.
 
 Scope: Avalonia autocomplete UI mapping/replacement only; shared-Core matching, decimal/hexadecimal and pointer interpretation, compilation, relocation, researched addresses, flag/variable allocation, and history algorithms are unchanged. Synthetic models only were used, no supplied ROM was opened or modified, and native screen appearance and every scroll/font configuration are not claimed validated.
+
+## 062 — Fix sparse script aliases and preserve explicit hexadecimal values
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs](src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs) | 294 | Exclude implicit decimal names of unnamed slots from unquoted explicit-hex matches while preserving real alias precedence and quoted name queries. |
+| [src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs](src/HexManiac.Core/Models/Runs/ArrayRunElementSegment.cs) | 329 | Rank partial matches using null-safe numeric display names to prevent sparse-list exceptions. |
+| [tests/ScriptArgumentSafety/Program.cs](tests/ScriptArgumentSafety/Program.cs) | 85 | Add crash and silent numeric-misinterpretation regressions, real/quoted alias controls, offsets, and exact end-to-end compiled bytes. |
+| [tests/ScriptArgumentSafety/README.md](tests/ScriptArgumentSafety/README.md) | 81 | Explain HMA-003, the narrow matching correction, and the expanded safety coverage. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 47 | Mark HMA-003 fixed with reproduction details and verified scope. |
+
+Validation: The original implementation fails the new regression; the corrected focused group passes 1,596 checks, and all 25 Mac groups pass 5,015 assertions with no skipped groups. The first upstream project passes 1,780 cases with zero failures and 935 optional skips; the second passes 26 with zero failures and 41 optional skips, both with zero engine errors. Source and staged FireRed fixture SHA-256 hashes are unchanged after verification.
+
+Scope: The only application change is the shared enum matcher; real named alias precedence, decimal parsing, quoted queries, pointer parsing, compilation-local cache boundaries, relocation/history and researched addresses retain their existing behavior. Flag/variable scanning and allocation are unchanged.

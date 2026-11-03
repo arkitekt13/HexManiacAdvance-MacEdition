@@ -46,21 +46,24 @@ algorithms are unchanged.
 
 ## HMA-003 — Review sparse-alias partial-match exceptions
 
-**Status:** Confirmed in synthetic differential tests of the existing uncached matcher; deferred.
+**Status:** Fixed separately from lookup reuse; 1,596 script argument/mutation safety checks pass.
 
-**Reproduction:** A sparse option list with high-ID aliases such as `temp1` at 0x4001 and
-`result` at 0x8000, plus ordinary named options, can throw for `$4001`. The original
-ArrayRunEnumSegment.TryMatch includes empty slots as numeric partial matches, then sorts
-using the original null option strings; SystemExtensions.SkipCount dereferences null.
-ScriptArgumentSafety retains this reproduction and compares exception types between the
-original and cached paths without suppressing production exceptions.
+**Original reproduction:** A sparse option list with high-ID aliases such as `temp1` at 0x4001
+and `result` at 0x8000, plus ordinary named options, could throw for `$4001`. The original
+ArrayRunEnumSegment.TryMatch included unnamed slots as numeric partial matches, then sorted
+using the original null option strings; SystemExtensions.SkipCount dereferenced null.
+ScriptArgumentSafety retains the reproduction and now requires no exceptions while cached
+and uncached results agree.
 
-**Next investigation:** Minimize the option list, determine intended numeric/partial-name
-precedence, and test existing valid name/numeric/duplicate ordering before changing the
-partial-match ranking. Verify the actual game/model workflow before claiming a native fix.
+**Implemented:** Unnamed decimal slot labels no longer intercept unquoted valid explicit-hex
+input; actual named aliases retain their existing precedence before numeric fallback. Null
+partial-match candidates sort by the same synthesized decimal names used during matching.
+The fix covers both the default-list `$4001` crash and a silent `$123` -> decimal 123 error
+in a minimal unnamed list, while preserving quoted numeric-name queries and real aliases.
 
-**Scope boundary:** Per-compilation argument reuse deliberately preserves matching semantics;
-this pre-existing failure is a separate correctness issue, not introduced or fixed by caching.
+**Scope boundary:** This is a separate sparse-name correctness repair, not part of caching;
+decimal/hex fallback, pointer parsing, offsets, reservations, and flag/variable allocation
+algorithms are unchanged. Native screen behavior is not the subject of this shared-Core fix.
 
 ## HMA-004 — Correct Mac script autocomplete caret mapping after the first line
 

@@ -10,6 +10,7 @@ using System.Text;
 using System.Diagnostics;
 using HavenSoft.HexManiac.Core.ViewModels.Images;
 using HavenSoft.HexManiac.Core.Models.Code;
+using HavenSoft.HexManiac.Core.ViewModels;
 
 namespace HavenSoft.HexManiac.Core.Models.Runs {
    public enum ElementContentType {
@@ -287,6 +288,11 @@ namespace HavenSoft.HexManiac.Core.Models.Runs {
       public static bool TryMatch(string text, IReadOnlyList<string> list, out int value) {
          text = text.Trim();
          if (int.TryParse(text, out value)) return true;
+         // Unnamed slots display decimal indices, not aliases for explicit hex literals.
+         // Keep real exact/partial aliases ahead of the caller's numeric fallback, and
+         // retain quoted numeric-name queries; only synthesized decimal names are excluded.
+         var explicitHex = ((text.StartsWith("0x") || text.StartsWith("0X")) && text.Substring(2).TryParseHex(out _)) ||
+            (text.StartsWith("$") && text.Substring(1).TryParseHex(out _));
          if (text.StartsWith("\"")) text = text.Substring(1);
          if (text.EndsWith("\"")) text = text.Substring(0, text.Length - 1);
          if (text.Length == 0) return false;
@@ -303,6 +309,7 @@ namespace HavenSoft.HexManiac.Core.Models.Runs {
          text = text.ToLower();
          var options = list;
          for (int i = 0; i < options.Count; i++) {
+            if (explicitHex && options[i] == null) continue;
             var option = (options[i] ?? i.ToString()).ToLower().Split("~")[0];
             if (option.StartsWith("\"")) option = option.Substring(1);
             if (option.EndsWith("\"")) option = option.Substring(0, option.Length - 1);
@@ -319,8 +326,8 @@ namespace HavenSoft.HexManiac.Core.Models.Runs {
             //   lower IDs
             //   lower skip count
             //   earlier starts
-            partialMatches.Sort((a, b) => options[a].SkipCount(text) - options[b].SkipCount(text));
-            partialMatches.Sort((a, b) => options[a].IndexOf(text[0], StringComparison.CurrentCultureIgnoreCase) - options[b].IndexOf(text[0], StringComparison.CurrentCultureIgnoreCase));
+            partialMatches.Sort((a, b) => (options[a] ?? a.ToString()).SkipCount(text) - (options[b] ?? b.ToString()).SkipCount(text));
+            partialMatches.Sort((a, b) => (options[a] ?? a.ToString()).IndexOf(text[0], StringComparison.CurrentCultureIgnoreCase) - (options[b] ?? b.ToString()).IndexOf(text[0], StringComparison.CurrentCultureIgnoreCase));
             value = partialMatches[(desiredMatch - 1).LimitToRange(0, partialMatches.Count - 1)];
             return true;
          }

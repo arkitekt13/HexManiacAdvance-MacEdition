@@ -851,3 +851,21 @@ Scope: Display instructions only; Command-left-drag already invokes rectangle fi
 Validation: The editor and tutorial project build with zero warnings/errors, and all 332 tutorial checks pass; an exploratory full-window synthetic test also fills a connected nine-cell region through two routed left clicks, including slight pointer movement.
 
 Scope: Tutorial wording only; the user confirmed multiple blocks were selected, which the existing shared Core intentionally excludes from flood fill, so no painting algorithm or input handler was changed and the provisional input trace was removed.
+
+## 052 — Route dropped HMA scripts to the ROM and restore file-drop acceptance
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/CoreSeam.cs](src/HexManiac.Avalonia/CoreSeam.cs) | 56 | Route HMA drops from map tabs to their owning ROM through the existing importer while rejecting missing, script-file, or busy targets and separating earlier undo transactions. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 90 | Receive local-file drag/drop events even when child controls handle them so the window can process dropped scripts. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 172 | Advertise copy for local file drags, recover from child drag rejection, and report copy on drop without moving source files. |
+| [tests/FileDrop/Program.cs](tests/FileDrop/Program.cs) | 19 | Add 24 routed-drop checks for real HMA edits, map-to-ROM targeting, repeated imports, undo/redo, earlier edits, metadata, other-ROM isolation, rejected targets, and ordinary file/text behavior. |
+| [tests/FileDrop/FileDrop.csproj](tests/FileDrop/FileDrop.csproj) | 1 | Add a separately executable headless file-drop group sharing the fabricated map fixture. |
+| [tests/FileDrop/README.md](tests/FileDrop/README.md) | 1 | Document the original failure, copy and targeting behavior, test storage-wrapper setup, and native/script-compatibility limits. |
+| [tests/README.md](tests/README.md) | 48 | Link the file-drop and HMA import regression group. |
+
+Validation: The final build passes with zero warnings/errors, all 24 file-drop checks pass, and the full Mac repeat passes 21 groups/2,756 assertions with no skipped groups; the original handlers fail the same regression by opening an HMA as binary data without a ROM target.
+
+Validation note: The initial full run hit the previously observed FocusAnimation timing failure, which passed unchanged in isolation and in the complete repeat without weakening or suppressing checks.
+
+Scope: Avalonia drop routing and undo-transaction boundaries only; the shared HMA parser, game/version guards, relative-asset path context, researched addresses, repointing rules, and Core history implementation are unchanged. Synthetic data only was used, no user ROM or source script was modified, and native Finder operation and the user's unprovided script still need a live retry after relaunch.

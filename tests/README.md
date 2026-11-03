@@ -44,3 +44,6 @@ Synthetic query-local search freshness, cancellation, and allocation regressions
 
 Full-editor routed wheel zoom, fresh-tab startup, optional local FireRed checks, and the
 unresolved intermittent freeze investigation are in [MapZoom/README.md](MapZoom/README.md).
+
+Local file drag/drop routing and HMA imports from map or ROM tabs are checked in
+[FileDrop/README.md](FileDrop/README.md).

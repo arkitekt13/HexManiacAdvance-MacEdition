@@ -1,7 +1,9 @@
 using System.IO;
+using System;
 using System.Reflection;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.ViewModels;
+using HavenSoft.HexManiac.Core.ViewModels.Map;
 using CorePoint = HavenSoft.HexManiac.Core.Models.Point;
 
 namespace HavenSoft.HexManiac.AvaloniaUI;
@@ -49,6 +51,36 @@ public static class CoreSeam {
       var file = fileSystem.LoadFile(path);
       if (file == null) return;
       if (editor.Open.CanExecute(file)) editor.Open.Execute(file);
+   }
+
+   public static void OpenDroppedFile(EditorViewModel editor, IFileSystem fileSystem, string path) {
+      var script = string.Equals(Path.GetExtension(path), ".hma", StringComparison.OrdinalIgnoreCase);
+      var target = editor.SelectedTab is MapEditorViewModel map ? map.ViewPort : editor.SelectedTab as IEditableViewPort;
+      if (script && (target == null || string.Equals(Path.GetExtension(target.FileName), ".hma", StringComparison.OrdinalIgnoreCase))) {
+         editor.ErrorMessage = "Select the ROM tab or its map tab before dropping an HMA script.";
+         return;
+      }
+      if (script && target.UpdateInProgress) {
+         editor.ErrorMessage = "Wait for the current ROM update to finish before importing another HMA script.";
+         return;
+      }
+      var file = fileSystem.LoadFile(path);
+      if (file == null) return;
+      if (script && editor.SelectedTab is MapEditorViewModel) {
+         var owner = -1;
+         for (var i = 0; i < editor.Count; i++) if (ReferenceEquals(editor[i], target)) { owner = i; break; }
+         if (owner < 0) {
+            editor.ErrorMessage = "The map's ROM tab is no longer open; select a ROM before importing the script.";
+            return;
+         }
+         // Use the established Open/TryImport path, showing the ROM tab and its import errors.
+         editor.SelectedIndex = owner;
+      }
+      if (editor.Open.CanExecute(file)) {
+         // Keep earlier edits and earlier drops separately undoable without clearing history.
+         if (script) target.ChangeHistory.ChangeCompleted();
+         editor.Open.Execute(file);
+      }
    }
 
    // ---------------- ViewPort (one hex tab) ----------------

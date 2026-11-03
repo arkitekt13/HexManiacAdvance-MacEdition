@@ -87,7 +87,8 @@ public partial class MainWindow : Window {
       InitializeComponent();
 
       DragDrop.SetAllowDrop(this, true);
-      AddHandler(DragDrop.DropEvent, OnDrop);
+      AddHandler(DragDrop.DragOverEvent, OnFileDragOver, RoutingStrategies.Bubble, handledEventsToo: true);
+      AddHandler(DragDrop.DropEvent, OnDrop, RoutingStrategies.Bubble, handledEventsToo: true);
 
       Tabs.ContentTemplate = new Views.TabContentTemplate();
 
@@ -168,12 +169,23 @@ public partial class MainWindow : Window {
       if (chords.HandleKeyDown(e)) e.Handled = true;
    }
 
+   private void OnFileDragOver(object sender, DragEventArgs e) {
+      if (Editor == null || FileSystem == null || e.Data.GetFiles()?.Any(item => item.TryGetLocalPath() != null) != true) return;
+      // Child controls may already have rejected non-text data; this window owns local files.
+      e.DragEffects = DragDropEffects.Copy;
+      e.Handled = true;
+   }
+
    private void OnDrop(object sender, DragEventArgs e) {
       var files = e.Data.GetFiles();
       if (files == null || Editor == null || FileSystem == null) return;
       foreach (var item in files) {
          var path = item.TryGetLocalPath();
-         if (path != null) CoreSeam.OpenFile(Editor, FileSystem, path);
+         if (path != null) {
+            CoreSeam.OpenDroppedFile(Editor, FileSystem, path);
+            e.DragEffects = DragDropEffects.Copy;
+            e.Handled = true;
+         }
       }
    }
 

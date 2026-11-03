@@ -1149,8 +1149,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
       private bool ignoreFurtherCommands = false;
       private void ImplementCommands() {
-         undoWrapper.CanExecute = history.Undo.CanExecute;
+         undoWrapper.CanExecute = arg => tools?.CodeTool.HasPendingScriptChanges == true || tools?.CodeTool.HasActiveScriptDraft == true || history.Undo.CanExecute(arg);
          undoWrapper.Execute = arg => {
+            tools?.CodeTool.FlushPendingScriptChanges();
+            if (tools?.CodeTool.DiscardActiveScriptDraft() == true) return;
             history.Undo.Execute(arg);
             if (!ownsHistory) RefreshBackingData();
             tools.RefreshContent();
@@ -1159,11 +1161,14 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
          redoWrapper.CanExecute = history.Redo.CanExecute;
          redoWrapper.Execute = arg => {
+            tools?.CodeTool.FlushPendingScriptChanges();
+            if (tools?.CodeTool.HasUncompiledScriptChanges == true) return;
             history.Redo.Execute(arg);
             if (!ownsHistory) RefreshBackingData();
             tools.RefreshContent();
          };
          history.Redo.CanExecuteChanged += (sender, e) => redoWrapper.CanExecuteChanged.Invoke(redoWrapper, e);
+         if (tools != null) tools.CodeTool.ScriptStateChanged += (_, _) => undoWrapper.RaiseCanExecuteChanged();
 
          clear.CanExecute = CanAlwaysExecute;
          clear.Execute = arg => {

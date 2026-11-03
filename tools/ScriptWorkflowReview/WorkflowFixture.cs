@@ -104,6 +104,7 @@ public sealed class WorkflowDispatch : IWorkDispatcher {
    public int Executed { get; private set; }
    public int Replaced { get; private set; }
    public int Pending => timers.Count(t => t.Action != null);
+   public Action[] CapturePendingCallbacks() => timers.Where(t => t.Action != null).Select(t => t.Action).ToArray();
    public void Flush() {
       for (int pass = 0; Pending > 0; pass++) {
          if (pass >= 32) throw new InvalidOperationException("Deferred work did not settle.");

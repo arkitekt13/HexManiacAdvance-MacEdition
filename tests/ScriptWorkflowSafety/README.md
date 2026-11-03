@@ -1,7 +1,7 @@
 # Script workflow safety baseline
 
-**548 checks** pass across LF and CRLF sessions. The full Mac runner passes **27 groups /
-6,098 assertions**, with no groups skipped. Application code is unchanged.
+**563 checks** pass, including the LF/CRLF baseline and pending-context regressions. The full Mac runner passes **27 groups /
+6,113 assertions**, with no groups skipped. Application code is unchanged.
 
 ```sh
 dotnet build tests/ScriptWorkflowSafety/ScriptWorkflowSafety.csproj --no-restore --nologo --disable-build-servers -p:UseSharedCompilation=false -m:1 -nr:false
@@ -37,3 +37,9 @@ Known pending-navigation/undo/save/close and late-resource-error failures are ch
 by the separate [review tool](../../tools/ScriptWorkflowReview/README.md). They are not passing
 tests requiring defects to persist. Future approved repairs should add failing-before /
 passing-after regressions while retaining this baseline. No normal-suite ROM fixture is needed.
+
+HMA-006 follow-up: pending edits settle at their original address before navigation/mode reuse;
+stale posted callbacks are invalidated, rejected drafts survive navigation, and Undo/Redo settle
+work before changing history. Public Undo is intentionally available for a pending first edit
+while ROM history is still unchanged. The original navigation regression fails against the
+investigation baseline. Save/Close and failed-resource compilation remain separate work.

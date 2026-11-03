@@ -1089,3 +1089,20 @@ Validation: The new LF/CRLF group passes 548 checks; all 27 Mac groups pass 6,09
 Findings: Pending source can write another script after navigation, reapply after Undo and clear Redo, or miss a save/close boundary; existing-stream writes can precede a later compile failure and relocated-source replacement can clear its diagnostics. These remain unfixed and are tracked as HMA-006/007/008. History restores model bytes/metadata but does not automatically navigate the editor back to the root anchor; safety checks explicitly reselect it, and the presentation observation remains in the review rather than being counted as a UI pass.
 
 Scope: Tests, review tooling and documentation only; no production application sources, compiler/repointing/history algorithms, researched addresses, flags/variables, engine behavior or supplied ROMs are changed. All model/file data is fabricated and temporary; diagnostic findings are not passing requirements that defects persist. Manual callback ordering is not native/full-shell timing, game execution or performance benchmarking, and no speedup or fixed defect is claimed.
+
+## 066 — Keep pending script edits bound to their context and history
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 28 | Flush pending compilation before context reuse, invalidate stale callbacks by generation, and retain rejected drafts without reusing their bodies for another address. |
+| [src/HexManiac.Core/ViewModels/ViewPort.cs](src/HexManiac.Core/ViewModels/ViewPort.cs) | 1152 | Settle source before Undo/Redo and enable Undo for pending or active rejected drafts without clearing a valid Redo branch later. |
+| [tests/ScriptWorkflowSafety/Program.cs](tests/ScriptWorkflowSafety/Program.cs) | 94 | Add wrong-target, pending Undo/Redo, retained-draft, stale-callback and mode-switch regressions against production editor paths. |
+| [tests/AutocompleteMapping/Program.cs](tests/AutocompleteMapping/Program.cs) | 134 | Check unchanged underlying ROM history while allowing the new public Undo behavior for pending source. |
+| [tools/ScriptWorkflowReview/WorkflowFixture.cs](tools/ScriptWorkflowReview/WorkflowFixture.cs) | 108 | Expose captured scheduled callbacks so regressions can simulate callbacks already posted before timer cancellation. |
+| [tests/ScriptWorkflowSafety/README.md](tests/ScriptWorkflowSafety/README.md) | 1 | Document the 563-check baseline and pending-context/history contracts. |
+| [tests/SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md) | 7 | Link the implemented HMA-006 follow-up without replacing the original failure evidence. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 112 | Mark HMA-006 fixed while keeping Save/Close and failed-resource compilation separately tracked. |
+
+Validation: The new navigation regression fails against unchanged production code, then all 563 focused checks pass; the complete Mac suite passes all 27 groups / 6,113 assertions with no skipped groups. Existing numeric interpretation, caller pointers, script/dialogue relocation, neighboring data and full model history tests remain passing.
+
+Scope: Editor scheduling, draft retention and command boundaries only; compiler, researched addresses, flag/variable allocation and engine behavior are unchanged. Synthetic data only; persistence barriers and failed-compilation resource rollback remain subsequent fixes.

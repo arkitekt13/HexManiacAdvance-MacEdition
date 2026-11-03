@@ -91,4 +91,54 @@ foreach (var separator in new[] { "\n", "\r\n" }) {
    Check(closed && f.Prompts == 0 && f.Dispatch.Pending == 0, "A saved, settled document closes without prompts or pending work.");
    Console.WriteLine($"PASS: {(separator.Length == 1 ? "LF" : "CRLF")} errors/correction, coalescing, script/text relocation, exact history, save/reopen and settled close.");
 }
+using (var f = new WorkflowFixture()) {
+   var other = f.Model.RawData.Skip(WorkflowFixture.Other).Take(14).ToArray();
+   f.Edit(WorkflowFixture.Source(1, 2), settle: false);
+   f.View.Goto.Execute(WorkflowFixture.Other); f.Dispatch.Flush();
+   Check(f.Model[WorkflowFixture.Root + 4] == 2, "Navigation must settle the edit at its original script.");
+   Check(f.Model.RawData.Skip(WorkflowFixture.Other).Take(14).SequenceEqual(other), "Navigation must not write pending source into the destination script.");
+}
+using (var f = new WorkflowFixture()) {
+   f.Edit(WorkflowFixture.Source(1, 2));
+   f.Edit(WorkflowFixture.Source(1, 3), settle: false);
+   f.View.Undo.Execute(null); f.Dispatch.Flush();
+   Check(f.Model[WorkflowFixture.Root + 4] == 2, "Undo must include the pending edit rather than allowing it to reapply later.");
+   Check(f.View.Redo.CanExecute(null), "Settling pending work before Undo must preserve Redo.");
+   f.View.Redo.Execute(null); f.Dispatch.Flush();
+   Check(f.Model[WorkflowFixture.Root + 4] == 3, "Redo must restore the settled edit.");
+}
+using (var f = new WorkflowFixture()) {
+   f.Edit(WorkflowFixture.Source(1, 2), settle: false);
+   Check(f.View.Undo.CanExecute(null), "A pending source edit must enable Undo even before bytes change.");
+   f.View.Undo.Execute(null); f.Dispatch.Flush();
+   Check(f.Model[WorkflowFixture.Root + 4] == 1 && f.View.Redo.CanExecute(null), "Undo of the first pending edit restores the original and remains redoable.");
+}
+using (var f = new WorkflowFixture()) {
+   const string invalid = "setvar MissingAlias 1\nend";
+   f.Edit(invalid, settle: false);
+   f.View.Goto.Execute(WorkflowFixture.Other); f.Dispatch.Flush();
+   Check(f.Model[WorkflowFixture.Other + 4] == 7, "Rejected source must not affect another script.");
+   Check(!f.View.Undo.CanExecute(null), "A draft in another script must not enable an unrelated Undo action.");
+   f.View.Goto.Execute(WorkflowFixture.Root); f.Dispatch.Flush();
+   Check(f.Body.Content == invalid && f.Body.HasError, "Navigation must retain a rejected draft and its diagnostics.");
+   f.Edit(WorkflowFixture.Source(1, 1));
+   Check(!f.Body.HasError, "A retained draft must recover when corrected.");
+}
+using (var f = new WorkflowFixture()) {
+   f.Edit(WorkflowFixture.Source(1, 2), settle: false);
+   var stale = f.Dispatch.CapturePendingCallbacks();
+   f.Edit(WorkflowFixture.Source(1, 3), settle: false);
+   foreach (var callback in stale) callback();
+   Check(f.Model[WorkflowFixture.Root + 4] == 1, "An already queued stale callback must not execute newer or older source.");
+   f.Dispatch.Flush();
+   Check(f.Model[WorkflowFixture.Root + 4] == 3, "Only the latest scheduled edit should compile.");
+   foreach (var callback in stale) callback();
+   Check(f.Model[WorkflowFixture.Root + 4] == 3, "A callback remains invalid after its context has completed.");
+}
+using (var f = new WorkflowFixture()) {
+   f.Edit(WorkflowFixture.Source(1, 2), settle: false);
+   f.Tool.Mode = HavenSoft.HexManiac.Core.ViewModels.Tools.CodeMode.Raw;
+   f.Dispatch.Flush();
+   Check(f.Model[WorkflowFixture.Root + 4] == 2, "A mode switch must finish the source with its original parser before changing modes.");
+}
 Console.WriteLine($"CHECKS_PASSED:{checks}");

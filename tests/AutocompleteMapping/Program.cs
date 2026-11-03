@@ -131,7 +131,9 @@ foreach(var ending in new[]{"\n","\r\n"}) {
    Check(Items().Length>0,"Live CodeTool must offer variable suggestions without compiling incomplete text.");
    var wanted=Array.FindIndex(Items(),item=>item.CompletionText=="setvar temp1 1");Check(wanted>=0,"Fixture must offer the intended variable alias.");
    for(int i=0;i<wanted;i++)Press(Key.Down);
-   Check(m.RawData.SequenceEqual(before) && !viewport.Undo.CanExecute(null),"Incomplete input and menu navigation must not mutate data/history before compilation.");
+   // The editor's Undo command can now settle/undo a pending draft; ROM history
+   // must still remain unchanged before the actual compile callback.
+   Check(m.RawData.SequenceEqual(before) && !viewport.ChangeHistory.Undo.CanExecute(null),"Incomplete input and menu navigation must not mutate data/history before compilation.");
    Check(Press(Key.Enter).Handled,"Live completion must be accepted through the actual key handler.");
    Check(control.EditBox.Text==partial.Replace("setvar tem 1","setvar temp1 1"),"Completion must preserve the entire surrounding live script.");
    dispatch.Flush();Layout();viewport.ChangeHistory.ChangeCompleted();

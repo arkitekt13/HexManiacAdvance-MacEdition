@@ -4,6 +4,9 @@ Date: 2026-11-03. Baseline: `8147279b`; branch: `investigate/script-workflow-rec
 Scope: investigation, tests and tooling only. No production source, engine behavior,
 researched addresses, flag/variable helpers or supplied ROM is changed.
 
+Follow-up: HMA-006 is fixed on the implementation branch; the observations below remain the
+original investigation evidence. See ScriptWorkflowSafety/README.md and changelog entry 066.
+
 ## Outcome
 
 The settled successful workflow is protected by 548 checks across LF/CRLF. All 27 Mac test

@@ -25,6 +25,34 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       private readonly ChangeHistory<ModelDelta> history;
       private readonly IRaiseMessageTab messageTab;
       private readonly IDelayWorkTimer recompileTimer;
+      private Action pendingScriptCompile;
+      private long scriptCompileGeneration;
+      private readonly HashSet<CodeBody> scriptDrafts = new();
+      public bool HasPendingScriptChanges => pendingScriptCompile != null;
+      public bool HasUncompiledScriptChanges => HasPendingScriptChanges || scriptDrafts.Count > 0;
+      public bool HasActiveScriptDraft => Contents.Any(scriptDrafts.Contains);
+      public event EventHandler ScriptStateChanged;
+
+      // Execute before reusing a body or crossing a persistence/history boundary.
+      // Reset alone cannot invalidate a timer callback already posted to the UI thread.
+      public bool FlushPendingScriptChanges() {
+         var action = pendingScriptCompile;
+         pendingScriptCompile = null;
+         scriptCompileGeneration++;
+         recompileTimer.Reset();
+         action?.Invoke();
+         if (action != null) ScriptStateChanged?.Invoke(this, EventArgs.Empty);
+         return scriptDrafts.Count == 0;
+      }
+
+      public bool DiscardActiveScriptDraft() {
+         var active = Contents.Where(scriptDrafts.Contains).ToArray();
+         if (active.Length == 0) return false;
+         foreach (var body in active) scriptDrafts.Remove(body);
+         ScriptStateChanged?.Invoke(this, EventArgs.Empty);
+         UpdateContent();
+         return true;
+      }
 
       public event EventHandler<ErrorInfo> ModelDataChanged;
       public event EventHandler AttentionNewContent;
@@ -53,6 +81,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       public CodeMode Mode {
          get => mode;
          set {
+            if (mode != value) FlushPendingScriptChanges();
             if (!TryUpdateEnum(ref mode, value)) return;
             UpdateContent();
             NotifyPropertyChanged(nameof(IsReadOnly));
@@ -152,6 +181,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
 
       public void UpdateContent() {
          if (ignoreContentUpdates || !isSelected) return;
+         FlushPendingScriptChanges();
          var start = Math.Min(model.Count - 1, selection.Scroll.ViewPointToDataIndex(selection.SelectionStart));
          var end = Math.Min(model.Count - 1, selection.Scroll.ViewPointToDataIndex(selection.SelectionEnd));
 
@@ -253,7 +283,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
 
             var label = scriptStart.ToString("X6");
             CodeBody body;
-            if (Contents.Count > i && Contents[i].Parser == parser) {
+            var draft = scriptDrafts.FirstOrDefault(candidate => candidate.Parser == parser && candidate.Address == scriptStart);
+            if (draft != null) {
+               body = draft;
+            } else if (Contents.Count > i && Contents[i].Parser == parser && Contents[i].Address == scriptStart) {
                body = Contents[i];
             } else {
                body = new CodeBody(model, parser, Investigator) { Address = scriptStart, Label = label };
@@ -266,8 +299,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
             if (Contents.Count > i) {
                body.ContentChanged -= ScriptChanged;
                body.HelpSourceChanged -= UpdateScriptHelpFromLine;
-               body.Content = string.Empty;
-               body.Content = info.Content;
+               if (draft == null) {
+                  body.Content = string.Empty;
+                  body.Content = info.Content;
+               }
                body.Address = scriptStart;
                body.CompiledLength = info.Length;
                body.Label = label;
@@ -276,7 +311,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                Contents[i] = body;
             } else {
                body.CompiledLength = info.Length;
-               body.Content = info.Content;
+               if (draft == null) body.Content = info.Content;
                body.ContentChanged += ScriptChanged;
                body.HelpSourceChanged += UpdateScriptHelpFromLine;
                body.RequestShowSearchResult += ShowSearchResults;
@@ -302,6 +337,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
             _ => null,
          };
          var body = (CodeBody)viewModel;
+         // A different body can be edited without navigating (multiple script panels).
+         // Finish its predecessor before replacing the single debounce slot.
+         if (HasPendingScriptChanges && !scriptDrafts.Contains(body)) FlushPendingScriptChanges();
+         scriptDrafts.Add(body);
          body.TryCompleteCommandToken();
          if (InsertAutoActive && body.TryInsertAuto()) {
             // update the caret later, or weird stuff happens
@@ -325,20 +364,26 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          if (run != null && run.Start != body.Address) run = null;
 
          int length = parser.FindLength(model, body.Address);
+         var editMode = mode;
+         var editAddress = body.Address;
          Action action = () => {
+            if (body.Address != editAddress || body.Parser != parser) return;
             var initialStart = selection.Scroll.ViewPointToDataIndex(selection.SelectionStart);
             var initialEnd = selection.Scroll.ViewPointToDataIndex(selection.SelectionEnd);
             if (initialStart > initialEnd) (initialStart, initialEnd) = (initialEnd, initialStart);
 
-            if (mode == CodeMode.Script) {
-               CompileScriptChanges<XSERun>(body, run, ref codeContent, e.OldValue, parser, body == Contents[0]);
-            } else if (mode == CodeMode.AnimationScript) {
-               CompileScriptChanges<ASERun>(body, run, ref codeContent, e.OldValue, parser, body == Contents[0]);
-            } else if (mode == CodeMode.BattleScript) {
-               CompileScriptChanges<BSERun>(body, run, ref codeContent, e.OldValue, parser, body == Contents[0]);
-            } else if (mode == CodeMode.TrainerAiScript) {
-               CompileScriptChanges<TSERun>(body, run, ref codeContent, e.OldValue, parser, body == Contents[0]);
+            bool updateSelection = Contents.Count > 0 && body == Contents[0] && initialStart == editAddress;
+            bool compiled = false;
+            if (editMode == CodeMode.Script) {
+               compiled = CompileScriptChanges<XSERun>(body, run, ref codeContent, e.OldValue, parser, updateSelection);
+            } else if (editMode == CodeMode.AnimationScript) {
+               compiled = CompileScriptChanges<ASERun>(body, run, ref codeContent, e.OldValue, parser, updateSelection);
+            } else if (editMode == CodeMode.BattleScript) {
+               compiled = CompileScriptChanges<BSERun>(body, run, ref codeContent, e.OldValue, parser, updateSelection);
+            } else if (editMode == CodeMode.TrainerAiScript) {
+               compiled = CompileScriptChanges<TSERun>(body, run, ref codeContent, e.OldValue, parser, updateSelection);
             }
+            if (compiled) scriptDrafts.Remove(body);
 
             body.ContentChanged -= ScriptChanged;
             body.HelpSourceChanged -= UpdateScriptHelpFromLine;
@@ -363,7 +408,12 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          /*/
          body.CaretPosition += ScriptParser.InsertMissingClosers(ref codeContent, body.CaretPosition);
          body.Content = codeContent;
-         recompileTimer.DelayCall(TimeSpan.FromSeconds(.5), action);
+         pendingScriptCompile = action;
+         var generation = ++scriptCompileGeneration;
+         recompileTimer.DelayCall(TimeSpan.FromSeconds(.5), () => {
+            if (generation == scriptCompileGeneration) FlushPendingScriptChanges();
+         });
+         ScriptStateChanged?.Invoke(this, EventArgs.Empty);
          //*/
       }
 
@@ -436,7 +486,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          return new StubDisposable { Dispose = () => ignoreContentUpdates = false };
       }
 
-      private void CompileScriptChanges<SERun>(CodeBody body, IFormattedRun run, ref string codeContent, string previousText, ScriptParser parser, bool updateSelection) where SERun : IScriptStartRun {
+      private bool CompileScriptChanges<SERun>(CodeBody body, IFormattedRun run, ref string codeContent, string previousText, ScriptParser parser, bool updateSelection) where SERun : IScriptStartRun {
          ShowErrorText = false;
          ErrorText = string.Empty;
          var sources = run?.PointerSources ?? null;
@@ -454,7 +504,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
             parser.CompileError -= body.WatchForCompileErrors;
             if (originalCodeContent != codeContent) body.Editor.CaretIndex = caret + codeContent.Length - previousText.Length - ignoreCharacterCount;
             if (code == null) {
-               return;
+               return false;
             }
 
             if (code.Length > length) {
@@ -484,7 +534,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                      }
                      ErrorText = $"Script is {code.Length} bytes long, but only {availableLength} bytes are available.";
                      ShowErrorText = true;
-                     return;
+                     return false;
                   }
                } else {
                   if (run is NoInfoRun) run = Construct<SERun>(run.Start, run.PointerSources);
@@ -561,6 +611,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          }
 
          ModelDataChanged?.Invoke(this, ErrorInfo.NoError);
+         return true;
       }
 
       private string RawParse(IDataModel model, int start, int length) {

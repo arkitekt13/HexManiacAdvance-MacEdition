@@ -111,18 +111,19 @@ audits, legal ranges, custom engines and incomplete-scan reporting as separately
 
 ## HMA-006 — Prevent deferred script work from applying to a changed context
 
-**Status:** Confirmed in synthetic production-CodeTool and real headless TextEditor probes;
-investigation only, not fixed.
+**Status:** Fixed with pending-work flushing, callback generations, retained rejected drafts
+and explicit history boundaries; 563 workflow checks and all 27 Mac groups pass.
 
 **Reproduction:** Queue an edit to script A, navigate to script B before the half-second compile
 callback, and run the callback; A's pending source writes B's bytes. CodeBody reuse changes
 Address while the closure retains A's source/run. Focus loss does not flush it in the attached
 control probe. A pending compile can also reapply a new value after Undo and clear Redo.
 
-**Required scope:** Bind work to stable model/script/parser identity and edit generation, and
-define safe navigation/history/mode boundaries that preserve edits rather than merely canceling
-them. Retain automatic relocation/repointing and successful coalescing. Add regressions that
-fail against current code before implementing a repair.
+**Implemented:** Finish pending work before body reuse or mode changes, guard posted callbacks
+with generations, retain rejected drafts by their script/parser context, and settle work before
+Undo/Redo. Undo can discard an active rejected draft without undoing unrelated compiled data.
+New regressions cover original/destination bytes, pending-first-edit Undo, Redo, draft retention,
+stale callbacks and mode switches; compiler/repointing algorithms are unchanged.
 
 Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md).
 

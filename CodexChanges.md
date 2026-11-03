@@ -779,3 +779,23 @@ Validation: Both final-code runs pass 71 checks with identical ROM identity, ord
 Measurement note: Repeated actual delayed callbacks cost roughly 186–449 ms and 240–623 MB of temporary allocation in the final repeat while the usage menu is closed; ten rapid selections correctly coalesce to one scan, and the tool-only repeated-root experiment preserves ordered matches while reducing matching from 142–146 to 82–85 ms and roughly 240 to 126 MB per query.
 
 Scope: Tools/docs only; no application parser, researched addresses, script traversal limits, pointer/repointing/history algorithms, or cache behavior changed, and the approximately 40% matching-time/48% allocation experiment is not a shipped whole-editor improvement; the report requires cancellation, mutation, reload, relocation, and history regression coverage before implementation.
+
+## 047 — Reuse shared script outcomes within each map-usage query
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/ButtonArrayElementViewModel.cs](src/HexManiac.Core/ViewModels/Tools/ButtonArrayElementViewModel.cs) | 140 | Reuse script-match booleans and one opcode-filter buffer within a query while retaining per-event destinations/previews and cancellation checks. |
+| [tests/MapUsageSearch/Program.cs](tests/MapUsageSearch/Program.cs) | 14 | Add 106 synthetic checks for ordered shared-root contexts, hidden/negative matches, branches/cycles/invalid roots, preview validity, edits/pointers/reload/history, cancellation, and warmed allocation. |
+| [tests/MapUsageSearch/MapUsageSearch.csproj](tests/MapUsageSearch/MapUsageSearch.csproj) | 1 | Add a separately executable Mac regression group sharing the existing fabricated map fixture. |
+| [tests/MapUsageSearch/README.md](tests/MapUsageSearch/README.md) | 1 | Document public-query coverage and the unchanged allocation budget's failing-before/passing-after evidence. |
+| [tests/ITEM_USAGE_PERFORMANCE.md](tests/ITEM_USAGE_PERFORMANCE.md) | 156 | Record the separate application change, integrity checks, regression results, actual callback improvements, and remaining thumbnail/UI-thread cost. |
+| [tests/README.md](tests/README.md) | 42 | Link the query-local freshness, cancellation, and allocation regression group. |
+| [tools/ItemUsageBenchmark/README.md](tools/ItemUsageBenchmark/README.md) | 29 | Distinguish the original tool-side experiment from the implemented and separately measured application callback. |
+
+Validation: Both upstream suites pass 1,780/26 cases with 935/41 optional-ROM skips and zero failures/engine errors, and the complete Mac repeat passes 19 groups/1,550 assertions; the new 2,000,000-byte allocation guard fails with the original implementation at 16,811,032 bytes and passes unchanged at about 1,178,552 bytes with reuse.
+
+Validation note: An initial Mac run hit the previously observed FocusAnimation clock check; it passed unchanged in isolation and in the complete repeat, with no assertion weakened or case suppressed.
+
+Measurement note: Baseline and both implementation benchmark runs pass 71 checks with identical ordered destinations, thumbnail pixels, ROM identity, and event/root counts; item-13 actual delayed callback execution changes from 224.856 to 160.445 ms (147.708 on repeat) and 302.558 to 187.903 MB per query, with approximately 115 MB less temporary allocation in all four queries and less benefit when eager thumbnail creation dominates.
+
+Scope: A dictionary confined to one query preserves the original parser/traversal and current per-event behavior, without persistent caching or changes to researched addresses, compiler, pointer/repointing/history algorithms, flags/variables, debounce timing, thread assignment, or thumbnail scheduling; the measured 29–36% sparse-query execution saving is not a whole-editor/native responsiveness or retained-memory claim.

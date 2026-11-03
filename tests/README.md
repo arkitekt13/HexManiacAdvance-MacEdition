@@ -38,3 +38,6 @@ regressions are documented in [ItemTablePresentation/README.md](ItemTablePresent
 
 The normal delayed item/map-use search, UI-thread cost, and query-local reuse experiment are
 reviewed separately in [ITEM_USAGE_PERFORMANCE.md](ITEM_USAGE_PERFORMANCE.md).
+
+Synthetic query-local search freshness, cancellation, and allocation regressions are in
+[MapUsageSearch/README.md](MapUsageSearch/README.md).

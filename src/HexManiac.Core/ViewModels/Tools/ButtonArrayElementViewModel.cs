@@ -137,6 +137,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
             if (line is MacroScriptLine macro && macro.Args[0] is SilentMatchArg silent) filter.Add(silent.ExpectedValue);
             if (line is ScriptLine sl) filter.Add(line.LineCode[0]);
          }
+         // Share only the script predicate within this one query. Each event retains its
+         // own location/preview, and the next query always reads current model bytes.
+         var filterBytes = filter.ToArray();
+         var scriptMatches = new Dictionary<int, bool>();
 
          var allMaps = AllMapsModel.Create(model);
          var isItemTable = tableName == HardcodeTablesModel.ItemsTableName;
@@ -149,28 +153,14 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                foreach (var ev in map.Events.Objects.Concat<IScriptEventModel>(map.Events.Scripts)) {
                   if (ev is SignpostEventModel sp && !sp.HasScript) continue;
                   if (cancel) yield break;
-                  var spots = Flags.GetAllScriptSpots(model, parser, new[] { ev.ScriptAddress }, filter.ToArray());
-
-                  // if any of these spots match, then this object's script refers to this enum
-                  foreach (var spot in spots) {
-                     int check = spot.Address + spot.Line.LineCode.Count;
-                     bool match = false;
-                     foreach (var arg in spot.Line.Args) {
-                        if (cancel) yield break;
-                        var length = arg.Length(model, check);
-                        if (arg.EnumTableName == tableName) {
-                           if (model.ReadMultiByteValue(check, length) == index) {
-                              var button = new GotoMapButton(mapEditor, this, bankIndex, mapIndex, ev);
-                              if (button.Image == null) continue;
-                              yield return button;
-                              match = true;
-                              break;
-                           }
-                        }
-                        check += length;
-                     }
-                     if (match) break;
+                  var root = ev.ScriptAddress;
+                  if (!scriptMatches.TryGetValue(root, out var match)) {
+                     scriptMatches[root] = match = ScriptReferencesValue(model, parser, root, filterBytes);
                   }
+                  if (cancel) yield break;
+                  if (!match) continue;
+                  var button = new GotoMapButton(mapEditor, this, bankIndex, mapIndex, ev);
+                  if (button.Image != null) yield return button;
                }
                if (isItemTable) {
                   foreach (var ev in map.Events.Signposts) {
@@ -189,6 +179,21 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                }
             }
          }
+      }
+
+      private bool ScriptReferencesValue(IDataModel model, ScriptParser parser, int root, byte[] filter) {
+         if (cancel) return false;
+         foreach (var spot in Flags.GetAllScriptSpots(model, parser, new[] { root }, filter)) {
+            if (cancel) return false;
+            int check = spot.Address + spot.Line.LineCode.Count;
+            foreach (var arg in spot.Line.Args) {
+               if (cancel) return false;
+               var length = arg.Length(model, check);
+               if (arg.EnumTableName == tableName && model.ReadMultiByteValue(check, length) == index) return true;
+               check += length;
+            }
+         }
+         return false;
       }
    }
 

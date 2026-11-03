@@ -29,7 +29,8 @@ in a warmed model scope and cannot simply be added/subtracted to infer callback 
 
 The experiment is tool-only and shares only a boolean result for identical root script
 addresses within one matching query, plus one opcode-filter buffer. It still calls the
-original Flags.GetAllScriptSpots and never caches across queries or modifies the application.
+original Flags.GetAllScriptSpots and never caches across queries or installs itself in the application. The later app
+implementation and its separate actual-callback measurements are recorded in the report.
 An independent reference matcher is compared with actual ordered map/event button results;
 reflection reads the existing private button destination fields rather than adding app APIs.
 Repeated actual callbacks must retain exact event order and thumbnail hashes. Raw experimental

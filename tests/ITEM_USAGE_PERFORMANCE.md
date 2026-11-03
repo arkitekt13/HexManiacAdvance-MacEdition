@@ -2,7 +2,8 @@
 
 Branch: `investigate/item-usage-search`, based on `3c065e0c`.
 Host: Apple M3 Pro, macOS ARM64, .NET 8.0.5, Release, Avalonia 11.2.3.
-Scope: investigation and benchmark-only experiment; application code is unchanged.
+The initial checkpoint below is investigation-only. A separately committed application
+follow-up, regression coverage, and actual-callback comparison are recorded at the end.
 
 ## Normal scheduling and why this matters
 
@@ -150,3 +151,72 @@ No application implementation is included in this review. Build passes with zero
 on the final incremental build (the initial Core rebuild retained eight existing warnings).
 The broader suites were not rerun for this tools/docs-only change; their last recorded baseline
 remains 1,780/26 upstream passes with 935/41 optional-ROM skips and 18 Mac groups/1,444 assertions.
+
+
+## Implementation follow-up: query-local script outcomes
+
+Branch `improve/item-usage-script-reuse`, based on investigation commit `29379f3e`.
+FindObjectUses now creates a fresh root-address→boolean dictionary and opcode-filter buffer
+inside each query. ScriptReferencesValue retains the original Flags.GetAllScriptSpots,
+argument lengths, enum/value comparison, and cancellation checks. Each event still constructs
+its own destination and preview, and null previews are still omitted. The next query creates
+new outcomes from current bytes; there is no persistent cache or model-version invalidation.
+
+The synthetic MapUsageSearch group uses the public delayed owner, parser, preview creation,
+and actual editing/history APIs. Four banks intentionally alias a single map/header, with
+three NPCs, a coordinate event, and a hidden item in each. It requires ordered event identity,
+positive/negative matches, enum isolation, valid/null thumbnails, changed script operands,
+changed event pointers, hidden-item edits, positive/negative cyclic branches, malformed/
+out-of-range roots, cancellation before loading and during first-result publication, reload,
+exact-byte undo/redo, and restored thumbnail pixels. All addresses/data are fabricated.
+
+A warmed negative-query allocation guard shares a 200-command script across sixteen events,
+excluding thumbnail creation. With the original implementation restored temporarily, all
+preceding functional checks pass and the unchanged 2,000,000-byte budget fails at 16,811,032
+bytes; the implementation is restored immediately and passes at about 1,178,552 bytes. This
+protects the performance change even when reverting it would retain identical search results.
+The allocation budget is not an elapsed-time/native responsiveness threshold.
+
+The parser, original traversal limits, discovered game addresses, script compiler, pointer
+and history algorithms, half-second timer, UI-thread execution, automatic scheduling, and
+eager per-event thumbnail generation remain unchanged. This follow-up does not solve every
+source of delayed-search latency or claim broader item-use completeness.
+
+Implementation verification: both upstream suites pass 1,780/26 cases with 935/41 optional-ROM
+skips and zero failures/engine errors. The complete Mac repeat passes 19 groups/1,550 assertions,
+including 106 new query regressions. An initial run hit the previously observed FocusAnimation
+clock assertion; it passed unchanged in isolation and in the complete repeat. No animation
+assertion or other test threshold was weakened or suppressed.
+
+### Actual application callback comparison
+
+Baseline: `final-repeat.json` at `29379f3e`. Implementation: `implemented-after.json` and
+`implemented-repeat.json`. The timed workload and assertions are unchanged; all three runs
+pass 71 checks with identical source/model identity, ordered event destinations, thumbnail
+pixel hashes, event/root counts, and hidden-item counts. No builds or tests run concurrently
+with the timed runs. The source ROM remains unchanged. Release rebuild passes with eight
+existing Core warnings and no errors.
+
+These are medians of three actual repeated delayed callbacks for each item, excluding the
+unchanged half-second waiting period. Each callback includes matching, preview creation,
+and result publication; this is no longer merely the benchmark-only matching experiment.
+
+| Item | Baseline callback ms | First after ms | Repeat after ms | Baseline allocation MB | First after MB | Repeat after MB |
+| --- | --- | --- | --- | --- | --- | --- |
+| 13 | 224.856 | 160.445 | 147.708 | 302.558 | 187.903 | 187.902 |
+| 1 | 189.770 | 125.622 | 116.959 | 248.059 | 133.403 | 133.403 |
+| 50 | 185.753 | 119.822 | 116.057 | 240.332 | 125.676 | 125.676 |
+| 0 | 448.800 | 419.483 | 401.463 | 623.229 | 508.672 | 508.673 |
+
+The first matched before/after pair reduces execution time by 29–36% for the three sparse/
+empty-result queries and about 7% for the many-result item; the second after run repeats
+the improvement direction. Approximately 115 MB of temporary managed allocation is avoided
+per query in all four cases. That is about 38–48% for sparse/empty queries and 18% for the
+thumbnail-heavy one. Preview generation explains why the many-result callback benefits less.
+
+The fixed delay, UI-thread execution, closed-menu scheduling, and eager thumbnails still
+remain. The table is evidence for this delayed callback on the supplied ROM, not a whole-
+editor, foreground-browsing, native frame-rate, retained-RAM, or universal-ROM multiplier.
+Deferring work until requested or changing thumbnail/concurrency behavior remains a separate
+change requiring its own lifecycle/UX review. No further architecture or parser changes are
+needed to make this query-local improvement concrete and independently reversible.

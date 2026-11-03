@@ -869,3 +869,5 @@ Validation: The final build passes with zero warnings/errors, all 24 file-drop c
 Validation note: The initial full run hit the previously observed FocusAnimation timing failure, which passed unchanged in isolation and in the complete repeat without weakening or suppressing checks.
 
 Scope: Avalonia drop routing and undo-transaction boundaries only; the shared HMA parser, game/version guards, relative-asset path context, researched addresses, repointing rules, and Core history implementation are unchanged. Synthetic data only was used, no user ROM or source script was modified, and native Finder operation and the user's unprovided script still need a live retry after relaunch.
+
+User verification update: The user retried and reports that `.hma` dropping still does not work; this remains a partial fix rather than a resolved workflow and is deferred as HMA-001 in [FutureDevelopment.md](FutureDevelopment.md).

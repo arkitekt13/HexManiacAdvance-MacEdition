@@ -34,6 +34,12 @@ public partial class TutorialControl : UserControl {
       new FuncValueConverter<string, string>(text => {
          if (text == "Double-Click over the map to paint an area with the selected block.")
             return "Select one block, then double-click the map to fill an area. Multiple-block selections cannot fill.";
+         if (OperatingSystem.IsMacOS()) {
+            if (text == "Right-Click the map to select that block.")
+               return "Control-click the map to select that placed block.";
+            if (text == "Right-Click and drag on the map to select multiple blocks. When multiple blocks are selected, you can draw, but not paint.")
+               return "Hold Control and left-drag on the map to select placed blocks. Left-click elsewhere to stamp them.";
+         }
          return OperatingSystem.IsMacOS() ? text?.Replace("Control", "Command (⌘)") : text;
       });
 

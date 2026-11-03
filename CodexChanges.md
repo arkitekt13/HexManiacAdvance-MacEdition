@@ -871,3 +871,20 @@ Validation note: The initial full run hit the previously observed FocusAnimation
 Scope: Avalonia drop routing and undo-transaction boundaries only; the shared HMA parser, game/version guards, relative-asset path context, researched addresses, repointing rules, and Core history implementation are unchanged. Synthetic data only was used, no user ROM or source script was modified, and native Finder operation and the user's unprovided script still need a live retry after relaunch.
 
 User verification update: The user retried and reports that `.hma` dropping still does not work; this remains a partial fix rather than a resolved workflow and is deferred as HMA-001 in [FutureDevelopment.md](FutureDevelopment.md).
+
+## 053 — Support macOS Control-left-drag selection of placed map blocks
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 220 | Route macOS Control-left-click and drag through the existing secondary-button map selection path while preserving Command rectangle fill and native secondary dragging. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 337 | Match release to the physical left button for Control selection so releasing Control early still completes the brush and event creation resets the gesture state. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 37 | Explain Control-click picking and Control-left-drag selection with subsequent stamping in the Mac tutorial cards. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 25 | Add 117 synthetic checks for exact block/collision copying, repeated stamps, selection without edits, early modifier release, two scales, metadata, undo/redo, and preserved Command rectangle fill. |
+| [tests/MapSelection/MapSelection.csproj](tests/MapSelection/MapSelection.csproj) | 1 | Add a headless regression group using the production window and map controls with the fabricated map fixture. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 1 | Document gesture behavior, original-handler failure, render-timer setup, coverage, and native-device verification limits. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 23 | Verify the platform-specific selection instructions display in full within the tutorial cards. |
+| [tests/README.md](tests/README.md) | 51 | Link the map selection and stamping regression group. |
+
+Validation: The unchanged selection assertion fails on the original map handler and passes with the new mapping; the final build has zero warnings/errors, the selection group passes 117 checks, and the complete Mac suite passes 22 groups/2,873 assertions with no skipped groups.
+
+Scope: Mac input mapping and tutorial wording only; selection reuses shared Core's existing brush capture, block/collision copying, stamping, clipping, and history behavior without changing researched addresses or editing/repointing algorithms. Native macOS device interaction still needs a live check after relaunch.

@@ -150,6 +150,7 @@ public partial class MapTab : UserControl {
 
    // track which button is being used. Set to XButton1 when not in use.
    private MouseButton withinMapInteraction = MouseButton.XButton1;
+   private bool controlSelectGesture;
    private bool mapCaptured, backgroundCaptured, blocksCaptured, borderCaptured;
 
    private static readonly object NoTooltip = new object[0];
@@ -216,6 +217,11 @@ public partial class MapTab : UserControl {
       if (button == MouseButton.XButton1 && vm.Back.CanExecute(null)) { vm.Back.Execute(); return; }
       if (button == MouseButton.XButton2 && vm.Forward.CanExecute(null)) { vm.Forward.Execute(); return; }
       if (withinMapInteraction != MouseButton.XButton1) return;
+      // macOS reserves Control-left-click for secondary-button actions. Retain
+      // the physical button for release, even if Control is released first.
+      controlSelectGesture = OperatingSystem.IsMacOS() && button == MouseButton.Left &&
+         e.KeyModifiers.HasFlag(KeyModifiers.Control);
+      if (controlSelectGesture) button = MouseButton.Right;
       UpdateTooltipContent(NoTooltip);
       Focus();
       e.Handled = true;
@@ -328,10 +334,12 @@ public partial class MapTab : UserControl {
       e.Handled = true;
       var element = (Control)sender;
       var previousInteraction = withinMapInteraction;
+      var releaseButton = controlSelectGesture ? MouseButton.Left : previousInteraction;
+      controlSelectGesture = false;
       withinMapInteraction = MouseButton.XButton1;
       if (mapCaptured) { e.Pointer.Capture(null); mapCaptured = false; }
       if (previousInteraction == MouseButton.XButton1) return;
-      if (e.InitialPressMouseButton != previousInteraction) return;
+      if (e.InitialPressMouseButton != releaseButton) return;
       var vm = ViewModel;
       if (vm == null) return;
       var p = GetCoordinates(element, e);
@@ -666,6 +674,7 @@ public partial class MapTab : UserControl {
       var target = (EventCreationType)((Control)sender).Tag;
       if (target == EventCreationType.Fly && !ViewModel.PrimaryMap.CanCreateFlyEvent) return;
       withinMapInteraction = MouseButton.Left;
+      controlSelectGesture = false;
       e.Pointer.Capture(MapView);
       mapCaptured = true;
       ViewModel.StartEventCreationInteraction(target);

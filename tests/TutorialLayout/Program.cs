@@ -20,9 +20,14 @@ void Check(bool condition, string message) {
    checks++;
    if (!condition) throw new InvalidOperationException(message);
 }
-string ExpectedDescription(MapTutorialViewModel tutorial) => tutorial.Title == "Paint Blocks"
-   ? "Select one block, then double-click the map to fill an area. Multiple-block selections cannot fill."
-   : OperatingSystem.IsMacOS() ? tutorial.Content.Replace("Control", "Command (⌘)") : tutorial.Content;
+string ExpectedDescription(MapTutorialViewModel tutorial) {
+   if(tutorial.Title=="Paint Blocks") return "Select one block, then double-click the map to fill an area. Multiple-block selections cannot fill.";
+   if(OperatingSystem.IsMacOS() && tutorial.Content=="Right-Click the map to select that block.")
+      return "Control-click the map to select that placed block.";
+   if(OperatingSystem.IsMacOS() && tutorial.Content.StartsWith("Right-Click and drag on the map"))
+      return "Hold Control and left-drag on the map to select placed blocks. Left-click elsewhere to stamp them.";
+   return OperatingSystem.IsMacOS() ? tutorial.Content.Replace("Control", "Command (⌘)") : tutorial.Content;
+}
 
 foreach (var hostWidth in new[] { 800, 500 }) {
    var vm = new MapTutorialsViewModel();

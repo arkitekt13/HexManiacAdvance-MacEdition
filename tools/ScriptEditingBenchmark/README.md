@@ -78,3 +78,7 @@ full TabView test, and applying a suggestion is outside the measured workload.
 
 See tests/NPC_SCRIPT_BENCHMARK.md for repeated measurements and the separately tracked Mac
 autocomplete mapping finding.
+
+After the mapping fix, npc-autocomplete-fixed.json records all 24 overlay probes matching
+Core, with the original source/layer hashes and option arrays unchanged; the older mismatch
+reports are retained as regression evidence rather than overwritten.

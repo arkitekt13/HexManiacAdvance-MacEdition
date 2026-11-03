@@ -64,21 +64,23 @@ this pre-existing failure is a separate correctness issue, not introduced or fix
 
 ## HMA-004 — Correct Mac script autocomplete caret mapping after the first line
 
-**Status:** Reproduced with routed headless production TextEditor/AutocompleteOverlay handlers;
-native keyboard confirmation and a fix are pending.
+**Status:** Fixed in the Avalonia overlay; 282 focused headless checks pass, with native
+screen appearance still to be checked during normal use.
 
-**Reproduction:** With LF content `lock\nmsgb`, place the caret at the end (index 9). Core
+**Original reproduction:** With LF content `lock\nmsgb`, place the caret at the end (index 9). Core
 GetTokenComplete at line 1, column 4 returns suggestions, but the overlay subtracts the previous
 line's length plus 2, obtains column 3, and requests the wrong character position. Its own
 first-line `msgb` and `setvar tem` controls show the expected eight/ten suggestions. The NPC
 benchmark records all later-line mismatches separately rather than treating them as passes.
 
-**Source evidence:** Both TargetTextChanged and AutocompleteOptionChosen in Avalonia
-Controls/AutocompleteOverlay.axaml.cs retain the Windows `length + 2` line traversal while
-splitting on Environment.NewLine, which is LF on Mac. The option-application path has the
-same assumption but has not been exercised by this benchmark.
+**Original source evidence:** Both TargetTextChanged and AutocompleteOptionChosen in Avalonia
+Controls/AutocompleteOverlay.axaml.cs retained the Windows `length + 2` line traversal while
+splitting on Environment.NewLine, which is LF on Mac. The regression now exercises both
+querying and option application, as well as quote/space acceptance.
 
-**Next investigation:** Add focused LF/CRLF, blank-line, first/middle/last-line, selection and
-caret-boundary tests; verify offered and applied completions, read-only lookup, exact intended
-line edits, and undo/redo. Replace the traversal with line-ending-aware mapping only after
-those regressions reproduce the error. Keep suggestion matching and script compilation intact.
+**Implemented:** A shared bounded line/span locator now drives querying, Enter/mouse acceptance
+and quote/space handling. Acceptance preserves existing source separators and other lines,
+and absent suggestions clear stale options. The new AutocompleteMapping group reproduces
+the old failure and verifies LF/CRLF/mixed documents, selection/caret boundaries, actual
+TextInput, keyboard/mouse acceptance, caller pointers and live CodeTool undo/redo. Matching,
+numeric interpretation and shared-Core compilation are unchanged.

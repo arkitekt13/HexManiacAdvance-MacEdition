@@ -999,3 +999,23 @@ Scope: No numeric syntax or alias-priority change, pointer parsing change, globa
 Validation: The final Release benchmark builds with zero warnings/errors; two complete runs each pass 2,892 measurement/invariant checks across 18 edit cases and 24 completion probes, with identical paired UI/Core and cross-run source/layer hashes, and the legacy lookup mode still passes 58 checks. All six first-line overlay controls match Core in each run, while all 18 tested later-line probes disagree and remain explicitly unfixed; immediate 500-line edits measure about 10–13 ms, deferred updates 34–38 ms, and core autocomplete query medians 0.0135–0.0784 ms.
 
 Scope: Benchmark tooling and documentation only; no application sources, numeric/alias parsing, script/compiler/relocation/history algorithms, or supplied ROMs were changed or opened. Measurements exclude native keyboard/full TabView bindings, initial source consolidation, the debounce wait, script growth, and new auto-stream allocation; later-line UI mismatches are characterization findings rather than successful autocomplete checks, and no native UI fix is claimed.
+
+## 061 — Fix autocomplete caret mapping and exact line replacement on Mac
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 90 | Map bounded caret positions to logical line spans using actual separators instead of assuming two-character host line endings. |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 135 | Query the correct line/column, anchor the popup to the active caret line, and clear stale options at document start or when no suggestions apply. |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 182 | Use the same bounded mapping for quote/space acceptance without negative substring offsets. |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 231 | Splice only the active source line when applying a suggestion, preserving surrounding text, original separators, suffixes, and the correct caret. |
+| [tests/AutocompleteMapping/AutocompleteMapping.csproj](tests/AutocompleteMapping/AutocompleteMapping.csproj) | 1 | Add an automatically discovered headless regression group using production controls and shipped script definitions. |
+| [tests/AutocompleteMapping/Program.cs](tests/AutocompleteMapping/Program.cs) | 49 | Add 282 checks for LF/CRLF/mixed offered/applied completions, keyboard/mouse input, selection and boundary carets, quotes, live compiled bytes, caller pointers, and undo/redo. |
+| [tests/AutocompleteMapping/README.md](tests/AutocompleteMapping/README.md) | 1 | Document the original-handler failure, focused coverage, controlled compilation timer, and native visual limits. |
+| [tests/NPC_SCRIPT_BENCHMARK.md](tests/NPC_SCRIPT_BENCHMARK.md) | 3 | Record the fixed benchmark with all 24 UI/Core probes agreeing while preserving the original mismatch evidence and unchanged hashes/options. |
+| [tools/ScriptEditingBenchmark/README.md](tools/ScriptEditingBenchmark/README.md) | 82 | Link the fixed benchmark checkpoint and retain the older mismatch reports. |
+| [tests/README.md](tests/README.md) | 71 | Link the autocomplete mapping regression group. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 67 | Mark HMA-004 fixed with automated query/acceptance/history coverage while leaving native screen appearance for normal-use verification. |
+
+Validation: The original handler fails the unchanged exact-suggestion regression; the corrected group builds with zero warnings/errors and passes 282 checks. The realistic NPC benchmark passes all 2,892 invariants, all 24 overlay probes match Core, and all 18 original source/layer hash sets and Core option arrays are unchanged; the complete Mac suite passes all 25 groups and 4,984 assertions with no skipped groups.
+
+Scope: Avalonia autocomplete UI mapping/replacement only; shared-Core matching, decimal/hexadecimal and pointer interpretation, compilation, relocation, researched addresses, flag/variable allocation, and history algorithms are unchanged. Synthetic models only were used, no supplied ROM was opened or modified, and native screen appearance and every scroll/font configuration are not claimed validated.

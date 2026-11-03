@@ -85,9 +85,29 @@ public partial class AutocompleteOverlay : UserControl {
 
    private void ShowAutocompleteOptions() => IsVisible = true;
 
+   // Text can contain LF, CRLF, or mixed separators regardless of the host OS.
+   // Keep the original span so accepting a completion never rejoins/normalizes other lines.
+   private static (int Start, int Length, int Number, int Column) LineAt(string text, int caret) {
+      caret = Math.Clamp(caret, 0, text.Length);
+      int start = 0, number = 0;
+      for (int i = 0; i < text.Length; i++) {
+         if (text[i] != '\r' && text[i] != '\n') continue;
+         int next = i + (text[i] == '\r' && i + 1 < text.Length && text[i + 1] == '\n' ? 2 : 1);
+         if (caret < next) return (start, i - start, number, Math.Min(caret, i) - start);
+         start = next;
+         number++;
+         i = next - 1;
+      }
+      return (start, text.Length - start, number, caret - start);
+   }
+
    private void TargetTextChanged(object sender, TextChangedEventArgs e) {
       var box = TargetTextBox;
-      if (box == null || box.CaretIndex == 0) return;
+      if (box == null) return;
+      if (box.CaretIndex == 0) {
+         ClearAutocompleteOptions();
+         return;
+      }
       Func<string, int, int, IReadOnlyList<AutocompleteItem>> getAutocomplete;
       if (DataContext is ToolTray tools) {
          getAutocomplete = tools.StringTool.GetAutocomplete;
@@ -112,20 +132,12 @@ public partial class AutocompleteOverlay : UserControl {
       }
 
       var text = box.Text ?? string.Empty;
-      var index = box.CaretIndex;
-      var lines = text.Split(Environment.NewLine);
-      var lineIndex = 0;
-      while (lineIndex < lines.Length - 1 && index > lines[lineIndex].Length) {
-         index -= lines[lineIndex].Length + 2;
-         lineIndex += 1;
-      }
-
-      var editLineIndex = text.Substring(0, Math.Min(box.SelectionStart, text.Length)).Split(Environment.NewLine).Length;
+      var line = LineAt(text, box.CaretIndex);
       var lineHeight = box.FontSize * 1.4;
-      var verticalStart = lineHeight * editLineIndex + 2;
+      var verticalStart = lineHeight * (line.Number + 1) + 2;
       double horizontalStart = 0;
 
-      var options = getAutocomplete(lines[lineIndex], lineIndex, index);
+      var options = getAutocomplete(text.Substring(line.Start, line.Length), line.Number, line.Column);
       if (options != null && options.Count > 0) {
          var offset = options[0].CharacterOffset;
          var typeFace = new Typeface(box.FontFamily, box.FontStyle, box.FontWeight);
@@ -133,7 +145,7 @@ public partial class AutocompleteOverlay : UserControl {
             FlowDirection.LeftToRight, typeFace, box.FontSize, null).Width;
          AutocompleteItems.ItemsSource = AutoCompleteSelectionItem.Generate(options, 0).ToList();
          ShowAutocompleteOptions();
-      } else if (options != null) {
+      } else {
          ClearAutocompleteOptions();
       }
 
@@ -167,14 +179,8 @@ public partial class AutocompleteOverlay : UserControl {
 
       if (e.Key == Key.Space || e.Key == Key.OemQuotes) {
          var text = box.Text ?? string.Empty;
-         var caretIndex = box.CaretIndex;
-         var lines = text.Split(Environment.NewLine);
-         var lineIndex = 0;
-         while (lineIndex < lines.Length - 1 && caretIndex > lines[lineIndex].Length) {
-            caretIndex -= lines[lineIndex].Length + 2;
-            lineIndex += 1;
-         }
-         var quoteCount = lines[lineIndex].Substring(0, Math.Min(caretIndex, lines[lineIndex].Length)).Count(c => c == '"');
+         var line = LineAt(text, box.CaretIndex);
+         var quoteCount = text.Substring(line.Start, line.Column).Count(c => c == '"');
 
          if (e.Key == Key.Space && quoteCount % 2 == 0) {
             e.Handled = AutocompleteOptionChosen(items[index]) && DataContext is not CodeBody;
@@ -222,24 +228,11 @@ public partial class AutocompleteOverlay : UserControl {
       var box = TargetTextBox;
       if (box == null) return false;
       var text = box.Text ?? string.Empty;
-      var oldCaretIndex = box.CaretIndex;
-
-      var index = box.CaretIndex;
-      var lines = text.Split(Environment.NewLine);
-      var lineIndex = 0;
-      while (lineIndex < lines.Length - 1 && index > lines[lineIndex].Length) {
-         index -= lines[lineIndex].Length + 2;
-         lineIndex += 1;
-      }
-
-      var needChanges = lines[lineIndex] != item.CompletionText.TrimEnd();
+      var line = LineAt(text, box.CaretIndex);
+      var needChanges = text.Substring(line.Start, line.Length) != item.CompletionText.TrimEnd();
       if (needChanges) {
-         var oldLineLength = lines[lineIndex].Length;
-         lines[lineIndex] = item.CompletionText;
-         var newLineLength = lines[lineIndex].Length;
-
-         box.Text = Environment.NewLine.Join(lines);
-         box.CaretIndex = oldCaretIndex + newLineLength - oldLineLength;
+         box.Text = text[..line.Start] + item.CompletionText + text[(line.Start + line.Length)..];
+         box.CaretIndex = line.Start + Math.Clamp(line.Column + item.CompletionText.Length - line.Length, 0, item.CompletionText.Length);
       }
 
       ClearAutocompleteOptions();

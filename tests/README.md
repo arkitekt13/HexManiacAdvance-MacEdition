@@ -67,3 +67,7 @@ and invalidation/coverage limits are recorded in [SCRIPT_ARGUMENT_LOOKUP_PERFORM
 
 NPC-style 100–500-source-line editing, dialogue/comment changes, core completion cost, and the
 separate Mac autocomplete mapping finding are recorded in [NPC_SCRIPT_BENCHMARK.md](NPC_SCRIPT_BENCHMARK.md).
+
+The autocomplete mapping fix, LF/CRLF/mixed offered/applied options, keyboard/mouse dispatch,
+caret/selection boundaries, and live compiled-script history are protected in
+[AutocompleteMapping/README.md](AutocompleteMapping/README.md).

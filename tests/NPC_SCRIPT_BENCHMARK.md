@@ -1,5 +1,11 @@
 # NPC-style script benchmarks — 2026-11-03
 
+Fixed follow-up: [AutocompleteMapping/README.md](AutocompleteMapping/README.md) documents the
+line-mapping fix and 282 focused checks. The same 18-case/24-probe NPC workload now matches
+Core on **all 24 overlay probes**, with original source/layer hashes and Core option arrays
+unchanged (artifacts/script-performance/npc-autocomplete-fixed.json). The original findings
+below are retained as before-fix evidence.
+
 Application checkpoint: `9cf708fc`; investigation branch: `investigate/realistic-npc-scripting`.
 macOS ARM64 / .NET 8.0.5, Release, ten warmups and seven measured samples per case. Two
 complete process runs are retained; application sources are unchanged. No supplied ROM was

@@ -14,9 +14,6 @@
    <Canvas ClipToBounds="False" Width="72" Height="400" Name="ContentPanel" HorizontalAlignment="Left"
            Background="Transparent"
            IsVisible="{Binding CompletionPercent, Converter={x:Static res:NotEqualConverter.Instance}, ConverterParameter=100.00%}">
-      <Canvas.Resources>
-         <res:IconConverter x:Key="IconConverter" />
-      </Canvas.Resources>
       <Border Name="CardsViewport" Width="{Binding #ContentPanel.Width}" Height="400" ClipToBounds="True">
       <ItemsControl Name="Tutorials" ItemsSource="{Binding Tutorials}" Width="320" Height="400"
                     HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -42,12 +39,12 @@
                        PointerEntered="OnEnterTutorial">
                   <Canvas Width="318" Height="78">
                      <Decorator Width="70" Height="50" Canvas.Top="22">
-                        <Path Data="{Binding Icon, Converter={StaticResource IconConverter}}" Stretch="Uniform" Margin="12,2,12,10" Fill="{DynamicResource Secondary}" />
+                        <Path Data="{Binding Icon, Converter={x:Static local:TutorialControl.ModifierIconConverter}}" Stretch="Uniform" Margin="12,2,12,10" Fill="{DynamicResource Secondary}" />
                      </Decorator>
                      <TextBlock FontWeight="Bold" FontSize="10.5" Width="70" TextWrapping="Wrap" TextAlignment="Center" Text="{Binding Title}" Canvas.Top="2" />
                      <TextBlock FontStyle="Italic" FontSize="9.5" Width="70" TextAlignment="Center" Text="{Binding IndexText}" Canvas.Bottom="2" />
                      <Decorator Width="248" Height="78" Canvas.Left="70">
-                        <TextBlock FontSize="11.5" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8,3,18,3" Text="{Binding Content}" />
+                        <TextBlock FontSize="11.5" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8,3,18,3" Text="{Binding Content, Converter={x:Static local:TutorialControl.ModifierTextConverter}}" />
                      </Decorator>
                      <Button Command="{res:MethodCommand Close}" Width="16" Height="16" Canvas.Top="1" Canvas.Right="1">
                         <Path Fill="{DynamicResource Secondary}" Data="{res:Icon Exit}" Stretch="Uniform" />

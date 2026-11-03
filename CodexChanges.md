@@ -827,3 +827,16 @@ Validation: The menu-opening assertion fails against the original arrow handlers
 Validation note: The first full Mac run hit the previously observed FocusAnimation timing failure; it passed unchanged in isolation and in the complete repeat, without weakening or suppressing any checks. The source ROM's SHA-256 remained unchanged.
 
 Scope: Arrow input routing only; core map creation, connection editing, resizing, repointing, researched addresses, and undo algorithms are unchanged, and this is separate from the unresolved zoom freeze. Native macOS click behavior still needs a live check after relaunch.
+
+## 050 — Match map tutorial modifier instructions to macOS input
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs](src/HexManiac.Avalonia/Controls/TutorialControl.axaml.cs) | 32 | Translate Control wording and Ctrl icons to Command at display time on macOS without modifying shared tutorial records. |
+| [src/HexManiac.Avalonia/Controls/TutorialControl.axaml](src/HexManiac.Avalonia/Controls/TutorialControl.axaml) | 42 | Apply platform-aware key icons and descriptions to tutorial cards so rectangle-fill and hide-events instructions match the existing input bindings. |
+| [src/HexManiac.Avalonia/Resources/Icons.axaml](src/HexManiac.Avalonia/Resources/Icons.axaml) | 251 | Add a Cmd key graphic for Mac tutorial cards while preserving the Ctrl graphic for other platforms. |
+| [tests/TutorialLayout/Program.cs](tests/TutorialLayout/Program.cs) | 74 | Check platform-adjusted descriptions, full card fit, modifier icons, and unchanged Core tutorial text. |
+
+Validation: The editor and tutorial regression project build with zero warnings/errors, and all 332 tutorial layout, icon, content, and preview checks pass.
+
+Scope: Display instructions only; Command-left-drag already invokes rectangle fill on macOS, and no gesture, block-writing, selection, pointer, or history logic changed. Rectangle fill paints with the selected block rather than selecting an arbitrary area.

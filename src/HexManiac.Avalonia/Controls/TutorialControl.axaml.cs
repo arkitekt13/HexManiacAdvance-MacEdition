@@ -6,6 +6,7 @@ using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using HavenSoft.HexManiac.AvaloniaUI.Resources;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.ViewModels.Map;
@@ -27,6 +28,15 @@ public partial class TutorialControl : UserControl {
    // Core tracks tutorial rows independently of the Mac interface's card size.
    public static readonly IValueConverter RowOffsetConverter =
       new FuncValueConverter<double, double>(row => row * ElementHeight);
+
+   // Shared Core tutorials retain Windows wording; match the Mac map input bindings at display time.
+   public static readonly IValueConverter ModifierTextConverter =
+      new FuncValueConverter<string, string>(text => OperatingSystem.IsMacOS()
+         ? text?.Replace("Control", "Command (⌘)") : text);
+
+   public static readonly IValueConverter ModifierIconConverter =
+      new FuncValueConverter<string, Geometry>(icon => IconExtension.GetIcon(
+         OperatingSystem.IsMacOS() && icon == "CtrlKey" ? "CommandKey" : icon));
 
    public event EventHandler<MapTutorialViewModel> EnterTutorial;
 

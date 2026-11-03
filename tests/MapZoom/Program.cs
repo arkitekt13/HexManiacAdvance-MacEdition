@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -88,6 +90,61 @@ foreach (var startup in Enumerable.Range(0, 3)) {
    var modelBytes = SHA256.HashData(viewport.Model.RawData);
    var metadata = viewport.Model.ExportMetadata(null, viewport.Singletons.MetadataInfo).Serialize();
    var initialUndo = viewport.Undo.CanExecute(null);
+   var arrow = view.GetVisualDescendants().OfType<Avalonia.Controls.Border>().First(border =>
+      border.Name == "PathBackground" && border.DataContext is ExpansionSlider candidate &&
+      candidate.ContextItems.Any(command => command.Text == "Create New Map"));
+   var slider = (ExpansionSlider)arrow.DataContext!;
+   var menu = arrow.ContextMenu!;
+   IPointer pointer = null;
+   arrow.AddHandler(InputElement.PointerPressedEvent, (_, e) => pointer = e.Pointer,
+      RoutingStrategies.Tunnel, handledEventsToo: true);
+   var arrowPoint = arrow.TranslatePoint(new Avalonia.Point(10, 10), window)!.Value;
+   var menuInvocations = 0;
+   var bankPrompts = 0;
+   fileSystem.ShowOptions = (title, prompt, details, options) => {
+      Check(title == "Pick a bank" && details.Count > 0, "Create New Map must reach its bank-selection dialog.");
+      bankPrompts++;
+      return -1; // Cancel before any map allocation, pointer writes, or connection changes.
+   };
+   var probe = new MenuCommand("Test connection-menu routing", () => menuInvocations++);
+   slider.ContextItems.Add(probe);
+   foreach (var (button, modifiers) in new[] {
+      (MouseButton.Right, RawInputModifiers.None),
+      (MouseButton.Left, RawInputModifiers.Control),
+   }) {
+      if (modifiers == RawInputModifiers.Control && !OperatingSystem.IsMacOS()) continue;
+      window.MouseDown(arrowPoint, button, modifiers);
+      window.MouseUp(arrowPoint, button, modifiers);
+      Layout();
+      Check(menu.IsOpen, "Secondary-click and macOS Control-click must open the arrow's connection menu.");
+      Check(!ReferenceEquals(pointer?.Captured, arrow), "Context clicks must not capture the arrow for resizing.");
+      Check(menu.ItemsSource == slider.ContextItems, "Arrow menu must retain its real connection commands.");
+      var items = menu.GetLogicalDescendants().OfType<MenuItem>().ToArray();
+      var probeItem = items.Single(item => ReferenceEquals(item.DataContext, probe));
+      Check(ReferenceEquals(probeItem.Command, probe) && Equals(probeItem.Header, probe.Text),
+         "Connection menu items must bind their command and visible label.");
+      probeItem.Command!.Execute(probeItem.CommandParameter);
+      var createItem = items.Single(item => item.DataContext is IMenuCommand { Text: "Create New Map" });
+      Check(createItem.Command?.CanExecute(createItem.CommandParameter) == true,
+         "The real Create New Map menu item must receive its connection parameter.");
+      createItem.Command!.Execute(createItem.CommandParameter);
+      menu.Close();
+      window.MouseMove(arrowPoint + new Vector(32, 0));
+      Layout();
+      Check(modelBytes.SequenceEqual(SHA256.HashData(viewport.Model.RawData)),
+         "Context clicks and subsequent pointer motion must not resize a map or create a connection.");
+   }
+   Check(menuInvocations == (OperatingSystem.IsMacOS() ? 2 : 1), "Menu commands must remain executable.");
+   Check(bankPrompts == menuInvocations, "Each real Create New Map invocation must reach the bank prompt.");
+   // A primary click remains a drag gesture, with its release returning to idle.
+   window.MouseDown(arrowPoint, MouseButton.Left);
+   Check(ReferenceEquals(pointer?.Captured, arrow), "Plain left-click must still capture the arrow for dragging.");
+   window.MouseUp(arrowPoint, MouseButton.Left);
+   Check(!ReferenceEquals(pointer?.Captured, arrow), "Finishing a left drag must release the arrow.");
+   Layout();
+   Check(!menu.IsOpen, "Plain left-click must not open the connection menu.");
+   Check(modelBytes.SequenceEqual(SHA256.HashData(viewport.Model.RawData)), "Stationary arrow clicks must preserve map bytes.");
+   slider.ContextItems.Remove(probe);
    var maxNeighbors = mapper.VisibleMaps.Count;
    var zoomCount = 0;
    var timer = Stopwatch.StartNew();

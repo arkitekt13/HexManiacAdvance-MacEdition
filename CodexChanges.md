@@ -812,3 +812,18 @@ Scope: A dictionary confined to one query preserves the original parser/traversa
 Validation: The new project builds with zero warnings/errors; three synthetic sessions pass 1,098 checks and three supplied FireRed 1.1 sessions pass 1,102 checks, each scenario sending 360 routed wheel events and preserving model bytes, metadata, history availability, and the source ROM.
 
 Scope: Tests and documentation only; no editor implementation or ROM addresses were changed, and the full pre-existing suites were not rerun for this test-only addition. The user's intermittent startup freeze remains unreproduced and unresolved; investigation stopped at the user's request after zoom worked normally on restart.
+
+## 049 — Restore secondary-click and macOS Control-click on map arrows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 622 | Restrict arrow resizing to primary clicks and explicitly open the connection menu for macOS Control-click while allowing Avalonia to handle ordinary secondary clicks. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 650 | Release arrow capture and complete resizing only for a primary drag that actually started so context-menu releases remain available. |
+| [tests/MapZoom/Program.cs](tests/MapZoom/Program.cs) | 93 | Verify routed secondary and Control clicks, menu bindings, the real Create New Map bank prompt with cancellation, primary drag capture, and unchanged map data. |
+| [tests/MapZoom/README.md](tests/MapZoom/README.md) | 30 | Document the arrow regression, original-code failure, passing synthetic and FireRed checks, and map-creation coverage limits. |
+
+Validation: The menu-opening assertion fails against the original arrow handlers and passes with the fix; the final build has zero warnings/errors, the supplied FireRed scenario passes 1,162 checks, and the full Mac repeat passes 20 groups/2,708 assertions, including 1,158 checks in the expanded synthetic group.
+
+Validation note: The first full Mac run hit the previously observed FocusAnimation timing failure; it passed unchanged in isolation and in the complete repeat, without weakening or suppressing any checks. The source ROM's SHA-256 remained unchanged.
+
+Scope: Arrow input routing only; core map creation, connection editing, resizing, repointing, researched addresses, and undo algorithms are unchanged, and this is separate from the unresolved zoom freeze. Native macOS click behavior still needs a live check after relaunch.

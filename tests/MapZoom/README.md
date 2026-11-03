@@ -27,7 +27,22 @@ python3 scripts/run-upstream-command.py 90 dotnet tests/MapZoom/bin/Debug/net8.0
 Use the external watchdog for hang investigations: an in-thread timeout cannot interrupt a
 blocked UI thread. The normal Mac verification runner also discovers the synthetic group.
 
-## Investigation results
+## Arrow context-menu regression
+
+The same full-window check also sends a secondary click and, on macOS, a Control-left-click to
+an expansion arrow. Both must open the production connection menu without capturing the arrow
+or resizing a map on later pointer motion. A harmless probe command checks the actual menu-item
+label/command bindings. The real Create New Map command must receive its connection parameter
+and reach the bank-selection dialog, where the stub cancels before allocation or pointer writes.
+Plain left-click must still capture the arrow for dragging and release it afterward. Completing
+map creation or removing a connection is not exercised by this input-routing check.
+
+With the original ShifterDown/Up handlers, the unchanged menu-opening assertion fails on the
+first synthetic session. With the corrected handlers, the synthetic and local-ROM scenarios
+pass; these results establish the arrow input bug separately from the unresolved zoom freeze.
+The expanded group passes 1,158 synthetic checks and 1,162 local FireRed checks on macOS.
+
+## Initial zoom investigation results (before arrow checks)
 
 - Synthetic: three fresh sessions, 360 routed wheel events, 1,098 checks passed.
 - Supplied FireRed 1.1: three normal-open sessions, 360 routed wheel events, 1,102 checks passed;

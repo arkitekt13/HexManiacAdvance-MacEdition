@@ -622,6 +622,17 @@ public partial class MapTab : UserControl {
    private void ShifterDown(object sender, PointerPressedEventArgs e) {
       if (withinShiftInteraction || ViewModel == null) return;
       var element = (Control)sender;
+      var button = PressedButton(e, element);
+      // WPF wired only MouseLeftButtonDown here. Leave secondary-button events
+      // unhandled so Avalonia can request the arrow's connection menu on release.
+      if (button != MouseButton.Left) return;
+      if (OperatingSystem.IsMacOS() && e.KeyModifiers.HasFlag(KeyModifiers.Control)) {
+         // Accept Control-click even when the input backend reports a left
+         // button with modifiers instead of translating it to a right button.
+         if (element.ContextMenu is { IsEnabled: true } menu) menu.Open(element);
+         e.Handled = true;
+         return;
+      }
       var p = GetCoordinates(MapButtons, e);
       e.Pointer.Capture(element);
       withinShiftInteraction = true;
@@ -637,8 +648,9 @@ public partial class MapTab : UserControl {
    }
 
    private void ShifterUp(object sender, PointerReleasedEventArgs e) {
+      // Do not release capture or consume a context-menu click we never started.
+      if (!withinShiftInteraction || e.InitialPressMouseButton != MouseButton.Left || ViewModel == null) return;
       e.Pointer.Capture(null);
-      if (!withinShiftInteraction || ViewModel == null) return;
       var p = GetCoordinates(MapButtons, e);
       ViewModel.ShiftUp(p.X, p.Y);
       withinShiftInteraction = false;

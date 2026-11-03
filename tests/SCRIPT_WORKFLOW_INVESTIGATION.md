@@ -4,8 +4,10 @@ Date: 2026-11-03. Baseline: `8147279b`; branch: `investigate/script-workflow-rec
 Scope: investigation, tests and tooling only. No production source, engine behavior,
 researched addresses, flag/variable helpers or supplied ROM is changed.
 
-Follow-up: HMA-006 and HMA-007 are fixed on the implementation branch; the observations below remain the
-original investigation evidence. See ScriptWorkflowSafety/README.md and changelog entries 066–067.
+Follow-up: HMA-006, HMA-007 and HMA-008 are fixed on the implementation branch; the observations
+below remain the original investigation evidence. See ScriptWorkflowSafety/README.md and
+changelog entries 066–068. The current 23-probe run restores the original model after late
+errors/correction and retains one visible TextEditor error location for the invalid line.
 
 ## Outcome
 

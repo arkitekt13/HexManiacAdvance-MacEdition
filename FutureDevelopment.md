@@ -147,17 +147,19 @@ Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_IN
 
 ## HMA-008 — Review failed-compilation resource writes and preserve diagnostics
 
-**Status:** Raw-parser and CodeTool resource mutation reproduced; diagnostic clearing also
-confirmed through the headless TextEditor. Investigation only, not fixed.
+**Status:** Implemented with isolated parser/editor deltas, rollback on rejection and retained
+source/diagnostics. Regression and headless TextEditor verification cover the original failures.
 
 **Reproduction:** Editing an existing embedded dialogue stream writes/moves it before a later
 invalid command returns a compile failure. Partial data can be saved. When relocation rewrites
 the source pointer, CodeBody.Content clears the emitted error even while the invalid line
 remains visible. Deferred auto streams and ordinary early errors are unchanged controls.
 
-**Required scope:** Define a staged/transactional boundary for failed script/resource edits,
-preserve diagnostics during source replacement, and test bytes, metadata, history, caller
-pointers and recovery. Preserve successful automatic repointing; blocking Save alone does not
-revert partial memory writes. This work requires a separate reviewed implementation.
+**Implemented:** Parser resource writes join the caller's token only on success. The editor
+extends this boundary through placement, relocation/recompilation and formatting, and publishes
+one history entry only after success. Failed attempts restore bytes, ROM length, metadata,
+pointers and allocation state without clearing Redo. Rejected source keeps its original addresses
+and diagnostics; correction/retry, successful relocation and HMA-006/007 remain protected.
+Native full-window event ordering and game execution remain outside the synthetic checks.
 
 Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md).

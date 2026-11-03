@@ -517,6 +517,32 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
       /// <param name="ignoreCharacterCount">Number of new characters added that should be ignored by the caret.</param>
       /// <returns></returns>
       public byte[] Compile(ModelDelta token, IDataModel model, int start, ref string script, ref int caret, CodeBody updateBody, out IReadOnlyList<(int originalLocation, int newLocation)> movedData, out int ignoreCharacterCount) {
+         var attempt = new ModelDelta { DoNotClearConstants = token.DoNotClearConstants };
+         var originalScript = script;
+         var originalCaret = caret;
+         var originalStreamTypes = updateBody?.StreamTypes;
+         var freeSpaceStart = model.FreeSpaceStart;
+         var restoreChangeTracking = (model as BaseModel)?.CaptureChangeTracking();
+         bool committed = false;
+         try {
+            var result = CompileCore(attempt, model, start, ref script, ref caret, updateBody, out movedData, out ignoreCharacterCount);
+            if (result == null) { movedData = Array.Empty<(int, int)>(); ignoreCharacterCount = 0; return null; }
+            token.MergeAppliedChange(attempt);
+            committed = true;
+            return result;
+         } finally {
+            if (!committed) {
+               attempt.Revert(model);
+               restoreChangeTracking?.Invoke();
+               model.FreeSpaceStart = freeSpaceStart;
+               script = originalScript;
+               caret = originalCaret;
+               if (updateBody != null) updateBody.StreamTypes = originalStreamTypes;
+            }
+         }
+      }
+
+      private byte[] CompileCore(ModelDelta token, IDataModel model, int start, ref string script, ref int caret, CodeBody updateBody, out IReadOnlyList<(int originalLocation, int newLocation)> movedData, out int ignoreCharacterCount) {
          ignoreCharacterCount = 0;
          movedData = new List<(int, int)>();
          var deferredContent = new List<DeferredStreamToken>();

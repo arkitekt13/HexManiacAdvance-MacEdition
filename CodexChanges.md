@@ -1122,3 +1122,25 @@ Scope: Editor scheduling, draft retention and command boundaries only; compiler,
 Validation: The new pending-source Save/unsaved-marker assertion fails before the fix; all 579 workflow checks pass after it. The complete Mac suite passes all 27 groups / 6,129 assertions with no skipped groups, including existing save failure, close cancellation, external file handling, numeric/relocation/history and UI regressions.
 
 Scope: Editor persistence/dirty-state/reload boundaries only; no engine or flag/variable behavior changes, researched-address changes or supplied ROM edits. Invalid drafts require correction or explicit Undo before closing; valid drafts use the existing save/discard/cancel prompt. Compiler resource rollback remains HMA-008.
+
+## 068 — Roll back rejected script/resource compilation and retain diagnostics
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/Models/Code/ScriptParser.cs](src/HexManiac.Core/Models/Code/ScriptParser.cs) | 519 | Compile resource edits into an isolated delta, merge it only on success and restore source, allocation state and model state on failure. |
+| [src/HexManiac.Core/Models/ModelDelta.cs](src/HexManiac.Core/Models/ModelDelta.cs) | 43 | Merge already-applied deltas while preserving earliest before-images for bytes, lengths and metadata. |
+| [src/HexManiac.Core/Models/IDataModel.cs](src/HexManiac.Core/Models/IDataModel.cs) | 200 | Capture byte-change highlighting for restoration after a rejected attempt. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 490 | Extend the transaction through placement, relocation, recompilation and formatting, then publish one history record and move notifications after success. |
+| [tests/ScriptWorkflowSafety/Program.cs](tests/ScriptWorkflowSafety/Program.cs) | 8 | Add late-error, raw-parser, allocation/expansion, placement, exception, diagnostics, correction and history regressions. |
+| [tests/ScriptWorkflowSafety/README.md](tests/ScriptWorkflowSafety/README.md) | 1 | Document transaction coverage and the assertion-count effect of fewer history records. |
+| [tests/SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md) | 7 | Preserve historical findings and identify the implemented HMA-008 follow-up. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 146 | Mark HMA-008 implemented with its tested scope and native limitations. |
+
+Evidence: The new late-resource atomicity assertion fails against untouched commit 3aa58ab7 in a temporary snapshot and passes after the fix. The workflow group passes 598 assertions. All 23 current diagnostic probes complete without exceptions; late errors leave model bytes/metadata unchanged, correction restores the baseline and the real headless TextEditor retains its error location.
+
+Mac validation: All 27 groups pass 6,112 assertions with zero failed or skipped groups. Compared with 6,129, existing workflow traversal checks execute 42 fewer assertions and argument-history traversal checks execute 36 fewer because successful compilation has fewer intermediate history records; 61 new explicit workflow assertions are added. No existing assertion is removed or weakened.
+
+Upstream verification: 1,779 passed / 1 failed / 935 skipped / zero engine errors. The sole failure, ErrorInScript_ClickOff_ResetScriptEditor, also fails with the identical source mismatch on untouched 3aa58ab7; its discard-on-navigation expectation predates HMA-006 draft retention and is left unchanged. That temporary snapshot has 1,666 passed / 1 failed / 1,048 skipped because optional ROM fixtures are absent. The separate integration suite passes 26 cases with 41 optional-fixture skips and zero failures.
+
+Scope: Synthetic regressions and existing local test fixtures; no fixture edits, numeric-rule changes, researched-address changes or game-engine changes. Successful editor compilation is one undoable operation; history traversal loops therefore execute fewer assertions without removing or weakening existing checks. Native full-window timing and gameplay remain unverified.
+

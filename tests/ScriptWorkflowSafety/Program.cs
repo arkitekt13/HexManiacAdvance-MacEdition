@@ -5,6 +5,88 @@ using HavenSoft.HexManiac.Review;
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 int checks = 0;
 void Check(bool condition, string message) { checks++; if (!condition) throw new InvalidOperationException(message); }
+foreach (var separator in new[] { "\n", "\r\n" })
+foreach (var text in new[] { "Howdy!", new string('A', 160) }) using (var f = new WorkflowFixture()) {
+   var baseline = f.State();
+   var source = (WorkflowFixture.Source(1, 1, text) + "\nnot_a_command").Replace("\n", separator);
+   var freeSpace = f.Model.FreeSpaceStart;
+   var changed = Enumerable.Range(0, f.Model.Count).Where(f.Model.HasChanged).ToArray();
+   f.Edit(source);
+   Check(baseline.EqualsModel(f), "Late resource errors must restore every byte and metadata entry.");
+   Check(changed.SequenceEqual(Enumerable.Range(0, f.Model.Count).Where(f.Model.HasChanged)), "Failure restores byte change highlighting as well as history.");
+   Check(f.Body.Content == source && f.Body.HasError, "Rejected source and diagnostics must survive failed relocation.");
+   Check(f.Body.Editor.ErrorLocations.Count > 0 && f.Model.FreeSpaceStart == freeSpace, "Failure retains error spans and allocation state.");
+   Check(f.View.ChangeHistory.IsSaved && !f.View.ChangeHistory.Undo.CanExecute(null), "Rejected source must not enter model history.");
+   f.View.Save.Execute(f.FileSystem); f.View.SaveAs.Execute(f.FileSystem);
+   Check(f.Saves == 0 && File.ReadAllBytes(f.FileName).SequenceEqual(baseline.Bytes), "Rejected resource drafts block both save commands.");
+   f.View.Goto.Execute(WorkflowFixture.Other); f.View.Goto.Execute(WorkflowFixture.Root); f.Dispatch.Flush();
+   Check(f.Body.Content == source && f.Body.HasError, "Rejected resource drafts and diagnostics survive navigation.");
+   f.Edit(WorkflowFixture.Source(1, 2, text));
+   Check(!f.Body.HasError && !f.Tool.HasUncompiledScriptChanges, "Correction retries from the original model and clears the draft.");
+   var corrected = f.State();
+   f.View.Undo.Execute(null); f.Dispatch.Flush();
+   Check(baseline.EqualsModel(f), "One Undo restores all successful script/resource changes.");
+   f.View.Redo.Execute(null); f.Dispatch.Flush();
+   Check(corrected.EqualsModel(f), "One Redo restores the successful correction.");
+}
+foreach (var source in new[] {
+   WorkflowFixture.Source(1, 1, "Changed dialogue.") + "\nnot_a_command",
+   WorkflowFixture.Source(1, 1, "Changed dialogue.").Replace("release\nend", "not_a_command\nrelease\nend"),
+   WorkflowFixture.Source(1, 1, "Changed dialogue.") + "\nsetvar MissingAlias 1",
+   "loadpointer 0 <??????>\n{\nNew dialogue.\n}\nnot_a_command",
+   "loadpointer 0 <auto>\n{\nNew dialogue.\n}\nnot_a_command"
+}) using (var f = new WorkflowFixture()) {
+   var baseline = f.State(); var token = new ModelDelta();
+   var draft = source;
+   var result = f.Tool.ScriptParser.Compile(token, f.Model, WorkflowFixture.Root, ref draft, out var moved, out _);
+   Check(result == null && baseline.EqualsModel(f), "Raw parser failures must be atomic for existing, placeholder and auto streams.");
+   Check(!token.HasAnyChange && moved.Count == 0 && draft == source, "Raw failures publish no token changes, moves or speculative source addresses.");
+}
+using (var f = new WorkflowFixture()) {
+   f.Edit(WorkflowFixture.Source(1, 2)); f.View.Undo.Execute(null); f.Dispatch.Flush();
+   var baseline = f.State();
+   f.Edit(WorkflowFixture.Source(1, 1, new string('A', 160)) + "\nnot_a_command");
+   Check(baseline.EqualsModel(f) && f.View.Redo.CanExecute(null), "Rejected resource writes preserve existing Redo.");
+   f.View.Undo.Execute(null); f.Dispatch.Flush();
+   Check(baseline.EqualsModel(f) && f.View.Redo.CanExecute(null), "Discarding a rejected resource draft leaves Redo intact.");
+   f.View.Redo.Execute(null); f.Dispatch.Flush();
+   Check(f.Model[WorkflowFixture.Root + 4] == 2, "Redo still restores the prior successful edit.");
+}
+using (var f = new WorkflowFixture()) {
+   var baseline = f.State();
+   f.Body.Address = WorkflowFixture.Root + 1; f.Body.CompiledLength = 5;
+   f.Edit(WorkflowFixture.Source(24, 2, new string('A', 160)));
+   Check(f.Tool.ShowErrorText && baseline.EqualsModel(f), "A placement rejection after resource compilation restores the complete model.");
+}
+using (var f = new WorkflowFixture()) {
+   var baseline = f.State(); var source = WorkflowFixture.Source(1, 1, new string('A', 160));
+   var original = source; bool rejected = false;
+   try { f.Tool.ScriptParser.Compile(new NoDataChangeDeltaModel(), f.Model, WorkflowFixture.Root, ref source, out _, out _); }
+   catch (InvalidOperationException) { rejected = true; }
+   Check(rejected && baseline.EqualsModel(f) && source == original, "An exception during token handoff restores bytes, metadata and source.");
+}
+using (var f = new WorkflowFixture()) {
+   for (int i = 0; i < f.Model.Count; i++) if (f.Model[i] == 0xFF) f.Model[i] = 0;
+   var baseline = f.State(); var token = new ModelDelta();
+   var source = "loadpointer 0 <??????>\nnot_a_command";
+   Check(f.Tool.ScriptParser.Compile(token, f.Model, WorkflowFixture.Root, ref source, out _, out _) == null,
+      "The allocation/expansion reproduction reaches a late compile failure.");
+   Check(baseline.EqualsModel(f) && !token.HasAnyChange, "Failed allocation restores expanded ROM length and metadata.");
+}
+using (var f = new WorkflowFixture()) {
+   var baseline = f.State(); var token = new ModelDelta();
+   token.ChangeData(f.Model, 0x7000, 42);
+   foreach (var text in new[] { new string('A', 160), "Howdy!" }) {
+      var address = f.Model.GetAddressFromAnchor(new NoDataChangeDeltaModel(), -1, "workflow.dialogue");
+      var source = WorkflowFixture.Source(1, 2, text, address);
+      Check(f.Tool.ScriptParser.Compile(token, f.Model, WorkflowFixture.Root, ref source, out _, out _) != null,
+         "Multiple successful resource edits can join a caller's existing token.");
+   }
+   var final = f.State(); var reverse = token.Revert(f.Model);
+   Check(baseline.EqualsModel(f), "Merged tokens retain the earliest byte and metadata before-images.");
+   reverse.Revert(f.Model);
+   Check(final.EqualsModel(f), "Merged tokens retain the final redo state.");
+}
 foreach (var separator in new[] { "\n", "\r\n" }) {
    using var f = new WorkflowFixture();
    string Source(int count, int value, string text = "Hello!", int address = WorkflowFixture.Text) =>

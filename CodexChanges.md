@@ -1218,3 +1218,19 @@ Focused validation: All 124 encounter checks, 292 script/autocomplete checks and
 Complete Mac validation: All 29 groups pass 6,300 assertions with zero failed or skipped groups; the broader coverage adds 125 assertions without changing application code.
 
 Scope: Tests and coverage documentation only; no further application change was needed beyond entry 071. Headless synthetic fixtures exercise actual TabView templates and production parsers; native map-header dropdown interaction, every game engine/script mode and real-ROM behavior are not claimed.
+
+## 073 — Keep mouse autocomplete selection from dismissing its own popup
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml) | 17 | Prevent suggestion buttons from taking keyboard focus so the editor's LostFocus handler cannot dismiss the list before release completes Click. |
+| [tests/WildEncounterEditing/Program.cs](tests/WildEncounterEditing/Program.cs) | 79 | Replace direct Click invocation with pointer press/release and check focus plus popup lifetime across all encounter formats. |
+| [tests/AutocompleteMapping/Program.cs](tests/AutocompleteMapping/Program.cs) | 91 | Exercise popup pointer selection in script autocomplete while preserving keyboard completion coverage. |
+| [tests/WildEncounterEditing/README.md](tests/WildEncounterEditing/README.md) | 20 | Document the pointer-event reproduction and the earlier direct-handler coverage gap. |
+| [tests/AutocompleteMapping/README.md](tests/AutocompleteMapping/README.md) | 6 | Record stronger script mouse-acceptance coverage and updated checks. |
+
+Evidence: The user's mouse-only failure reproduces when the test delivers real headless pointer press/release: the focusable suggestion button makes the text editor lose focus, which clears the popup before Click. Prior direct Click tests bypassed this focus transition. The shared non-focusable completion-button style preserves editor focus and allows the existing Click handler to apply the option; arrows/Enter remain handled by the editor as before.
+
+Validation: All 29 Mac groups pass 6,306 assertions with zero failed or skipped groups, including 128 encounter checks and 294 script/autocomplete checks. The pointer press assertion requires editor focus and an open list before release; accepted values, other encounter slots, pointers, metadata and Undo/Redo remain passing.
+
+Scope: Shared autocomplete presentation only; matching, selected values, numeric parsing, compilation, ROM writes and history algorithms are unchanged. Pointer tests use synthetic encounters and scripts in headless popup windows; native mouse confirmation remains for the user's next relaunch.

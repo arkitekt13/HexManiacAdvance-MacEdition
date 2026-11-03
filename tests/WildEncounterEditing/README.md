@@ -16,3 +16,7 @@ Checks cover live control identity, keyboard focus, caret progression for each t
 species-prefix suggestions, mouse and Enter acceptance, LF/CRLF input, exact slot bytes, other
 slots/rate/pointers/metadata, Undo/Redo and navigation refresh. InstantDispatch makes model refresh
 deterministic; native keystroke timing and a real-game fixture are not claimed.
+
+Mouse selection uses headless pointer movement, press and release in the popup's own TopLevel,
+rather than directly invoking Button.Click. It checks that press preserves focus and keeps the
+popup alive until release; the old focusable suggestion button fails this test before completion.

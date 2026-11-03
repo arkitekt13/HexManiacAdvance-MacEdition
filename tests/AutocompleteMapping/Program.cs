@@ -88,7 +88,12 @@ foreach(var ending in new[]{"\n","\r\n"}) {
    var button=overlay.FindControl<ItemsControl>("AutocompleteItems")!.GetVisualDescendants().OfType<Button>()
       .First(element=>element.DataContext is AutoCompleteSelectionItem);
    var clicked=(AutoCompleteSelectionItem)button.DataContext!;
-   button.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));Layout();
+   control.EditBox.Focus();Layout();
+   var popupRoot=TopLevel.GetTopLevel(button)!;
+   var point=button.TranslatePoint(new Avalonia.Point(button.Bounds.Width/2,button.Bounds.Height/2),popupRoot)!.Value;
+   popupRoot.MouseMove(point);popupRoot.MouseDown(point,MouseButton.Left);Layout();
+   Check(control.EditBox.IsFocused && overlay.IsVisible,"Pointer press on a script suggestion must keep focus and the popup until release.");
+   popupRoot.MouseUp(point,MouseButton.Left);Layout();
    Check(control.EditBox.Text=="lock"+ending+clicked.CompletionText,"Clicking an actual suggestion must replace the correct later line.");
    Check(!overlay.IsVisible && Items().Length==0,"Mouse acceptance must clear the popup.");
 

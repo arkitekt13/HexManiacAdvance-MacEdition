@@ -76,7 +76,13 @@ foreach (var format in formats) foreach (var separator in new[] { "\n", "\r\n" }
    var choice = choices.Single(c => c.DisplayText.Contains("RATICATE"));
    if (separator == "\n") {
       var button = items.GetVisualDescendants().OfType<Button>().Single(b => ReferenceEquals(b.DataContext, choice));
-      button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+      var popupRoot = TopLevel.GetTopLevel(button)!;
+      var point = button.TranslatePoint(new Avalonia.Point(button.Bounds.Width / 2, button.Bounds.Height / 2), popupRoot)!.Value;
+      popupRoot.MouseMove(point);
+      popupRoot.MouseDown(point, MouseButton.Left);
+      Pump();
+      Check(box.IsFocused && overlay.IsVisible, "Pressing a suggestion must not steal focus and dismiss it before release.");
+      popupRoot.MouseUp(point, MouseButton.Left);
    } else {
       for (int i = 0; i < Array.IndexOf(choices, choice); i++)
          box.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Down });

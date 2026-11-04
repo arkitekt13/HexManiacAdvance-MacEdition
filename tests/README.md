@@ -14,6 +14,8 @@ has zero failures with explicit optional-ROM skips; see [UPSTREAM_BASELINE.md](U
 The second upstream project, `src/HexManiac.Integration`, now has a portable host; select it
 with `--integration` and see [INTEGRATION_BASELINE.md](INTEGRATION_BASELINE.md) for its separate results.
 See individual group READMEs for any manual GUI checks that remain.
+The 2026-11-04 [Mac input/history audit](MAC_INPUT_HISTORY_AUDIT.md) records confirmed fixes,
+coverage, preservation checks and deliberately unclaimed native/legacy paths.
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

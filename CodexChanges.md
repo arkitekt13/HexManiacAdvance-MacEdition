@@ -1616,3 +1616,16 @@ Evidence: The physical right-click opened palette actions, but the same rendered
 Behavior: Control-click opens the palette's existing secondary menu for the clicked color. It cannot start primary color editing or reorder colors while held. The gesture retains its physical left-button release if Control is released first and cancels correctly on capture loss. Ordinary primary color editing and existing physical secondary actions remain available.
 
 Validation: MacSecondaryActions now passes 43 assertions; PaletteHistory 36, ColorEditorInput 93 and PaletteClipboard 40 also pass (212 assertions in these four groups). Actual menu Copy resolves the clicked color without changes to ROM bytes, metadata or history. No Core color/encoding/relocation/history algorithms or user ROMs are changed.
+
+## 095 — Record the Mac input and history audit with complete regression evidence
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/MAC_INPUT_HISTORY_AUDIT.md](tests/MAC_INPUT_HISTORY_AUDIT.md) | 1 | Record failing-before evidence, seven focused fix commits, input/history coverage, preservation constraints and deliberately unclaimed native/legacy paths. |
+| [tests/README.md](tests/README.md) | 16 | Link the technical audit report without replacing the planned end-user guide. |
+
+Outcome: The first audit pass fixes image/block Control-click painting, missing hex/byte/palette secondary actions, named-color propagation, stale palette editors after history/reload, palette/image clipboard initialization and focus routing, and stale NPC summaries after map Undo/Redo. Each fix has its own commit and changelog entry (088–094). Existing NPC fields, current bitmaps, correction/retry and clipboard/secondary input are protected by real-view regressions.
+
+Validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 46 regression groups and 7,883 assertions, with zero failures and zero skipped groups. Six new groups contribute 273 assertions: ImageEditorInput 38, ColorEditorInput 93, PaletteHistory 36, PaletteClipboard 40, MacSecondaryActions 43 and MapHistoryRefresh 23. Existing script workflow, compilation/resource failure safety, source retention, save/reload, map selection/zoom/events, portraits, trainer streams, text/names and encounters continue to pass. The separate upstream xUnit/optional-ROM suite was not rerun and is not included in these counts.
+
+Scope and limits: No user ROM, personal settings, emulator preference, real image clipboard or engine address is changed. Shared Core changes only presentation-cache validity for map summaries; numeric parsing, encoding, compilation, resource allocation, pointer relocation and history algorithms are unchanged. The audit explicitly leaves custom grouped-field legacy/stub paths, dormant unused controls and unrepresented hardware/native/image-mode combinations as follow-up coverage rather than claiming exhaustive parity. This is an implementation/audit report; the user guide remains separate work.

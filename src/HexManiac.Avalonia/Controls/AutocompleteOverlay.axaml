@@ -14,6 +14,9 @@
              IsVisible="False">
    <UserControl.Styles>
       <Style Selector="Button.completion">
+         <!-- Keep typing focus in the editor: LostFocus dismisses this popup before Click. -->
+         <Setter Property="Focusable" Value="False"/>
+         <Setter Property="IsTabStop" Value="False"/>
          <Setter Property="Background" Value="{DynamicResource Background}"/>
          <Setter Property="HorizontalAlignment" Value="Stretch"/>
          <Setter Property="HorizontalContentAlignment" Value="Left"/>

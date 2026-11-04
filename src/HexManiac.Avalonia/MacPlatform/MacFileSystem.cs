@@ -42,7 +42,7 @@ namespace HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
 ///      return path == null ? null : new LoadedFile(path, File.ReadAllBytes(path));
 ///   }
 /// </summary>
-public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IDisposable {
+public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer, IDisposable {
    readonly Func<Window> getOwner;
 
    private readonly Action<Action> dispatchFileChange;
@@ -238,6 +238,8 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IDisposable {
    public string OpenFolder() => PickFolder("Open Folder");
 
    public bool Exists(string file) => File.Exists(file);
+
+   public Task<string> RevealFileAsync(string path) => MacFileReveal.RevealAsync(path);
 
    public void LaunchProcess(string file, string arguments = null) {
       try {

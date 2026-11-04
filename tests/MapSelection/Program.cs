@@ -132,6 +132,39 @@ foreach(var (button,modifier,releaseControlFirst) in gestures)foreach(var scale 
    Check(model.RawData.SequenceEqual(expected),"Redo must restore both stamped areas exactly.");
    viewport.Undo.Execute(null);viewport.Undo.Execute(null);
 }
+// Trackpad panning must preserve a copied brush and every ROM/history state.
+var panGestures=new List<(MouseButton Button,RawInputModifiers Modifier,bool ReleaseModifierFirst)> {
+   (MouseButton.Middle,RawInputModifiers.None,false),
+};
+if(OperatingSystem.IsMacOS()) {
+   panGestures.Insert(0,(MouseButton.Left,RawInputModifiers.Alt,false));
+   panGestures.Insert(1,(MouseButton.Left,RawInputModifiers.Alt,true));
+}
+foreach(var (button,modifier,releaseModifierFirst) in panGestures)foreach(var scale in new[]{1d,2d}) {
+   mapper.PrimaryMap.SpriteScale=scale;Layout();
+   var beforePan=model.RawData.ToArray();var beforePanMetadata=model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize();
+   var saved=viewport.ChangeHistory.IsSaved;var canUndo=viewport.Undo.CanExecute(null);var canRedo=viewport.Redo.CanExecute(null);
+   var brush=mapper.MultiTileDrawRender;var brushIndex=mapper.DrawBlockIndex;var multiple=mapper.DrawMultipleTiles;
+   var left=mapper.PrimaryMap.LeftEdge;var top=mapper.PrimaryMap.TopEdge;
+   var start=Cell(6,6);var end=start+new Avalonia.Vector(16,12);
+   window.MouseMove(start);window.MouseDown(start,button,modifier);Layout();
+   Check(!previewLayer.IsVisible,"Panning must hide the ready brush preview.");
+   var held=button==MouseButton.Left?RawInputModifiers.LeftMouseButton:RawInputModifiers.MiddleMouseButton;
+   if(releaseModifierFirst)window.KeyReleaseQwerty(PhysicalKey.AltLeft,RawInputModifiers.None);
+   window.MouseMove(end,held|(releaseModifierFirst?RawInputModifiers.None:modifier));Layout();
+   Check(mapper.PrimaryMap.LeftEdge==left+16 && mapper.PrimaryMap.TopEdge==top+12,"Option-left/middle drag must pan by screen pixels at either zoom.");
+   window.MouseUp(end,button,releaseModifierFirst?RawInputModifiers.None:modifier);Layout();
+   Check(ReferenceEquals(brush,mapper.MultiTileDrawRender) && mapper.DrawBlockIndex==brushIndex && mapper.DrawMultipleTiles==multiple,
+      "Panning must retain the exact copied tile brush and selection mode.");
+   Check(model.RawData.SequenceEqual(beforePan) && beforePanMetadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),
+      "Panning must not paint, relocate data or modify metadata.");
+   Check(viewport.ChangeHistory.IsSaved==saved && viewport.Undo.CanExecute(null)==canUndo && viewport.Redo.CanExecute(null)==canRedo,
+      "Panning must preserve saved state and both history branches.");
+   var releasedLeft=mapper.PrimaryMap.LeftEdge;var releasedTop=mapper.PrimaryMap.TopEdge;
+   window.MouseMove(end+new Avalonia.Vector(8,6));Layout();
+   Check(mapper.PrimaryMap.LeftEdge==releasedLeft && mapper.PrimaryMap.TopEdge==releasedTop,"Releasing the primary button must finish panning even after Option was released first.");
+   Check(model.RawData.SequenceEqual(beforePan),"Pointer movement after a pan must not leave a painting gesture active.");
+}
 var cachedPreview=previewImage.Source;var cachedUploads=previewUploads;
 foreach(var width in new[]{1440d,1441d})foreach(var scale in new[]{.5,1d,2d}) {
    window.Width=width;mapper.PrimaryMap.SpriteScale=scale;Layout();
@@ -153,6 +186,20 @@ mapper.Cancel();Layout();Check(!previewLayer.IsVisible,"Cancel must hide stale c
 mapper.AutoUpdateCollision=false;mapper.SelectBlock(1,0);mapper.ReleaseBlock(1,0);mapper.CollisionIndex=0;Layout();
 window.MouseMove(Cell(10,8));Layout();
 Check(previewLayer.IsVisible && previewImage.Source is WriteableBitmap single && single.PixelSize==new PixelSize(16,16),"Single-block brushes must also show the current preview.");
+if(OperatingSystem.IsMacOS()) {
+   var left=mapper.PrimaryMap.LeftEdge;var top=mapper.PrimaryMap.TopEdge;
+   var start=Cell(6,6);var end=start+new Avalonia.Vector(16,12);var brushIndex=mapper.DrawBlockIndex;
+   window.MouseDown(start,MouseButton.Left,RawInputModifiers.Alt);
+   window.MouseMove(end,RawInputModifiers.Alt|RawInputModifiers.LeftMouseButton);
+   window.MouseUp(end,MouseButton.Left,RawInputModifiers.Alt);Layout();
+   Check(mapper.PrimaryMap.LeftEdge==left+16 && mapper.PrimaryMap.TopEdge==top+12 && mapper.DrawBlockIndex==brushIndex && mapper.IsSingleBlock,
+      "Option pan must retain a single-tile brush as well as a copied brush.");
+   Check(model.RawData.SequenceEqual(baseline),"Single-tile Option pan must not paint.");
+   var destination=Cell(10,8);window.MouseDown(destination,MouseButton.Left);window.MouseUp(destination,MouseButton.Left);Layout();
+   Check(model.ReadMultiByteValue(SyntheticMapFixture.Cells+(8*24+10)*2,2)==1,"Normal painting must resume with the same tile immediately after Option pan.");
+   viewport.Undo.Execute(null);Layout();
+   Check(model.RawData.SequenceEqual(baseline),"Painting after panning remains undoable without undoing the pan.");
+}
 var command=OperatingSystem.IsMacOS()?RawInputModifiers.Meta:RawInputModifiers.Control;
 window.MouseDown(Cell(10,8),MouseButton.Left,command);
 window.MouseMove(Cell(12,10),command|RawInputModifiers.LeftMouseButton);Layout();

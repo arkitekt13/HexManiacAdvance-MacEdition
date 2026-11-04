@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -59,19 +60,27 @@ public partial class MapTab : UserControl {
    }
 
    private void BuildKeyBindings() {
-      void Add(Key key, string path, object parameter = null) {
-         var binding = new KeyBinding { Gesture = new KeyGesture(key) };
-         binding.Bind(KeyBinding.CommandProperty, new Avalonia.Data.Binding($"DataContext.{path}") { Source = this });
-         if (parameter != null) binding.CommandParameter = parameter;
-         KeyBindings.Add(binding);
+      void Add(Key key, Func<MapEditorViewModel, ICommand> command, object parameter = null) {
+         // Ancestor KeyBindings can run before a focused field handles its editing keys.
+         // Declining the map command lets the TextBox (and its native shortcuts) handle them.
+         KeyBindings.Add(new KeyBinding {
+            Gesture = new KeyGesture(key), CommandParameter = parameter,
+            Command = new StubCommand {
+               CanExecute = arg => !IsTextEntryFocused() && ViewModel != null && command(ViewModel).CanExecute(arg),
+               Execute = arg => {
+                  if (!IsTextEntryFocused() && ViewModel != null && command(ViewModel).CanExecute(arg))
+                     command(ViewModel).Execute(arg);
+               },
+            },
+         });
       }
-      Add(Key.Left, nameof(MapEditorViewModel.PanCommand), MapDirection.Left);
-      Add(Key.Right, nameof(MapEditorViewModel.PanCommand), MapDirection.Right);
-      Add(Key.Up, nameof(MapEditorViewModel.PanCommand), MapDirection.Up);
-      Add(Key.Down, nameof(MapEditorViewModel.PanCommand), MapDirection.Down);
-      Add(Key.Escape, nameof(MapEditorViewModel.CancelCommand));
-      Add(Key.Delete, nameof(MapEditorViewModel.DeleteCommand));
-      Add(Key.Back, nameof(MapEditorViewModel.DeleteCommand));
+      Add(Key.Left, vm => vm.PanCommand, MapDirection.Left);
+      Add(Key.Right, vm => vm.PanCommand, MapDirection.Right);
+      Add(Key.Up, vm => vm.PanCommand, MapDirection.Up);
+      Add(Key.Down, vm => vm.PanCommand, MapDirection.Down);
+      Add(Key.Escape, vm => vm.CancelCommand);
+      Add(Key.Delete, vm => vm.DeleteCommand);
+      Add(Key.Back, vm => vm.DeleteCommand);
    }
 
    private void UpdateDataContext() {
@@ -161,6 +170,7 @@ public partial class MapTab : UserControl {
    // track which button is being used. Set to XButton1 when not in use.
    private MouseButton withinMapInteraction = MouseButton.XButton1;
    private bool controlSelectGesture;
+   private bool optionPanGesture;
    private bool mapCaptured, backgroundCaptured, blocksCaptured, borderCaptured;
 
    private static readonly object NoTooltip = new object[0];
@@ -231,7 +241,12 @@ public partial class MapTab : UserControl {
       // the physical button for release, even if Control is released first.
       controlSelectGesture = OperatingSystem.IsMacOS() && button == MouseButton.Left &&
          e.KeyModifiers.HasFlag(KeyModifiers.Control);
+      // Reuse middle-button panning for trackpads, retaining the physical button
+      // so releasing Option before the mouse does not end or strand the gesture.
+      optionPanGesture = OperatingSystem.IsMacOS() && button == MouseButton.Left &&
+         e.KeyModifiers == KeyModifiers.Alt;
       if (controlSelectGesture) button = MouseButton.Right;
+      else if (optionPanGesture) button = MouseButton.Middle;
       UpdateTooltipContent(NoTooltip);
       Focus();
       e.Handled = true;
@@ -345,8 +360,9 @@ public partial class MapTab : UserControl {
       e.Handled = true;
       var element = (Control)sender;
       var previousInteraction = withinMapInteraction;
-      var releaseButton = controlSelectGesture ? MouseButton.Left : previousInteraction;
+      var releaseButton = controlSelectGesture || optionPanGesture ? MouseButton.Left : previousInteraction;
       controlSelectGesture = false;
+      optionPanGesture = false;
       withinMapInteraction = MouseButton.XButton1;
       if (mapCaptured) { e.Pointer.Capture(null); mapCaptured = false; }
       if (previousInteraction == MouseButton.XButton1) return;

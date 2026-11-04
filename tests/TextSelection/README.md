@@ -7,7 +7,12 @@ WPF's SelectionStart/SelectionLength provided a sorted start and nonnegative len
 
 This group uses production TabView and its bound TextBox with fabricated encoded PCS text and
 a two-row fixed-width name table. The unmodified UI bridge reproduces the same exception with
-a backward selection (`length=-7`); the corrected bridge passes 41 checks.
+a backward selection (`length=-7`); the expanded group passes 63 checks.
+
+Additional cases type one character at a time in PCS/fixed names and the real `data.maps.names`
+pointer-table format. Map-name stream edits retain the live TextBox/focus, encode the expected
+text, preserve the other entry/pointers, restore complete bytes/metadata with Undo/Redo and refresh
+correctly when navigating between entries. Map header dropdown selection is not covered here.
 
 ```sh
 dotnet build tests/TextSelection/TextSelection.csproj --no-restore --disable-build-servers -p:UseSharedCompilation=false -m:1 -nr:false

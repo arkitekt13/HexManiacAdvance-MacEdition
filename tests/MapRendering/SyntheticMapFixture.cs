@@ -12,7 +12,7 @@ public sealed class SyntheticMapFixture {
    public PokemonModel Model { get; }
    public ViewPort ViewPort { get; }
    public BlockMapViewModel Map { get; }
-   public SyntheticMapFixture(int width, int height) {
+   public SyntheticMapFixture(int width, int height, bool withScriptEvent = false) {
       var data = new byte[Math.Max(0x20000, Cells + width * height * 2)];
       void Word(int address, int value) => BitConverter.GetBytes(value).CopyTo(data, address);
       void Pointer(int address, int target) => Word(address, 0x08000000 + target);
@@ -36,6 +36,10 @@ public sealed class SyntheticMapFixture {
       const string blocksetFormat = "[isCompressed. isSecondary. padding: tileset<> pal<> blockset<> attributes<> animation<>]1";
       var layoutFormat = $"[width:: height:: borderblock<> blockmap<> blockdata1<{blocksetFormat}> blockdata2<{blocksetFormat}>]1";
       var headerFormat = $"[layout<{layoutFormat}> connections<> events<> mapscripts<>]1";
+      if (withScriptEvent) {
+         Pointer(0x128, 0x160); data[0x162] = 1; Pointer(0x16C, 0x16000);
+         headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<> warps<> scripts<[x: y: elevation: trigger:|h index:: script<`xse`>]/scriptCount> signposts<>]1> mapscripts<>]1";
+      }
       var bankFormat = $"[map<{headerFormat}>]1";
       var metadata = new StoredMetadata(anchors: new[] {
          new StoredAnchor(0x100, "data.maps.banks", $"[maps<{bankFormat}>]1"),

@@ -1183,3 +1183,122 @@ Complete Mac validation: All 28 groups pass 6,144 assertions with zero failed or
 Scope: UI restoration and native application selection; no user ROM or preference is modified by tests. Actual mGBA selection/launch still requires confirmation after saving work and restarting the editor. The new chooser lists registered applications and supports Browse, avoiding the file-filter path observed to disable app bundles.
 
 Native confirmation, 2026-11-03: The user confirmed that the restored object-script creation button and external mGBA launch both work. mGBA was absent from the chooser's initial application list, but Browse allowed selection of its application bundle and the ROM launched successfully; that Browse fallback remains part of the supported flow.
+
+## 071 — Keep wild encounter editing focused during table refresh
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/TableTool.cs](src/HexManiac.Core/ViewModels/Tools/TableTool.cs) | 476 | Avoid replacing a retained stream group with itself so Avalonia preserves its active text editor and autocomplete. |
+| [tests/WildEncounterEditing/Program.cs](tests/WildEncounterEditing/Program.cs) | 1 | Exercise continuous level/species typing, live focus/caret retention, mouse/Enter autocomplete, exact bytes/metadata, Undo/Redo and navigation with synthetic encounters. |
+| [tests/WildEncounterEditing/WildEncounterEditing.csproj](tests/WildEncounterEditing/WildEncounterEditing.csproj) | 1 | Add an automatically discovered headless regression group referencing the production Mac editor. |
+| [tests/WildEncounterEditing/README.md](tests/WildEncounterEditing/README.md) | 1 | Document the failing-before reproduction, input coverage and deterministic headless limits. |
+| [tests/README.md](tests/README.md) | 19 | Link wild-encounter editing regression coverage. |
+
+Evidence: The new first-keystroke assertion fails before the fix, recording a same-group Replace notification, detached/replaced text box and lost focus while the view model remains unchanged. After the reference-identity guard, all 31 focused checks pass across LF/CRLF; existing species matching and parser output drive the visible suggestions without new parsing rules.
+
+Complete Mac validation: All 29 groups pass 6,175 assertions with zero failed or skipped groups, including the new 31-check wild-encounter group and existing script/persistence, trainer, text and table presentation checks.
+
+Upstream verification: 1,779 passed / 1 failed / 935 skipped / zero engine errors; the sole ErrorInScript_ClickOff_ResetScriptEditor failure is the identical HMA-006 draft-retention baseline mismatch documented in entry 068, with no new failed cases.
+
+Scope: Table presentation lifecycle only; genuine group changes still replace controls and ordinary refresh/model notifications still run. Encounter parsing, numeric interpretation, relocation, history and engine behavior are unchanged. All new data is fabricated; native interaction on the user's ROM still needs confirmation after relaunch.
+
+## 072 — Check continuous editing across encounter tables, scripts and map names
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tests/WildEncounterEditing/Program.cs](tests/WildEncounterEditing/Program.cs) | 22 | Expand the focus/autocomplete matrix to production grass, surf, tree and fishing formats with their slot counts and comment sections. |
+| [tests/AutocompleteMapping/Program.cs](tests/AutocompleteMapping/Program.cs) | 128 | Exercise per-character variable typing and retained focus after compilation inside the actual TabView script template. |
+| [tests/TextSelection/Program.cs](tests/TextSelection/Program.cs) | 61 | Check per-character PCS/fixed-name typing and the real map-name pointer-table format through its stream editor and complete history. |
+| [tests/WildEncounterEditing/README.md](tests/WildEncounterEditing/README.md) | 7 | Document the expanded encounter formats and fabricated species source. |
+| [tests/AutocompleteMapping/README.md](tests/AutocompleteMapping/README.md) | 6 | Record the expanded 292-check script/autocomplete group and live tab coverage. |
+| [tests/TextSelection/README.md](tests/TextSelection/README.md) | 10 | Record 63 text/name checks and distinguish map-name editing from map-header dropdown selection. |
+
+Focused validation: All 124 encounter checks, 292 script/autocomplete checks and 63 text/name checks pass. Grass (12), surf (5), tree (5) and fishing (10) run across LF/CRLF, including percentage/rod comments; continuous input, visible offered/applied species suggestions, untouched slots/rate/pointers/metadata and history remain passing. Script compilation preserves the live focused editor, and map-name edits preserve neighboring names, pointer bytes and exact Undo/Redo states.
+
+Complete Mac validation: All 29 groups pass 6,300 assertions with zero failed or skipped groups; the broader coverage adds 125 assertions without changing application code.
+
+Scope: Tests and coverage documentation only; no further application change was needed beyond entry 071. Headless synthetic fixtures exercise actual TabView templates and production parsers; native map-header dropdown interaction, every game engine/script mode and real-ROM behavior are not claimed.
+
+## 073 — Keep mouse autocomplete selection from dismissing its own popup
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml) | 17 | Prevent suggestion buttons from taking keyboard focus so the editor's LostFocus handler cannot dismiss the list before release completes Click. |
+| [tests/WildEncounterEditing/Program.cs](tests/WildEncounterEditing/Program.cs) | 79 | Replace direct Click invocation with pointer press/release and check focus plus popup lifetime across all encounter formats. |
+| [tests/AutocompleteMapping/Program.cs](tests/AutocompleteMapping/Program.cs) | 91 | Exercise popup pointer selection in script autocomplete while preserving keyboard completion coverage. |
+| [tests/WildEncounterEditing/README.md](tests/WildEncounterEditing/README.md) | 20 | Document the pointer-event reproduction and the earlier direct-handler coverage gap. |
+| [tests/AutocompleteMapping/README.md](tests/AutocompleteMapping/README.md) | 6 | Record stronger script mouse-acceptance coverage and updated checks. |
+
+Evidence: The user's mouse-only failure reproduces when the test delivers real headless pointer press/release: the focusable suggestion button makes the text editor lose focus, which clears the popup before Click. Prior direct Click tests bypassed this focus transition. The shared non-focusable completion-button style preserves editor focus and allows the existing Click handler to apply the option; arrows/Enter remain handled by the editor as before.
+
+Validation: All 29 Mac groups pass 6,306 assertions with zero failed or skipped groups, including 128 encounter checks and 294 script/autocomplete checks. The pointer press assertion requires editor focus and an open list before release; accepted values, other encounter slots, pointers, metadata and Undo/Redo remain passing.
+
+Scope: Shared autocomplete presentation only; matching, selected values, numeric parsing, compilation, ROM writes and history algorithms are unchanged. Pointer tests use synthetic encounters and scripts in headless popup windows; native mouse confirmation remains for the user's next relaunch.
+
+## 074 — Pan the Mac map with Option and primary drag
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 234 | Route macOS Option-left-drag through the existing middle-button pan path while tracking primary-button release independently of modifier state. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 133 | Add exact pan-distance, modifier-release ordering, copied/single brush retention, byte/metadata/history integrity and post-pan painting regressions. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 21 | Explain the trackpad gesture, preserved brush behavior and headless/native verification boundary. |
+
+Evidence: The new Option-drag position assertion fails before the UI mapping is added. Afterward the focused map group passes 394 checks, including 46 added pan/post-pan assertions. Option-left and middle drag move by the expected screen pixels at 1x/2x zoom without modifying any ROM bytes, metadata or saved/Undo/Redo state. The brush stays selected, release completes even when Option was released first, and ordinary painting remains undoable afterward.
+
+Complete Mac validation: All 29 groups pass 6,352 assertions with zero failed or skipped groups; the build introduces no new compiler warnings.
+
+Scope: Mac pointer mapping and physical release tracking only; shared Core painting/panning/history, Control-click selection, Command rectangle painting, arrow-key navigation and Space reveal behavior are unchanged. All fixtures are fabricated; native trackpad confirmation remains for the user after relaunch.
+
+## 075 — Open tab menus with Control-click and reveal files in Finder
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 757 | Open the clicked tab's menu before Control-click can start drag capture and route file reveal to its owning saved file with visible errors. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 429 | Connect Show in Finder to the Mac reveal handler instead of the shared Windows Explorer method. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileReveal.cs](src/HexManiac.Avalonia/MacPlatform/MacFileReveal.cs) | 7 | Provide an injectable reveal capability and build/run macOS open -R requests using separate path arguments. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 45 | Implement the native file-reveal capability on the Mac file system. |
+| [tests/TabMenus/Program.cs](tests/TabMenus/Program.cs) | 1 | Test Control/secondary-click, menu targeting, duplicate/reorder/close, ROM/map Finder routing, arguments and error handling without launching Finder. |
+| [tests/TabMenus/TabMenus.csproj](tests/TabMenus/TabMenus.csproj) | 1 | Add an automatically discovered headless group using fabricated map data. |
+| [tests/TabMenus/README.md](tests/TabMenus/README.md) | 1 | Document event coverage, Finder substitution and remaining native checks. |
+| [tests/README.md](tests/README.md) | 21 | Link tab menu and file-reveal coverage. |
+
+Evidence: The Control-click assertion fails before the handler change. All 23 focused checks pass afterward, including both Control release orders, unchanged tab order during menu gestures, targeted duplication, ordinary left-drag reordering and middle-click close. Finder argument construction preserves spaces/quotes; the actual menu routes ROM and map tabs to their owning file, handles missing/untitled files and surfaces launch failures without invoking explorer.exe.
+
+Complete Mac validation: All 30 groups pass 6,375 assertions with zero failed or skipped groups, including the new 23-check tab menu/Finder group.
+
+Scope: Mac tab UI and platform reveal only; Windows/shared Core file-location commands, diff/patch implementations, ROM data and history algorithms are unchanged. Tests use synthetic files/models and a reveal recorder. Native trackpad/menu behavior and Finder selecting the real file remain for user confirmation after relaunch.
+
+## 076 — Route clipboard commands to the focused text editor
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Windows/MainWindow.Editing.cs](src/HexManiac.Avalonia/Windows/MainWindow.Editing.cs) | 12 | Route editing commands to the focused TextBox, guard read-only operations, and use existing tab commands when focus is outside text input. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 89 | Initialize shared editing commands and intercept text clipboard shortcuts before they can reach binary editing. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 97 | Replace direct ROM clipboard bindings with the commands installed by the window for the native Edit menu. |
+| [tests/ClipboardRouting/ClipboardRouting.csproj](tests/ClipboardRouting/ClipboardRouting.csproj) | 1 | Add a full-window headless regression group with synthetic ROMs and the headless clipboard. |
+| [tests/ClipboardRouting/Program.cs](tests/ClipboardRouting/Program.cs) | 53 | Exercise routed clipboard shortcuts, native menu commands, script rejection/correction/history, ordinary text templates and preserved binary paste. |
+| [tests/ClipboardRouting/README.md](tests/ClipboardRouting/README.md) | 1 | Document the original ROM-writing reproduction, automated coverage and remaining native UI checks. |
+| [tests/README.md](tests/README.md) | 23 | Link the new clipboard focus regression group. |
+
+Evidence: With the script TextBox focused, the original routed Cmd+C copied hex data and Cmd+V wrote clipboard bytes `AA BB` directly into the synthetic ROM, replacing opcode `6A` with `AA` and removing source focus. Both window shortcuts and native Edit menu commands were bound directly to the selected ROM's commands. They now share focus routing through the native TextBox operations; an unavailable text operation never falls through to binary editing. Select All, Cut, legacy Cmd+B, Deep Copy and Delete receive the same text-focus guard.
+
+Validation: The complete Mac suite passes 31 groups and 6,453 assertions with zero failures or skipped groups. The new group passes 78 assertions, including backward selection paste, LF/CRLF source, focus retention, byte/metadata preservation on rejection, retained diagnostics, blocked Save/Save As, correction/retry and actual Cmd+Z/Shift+Cmd+Z round trips. Dialogue, fixed name-table text and all four encounter stream sizes retain text clipboard routing; native-menu binary paste remains undoable. The new group was also rebuilt and rerun after strengthening keyboard-history and paste-event checks. Builds report zero warnings and errors.
+
+Scope: Mac presentation/command routing only; compilation, numeric parsing, pointer relocation, ROM history and game-engine behavior are unchanged. Existing workflow checks continue to cover HMA-006/007/008 protections. Headless tests use synthetic files and their own clipboard; AppKit menu-bar event delivery and clipboard exchange with another application remain for user confirmation after relaunch.
+
+## 077 — Keep map event shortcuts out of focused text fields
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 62 | Guard map key commands at both availability and execution so event text fields receive Delete, Backspace, arrows and Escape without invoking map actions. |
+| [tests/MapRendering/SyntheticMapFixture.cs](tests/MapRendering/SyntheticMapFixture.cs) | 39 | Add an optional fabricated Script Event table while preserving the existing default map fixture. |
+| [tests/MapEventEditing/MapEventEditing.csproj](tests/MapEventEditing/MapEventEditing.csproj) | 1 | Add a full-window headless map event editing regression group. |
+| [tests/MapEventEditing/Program.cs](tests/MapEventEditing/Program.cs) | 47 | Deliver routed editing keys to actual Script Event fields and verify event retention, byte/metadata safety and normal map command history. |
+| [tests/MapEventEditing/README.md](tests/MapEventEditing/README.md) | 1 | Document the deletion reproduction, automated coverage and native keyboard checks. |
+| [tests/README.md](tests/README.md) | 25 | Link the map event keyboard editing regression group. |
+
+Evidence: On a fabricated map, both Backspace and forward Delete removed the Script Event while its Script Address TextBox had focus, reducing scriptCount from 1 to 0. The map's ancestor KeyBindings invoked DeleteCommand before the textbox handled those keys and bypassed the text-focus guard in the separate key event handler. The bindings now decline map commands while any supported text entry control has focus, and recheck focus before execution; their existing map-focused commands and parameters are retained.
+
+Validation: The new group passes 63 assertions for character and boundary deletion, caret arrows, Escape, stable field/focus, event count, unchanged pointers/bytes/metadata when removing redundant address zeroes, a second event field, address clearing with existing null-pointer parsing and Undo, map-focused deletion with exact Undo/Redo, and map-focused panning/cancellation. The first complete-suite attempt stopped on the unrelated FocusAnimation movement timing assertion; that group passed all 13 assertions on an immediate standalone rerun. The fresh complete-suite rerun passes all 32 groups and 6,516 assertions with zero failures or skipped groups; builds report zero warnings and errors.
+
+Scope: Mac map keyboard command routing only; pointer parsing, event data layouts, compilation, history and game-engine behavior are unchanged. Tests use synthetic maps without user ROMs. Native Delete/Fn+Delete interaction remains for user confirmation after relaunch.

@@ -473,7 +473,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                childIndexGroup++;
             } else if (streamGroup != null) {
                while (Groups.Count <= childIndexGroup) AddGroup();
-               Groups[childIndexGroup] = streamGroup;
+               // Replacing a group with itself still emits CollectionChanged.Replace.
+               // Avalonia rebuilds that group's editors, dropping focus and autocomplete.
+               if (!ReferenceEquals(Groups[childIndexGroup], streamGroup)) Groups[childIndexGroup] = streamGroup;
                streamGroup.Close();
                childIndexGroup++;
             }

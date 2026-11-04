@@ -86,6 +86,8 @@ public partial class MainWindow : Window {
       // Call the generated InitializeComponent, not AvaloniaXamlLoader directly: the generated
       // one both loads the XAML and assigns the x:Name fields.
       InitializeComponent();
+      InitializeEditingCommands();
+      AddHandler(KeyDownEvent, HandleTextEditingKeys, RoutingStrategies.Tunnel);
 
       DragDrop.SetAllowDrop(this, true);
       AddHandler(DragDrop.DragOverEvent, OnFileDragOver, RoutingStrategies.Bubble, handledEventsToo: true);
@@ -118,6 +120,9 @@ public partial class MainWindow : Window {
          KeyBindings.Add(binding);
       }
 
+      void Edit(Key key, KeyModifiers modifiers, ICommand command) =>
+         KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(key, modifiers), Command = command });
+
       Add(Key.N, cmd, nameof(EditorViewModel.New));
       Add(Key.O, cmd, nameof(EditorViewModel.Open));
       Add(Key.T, cmd, nameof(EditorViewModel.DuplicateCurrentTab));
@@ -125,7 +130,7 @@ public partial class MainWindow : Window {
       Add(Key.S, cmd | KeyModifiers.Shift, nameof(EditorViewModel.SaveAs));
       Add(Key.A, cmd | KeyModifiers.Shift, nameof(EditorViewModel.SaveAll));
       Add(Key.E, cmd, nameof(EditorViewModel.ExportBackup));
-      Add(Key.A, cmd, nameof(EditorViewModel.SelectAll));
+      Edit(Key.A, cmd, textSelectAll);
       KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.F5),
          Command = new StubCommand { Execute = _ => LaunchExternalEmulator(), CanExecute = _ => true } });
       // F5 launches the saved ROM in the chosen external app; F6 runs the editor's current bytes.
@@ -138,13 +143,13 @@ public partial class MainWindow : Window {
       Add(Key.Z, cmd, nameof(EditorViewModel.Undo));
       Add(Key.Z, cmd | KeyModifiers.Shift, nameof(EditorViewModel.Redo));
       Add(Key.Y, cmd, nameof(EditorViewModel.Redo));
-      Add(Key.X, cmd, nameof(EditorViewModel.Cut));
-      Add(Key.C, cmd, nameof(EditorViewModel.Copy));
-      Add(Key.C, cmd | KeyModifiers.Shift, nameof(EditorViewModel.DeepCopy));
-      Add(Key.V, cmd, nameof(EditorViewModel.Paste));
-      Add(Key.B, cmd, nameof(EditorViewModel.Paste));
+      Edit(Key.X, cmd, textCut);
+      Edit(Key.C, cmd, textCopy);
+      Edit(Key.C, cmd | KeyModifiers.Shift, textDeepCopy);
+      Edit(Key.V, cmd, textPaste);
+      Edit(Key.B, cmd, textPaste);
       Add(Key.D, cmd | KeyModifiers.Shift, nameof(EditorViewModel.DiffSinceLastSave));
-      Add(Key.Delete, KeyModifiers.None, nameof(EditorViewModel.Delete));
+      Edit(Key.Delete, KeyModifiers.None, textDelete);
       Add(Key.F, cmd, nameof(EditorViewModel.ShowFind), true);
       // WPF hung this off the search-results TabControl's InputBindings; the port has no such
       // control, and a window-level binding matches what a user expects from Escape anyway.
@@ -755,6 +760,25 @@ public partial class MainWindow : Window {
 
    private bool tabCaptured;
 
+   private async void RevealTabInFinder(object sender, RoutedEventArgs e) {
+      if (Editor == null || sender is not MenuItem item) return;
+      var target = item.DataContext is MapEditorViewModel map ? map.ViewPort : item.DataContext as IEditableViewPort;
+      if (target == null || string.IsNullOrEmpty(target.FileName) || FileSystem?.Exists(target.FullFileName) != true) {
+         Editor.ErrorMessage = "This tab does not have an existing saved file to show in Finder.";
+         return;
+      }
+      if (FileSystem is not IFileRevealer revealer) {
+         Editor.ErrorMessage = "Showing files in Finder is unavailable.";
+         return;
+      }
+      try {
+         var error = await revealer.RevealFileAsync(target.FullFileName);
+         if (error != null) Editor.ErrorMessage = "Could not show the file in Finder: " + error;
+      } catch (Exception exception) when (exception is System.IO.IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception) {
+         Editor.ErrorMessage = "Could not show the file in Finder: " + exception.Message;
+      }
+   }
+
    private void TabMouseDown(object sender, PointerPressedEventArgs e) {
       if (sender is not Control element) return;
       var properties = e.GetCurrentPoint(element).Properties;
@@ -769,6 +793,12 @@ public partial class MainWindow : Window {
       }
 
       if (!properties.IsLeftButtonPressed) return;
+      if (OperatingSystem.IsMacOS() && e.KeyModifiers.HasFlag(KeyModifiers.Control)) {
+         var header = element.GetVisualAncestors().OfType<Control>().FirstOrDefault(control => control.ContextMenu != null);
+         header?.ContextMenu?.Open(header);
+         e.Handled = true;
+         return;
+      }
       e.Pointer.Capture(element);
       tabCaptured = true;
    }

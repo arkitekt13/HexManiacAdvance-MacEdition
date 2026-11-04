@@ -1710,6 +1710,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void Cancel() {
+         InterruptInteraction();
          SelectedEvent = null;
          DrawMultipleTiles = false;
          BlockEditorVisible = false;

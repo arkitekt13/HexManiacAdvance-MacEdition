@@ -224,11 +224,14 @@ Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUD
 
 ## HMA-013 — End live map interactions when Escape clears the brush
 
-**Status:** Reproduced, not implemented. Escape clears the active brush, but continued held
-pointer motion still changes map bytes. Cancel leaves the Core drawing interaction active.
+**Status:** Fixed in changelog entry 108. Original behavior: Escape cleared the active brush,
+but continued held pointer motion still changed map bytes because Cancel left the drawing
+interaction active.
 
-Scope: End the interaction before clearing fields; preserve already-applied edits and history,
-without entering the no-brush block-swapping path. Coordinate with HMA-012 lifecycle handling.
+Implemented: Route Cancel through HMA-012 interaction completion before clearing brush fields.
+The UI relinquishes capture for the owning operation; valid edits remain a single Undo step.
+Enforced key/API cancellation scenarios cover painting, rectangles, events, picker, pan, selection
+and pending object/wave templates in [MapGestureLifecycle](tests/MapGestureLifecycle/README.md).
 Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
 
 ## HMA-014 — Clear transient reveal mode when map focus/context changes

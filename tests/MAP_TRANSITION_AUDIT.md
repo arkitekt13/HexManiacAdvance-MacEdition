@@ -131,4 +131,15 @@ history once and abandons pending placement/wave requests. Normal release retain
 endpoint and is disarmed before capture is released. New tests include independent-document
 context isolation and save/reload/history boundaries. Border/connection gestures use the same
 cleanup mechanism, but their native resize interactions are not directly covered by this group.
-HMA-011, HMA-013 and HMA-014 are not claimed fixed by entry 107.
+HMA-013 is subsequently fixed in entry 108: Escape/direct Cancel first finish the owning
+interaction, then clear brush state. Enforced scenarios retain valid bytes/history and prevent
+held movement/release from painting or swapping. HMA-011 and HMA-014 remain outstanding.
+A separate preserve-mode non-bag rectangle packing finding is tracked as HMA-015; it is not
+changed by the lifecycle fixes.
+
+
+Fresh post-fix validation: `scripts/verify-mac.sh --no-restore` passes all 52 groups / 15,482
+assertions, zero failures or skipped groups. MapGestureLifecycle supplies 273 assertions in
+26 isolated scenarios. This supersedes the investigation-only baseline above; the original
+failed observations remain historical and are not counted as passing tests. The upstream suite
+was not rerun. Native hardware/deactivation verification remains outside these headless checks.

@@ -19,7 +19,7 @@ using System.Diagnostics;
 
 if (args.Length == 0) {
    var total = 0;
-   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave" }) {
+   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api" }) {
       var start = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true };
       start.ArgumentList.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
       start.ArgumentList.Add(name);
@@ -38,7 +38,7 @@ SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationCont
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 var checks=0;
 void Check(bool ok,string message) { checks++;if(!ok)throw new InvalidOperationException(message); }
-var fixture=new SyntheticMapFixture(24,20,withScriptEvent: args[0]=="event-capture");var model=fixture.Model;
+var fixture=new SyntheticMapFixture(24,20,withScriptEvent: args[0]=="event-capture"||args[0]=="escape-event");var model=fixture.Model;
 model.SetList(new NoDataChangeDeltaModel(),"MapAttributeBehaviors","Normal");
 var token=new ModelDelta();
 foreach(var at in new[]{0x104,0x108,0x10C})model.WritePointer(token,at,0x110);
@@ -226,6 +226,48 @@ if(scenario=="paint-capture" || scenario=="pan-capture" || scenario=="select-cap
    Check(baseline.SequenceEqual(model.RawData)&&!mapper.Undo.CanExecute(null),"Abandoning a pending template creates no event or history.");
    Check(!mapper.ShowTemplateSettings,"Interruption must not behave like clicking to open template settings.");
    Click(Cell(12,8));Check(Value(12,8)==1,"Painting resumes after abandoning a template.");
+ } else if(scenario.StartsWith("escape-") || scenario=="cancel-api") {
+   var command=OperatingSystem.IsMacOS()?RawInputModifiers.Meta:RawInputModifiers.Control;
+   if(scenario=="escape-picker") {
+      var blocks=view.FindControl<PixelImage>("BlockRenderImage")!;var scale=((IPixelViewModel)blocks.DataContext!).SpriteScale;
+      Down(blocks.TranslatePoint(new Avalonia.Point(24*scale,8*scale),window)!.Value);
+   } else if(scenario=="escape-template" || scenario=="escape-wave") {
+      var icon=view.FindControl<Control>(scenario=="escape-wave"?"WaveFunction":"ObjectEventTemplate")!;
+      Down(icon.TranslatePoint(new Avalonia.Point(12,12),window)!.Value);
+   } else if(scenario=="escape-event") {
+      Down(Cell(0,0));window.MouseMove(Cell(2,3),RawInputModifiers.LeftMouseButton);Layout();
+      Check(model.ReadMultiByteValue(0x16000,2)==2,"Event must move before Escape.");
+   } else {
+      var modifier=scenario=="escape-pan"?RawInputModifiers.Alt:scenario=="escape-select"?RawInputModifiers.Control:scenario=="escape-rectangle"?command:RawInputModifiers.None;
+      if(scenario=="escape-rectangle") mapper.CollisionIndex=0;
+      Down(Cell(6,6),modifier);
+      if(scenario=="escape-rectangle") {window.MouseMove(Cell(8,8),command|RawInputModifiers.LeftMouseButton);Layout();}
+   }
+   Check(pointer.Captured!=null,"Cancellation starts with a captured gesture.");
+   var applied=model.RawData.ToArray();
+   if(scenario=="cancel-api") mapper.Cancel();
+   else {
+      Check(view.Focus(),"Escape must be routed through the map's real key binding.");
+      window.KeyPressQwerty(PhysicalKey.Escape,RawInputModifiers.LeftMouseButton);window.KeyReleaseQwerty(PhysicalKey.Escape,RawInputModifiers.LeftMouseButton);
+   }
+   Layout();
+   Check(mapper.DrawBlockIndex==-1&&mapper.CollisionIndex==-1,"Cancel clears the brush after completing the operation.");
+   Check(pointer.Captured==null,"Cancel releases the owning pointer and UI gesture.");
+   window.MouseMove(Cell(10,8),RawInputModifiers.LeftMouseButton);Layout();Up(Cell(10,8));
+   Check(applied.SequenceEqual(model.RawData),"Held movement and release after Escape must neither paint, swap nor roll back applied edits.");
+   Check(!mapper.ShowTemplateSettings,"Cancel does not open pending template settings.");
+   mapper.CompleteInteraction();mapper.CompleteInteraction();Layout();
+   if(!applied.SequenceEqual(baseline)) {
+      Check(mapper.Undo.CanExecute(null),"Valid edits before Escape remain undoable.");mapper.Undo.Execute(null);Layout();
+      Check(baseline.SequenceEqual(model.RawData)&&!mapper.Undo.CanExecute(null),"Exactly one Undo restores the entire pre-cancel model.");
+      mapper.Redo.Execute(null);Layout();Check(applied.SequenceEqual(model.RawData),"Redo restores the exact valid canceled-stroke result.");
+   } else Check(!mapper.Undo.CanExecute(null),"Cancel of a non-writing gesture creates no history.");
+   mapper.SelectBlock(1,0);mapper.ReleaseBlock(1,0);mapper.CollisionIndex=0;Layout();
+   Down(Cell(12,8),scenario=="escape-rectangle"?command:RawInputModifiers.None);
+   if(scenario=="escape-rectangle") {window.MouseMove(Cell(14,10),command|RawInputModifiers.LeftMouseButton);Layout();}
+   Up(scenario=="escape-rectangle"?Cell(14,10):Cell(12,8));
+   Check(Value(12,8)==1,"A new stroke works after Cancel.");mapper.Undo.Execute(null);Layout();
+   Check(applied.SequenceEqual(model.RawData),"The next edit has an independent history boundary and no stale rectangle backup.");
 } else throw new ArgumentException("Unknown scenario");
 if(scenario!="navigation-stroke") Check(metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Audit must preserve metadata.");
 else Console.WriteLine("NAVIGATION_METADATA_EQUAL_TO_START:"+metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()));

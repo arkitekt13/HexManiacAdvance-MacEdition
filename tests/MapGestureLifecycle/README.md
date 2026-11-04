@@ -19,7 +19,14 @@ saved-state transitions across two Undo/Redo entries. Save is in-memory; no pers
 settings are modified. Core completion is idempotent and preserves valid already-applied edits;
 abandoning a pending template starts no creation or wave fill and opens no settings popup.
 
-The original ghost-paint regression failed before implementation. These are enforced tests,
+Escape and direct Cancel API checks cover painting, rectangles, event movement, picker, pan,
+selection and pending object/wave templates. They assert capture is released, the brush clears,
+held motion/release cannot paint or swap blocks, valid edits remain undoable/redone exactly,
+empty operations create no history, and the next edit has a separate history boundary. A fresh
+rectangle after cancellation must not restore a stale backup.
+
+The original ghost-paint regression and Escape capture regression failed before their fixes.
+These are enforced tests,
 separate from the historical observations in tools/MapTransitionReview. Native OS activation,
 trackpad hardware, border/connection resizing and fully combined 9-grid/wave edits remain
 outside this group's direct scenario coverage. Same-cell-after-history and Space reveal are

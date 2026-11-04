@@ -32,6 +32,15 @@
       </ContextMenu>
       <local:EqualityToBooleanConverter x:Key="Equality" />
       <local:PointConverter x:Key="PointConverter" />
+      <!-- Keep large overworld graphics from resizing the selector and moving event fields. -->
+      <DataTemplate x:Key="ObjectGraphicsOptionTemplate">
+         <StackPanel Orientation="Horizontal" Background="Transparent">
+            <TextBlock Width="32" VerticalAlignment="Center" Text="{Binding Index}" />
+            <Viewbox Width="64" Height="64" Stretch="Uniform" StretchDirection="DownOnly">
+               <local:PixelImage />
+            </Viewbox>
+         </StackPanel>
+      </DataTemplate>
    </UserControl.Resources>
    <UserControl.DataTemplates>
       <DataTemplate DataType="tools:VisualComboOption">
@@ -227,12 +236,16 @@
 
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,2,2,2">
                            <local:AngleComboBox Direction="Right" SelectedIndex="{Binding Graphics, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}" ItemsSource="{Binding Options}"
+                                                BoundSelectionIndex="{Binding Graphics}"
+                                                ItemTemplate="{StaticResource ObjectGraphicsOptionTemplate}"
                                                 IsVisible="{Binding ShowGraphicsAsText, Converter={x:Static BoolConverters.Not}}" />
                            <local:AngleTextBox Direction="Out" TextBinding="{Binding GraphicsText, Mode=TwoWay}"
                                                IsVisible="{Binding ShowGraphicsAsText}" />
                            <local:AngleComboBox Direction="Out"
                                  SelectedIndex="{Binding DynamicOverworldGraphicsSelectedIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}"
+                                 BoundSelectionIndex="{Binding DynamicOverworldGraphicsSelectedIndex}"
                                  ItemsSource="{Binding DynamicOverworldOptions}"
+                                 ItemTemplate="{StaticResource ObjectGraphicsOptionTemplate}"
                                  IsVisible="{Binding HasGraphicsInTransitionScript}" />
                         </StackPanel>
 

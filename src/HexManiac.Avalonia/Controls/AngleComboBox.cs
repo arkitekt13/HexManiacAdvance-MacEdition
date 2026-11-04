@@ -5,6 +5,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using HavenSoft.HexManiac.AvaloniaUI.Resources;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.ViewModels.Tools;
@@ -136,6 +137,31 @@ public class AngleComboBox : ComboBox {
 
    private FilteringComboOptions subscribed;
    private TextBox editableTextBox;
+   private int itemsGeneration;
+
+   // Optional one-way model index, unaffected by transient selection coercion when
+   // an event panel swaps option objects. Ordinary/filterable combos keep their bindings.
+   public static readonly StyledProperty<int?> BoundSelectionIndexProperty =
+      AvaloniaProperty.Register<AngleComboBox, int?>(nameof(BoundSelectionIndex));
+
+   public int? BoundSelectionIndex {
+      get => GetValue(BoundSelectionIndexProperty);
+      set => SetValue(BoundSelectionIndexProperty, value);
+   }
+
+   protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change) {
+      base.OnPropertyChanged(change);
+      if (change.Property != ItemsSourceProperty && change.Property != BoundSelectionIndexProperty) return;
+      var generation = ++itemsGeneration;
+      if (BoundSelectionIndex == null) return;
+      // A recycled event panel can replace its option objects after SelectedIndex was
+      // evaluated. Selection is then coerced to -1, while the model keeps the same ID.
+      // Read the current one-way model index after both bindings settle, never a cached ID.
+      Dispatcher.UIThread.Post(() => {
+         if (generation == itemsGeneration && BoundSelectionIndex is int index && index >= 0 && index < ItemCount)
+            SetCurrentValue(SelectedIndexProperty, index);
+      });
+   }
 
    /// <summary>
    /// WPF wired these bindings in the DataContextChanged handler because a FilteringComboOptions

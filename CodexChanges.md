@@ -1455,3 +1455,23 @@ Evidence: Shared Core already supplied Create New Map, Open in New Tab and Delet
 Behavior: Secondary-click and Mac Control-click on a visible warp open those original commands before underlying tile selection. Other supported event types reuse their existing shared menus. Opening a menu releases capture immediately. Explicit opening prevents empty cells from displaying a stale event menu; their tile-selection gestures remain available.
 
 Validation: MapEventMenus 68, MapSelection 394 and MapZoom 1,158 pass (1,620 assertions). Coverage includes both gestures at 1x/2x zoom, early Control release, canceled bank selection with unchanged bytes/metadata/history, destination tabs, deletion Undo/Redo and painting/panning exclusions. The existing map-selection group verifies exact repeated stamps and Option-pan. Map creation allocation/relocation algorithms and game behavior are unchanged; the new routing test cancels before allocation and uses no user ROM.
+
+## 086 — Stabilize object sprite previews and recover recycled selector state
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 36 | Fit complete ordinary/dynamic overworld images into fixed-size previews and stable popup rows. |
+| [src/HexManiac.Avalonia/Controls/AngleComboBox.cs](src/HexManiac.Avalonia/Controls/AngleComboBox.cs) | 141 | Add opt-in selection recovery from a current one-way model index after option replacement, with coalesced queued updates. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 320 | Let focused combo boxes handle their keys without triggering map commands. |
+| [tests/MapSpriteSelection/MapSpriteSelection.csproj](tests/MapSpriteSelection/MapSpriteSelection.csproj) | 1 | Register the headless object sprite-selector regression group. |
+| [tests/MapSpriteSelection/Program.cs](tests/MapSpriteSelection/Program.cs) | 66 | Reproduce layout/selection failures and verify large-image transitions, real input, virtualized rows, history and context replacement. |
+| [tests/MapSpriteSelection/README.md](tests/MapSpriteSelection/README.md) | 1 | Document root causes, coverage, sample-ROM observation and native confirmation limits. |
+| [tests/README.md](tests/README.md) | 30 | Link the sprite-selector regression group. |
+
+Evidence: A read-only inspection of the local FireRed sample found sprite 108 is 64x64 while 106/107/109 are 32x32. Existing 2x previews expanded 108 to 128x128 and moved the surrounding fields; a synthetic regression reproduced the layout jump. History/reopen also reproduced a blank selector: UI index -1 with the ROM graphics byte still 108. Replacing option objects after selection evaluation coerced the UI selection; ignoring its negative write protected the ROM but left the unchanged model index undisplayed. A separate actual-key check showed map arrow commands intercepting selector navigation.
+
+Behavior: Full sprite images fit into 64x64 thumbnails without cropping or altering their source bitmaps. Ordinary and dynamic graphics pickers use stable rows. An opt-in one-way model index restores the current selection after option changes settle, and generation checks prevent abandoned queued replacements from restoring stale IDs. Existing two-way selection remains responsible for actual graphics edits. Focused combo boxes retain their native key handling.
+
+Validation: MapSpriteSelection passes 180 assertions. The tests require stable layout, complete bitmap dimensions, fresh pixels across small/large transitions (including an expanded 96x128 image), actual keyboard/wheel/pointer selection, populated virtualized rows around 108, popup reopen, unchanged unrelated ROM bytes and pointer/format metadata, exact Undo/Redo, and rapid switches between objects with different graphics IDs. The pre-fix stable-layout and history/reopen assertions failed as described above. The complete Mac suite, rebuilt with `scripts/verify-mac.sh --no-restore`, passes 39 groups and 7,476 assertions with zero failures and zero skipped groups across all three fixes. No new build warnings were introduced.
+
+Scope: Mac selector presentation, selection recovery and keyboard routing only. Sprite bytes, numeric IDs, dynamic graphics rules, map rendering, engine behavior, compilation, pointers and shared history algorithms are unchanged. Automated tests use synthetic data; the sample ROM was read without saving. The user's exact native trackpad/blank-list sequence remains for confirmation after relaunch.

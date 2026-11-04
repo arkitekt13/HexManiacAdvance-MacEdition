@@ -319,7 +319,7 @@ public partial class MapTab : UserControl {
    /// WPF checked Keyboard.FocusedElement against TextBoxBase / TextBoxLookAlike.
    private bool IsTextEntryFocused() {
       var focused = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
-      return focused is TextBox || focused is TextBoxLookAlike || focused is AngleTextBox;
+      return focused is TextBox || focused is TextBoxLookAlike || focused is AngleTextBox || focused is ComboBox;
    }
 
    protected override void OnLostFocus(RoutedEventArgs e) {

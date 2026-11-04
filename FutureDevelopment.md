@@ -261,3 +261,38 @@ same existing path; copied multi-cell patterns keep their packed-source repetiti
 Regressions cover mixed 0/1/16/63 permissions, preserve/explicit settings, one/two-member bags,
 rectangle growth/shrink, copied patterns, permission-only edits, exact bytes/metadata and
 Save/reload/Undo/Redo. Evidence: [MapGestureLifecycle](tests/MapGestureLifecycle/README.md).
+
+## HMA-016 — Separate negative preservation state from copied packed brush values
+
+**Status:** Reproduced through deliberate Core assignment, not implemented. Ordinary copied
+stamps/rectangles and explicit overrides pass, but assigning CollisionIndex=-1 with an active
+multi-cell brush produces FC-prefixed values. The Mac dropdown has no selectable preserve
+entry and ignores empty selection; no ordinary UI trigger was found that retains the copied
+brush while intentionally assigning the negative value.
+
+Plan: Define copy-source, explicit-override and preserve-destination semantics independently
+of packed words before exposing preserve controls. Keep default mixed copied patterns intact.
+Evidence and limits: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
+
+## HMA-017 — Apply explicit nine-grid permissions to derived inner corners
+
+**Status:** Reproduced through bound Movement selection and real pointer painting, not fixed.
+Selecting permission 01 paints normal nine-grid cells with 01 but an inner corner retains 0C
+from discovery. Both before-activation and after-activation selector changes reproduce it.
+
+Plan: Keep corner-art inference while applying the actual explicit movement policy uniformly,
+without flattening ordinary mixed copied-pattern permissions. Cover all corner topologies,
+mode changes, successive strokes, exact bytes/metadata and Save/Undo/Redo.
+Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
+
+## HMA-018 — Bound border pointer coordinates before accessing ROM data
+
+**Status:** Reproduced through actual border dragging, not fixed. Moving outside the left edge
+writes before border data with single/multi brushes; a single brush can also write after the
+right edge. A separate build of pre-gesture-fix checkpoint 03025d32 reproduces the same left
+overrun, confirming that this predates the recent capture-lifecycle change.
+
+Priority: Fix before further border-tool feature work. Guard reads and writes before address
+calculation, including negative fractional pixels, each edge, single/multi brushes and custom
+dimensions. Preserve unrelated bytes/pointers/metadata and exact Save/Undo/Redo boundaries.
+Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).

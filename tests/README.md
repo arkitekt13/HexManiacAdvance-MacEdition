@@ -34,6 +34,9 @@ The subsequent fix is protected by [BlockBagFill](BlockBagFill/README.md).
 The [map transition audit](MAP_TRANSITION_AUDIT.md) records original interruption, Escape,
 same-cell/history, rectangle-permission and reveal-state failures and their subsequent fixes.
 [MapGestureLifecycle](MapGestureLifecycle/README.md) protects the implemented follow-ups.
+The [copied-brush and border review](COPIED_BRUSH_REVIEW.md) separately records normal copying
+controls, latent preserve-state handling, explicit nine-grid corner inconsistencies and a
+confirmed border bounds overrun; those new findings are not implemented fixes.
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

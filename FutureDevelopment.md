@@ -244,16 +244,15 @@ text-entry keys or breaking Command hide-events behavior.
 Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
 
 
-## HMA-015 — Review preserve-mode packing for a non-bag rectangle brush
+## HMA-015 — Preserve movement permissions for a non-bag rectangle brush
 
-**Status:** Reproduced during lifecycle regression development; not implemented here. Selecting
-single block 1, setting CollisionIndex=-1, then Command-dragging a non-bag rectangle writes FC01
-throughout that rectangle. CollisionIndex's existing setter packs the negative sentinel into
-tilesToDraw; FillRect passes those packed values to RepeatBlocks. This is distinct from the
-fixed HMA-010 PaintBlockBag fallback and from interruption cleanup.
+**Status:** Fixed in changelog entry 109. Original behavior: Selecting single block 1, setting
+CollisionIndex=-1, then Command-dragging a non-bag rectangle wrote FC01. The setter packed the
+negative sentinel into tilesToDraw, which FillRect passed directly to RepeatBlocks.
 
-Next step: Add a failing packed-brush preserve-mode regression and determine the intended
-per-cell movement behavior alongside explicit permissions and copied multi-cell brushes.
-Keep exact bytes/metadata, rectangle preview/backups, Save/Undo/Redo and bag fill protected.
-The lifecycle rectangle regression deliberately uses explicit permission 0 to isolate gesture
-completion without changing this existing writing path.
+Implemented: Single-cell rectangle brushes use RepeatBlock with the chosen art and separate
+permission setting, preserving each destination's movement bits when negative. Bags use the
+same existing path; copied multi-cell patterns keep their packed-source repetition semantics.
+Regressions cover mixed 0/1/16/63 permissions, preserve/explicit settings, one/two-member bags,
+rectangle growth/shrink, copied patterns, permission-only edits, exact bytes/metadata and
+Save/reload/Undo/Redo. Evidence: [MapGestureLifecycle](tests/MapGestureLifecycle/README.md).

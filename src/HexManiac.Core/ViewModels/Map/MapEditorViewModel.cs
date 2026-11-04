@@ -1063,8 +1063,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var (width, height) = (right - left + 1, bottom - top + 1);
 
          var singleSelect = tilesToDraw == null || (tilesToDraw.GetLength(0) == 1 && tilesToDraw.GetLength(1) == 1);
-         if (singleSelect && blockBag.Contains(drawBlockIndex)) {
-            primaryMap.RepeatBlock(() => history.CurrentChange, blockBag, collisionIndex, left, top, width, height, true);
+         if (singleSelect) {
+            IReadOnlyList<int> blocks = blockBag.Contains(drawBlockIndex) ? blockBag : new[] { drawBlockIndex };
+            primaryMap.RepeatBlock(() => history.CurrentChange, blocks, collisionIndex, left, top, width, height, true);
          } else {
             primaryMap.RepeatBlocks(() => history.CurrentChange, tilesToDraw, left, top, width, height, true);
          }

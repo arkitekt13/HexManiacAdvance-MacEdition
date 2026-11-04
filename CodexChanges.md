@@ -1882,3 +1882,19 @@ Evidence: Before this change, the enforced Escape regression fails because the p
 Validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 52 regression groups / 15,482 assertions, zero failures and zero skipped groups. The expanded MapGestureLifecycle group contributes 273 assertions across 26 isolated scenarios. Existing bag-fill permissions, map selection/menus, clipboard/field routing, script compilation/resource atomicity, retained drafts and HMA-006/007/history protections remain passing. The separate upstream xUnit suite was not rerun; fresh dependency builds retain eight existing Core warnings.
 
 Scope: One production call added to Cancel, using the shared lifecycle implementation from entry 107. No changes to numerical parsing, script compilation, allocation/relocation, map writing rules or history algorithms. Synthetic fixtures only; no personal ROM/settings or emulator is used. HMA-011 same-cell-after-history, HMA-014 Space reveal and HMA-015 non-bag rectangle preserve packing remain separate outstanding work.
+
+## 109 — Preserve destination movement permissions for single-block rectangles (HMA-015)
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs](src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs) | 1068 | Route single-cell rectangle brushes through existing RepeatBlock with separate art/permission values, preserving destination movement bits in preserve mode. |
+| [tests/MapGestureLifecycle/Program.cs](tests/MapGestureLifecycle/Program.cs) | 20 | Add an enforced mixed-permission rectangle matrix plus growth/shrink, copied-pattern, permission-only, Save/reload and exact history controls. |
+| [tests/MapGestureLifecycle/README.md](tests/MapGestureLifecycle/README.md) | 42 | Describe the rectangle permission matrix and retained copied-source semantics. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 246 | Mark HMA-015 implemented and link regression evidence. |
+| [tests/MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md) | 150 | Retain the original failure and record its implemented follow-up. |
+
+Behavior: A non-bag single-block rectangle with preserve permissions now changes only block art, retaining each destination cell's collision/elevation bits. Explicit permissions still replace those bits. One/two-member bag rectangles retain the same RepeatBlock path, while copied multi-cell patterns retain their exact packed-source repetition semantics. Permission-only rectangle edits retain block IDs.
+
+Evidence: Before the fix, the enforced preserve-mode non-bag case fails at cell 6,6 with actual FC01. The new rectangle scenario passes 288 assertions across 12 preserve/explicit permission and bag configurations, mixed original permissions 0/1/16/63, grow/shrink restoration, valid art membership, unrelated byte/pointer preservation, exact random Undo/Redo, Save/reload metadata and copied/permission-only controls. Freshly built MapSelection and BlockBagFill also pass 394 and 2,081 assertions respectively, zero failures/skips. Complete-suite validation follows the subsequent independent history/reveal fixes.
+
+Scope: Reuse existing fill rules rather than packing a negative permission sentinel into ROM data. No changes to numeric parsing, compilation, pointer relocation, history algorithms, user ROMs or settings. Tests use fabricated data and in-memory Save; native hardware behavior is not measured.

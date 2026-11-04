@@ -19,7 +19,7 @@ using System.Diagnostics;
 
 if (args.Length == 0) {
    var total = 0;
-   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api" }) {
+   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions" }) {
       var start = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true };
       start.ArgumentList.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
       start.ArgumentList.Add(name);
@@ -50,6 +50,11 @@ model.ObserveAnchorWritten(new NoDataChangeDeltaModel(),"data.maps.banks",root);
 model.WriteMultiByteValue(SyntheticMapFixture.Cells+(6*24+6)*2,2,token,0x4000);
 model.WriteMultiByteValue(SyntheticMapFixture.Cells+(6*24+7)*2,2,token,0x4000);
 model.WriteMultiByteValue(SyntheticMapFixture.Cells+(6*24+8)*2,2,token,0x4000);
+if(args[0]=="rectangle-permissions") {
+   var permissions=new[]{0,1,16,63};
+   for(int y=2;y<=9;y++)for(int x=2;x<=9;x++)
+      model.WriteMultiByteValue(SyntheticMapFixture.Cells+(y*24+x)*2,2,token,(permissions[(x+y)%4]<<10)|((x+y)%2));
+}
 var fs=new StubFileSystem{MetadataFor=_=>Array.Empty<string>()};
 Application.Current!.Resources["FileSystem"]=fs;
 var editor=new EditorViewModel(fs,InstantDispatch.Instance);
@@ -268,6 +273,53 @@ if(scenario=="paint-capture" || scenario=="pan-capture" || scenario=="select-cap
    Up(scenario=="escape-rectangle"?Cell(14,10):Cell(12,8));
    Check(Value(12,8)==1,"A new stroke works after Cancel.");mapper.Undo.Execute(null);Layout();
    Check(applied.SequenceEqual(model.RawData),"The next edit has an independent history boundary and no stale rectangle backup.");
+ } else if(scenario=="rectangle-permissions") {
+   var command=OperatingSystem.IsMacOS()?RawInputModifiers.Meta:RawInputModifiers.Control;
+   foreach(var bagSize in new[]{0,1,2})foreach(var permission in new[]{-1,0,1,62}) {
+      mapper.ClearBlockBag();
+      if(bagSize>0)mapper.ToggleBlockInBag(1,0);
+      if(bagSize>1)mapper.ToggleBlockInBag(0,0);
+      mapper.SelectBlock(1,0);mapper.ReleaseBlock(1,0);mapper.CollisionIndex=permission;Layout();
+      Down(Cell(6,6),command);
+      window.MouseMove(Cell(9,9),command|RawInputModifiers.LeftMouseButton);Layout();
+      window.MouseMove(Cell(8,8),command|RawInputModifiers.LeftMouseButton);Layout();Up(Cell(8,8));
+      var painted=model.RawData.ToArray();var expected=baseline.ToArray();
+      for(int y=6;y<=8;y++)for(int x=6;x<=8;x++) {
+         var at=SyntheticMapFixture.Cells+(y*24+x)*2;var actual=Value(x,y);var old=BitConverter.ToUInt16(baseline,at);
+         Check((actual>>10)==(permission<0?old>>10:permission),$"Rectangle bag={bagSize}, permission={permission} at {x},{y}: actual={actual:X4}, original={old:X4}.");
+         Check(bagSize<2?(actual&0x3FF)==1:new[]{0,1}.Contains(actual&0x3FF),"Rectangle art must match the brush or belong to the random bag.");
+         BitConverter.GetBytes((ushort)actual).CopyTo(expected,at);
+      }
+      Check(expected.SequenceEqual(painted),"Shrinking a rectangle restores all extra cells and preserves every unrelated byte/pointer.");
+      if(bagSize==0&&permission==-1) {
+         byte[] saved=null;string[] stored=null;
+         fs.Save=file=>{saved=file.Contents.ToArray();return true;};fs.SaveMetadata=(_,lines)=>{stored=lines.ToArray();return true;};
+         viewport.Save.Execute(fs);Check(viewport.ChangeHistory.IsSaved&&painted.SequenceEqual(saved),"Save records the exact preserved-permission rectangle.");
+         var loaded=new PokemonModel(saved,new StoredMetadata(stored),viewport.Singletons);
+         Check(painted.SequenceEqual(loaded.RawData)&&metadata.SequenceEqual(loaded.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Saved rectangle reloads with identical bytes/metadata.");
+      }
+      mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData),"One Undo restores all original rectangle bytes.");
+      mapper.Redo.Execute(null);Layout();Check(painted.SequenceEqual(model.RawData),"Redo restores the exact rectangle/random outcome.");
+      mapper.Undo.Execute(null);Layout();Check(!mapper.Undo.CanExecute(null),"Each rectangle is one independent history entry.");
+   }
+   mapper.ClearBlockBag();
+   // Copied multi-cell patterns retain their packed source permissions when repeated.
+   Down(Cell(2,2),RawInputModifiers.Control);window.MouseMove(Cell(3,4),RawInputModifiers.Control|RawInputModifiers.LeftMouseButton);Up(Cell(3,4));
+   Check(mapper.DrawMultipleTiles,"Copied multi-cell brush must be active.");
+   Down(Cell(12,8),command);window.MouseMove(Cell(15,13),command|RawInputModifiers.LeftMouseButton);Up(Cell(15,13));
+   var copied=baseline.ToArray();
+   for(int y=0;y<6;y++)for(int x=0;x<4;x++)Array.Copy(baseline,SyntheticMapFixture.Cells+(((y%3)+2)*24+(x%2)+2)*2,copied,SyntheticMapFixture.Cells+((y+8)*24+x+12)*2,2);
+   Check(copied.SequenceEqual(model.RawData),"Copied rectangles retain exact packed source patterns.");
+   mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData),"Copied rectangle is independently undoable.");
+   mapper.Cancel();mapper.CollisionIndex=1;Layout();
+   Down(Cell(6,6),command);window.MouseMove(Cell(8,8),command|RawInputModifiers.LeftMouseButton);Up(Cell(8,8));
+   var permissionsOnly=baseline.ToArray();
+   for(int y=6;y<=8;y++)for(int x=6;x<=8;x++) {
+      var at=SyntheticMapFixture.Cells+(y*24+x)*2;
+      BitConverter.GetBytes((ushort)((BitConverter.ToUInt16(baseline,at)&0x3FF)|0x400)).CopyTo(permissionsOnly,at);
+   }
+   Check(permissionsOnly.SequenceEqual(model.RawData),"Permission-only rectangle preserves every complete ten-bit block ID.");
+   mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData),"Permission-only rectangle restores exactly.");
 } else throw new ArgumentException("Unknown scenario");
 if(scenario!="navigation-stroke") Check(metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Audit must preserve metadata.");
 else Console.WriteLine("NAVIGATION_METADATA_EQUAL_TO_START:"+metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()));

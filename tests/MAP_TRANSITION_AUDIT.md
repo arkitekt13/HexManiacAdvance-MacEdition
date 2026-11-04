@@ -143,3 +143,10 @@ assertions, zero failures or skipped groups. MapGestureLifecycle supplies 273 as
 26 isolated scenarios. This supersedes the investigation-only baseline above; the original
 failed observations remain historical and are not counted as passing tests. The upstream suite
 was not rerun. Native hardware/deactivation verification remains outside these headless checks.
+
+
+HMA-015 follow-up (entry 109): The preserve-mode single-block rectangle reproduction is now an
+enforced regression. FillRect uses the existing per-cell RepeatBlock path for single brushes,
+while copied multi-cell patterns continue through RepeatBlocks. The 12-case permission/bag
+matrix and copy/permission-only/history controls add 288 passing assertions. The original
+negative-sentinel packing finding above remains historical evidence.

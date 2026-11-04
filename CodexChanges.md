@@ -1704,3 +1704,26 @@ Behavior: Suggestions close on focus/context/target changes, hidden or disabled 
 Validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 48 groups and 8,018 assertions, with zero failures and zero skipped groups. AutocompleteDismissal contributes 85 checks; AutocompleteMapping retains 294, including actual mouse acceptance and live compilation/history round-trips, and WildEncounterEditing retains 128. Compilation/resource atomicity, rejected source/diagnostics, correction/retry, clipboard, save/reload, HMA-006/007 protections and Undo/Redo continue to pass. The existing script benchmark compatibility run passes 2,892 measurement checks with all 24 focused completion probes matching Core. The separate upstream xUnit suite was not rerun; fresh dependency builds retain eight pre-existing Core warnings.
 
 Scope: No Core, compiler, numeric parsing, allocation/relocation, ROM, settings or history algorithm is changed. Window deactivation is exercised through Avalonia's callback in the headless regression; native OS delivery, the user's exact original trigger and unrelated dropdown implementations remain manual coverage. The changelog records the completed fix separately from the investigation.
+
+## 100 — Advance comment searches without rescanning cleared script prefixes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/TextEditorViewModel.cs](src/HexManiac.Core/ViewModels/TextEditorViewModel.cs) | 134 | Resume ordinary comment searches after the previous match while preserving phase order and legacy rescanning for markers containing spaces. |
+| [tests/CommentHighlighting/CommentHighlighting.csproj](tests/CommentHighlighting/CommentHighlighting.csproj) | 1 | Add a discovered Core-only highlighting safety group with a frozen preformatter baseline. |
+| [tests/CommentHighlighting/Program.cs](tests/CommentHighlighting/Program.cs) | 1 | Compare all six layers and source indices with an independent legacy oracle over 2,320 configurations plus retained preformatter diagnostics. |
+| [tests/CommentHighlighting/PreformatterBaseline.json](tests/CommentHighlighting/PreformatterBaseline.json) | 1 | Preserve six complete preformatter layer snapshots captured before optimization at 769825a9. |
+| [tests/CommentHighlighting/README.md](tests/CommentHighlighting/README.md) | 1 | Document equivalence coverage, unusual delimiter compatibility and before-change golden fixture provenance. |
+| [tools/CommentScanBenchmark/CommentScanBenchmark.csproj](tools/CommentScanBenchmark/CommentScanBenchmark.csproj) | 1 | Add an isolated scan benchmark against the production mutable-string helpers. |
+| [tools/CommentScanBenchmark/Program.cs](tools/CommentScanBenchmark/Program.cs) | 1 | Attribute restart-at-zero versus cursor scan cost independently of tokenization, compilation and layout while checking exact output pairs. |
+| [tests/COMMENT_HIGHLIGHT_PERFORMANCE.md](tests/COMMENT_HIGHLIGHT_PERFORMANCE.md) | 1 | Record isolated and full-highlighter timing, six-layer hash equality, preservation constraints and complete verification. |
+| [tests/SCRIPT_PERFORMANCE.md](tests/SCRIPT_PERFORMANCE.md) | 3 | Link the latest comment-search checkpoint without replacing older performance evidence. |
+| [tests/README.md](tests/README.md) | 25 | Link the new performance report and equivalence group. |
+
+Evidence: Repeated comment searches restart at zero over progressively cleared text. Isolated 2,000-line scans measured 45.259→0.217 ms for line comments and 52.514→0.155 ms for blocks, with identical basic/comment outputs. Space-containing openers can appear earlier after blanking, so they deliberately keep the original rescanning semantics instead of receiving an unsafe shortcut.
+
+Performance: The unchanged Release full-highlighter benchmark measures 1.341→0.660 ms at 100 lines, 10.468→2.505 ms at 500 and 90.044→7.785 ms at 2,000, with all six layer hashes matching every size. Temporary allocation is essentially unchanged; the 2,000-line run differs by 88 bytes around 3.33 MB. These are Core-only synthetic measurements, not native typing latency or compiler speedups.
+
+Validation: The new CommentHighlighting group passes 4,652 assertions. `scripts/verify-mac.sh --no-restore` freshly builds and passes all 49 groups and 12,670 assertions, with zero failures and zero skipped groups. Shared script compilation/resource atomicity, source retention, numeric/name interpretation, save/reload, autocomplete, clipboard and history protections continue to pass. The separate upstream xUnit suite was not rerun; fresh builds retain eight pre-existing Core warnings.
+
+Scope: Only presentation comment-search positions change. Tokenization, numeric parsing, compiler/resource allocation/relocation, game-engine behavior, ROMs, metadata, history and caret algorithms are unchanged. The subsequent document-width/layout investigation is separate.

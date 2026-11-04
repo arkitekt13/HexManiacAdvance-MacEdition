@@ -22,6 +22,8 @@ lookup without constructing unrelated NPC editors.
 The [script editor follow-up](SCRIPT_EDITOR_REVIEW.md) records fresh responsiveness measurements
 and reproduced stale-suggestion lifecycle gaps; [AutocompleteDismissal](AutocompleteDismissal/README.md)
 protects the subsequent focus/context/lifetime fix.
+The [comment-search optimization](COMMENT_HIGHLIGHT_PERFORMANCE.md) records exact-layer
+equivalence and Core timing improvements, protected by [CommentHighlighting](CommentHighlighting/README.md).
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

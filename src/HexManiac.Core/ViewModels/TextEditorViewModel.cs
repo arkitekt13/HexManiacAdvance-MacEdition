@@ -131,22 +131,28 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          }
 
          // comments
+         var commentSearchStart = 0;
          while (!string.IsNullOrEmpty(LineCommentHeader)) {
-            var index = basic.IndexOf(LineCommentHeader);
+            var index = basic.IndexOf(LineCommentHeader, commentSearchStart);
             if (index == -1) break;
             var endIndex = basic.IndexOfCharacter(index, '\n', '\r');
             if (index == -1) break;
             comments.Replace(index, basic, index, endIndex - index);
             basic.Clear(index, endIndex - index);
+            // Clear introduces spaces, so space-bearing markers can form an earlier match.
+            // Retain legacy rescanning for those; ordinary markers cannot reappear in cleared text.
+            commentSearchStart = LineCommentHeader.Contains(' ') ? 0 : endIndex;
          }
+         commentSearchStart = 0;
          while (!string.IsNullOrEmpty(multiLineCommentStart) && !string.IsNullOrEmpty(multiLineCommentEnd)) {
-            var index = basic.IndexOf(multiLineCommentStart);
+            var index = basic.IndexOf(multiLineCommentStart, commentSearchStart);
             if (index == -1) break;
             var endIndex = basic.IndexOf(multiLineCommentEnd, index + multiLineCommentStart.Length);
             if (endIndex == -1) endIndex = basic.Length;
             else endIndex += multiLineCommentEnd.Length;
             comments.Replace(index, basic, index, endIndex - index);
             basic.Clear(index, endIndex - index);
+            commentSearchStart = multiLineCommentStart.Contains(' ') ? 0 : endIndex;
          }
 
          var keywords = keywordLookup ??= new HashSet<string>(Keywords, StringComparer.Ordinal);

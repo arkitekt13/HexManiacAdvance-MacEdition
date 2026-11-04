@@ -1565,3 +1565,22 @@ Evidence: Cmd+C in the actual palette crashed in PaletteCollection.ExecuteCopy b
 Behavior: Palette/image clipboard bindings resolve their current filesystem at execution. Canvas keys defer to focused palette/text/combo/slider controls. Palette commands consume unavailable operations; null/invalid color text cannot become an image or binary paste. Native Edit commands share palette focus routing, including selecting palette colors; unsupported palette Cut remains a no-op. Text fields keep native text clipboard priority. Context-menu enabled state refreshes when opened.
 
 Validation: PaletteClipboard 40, ClipboardRouting 78, ImageEditorInput 38, PaletteHistory 36 and ColorEditorInput 93 pass (285 assertions). Checks preserve existing color clipboard format and paste-selection advance, exact palette-only writes, sprite/pointer bytes, metadata and Undo/Redo, while verifying keyboard/native/context paths, invalid clipboard safety, popup text and image fallback. Core parsing/encoding and history algorithms are unchanged; no user ROM or real image clipboard is used.
+
+## 092 — Complete Control-click routes for hex and block editing
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/HexContent.cs](src/HexManiac.Avalonia/Controls/HexContent.cs) | 372 | Route Mac Control-click to existing hex context actions, preserve the physical release and cancel abandoned capture. |
+| [src/HexManiac.Avalonia/Controls/SelectedBlockEditor.axaml.cs](src/HexManiac.Avalonia/Controls/SelectedBlockEditor.axaml.cs) | 37 | Treat Control-left-click as secondary tile sampling before the primary painting path. |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml](src/HexManiac.Avalonia/Controls/TabView.axaml) | 90 | Wire byte-summary press/release routing. |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml.cs](src/HexManiac.Avalonia/Controls/TabView.axaml.cs) | 548 | Make Copy Bytes reachable through Control-click, retain early-release state and invoke the existing command with the attached filesystem. |
+| [tests/MacSecondaryActions/MacSecondaryActions.csproj](tests/MacSecondaryActions/MacSecondaryActions.csproj) | 1 | Register real-view hex/summary and formatted blockmap gesture regressions. |
+| [tests/MacSecondaryActions/Program.cs](tests/MacSecondaryActions/Program.cs) | 22 | Reproduce missing hex menus and block painting, and verify equivalent actions, capture cancellation, exact clipboard/data behavior and block history. |
+| [tests/MacSecondaryActions/README.md](tests/MacSecondaryActions/README.md) | 1 | Document initialization, scope and native confirmation limits. |
+| [tests/README.md](tests/README.md) | 30 | Link remaining secondary-action coverage. |
+
+Evidence: Hex and byte-summary handlers checked only physical right-button releases. The block editor checked only a physical right press before its primary painting branch. After initializing a real block tile and formatted blockmap, the old Control-click route failed by retaining drawing tile 1 rather than sampling tile 0. The original hex route also failed the actual Control-click menu assertion.
+
+Behavior: Mac Control-click now invokes the original hex actions, Copy Bytes menu and block sampling. Hex/summary gestures retain a left-button release even if Control is released first; capture loss cancels the hex gesture. Secondary sampling does not enter the painting path. Ordinary primary editing remains available.
+
+Validation: MacSecondaryActions 31, MapSelection 394, MapEventMenus 68 and TextSelection 63 pass (556 assertions). Checks preserve identical menu labels, all model bytes/metadata, exact FF FF plus trailing-space clipboard output, normal primary block writes and complete-byte Undo/Redo. The initialized block test was also run against the original input handler and failed before restoring the fix. No user ROM is used; command semantics, encoded blocks, numeric parsing and history algorithms are unchanged.

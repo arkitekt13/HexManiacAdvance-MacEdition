@@ -87,7 +87,7 @@
             </hsg3hv:AngleTextBox>
             <TextBlock DockPanel.Dock="Left" Text="{Binding SelectedElementName}" Margin="5,0,0,0"/>
             <Grid HorizontalAlignment="Right" DockPanel.Dock="Right">
-               <TextBlock Margin="5,0,0,0" Text="{Binding SelectedBytes}" PointerReleased="BytesShowMenu"/>
+               <TextBlock Margin="5,0,0,0" Text="{Binding SelectedBytes}" PointerPressed="BytesMenuDown" PointerReleased="BytesShowMenu"/>
             </Grid>
          </DockPanel>
          <!-- Update progress: WPF animated a gradient across the bar while a long operation ran. -->

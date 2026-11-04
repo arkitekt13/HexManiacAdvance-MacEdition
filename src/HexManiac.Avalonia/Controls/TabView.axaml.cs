@@ -545,13 +545,35 @@ public partial class TabView : UserControl {
 
    private void HeaderMouseDown(object sender, PointerPressedEventArgs e) => HexContent.RaiseEvent(e);
 
+   private bool bytesControlClick;
+   private ContextMenu bytesMenu;
+
+   private void BytesMenuDown(object sender, PointerPressedEventArgs e) {
+      if (bytesControlClick || sender is not Control element) return;
+      bytesControlClick = OperatingSystem.IsMacOS() && e.GetCurrentPoint(element).Properties.IsLeftButtonPressed &&
+         e.KeyModifiers.HasFlag(KeyModifiers.Control);
+      if (!bytesControlClick) return;
+      element.AddHandler(PointerCaptureLostEvent, BytesMenuCaptureLost);
+      e.Pointer.Capture(element);
+      e.Handled = true;
+   }
+
+   private void BytesMenuCaptureLost(object sender, PointerCaptureLostEventArgs e) {
+      bytesControlClick = false;
+      if (sender is Control element) element.RemoveHandler(PointerCaptureLostEvent, BytesMenuCaptureLost);
+   }
+
    private void BytesShowMenu(object sender, PointerReleasedEventArgs e) {
-      if (e.InitialPressMouseButton != MouseButton.Right) return;
+      if (bytesControlClick && e.InitialPressMouseButton != MouseButton.Left) return;
+      bool secondary = e.InitialPressMouseButton == MouseButton.Right || bytesControlClick;
+      if (bytesControlClick) { bytesControlClick = false; e.Pointer.Capture(null); }
+      if (!secondary) return;
       if (sender is not Control element) return;
       if (element.DataContext is not ViewPort viewModel) return;
-      var menu = new ContextMenu();
-      var item = new MenuItem { Header = "Copy Bytes" };
-      item.Click += (s, args) => { viewModel.CopyBytes.Execute(FileSystem); menu.Close(); };
+      bytesMenu?.Close();
+      var menu = bytesMenu = new ContextMenu();
+      var item = new MenuItem { Header = "Copy Bytes", Command = viewModel.CopyBytes, CommandParameter = FileSystem };
+      item.Click += (s, args) => menu.Close();
       menu.ItemsSource = new[] { item };
       menu.Open(element);
    }

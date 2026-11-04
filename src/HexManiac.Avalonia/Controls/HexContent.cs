@@ -44,6 +44,7 @@ public class HexContent : Control {
    private ModelPoint downPoint;
    private ModelPoint mouseOverPoint;
    private bool isPointerCaptured;
+   private bool controlContextClick;
    private bool middleButtonDown;
 
    #region ViewPort
@@ -367,6 +368,14 @@ public class HexContent : Control {
       base.OnPointerPressed(e);
       if (ViewPort == null) return;
       var properties = e.GetCurrentPoint(this).Properties;
+      if (controlContextClick) return;
+      if (OperatingSystem.IsMacOS() && properties.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Control)) {
+         controlContextClick = true;
+         ClearTooltip();
+         e.Pointer.Capture(this);
+         e.Handled = true;
+         return;
+      }
 
       if (properties.IsXButton1Pressed && ViewPort.Back.CanExecute(null)) {
          ViewPort.Back.Execute();
@@ -487,7 +496,10 @@ public class HexContent : Control {
    protected override void OnPointerReleased(PointerReleasedEventArgs e) {
       base.OnPointerReleased(e);
       if (ViewPort == null) return;
-      if (e.InitialPressMouseButton == MouseButton.Right && !isPointerCaptured) {
+      if (controlContextClick && e.InitialPressMouseButton != MouseButton.Left) return;
+      bool secondary = e.InitialPressMouseButton == MouseButton.Right || controlContextClick;
+      if (controlContextClick) { controlContextClick = false; e.Pointer.Capture(null); }
+      if (secondary && !isPointerCaptured) {
          var p = ControlCoordinatesToModelCoordinates(e);
          var children = new List<Control>();
 
@@ -507,6 +519,11 @@ public class HexContent : Control {
    }
 
    private ModelPoint previousSource;
+
+   protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e) {
+      controlContextClick = false;
+      base.OnPointerCaptureLost(e);
+   }
 
    protected override void OnPointerExited(PointerEventArgs e) {
       base.OnPointerExited(e);

@@ -311,6 +311,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void Refresh() {
+         InvalidateHoverContent();
          format.Refresh();
          primaryMap.ClearCaches(); // needs to reset first, so the width/height is correct when calculating everything else
          UpdatePrimaryMap(primaryMap);
@@ -508,6 +509,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
                primaryMap.IsSelected = false;
             }
             primaryMap = map;
+            InvalidateHoverContent();
             primaryMap.BlockEditor.BlockIndex = drawBlockIndex;
             NotifyPropertyChanged(nameof(PrimaryMap));
             if (primaryMap != null) {
@@ -580,7 +582,11 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       private void PrimaryMapPropertyChanged(object sender, PropertyChangedEventArgs e) {
          var map = (BlockMapViewModel)sender;
-         if (e.PropertyName == nameof(BlockMapViewModel.SelectedEvent)) {
+         if (e.PropertyName == nameof(BlockMapViewModel.PixelData)) {
+            // Event/data refreshes can change dialogue or destinations without moving
+            // the pointer to a different tile. The old summary is no longer valid.
+            InvalidateHoverContent();
+         } else if (e.PropertyName == nameof(BlockMapViewModel.SelectedEvent)) {
             if (map.SelectedEvent != selectedEvent) {
                SelectedEvent = map.SelectedEvent;
             }
@@ -654,6 +660,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       public bool HideEvents {
          get => hideEvents; set => Set(ref hideEvents, value, old => {
             foreach (var m in VisibleMaps) m.ShowEvents = hideEvents ? MapDisplayOptions.NoEvents : MapDisplayOptions.AllEvents;
+            InvalidateHoverContent();
             Tutorials.Complete(Tutorial.Ctrl_HideEvents);
          });
       }
@@ -662,6 +669,15 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       // if it returns null: continue displaying previous hover tip
       // if it returns content: display that as the new hover tip
       private static readonly object[] EmptyTooltip = new object[0];
+      private bool hoverContentInvalidated;
+      public int HoverContentVersion { get; private set; }
+
+      private void InvalidateHoverContent() {
+         hoverContentInvalidated = true;
+         HoverContentVersion++;
+         NotifyPropertyChanged(nameof(HoverContentVersion));
+      }
+
       public object Hover(double x, double y) {
          var map = MapUnderCursor(x, y);
          if (map == null) return EmptyTooltip;
@@ -678,7 +694,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          } else {
             var p = ToBoundedMapTilePosition(map, x, y, 1, 1);
             map.HoverPoint = ToPixelPosition(map, x, y);
-            if (UpdateHover(map, p.X, p.Y, 1, 1)) {
+            if (UpdateHover(map, p.X, p.Y, 1, 1) || hoverContentInvalidated) {
+               hoverContentInvalidated = false;
                if (!SpartanMode && interactionType == PrimaryInteractionType.None) {
                   var matches = map.EventsUnderCursor(x, y, false).OfType<BaseEventViewModel>().ToList();
                   if (matches.Count > 0) {

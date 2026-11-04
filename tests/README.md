@@ -26,6 +26,8 @@ Map event address/text editing and guarded Delete, Backspace, arrows and Escape 
 covered by [MapEventEditing](MapEventEditing/README.md).
 Map event Control-click/secondary menus, warp commands and pointer release are covered by
 [MapEventMenus](MapEventMenus/README.md).
+NPC summaries and visible flag/script-address fields across map Undo/Redo are covered by
+[MapHistoryRefresh](MapHistoryRefresh/README.md).
 Hex/Copy Bytes Control-click menus and non-mutating block-tile sampling are covered by
 [MacSecondaryActions](MacSecondaryActions/README.md).
 Focused palette keyboard/native/context clipboard commands and safe image/text fallback are covered by

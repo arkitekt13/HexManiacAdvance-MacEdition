@@ -1,0 +1,111 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Headless;
+using Avalonia.Input;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using HavenSoft.HexManiac.AvaloniaUI;
+using HavenSoft.HexManiac.AvaloniaUI.Controls;
+using HavenSoft.HexManiac.AvaloniaUI.Windows;
+using HavenSoft.HexManiac.Core.Models;
+using HavenSoft.HexManiac.Core.Models.Runs;
+using HavenSoft.HexManiac.Core.ViewModels;
+using HavenSoft.HexManiac.Core.ViewModels.Images;
+using HavenSoft.HexManiac.Performance;
+using System.Xml.Linq;
+using HavenSoft.HexManiac.Core.ViewModels.Map;
+
+AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
+   .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).WithInterFont().SetupWithoutStarting();
+SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationContext());
+Directory.SetCurrentDirectory(AppContext.BaseDirectory);
+int checks = 0;
+void Check(bool value, string message) { checks++; if (!value) throw new InvalidOperationException(message); }
+void Pump(Window target) { Dispatcher.UIThread.RunJobs();target.UpdateLayout();AvaloniaHeadlessPlatform.ForceRenderTimerTick(); }
+// Verify the actual MapTab wiring, transformed tile anchor, and existing ROM/history invariants.
+var fixture = new SyntheticMapFixture(24, 20, withNpcText: true);
+var model = fixture.Model; var token = new ModelDelta();
+model.SetList(new NoDataChangeDeltaModel(), "FacingOptions", "NoMovement");
+model.SetList(new NoDataChangeDeltaModel(), "MapAttributeBehaviors", "Normal");
+foreach (var at in new[] { 0x104, 0x108, 0x10C }) model.WritePointer(token, at, 0x110);
+var format = model.GetNextRun(0x100).FormatString;
+var parse = ArrayRun.TryParse(model, format[..^1] + "4", 0x100, SortedSpan<int>.None, out var banks);
+Check(!parse.HasError, "The native-view fixture must parse.");
+model.ObserveAnchorWritten(new NoDataChangeDeltaModel(), "data.maps.banks", banks);
+((IList<GotoShortcutModel>)model.GotoShortcuts).Add(new("synthetic.layout", "data.maps.banks/3/maps/0/map/0/layout/", "Maps"));
+var fs = new StubFileSystem();
+Application.Current!.Resources["FileSystem"] = fs;
+var hostEditor = new EditorViewModel(fs, InstantDispatch.Instance);
+App.UpdateThemeDictionary(Application.Current.Resources, hostEditor.Theme);
+var viewport = new ViewPort("hover-fixture.bin", model, InstantDispatch.Instance, new Singletons(), tutorials: hostEditor.MapTutorials, fs: fs);
+viewport.InitializationWorkload.GetAwaiter().GetResult();
+var mapper = viewport.MapEditor;
+var nativeWindow = new MainWindow { Width = 1440, Height = 1000, FileSystem = fs, Editor = hostEditor };
+nativeWindow.Resources["FileSystem"] = fs; nativeWindow.Show(); hostEditor.Add(viewport); hostEditor.Add(mapper);
+hostEditor.GotoViewModel.ControlVisible = false; Pump(nativeWindow);
+var view = nativeWindow.GetVisualDescendants().OfType<MapTab>().Single();
+var mapSurface = view.FindControl<ItemsControl>("MapView")!;
+var mapLayer = view.FindControl<Canvas>("HoverPreviewLayer")!;
+var liveBox = (Viewbox)mapLayer.Children.Single();
+var liveMapImage = view.GetVisualDescendants().OfType<PixelImage>().Single(i => ReferenceEquals(i.DataContext, mapper.PrimaryMap));
+Avalonia.Point Npc() {
+   var border = mapper.PrimaryMap.GetBorderThickness(); double scale = mapper.PrimaryMap.SpriteScale;
+   return liveMapImage.TranslatePoint(new Avalonia.Point((border.West + 2.5) * 16 * scale, (border.North + .5) * 16 * scale), nativeWindow)!.Value;
+}
+mapper.HideEvents=false;Pump(nativeWindow);
+void HoverNpc() {
+   var image=liveMapImage;var border=mapper.PrimaryMap.GetBorderThickness();var scale=mapper.PrimaryMap.SpriteScale;
+   var empty=image.TranslatePoint(new Avalonia.Point((border.West+5.5)*16*scale,(border.North+5.5)*16*scale),nativeWindow)!.Value;
+   nativeWindow.MouseMove(empty);Pump(nativeWindow);nativeWindow.MouseMove(Npc());Pump(nativeWindow);
+}
+bool Summary(string text) => liveBox.Child!.DataContext is object[] rows && rows.OfType<string>().Any(s=>s.Contains(text));
+HoverNpc();Check(liveBox.IsVisible&&Summary("Discovered NPC text"),"The starting hover must show original dialogue.");
+nativeWindow.MouseDown(Npc(),MouseButton.Left);nativeWindow.MouseUp(Npc(),MouseButton.Left);Pump(nativeWindow);
+var obj=mapper.SelectedEvent as ObjectEventViewModel;
+Check(obj!=null&&obj.BasicText.Count==1,"A real NPC click must select its basic dialogue editor.");
+var text=view.GetVisualDescendants().OfType<TextEditor>().Single(t=>ReferenceEquals(t.DataContext,obj!.BasicText[0].Text));
+var box=text.EditBox;var source=box.Text!;
+viewport.ChangeHistory.ClearHistory(false);var original=model.RawData.ToArray();var metadata=model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize();
+box.Focus();box.SelectAll();nativeWindow.KeyTextInput(source.Replace("Discovered NPC text.","Changed NPC!"));Pump(nativeWindow);viewport.ChangeHistory.ChangeCompleted();
+var edited=model.RawData.ToArray();Check(!original.SequenceEqual(edited),"The actual NPC dialogue editor must update the model.");
+HoverNpc();Check(liveBox.IsVisible&&Summary("Changed NPC!"),"Hover after an edit must show the edited dialogue.");
+mapper.Undo.Execute(null);Pump(nativeWindow);
+Check(original.SequenceEqual(model.RawData)&&metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Undo must restore original NPC bytes and metadata.");
+Check(!liveBox.IsVisible||Summary("Discovered NPC text"),"Undo must not leave the old edited NPC summary visible.");
+nativeWindow.MouseMove(Npc());Pump(nativeWindow);
+Check(liveBox.IsVisible&&Summary("Discovered NPC text"),"Same-cell hover after Undo must rebuild current dialogue rather than reopen stale cached text.");
+Check(mapper.Redo.CanExecute(null),"Rebuilding the restored preview must not destroy Redo.");
+mapper.Redo.Execute(null);Pump(nativeWindow);
+Check(edited.SequenceEqual(model.RawData),"Redo restores the dialogue edit exactly.");
+nativeWindow.MouseMove(Npc());Pump(nativeWindow);
+Check(liveBox.IsVisible&&Summary("Changed NPC!"),"Same-cell hover after Redo must show current dialogue.");
+Check(mapper.SelectedEvent is ObjectEventViewModel current && current.BasicText[0].Text.Content.Contains("Changed NPC!"),"The selected NPC child editor must reflect Redo's current model.");
+Check(!mapper.Undo.CanExecute(null)||!original.SequenceEqual(model.RawData),"Hover refresh cannot replay an abandoned edit.");
+mapper.HideEvents=true;Pump(nativeWindow);nativeWindow.MouseMove(Npc());Pump(nativeWindow);
+Check(!liveBox.IsVisible,"Hiding events cannot reopen a cached NPC preview in the same cell.");
+mapper.HideEvents=false;Pump(nativeWindow);nativeWindow.MouseMove(Npc());Pump(nativeWindow);
+Check(liveBox.IsVisible&&Summary("Changed NPC!"),"Revealing events rebuilds the current same-cell preview.");
+TextBox Field(string path) => view.GetVisualDescendants().OfType<AngleTextBox>().Single(a=>ReferenceEquals(a.DataContext,mapper.SelectedEvent)&&a.TextBinding is Avalonia.Data.Binding b&&b.Path==path).GetTextBox();
+var field=Field("FlagText");var flagText=field.Text;viewport.ChangeHistory.ClearHistory(false);
+var beforeFlag=model.RawData.ToArray();var beforeFlagMetadata=model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize();
+field.Focus();field.SelectAll();nativeWindow.KeyTextInput("0042");Pump(nativeWindow);viewport.ChangeHistory.ChangeCompleted();
+Check(model.ReadMultiByteValue(0x17014,2)==0x42,"The actual object flag field edits its intended raw flag.");
+mapper.Undo.Execute(null);Pump(nativeWindow);
+Check(beforeFlag.SequenceEqual(model.RawData)&&Field("FlagText").Text==flagText,"Undo restores both object flag bytes and the displayed field.");
+Check(beforeFlagMetadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize())&&mapper.Redo.CanExecute(null),"Inspecting restored fields preserves metadata and Redo.");
+mapper.Redo.Execute(null);Pump(nativeWindow);
+Check(model.ReadMultiByteValue(0x17014,2)==0x42&&Field("FlagText").Text=="0042","Redo refreshes the visible object flag.");
+// Seed an alternate valid end script before the address-history boundary.
+new ModelDelta().ChangeData(model,0x18100,(byte)2);viewport.ChangeHistory.ClearHistory(false);
+var beforeAddress=model.RawData.ToArray();var beforeAddressMetadata=model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize();
+field=Field("ScriptAddressText");var oldAddress=field.Text;
+field.Focus();field.SelectAll();nativeWindow.KeyTextInput("<018100>");Pump(nativeWindow);viewport.ChangeHistory.ChangeCompleted();
+Check(model.ReadPointer(0x17010)==0x18100,"The actual script-address field edits the intended object pointer.");
+mapper.Undo.Execute(null);Pump(nativeWindow);
+Check(beforeAddress.SequenceEqual(model.RawData)&&Field("ScriptAddressText").Text==oldAddress,"Undo restores the script pointer and its displayed address.");
+Check(beforeAddressMetadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize())&&mapper.Redo.CanExecute(null),"Script-pointer restoration preserves metadata and Redo.");
+mapper.Redo.Execute(null);Pump(nativeWindow);
+Check(model.ReadPointer(0x17010)==0x18100&&Field("ScriptAddressText").Text=="<018100>","Redo refreshes the current script address field.");
+nativeWindow.Editor=null;nativeWindow.Close();Console.WriteLine($"CHECKS_PASSED:{checks}");

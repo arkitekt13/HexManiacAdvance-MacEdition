@@ -99,6 +99,7 @@ public partial class MapTab : UserControl {
    }
 
    private void HandleContextPropertyChanged(object sender, PropertyChangedEventArgs e) {
+      if (e.PropertyName == nameof(MapEditorViewModel.HoverContentVersion)) hoverPreview.Invalidate();
       if (e.PropertyName == nameof(MapEditorViewModel.ShowBeneath)) UpdateReveal(ViewModel.ShowBeneath);
       if (e.PropertyName == nameof(MapEditorViewModel.BlockSelectionToggle)) StartSelectionPop();
       // The tile highlight's toggle lives on the block editor, one level down, and that object is

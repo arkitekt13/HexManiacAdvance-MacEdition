@@ -31,13 +31,19 @@ public sealed class MapHoverPreview {
       overlay.SizeChanged += (_, _) => { if (preview.IsVisible) Place(); };
       preview.SizeChanged += (_, _) => { if (preview.IsVisible) Place(); };
       surface.DetachedFromVisualTree += (_, _) => Hide();
-      surface.DataContextChanged += (_, _) => { lastContent = Array.Empty<object>(); Hide(); };
+      surface.DataContextChanged += (_, _) => Invalidate();
    }
 
    public bool OwnsSource(object source) => source is Visual visual &&
       (ReferenceEquals(visual, surface) || visual.GetVisualAncestors().Contains(surface));
 
    public void Hide() => preview.IsVisible = false;
+
+   public void Invalidate() {
+      lastContent = Array.Empty<object>();
+      content.DataContext = null;
+      Hide();
+   }
 
    public void Update(object value, Rect? cell = null) {
       var tooltip = value == null ? lastContent : value as object[];

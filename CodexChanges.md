@@ -1584,3 +1584,21 @@ Evidence: Hex and byte-summary handlers checked only physical right-button relea
 Behavior: Mac Control-click now invokes the original hex actions, Copy Bytes menu and block sampling. Hex/summary gestures retain a left-button release even if Control is released first; capture loss cancels the hex gesture. Secondary sampling does not enter the painting path. Ordinary primary editing remains available.
 
 Validation: MacSecondaryActions 31, MapSelection 394, MapEventMenus 68 and TextSelection 63 pass (556 assertions). Checks preserve identical menu labels, all model bytes/metadata, exact FF FF plus trailing-space clipboard output, normal primary block writes and complete-byte Undo/Redo. The initialized block test was also run against the original input handler and failed before restoring the fix. No user ROM is used; command semantics, encoded blocks, numeric parsing and history algorithms are unchanged.
+
+## 093 — Invalidate NPC summaries when map data or history changes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs](src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs) | 313 | Invalidate presentation summaries on refresh, primary-map/data changes and event visibility, and rebuild even when pointer coordinates stay in the same cell. |
+| [src/HexManiac.Avalonia/Controls/MapHoverPreview.cs](src/HexManiac.Avalonia/Controls/MapHoverPreview.cs) | 41 | Drop abandoned cached content when its map revision changes. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 105 | Observe summary revisions and hide stale previews immediately. |
+| [tests/MapHistoryRefresh/MapHistoryRefresh.csproj](tests/MapHistoryRefresh/MapHistoryRefresh.csproj) | 1 | Register real-map history freshness checks. |
+| [tests/MapHistoryRefresh/Program.cs](tests/MapHistoryRefresh/Program.cs) | 60 | Reproduce stale dialogue after Undo and verify same-cell summaries, child editors, flags, pointers, metadata and Redo. |
+| [tests/MapHistoryRefresh/README.md](tests/MapHistoryRefresh/README.md) | 1 | Document the cache contract, fixture and preservation scope. |
+| [tests/README.md](tests/README.md) | 30 | Link map history freshness coverage. |
+
+Evidence: Editing the real NPC dialogue field changed both bytes and the hover summary. Undo restored the original bytes/metadata but left the edited summary visible. Core deliberately returned null for an unchanged hover cell, while the view retained that cell's previous content; neither side represented data revision changes.
+
+Behavior: Refresh/history, primary-map changes, map pixel/data invalidation and event visibility changes invalidate the summary cache. The view hides abandoned content immediately; the next same-cell move rebuilds it from the current model. Ordinary same-cell motion still reuses one stable input-transparent preview. This also prevents hidden events from reopening cached NPC content.
+
+Validation: MapHistoryRefresh passes 23 assertions and MapHoverPreview retains all 134 flicker/input checks. Actual map selection and dialogue/flag/script-address fields verify complete byte/metadata restoration, current visible field values, same-cell Undo/Redo summaries, child editors, hidden-event behavior and preserved Redo. The old summary assertion fails before the fix. Only presentation cache validity changes in shared Core; ROM parsing, compilation, numeric rules, pointer writes/relocation and history algorithms remain unchanged. No user ROM is used.

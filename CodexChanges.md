@@ -1825,3 +1825,22 @@ Evidence: The regression was run before changing Core and failed on a neighborin
 Validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 51 groups and 15,209 assertions, with zero failures and zero skipped groups. This includes the 2,081 new fill assertions plus existing map and scripting protections. The separately rebuilt real-control BlockBagReview passes 17 checks and prints FLOOD_FILL_PRESERVES_MOVEMENT:True with 4001,4001,4001. The upstream xUnit suite was not rerun; fresh dependency builds retain eight existing Core warnings.
 
 Scope: One Core fallback line; no changes to numerical parsing, script compilation, allocation, pointer relocation, metadata/history algorithms, bag shortcuts or user ROMs. Synthetic fixtures only; Save is captured in memory and independently reloaded. Native double-click timing remains outside the headless check; the standalone pointer review invokes explicit Core press kinds for its final fill assertion.
+
+## 106 — Audit map-tool transitions, capture loss and history without changing application behavior
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/MapTransitionReview/MapTransitionReview.csproj](tools/MapTransitionReview/MapTransitionReview.csproj) | 1 | Add standalone synthetic MainWindow/MapTab audit tooling outside automatic regression discovery. |
+| [tools/MapTransitionReview/Program.cs](tools/MapTransitionReview/Program.cs) | 62 | Run isolated single-click, capture-loss, focus, tab/map, Escape and completed-gesture probes, separating observations from positive setup controls. |
+| [tools/MapTransitionReview/README.md](tools/MapTransitionReview/README.md) | 1 | Provide reproduction commands and explain that completed audit processes can contain recorded failed invariants. |
+| [tests/MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md) | 1 | Record exact outcomes, causes, prioritized implementation/regression plans and native/combined-tool limits. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 203 | Track HMA-011 through HMA-014 as reproduced but unimplemented map transition findings. |
+| [tests/README.md](tests/README.md) | 34 | Link the audit separately from passing implementation regressions. |
+
+Repository: Before investigating, push completed branch codex/mac-input-history-audit through 2be6d838 to GitHub and establish its upstream. No merge or branch switch. The new audit changes are a separate local commit.
+
+Findings: Same-cell painting after Undo and same-cell permission editing after Redo can be skipped by persistent coordinate suppression. Explicit map/background/picker capture loss leaves stale gestures, allowing button-free painting/panning or incorrect selection and swallowed clicks. A tab interruption can merge independent strokes into one Undo step. Escape clears brush fields without ending the active drawing path, permitting further map writes. Space reveal can remain active after focus/tab changes. No fixes are included; HMA-011/012/013/014 record the separate causes and required preservation checks.
+
+Validation: Fourteen independent real-control synthetic scenarios complete with 69 positive setup/preservation controls and 25 observations: 11 passing and 14 failing. The failed observations are recorded findings, not counted as passing assertions or added to the normal runner. Capture owner, real release, independent click count and focus changes are explicitly verified. Six freshly built existing groups pass 2,763 assertions, zero failures/skips: MapSelection 394, MapHistoryRefresh 23, MapHoverPreview 134, MapEventEditing 63, MapEventMenus 68 and BlockBagFill 2,081. The complete Mac suite was not rerun for investigation-only changes; its immediately preceding verified baseline remains 51 groups/15,209 assertions at 2be6d838. The separate upstream suite was not rerun; fresh dependencies retain eight existing Core warnings.
+
+Scope: New tooling and documentation only. Production source, existing tests, ROM fixtures and personal settings remain unchanged. No user ROM or emulator is used. Framework capture loss is explicitly induced, not a native hardware reproduction. Alias navigation passes its three gesture/history observations but changes the metadata snapshot; the audit deliberately claims neither metadata preservation nor damage for that scenario. Independent ROM/map isolation, event creation/drag interruption, border/connection/9-grid/wave-function transitions and native deactivation remain coverage gaps.

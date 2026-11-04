@@ -199,3 +199,41 @@ multi-member, region/boundary and neighboring-data behavior plus exact Undo/Redo
 The original shortcut/help investigation is retained as historical evidence.
 
 Evidence and limits: [BLOCK_BAG_REVIEW.md](tests/BLOCK_BAG_REVIEW.md).
+
+## HMA-011 — Reset map stroke deduplication across independent edits
+
+**Status:** Reproduced, not implemented. Painting the same cell after Undo silently skips the
+new edit; changing movement permissions at that cell after Redo is also skipped. DrawBlock's
+lastDrawX/lastDrawY suppression survives the independent operation/history refresh.
+
+Scope: Reset coordinate suppression at fresh-stroke boundaries without losing lastDrawVal's
+original-region role in double-click/bag fill. Preserve random results, exact history and saves.
+Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
+
+## HMA-012 — Finish interrupted map/picker gestures and history boundaries
+
+**Status:** Reproduced, not implemented. Explicit pointer capture loss can leave paint/pan
+active without a pressed button and leave selection/picker state stale. Switching tabs during
+a stroke can merge it with the following stroke into one Undo step.
+
+Scope: Idempotent completion for capture loss, detach and old-context replacement, including
+normal-release reentrancy, exact endpoint handling, per-tool state and one history completion.
+Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
+
+## HMA-013 — End live map interactions when Escape clears the brush
+
+**Status:** Reproduced, not implemented. Escape clears the active brush, but continued held
+pointer motion still changes map bytes. Cancel leaves the Core drawing interaction active.
+
+Scope: End the interaction before clearing fields; preserve already-applied edits and history,
+without entering the no-brush block-swapping path. Coordinate with HMA-012 lifecycle handling.
+Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
+
+## HMA-014 — Clear transient reveal mode when map focus/context changes
+
+**Status:** Reproduced, not implemented. Space reveal remains on when focus moves to a toolbar
+text field or another tab before Space is released. Lost-focus cleanup omits ShowBeneath.
+
+Scope: Clear transient reveal state across focus/context/lifetime boundaries without consuming
+text-entry keys or breaking Command hide-events behavior.
+Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).

@@ -2039,3 +2039,13 @@ Validation: MapImageExport passes 33 assertions, including a decodable PNG with 
 | src/HexManiac.Avalonia/Controls/StartScreen.axaml | 33 | Render contributor and footer links with permanent underlines, a consistent purple foreground, brighter hover styling and a visible keyboard-focus outline. |
 
 Validation: WelcomeScreen passes 33 assertions, including three window sizes, existing Open behavior and button states. Visually inspected a fresh rendered preview of the compiled control with all six links underlined and the credits still aligned. Native hover/focus interaction remains a manual check; no new test group was added for this appearance change.
+
+## 119 — Follow the approved GitHub repository rename to MacEdition
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/AppIdentity.cs | 8 | Point the shared repository identity, crash reporting, issue menu, Mac Help and release page at arkitekt13/HexManiacAdvance-MacEdition. |
+| src/HexManiac.Avalonia/Updates/MacUpdateChecker.cs | 17 | Request compatible releases from the renamed repository's API endpoint. |
+| tests/CrashReporting/Program.cs | 38 | Verify the literal crash-report destination uses the new MacEdition repository name. |
+
+Validation: GitHub visibly confirms the approved repository rename and `git ls-remote` verifies access through the updated origin URL. WelcomeScreen (33), CrashReporting (29) and StartupUpdates (42) pass all 104 assertions, covering layout, fork report identity, compatible releases, cache isolation and network failure behavior. Fresh builds retain existing Core and unavailable NuGet vulnerability-feed warnings with zero errors. The full suite was not repeated after the preceding 54-group / 16,723-assertion PNG-export run. Historical changelog URLs and the local folder name are retained. GitHub Issues was observed disabled and has not been enabled as part of this rename.

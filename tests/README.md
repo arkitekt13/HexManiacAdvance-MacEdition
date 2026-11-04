@@ -28,6 +28,8 @@ Rendered dialogue overflow/error underlines and existing Enter/paragraph encodin
 [DialogueDiagnostics](DialogueDiagnostics/README.md).
 Short-field Tab/Shift+Tab selection, mouse placement and large-editor exclusions are covered by
 [ShortFieldTabSelection](ShortFieldTabSelection/README.md).
+Actual script typing, automatic pointer insertion and unused flag/variable UI routing are covered
+by [ScriptAssistance](ScriptAssistance/README.md).
 Production trainer, sprite, palette, and ordinary text-stream template checks are documented
 in [StreamTemplates/README.md](StreamTemplates/README.md).
 

@@ -137,7 +137,11 @@ public partial class TextEditor : UserControl {
 
    private void HandleViewModelCaretMove(object sender, EventArgs e) {
       var vm = (TextEditorViewModel)sender;
-      if (TransparentLayer.CaretIndex != vm.CaretIndex) TransparentLayer.CaretIndex = vm.CaretIndex;
+      var caret = vm.CaretIndex;
+      // Assistance can change source reentrantly while a two-way TextBox edit is being
+      // published. Synchronize that source before positioning the requested caret.
+      if (TransparentLayer.Text != vm.Content) TransparentLayer.SetCurrentValue(TextBox.TextProperty, vm.Content);
+      if (TransparentLayer.CaretIndex != caret) TransparentLayer.CaretIndex = caret;
    }
 
    /// WPF had to suppress RequestBringIntoView around the focus call; Avalonia's Focus() does not

@@ -343,13 +343,18 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          if (HasPendingScriptChanges && !scriptDrafts.Contains(body)) FlushPendingScriptChanges();
          scriptDrafts.Add(body);
          body.TryCompleteCommandToken();
+         var autoCaret = body.CaretPosition + 7; // inserted after the newly typed space
          if (InsertAutoActive && body.TryInsertAuto()) {
+            var assistedSource = body.Content;
+            var assistedAddress = body.Address;
             // update the caret later, or weird stuff happens
             singletons.WorkDispatcher.DispatchWork(() =>
-               singletons.WorkDispatcher.BlockOnUIWork(() => body.Editor.CaretIndex += 6)
+               singletons.WorkDispatcher.BlockOnUIWork(() => {
+                  if (Contents.Contains(body) && scriptDrafts.Contains(body) && body.Address == assistedAddress && body.Content == assistedSource)
+                     body.Editor.CaretIndex = autoCaret;
+               })
             );
          }
-         if (InsertAutoActive) body.TryInsertAuto();
          var delta = body.Content.Length - e.OldValue.Length;
          var deltaSize = Math.Abs(delta);
          if (body.CaretPosition >= deltaSize && body.CaretPosition < body.Content.Length - deltaSize) {

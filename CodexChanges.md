@@ -1340,3 +1340,22 @@ Evidence: The multiple-choice fields use a shared multiline-capable TextBox, whi
 Validation: The new group passes 21 assertions for Tab/Shift+Tab, typing replacement, mouse placement, programmatic focus, refresh without reselection, unchanged neighboring bytes/pointers, exact Undo/Redo, scalar proxy activation, multiline/list exclusions, script indentation and dedicated dialogue exclusion. The complete-suite attempt stopped on the previously observed FocusAnimation movement timing assertion, which also failed on an isolated rerun; no production animation code changed. All remaining 25 groups were then freshly built and executed using the documented build/run procedure and passed 5,502 assertions. Across all 34 groups, 33 passed 6,551 assertions, one group failed (FocusAnimation), and none were skipped. Builds report zero warnings and errors; a completely passing suite is not claimed.
 
 Scope: Mac field focus/selection only; numeric parsing, text encoding, relocation, history and game-engine behavior are unchanged. Native multiple-choice and scalar Tab navigation remain for user confirmation after relaunch.
+
+## 080 — Restore script automatic pointers and unused-ID assistance
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml](src/HexManiac.Avalonia/Controls/TabView.axaml) | 860 | Bind the script control's owning CodeBody explicitly and correct the Mac unused-ID shortcut hints. |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs](src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs) | 143 | Synchronize reentrantly assisted source into the native textbox before applying its requested caret. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 346 | Use a guarded absolute caret target after automatic pointer insertion and remove a redundant second insertion attempt. |
+| [tools/ScriptWorkflowReview/WorkflowFixture.cs](tools/ScriptWorkflowReview/WorkflowFixture.cs) | 104 | Allow UI dispatch to be queued in synthetic editor tests while retaining deterministic compilation debounce. |
+| [tests/ScriptAssistance/ScriptAssistance.csproj](tests/ScriptAssistance/ScriptAssistance.csproj) | 1 | Add full-window script typing assistance checks with fabricated ROM data. |
+| [tests/ScriptAssistance/Program.cs](tests/ScriptAssistance/Program.cs) | 21 | Exercise real Space/Cmd+U input, helper buttons, visible source/caret synchronization and history round trips. |
+| [tests/ScriptAssistance/README.md](tests/ScriptAssistance/README.md) | 1 | Document UI coverage, investigator isolation and existing unused-ID scanner limitations. |
+| [tests/README.md](tests/README.md) | 31 | Link the script assistance regression group. |
+
+Evidence: The script TextEditor's Tag resolved to its nested TextEditorViewModel instead of CodeBody, so selection/key handlers returned early and the model caret stayed at zero. Fixing that binding also exposed a reentrant two-way binding issue: `<auto>` existed in model source while the native textbox retained old text, and a relative deferred caret increment could position incorrectly. The restoration synchronizes the source before a guarded absolute caret request. Flag/variable eligibility, investigator allocation and normal compilation remain existing Core behavior.
+
+Validation: Five focused groups pass 1,133 assertions: ScriptAssistance 61, ScriptWorkflowSafety 598, AutocompleteMapping 294, ClipboardRouting 78 and ScriptEditorLayout 102. Builds report zero warnings/errors on this verification run. Actual typed msgbox/msgbox.npc/preparemsg insert visible `<auto>`; setflag/checkflag and setvar/addvar expose the proper helper and insert one explicit operand through button or Cmd+U, with exact Undo/Redo. The fixture's predictable investigator verifies UI routing, not real-ROM scan completeness.
+
+Scope: Restore existing behavior in its own commit; dialogue scaffolding is a separate subsequent change. Numeric parsing, allocator/scanner rules, ROM relocation, encoding and history algorithms are unchanged. Native typing remains for user confirmation after relaunch.

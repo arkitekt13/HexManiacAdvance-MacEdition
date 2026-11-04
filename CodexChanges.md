@@ -2049,3 +2049,17 @@ Validation: WelcomeScreen passes 33 assertions, including three window sizes, ex
 | tests/CrashReporting/Program.cs | 38 | Verify the literal crash-report destination uses the new MacEdition repository name. |
 
 Validation: GitHub visibly confirms the approved repository rename and `git ls-remote` verifies access through the updated origin URL. WelcomeScreen (33), CrashReporting (29) and StartupUpdates (42) pass all 104 assertions, covering layout, fork report identity, compatible releases, cache isolation and network failure behavior. Fresh builds retain existing Core and unavailable NuGet vulnerability-feed warnings with zero errors. The full suite was not repeated after the preceding 54-group / 16,723-assertion PNG-export run. Historical changelog URLs and the local folder name are retained. GitHub Issues was observed disabled and has not been enabled as part of this rename.
+
+## 120 — Add map status-bar zoom buttons and native dimensions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 1181 | Replace fixed-position status text with a wrapping map-size readout, native-pixel tooltip, cursor coordinates and accessible minus/plus buttons. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 549 | Route status-button clicks through existing view-centered zoom after completing any owned pointer interaction and dismissing stale map previews. |
+| src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs | 171 | Expose cached layout dimensions and zoom availability with change notifications on layout refresh and scaling. |
+| tests/MapZoom/Program.cs | 99 | Click the real buttons through zoom limits and verify native dimensions, tooltip, navigation, resize and Undo/Redo alongside existing wheel checks. |
+| tests/MapZoom/README.md | 84 | Document status-bar verification, optional synthetic preview rendering and remaining native trackpad checks. |
+
+Behavior: The bottom-right map status area shows the selected map's width and height in tiles, excluding border tiles; hovering shows native pixels at 16x16 per tile, independent of zoom. Minus/plus use the existing view-center zoom path, levels and border compensation, disabling at 1/16x and 10x. Map navigation and width/height resizing, including Undo/Redo, update the bound readout and tooltip. Status contents wrap within available map width rather than using fixed Canvas offsets. No zoom-step, border-rendering, ROM-format or game-engine algorithm is changed.
+
+Validation: Fresh targeted builds and runs pass MapZoom (1,276), MapRendering (93), MapImageExport (33), MapHistoryRefresh (23) and MapSelection (394): five groups / 1,819 assertions, zero failures. MapZoom uses three fresh synthetic sessions, 360 routed wheel events plus real status-button clicks, exact byte/metadata/history checks, actual width/height resize sliders and Undo/Redo. Visually inspected a rendered synthetic map tab with the new status bar. Existing Core and unavailable NuGet vulnerability-feed warnings remain; builds have zero errors. No user ROM or settings changed. The full Mac suite was not repeated for this change; native trackpad usability and tooltip appearance remain manual checks.

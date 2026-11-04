@@ -168,6 +168,12 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       private short transparent;
       public short Transparent { get => transparent; private set => Set(ref transparent, value); }
 
+      private int mapWidth, mapHeight;
+      public string MapDimensions => $"Map: {mapWidth} × {mapHeight} tiles";
+      public string MapDimensionsTooltip => $"{(long)mapWidth * 16} × {(long)mapHeight * 16} pixels · 16 × 16 pixels per tile";
+      public bool CanZoomIn => SpriteScale < 10;
+      public bool CanZoomOut => SpriteScale > .1;
+
       private int pixelWidth, pixelHeight;
       public int PixelWidth { get => pixelWidth; private set => Set(ref pixelWidth, value); }
       public int PixelHeight { get => pixelHeight; private set => Set(ref pixelHeight, value); }
@@ -186,7 +192,12 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       private double spriteScale = 1;
       public double SpriteScale {
          get => spriteScale;
-         set => Set(ref spriteScale, value, old => UpdateEdgesFromScale(old, old * pixelWidth / 2, old * pixelHeight / 2));
+         set {
+            Set(ref spriteScale, value, old => {
+               UpdateEdgesFromScale(old, old * pixelWidth / 2, old * pixelHeight / 2);
+               NotifyPropertiesChanged(nameof(CanZoomIn), nameof(CanZoomOut));
+            });
+         }
       }
 
       private void UpdateEdgesFromScale(double old, double centerX, double centerY) {
@@ -657,7 +668,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          }
 
          if (old != spriteScale) UpdateEdgesFromScale(old, x - leftEdge, y - topEdge);
-         NotifyPropertyChanged(nameof(SpriteScale));
+         NotifyPropertiesChanged(nameof(SpriteScale), nameof(CanZoomIn), nameof(CanZoomOut));
       }
 
       // check for other warps on this same tile and see what primary/secondary blockset is expected for the new map.
@@ -2299,6 +2310,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var layout = GetLayout();
          if (layout == null) return;
          var (width, height) = (layout.GetValue("width"), layout.GetValue("height"));
+         if (mapWidth != width || mapHeight != height) {
+            (mapWidth, mapHeight) = (width, height);
+            NotifyPropertiesChanged(nameof(MapDimensions), nameof(MapDimensionsTooltip));
+         }
          var border = GetBorderThickness(layout);
          (pixelWidth, pixelHeight) = ((width + border.West + border.East) * 16, (height + border.North + border.South) * 16);
          if (clearPixels) ClearPixelCache();

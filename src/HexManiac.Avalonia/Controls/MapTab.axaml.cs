@@ -546,6 +546,19 @@ public partial class MapTab : UserControl {
       UpdateStampPreviewVisibility();
    }
 
+   private void ZoomOutClick(object sender, RoutedEventArgs e) => ZoomFromStatusBar(false, e);
+   private void ZoomInClick(object sender, RoutedEventArgs e) => ZoomFromStatusBar(true, e);
+
+   private void ZoomFromStatusBar(bool enlarge, RoutedEventArgs e) {
+      var vm = ViewModel;
+      if (vm?.PrimaryMap == null) return;
+      InterruptPointerInteraction();
+      HideMapTooltip();
+      // Map coordinates are relative to the view center; do not zoom around the button.
+      vm.Zoom(0, 0, enlarge);
+      e.Handled = true;
+   }
+
    private void Wheel(object sender, PointerWheelEventArgs e) {
       var element = (Control)sender;
       var vm = ViewModel;

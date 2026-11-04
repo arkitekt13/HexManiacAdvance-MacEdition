@@ -70,3 +70,14 @@ sample HexManiacAdvance 5 -file "$HOME/Desktop/HMA-freeze.txt"
 Record the map, action, whether it happened on the first zoom, and mouse versus trackpad.
 Sampling does not save unsaved editor changes. Inspect diagnostics before publishing them,
 since they can contain local paths.
+
+## Status-bar zoom and map dimensions
+
+The synthetic full-window run also clicks the actual minus/plus buttons through all existing
+zoom steps (1/16x to 10x), verifies endpoint disabling, view-center anchoring with existing border
+compensation, unchanged dimensions at every scale, and the native-pixel tooltip. It navigates
+between maps and uses real width/height resize sliders followed by Undo/Redo to check the bound
+readout and tooltip. ROM/metadata/history preservation checks still cover ordinary button and
+wheel zoom. No commercial ROM is needed or changed. Set `HMA_MAP_STATUS_PREVIEW` to a PNG path
+to render the first synthetic map tab for visual inspection. Native trackpad usability and
+hover tooltip appearance remain manual checks.

@@ -1766,3 +1766,19 @@ Benchmark: The same actual-measurement observer runs before queueing and in two 
 Validation: All three benchmark reports pass 190 invariants. The new ScriptWidthUpdates group passes 448 assertions covering burst counts, latest source, growth/shrink/empty text, Unicode/emoji/CJK, line endings/tabs/trailing spaces, long lines, both scrollbars, resize, fonts/culture, interleaved scroll/source changes, queued context/template replacement, detachment and diagnostics. `scripts/verify-mac.sh --no-restore` freshly builds and passes all 50 groups and 13,118 assertions, zero failures and zero skipped groups, including live script input/autocomplete, resource atomicity, retained drafts/diagnostics, save/reload, clipboard, HMA-006/007 and Undo/Redo protections. The separate upstream xUnit suite was not rerun; fresh builds retain eight existing Core warnings.
 
 Scope: Presentation work only, using the same FormattedText and corner-sizing rules on the UI thread; no character-width approximation, background work or extra compile debounce. Core/source editing, numeric/name interpretation, compilation, allocation/relocation, metadata, history algorithms, game-engine behavior, settings and user ROMs are unchanged. Measurements are synthetic/offscreen, not native keyboard/compositor latency.
+
+## 103 — Hide optional Claude and built-in emulator controls from the normal Mac UI
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/OptionalFeatureVisibility.cs](src/HexManiac.Avalonia/OptionalFeatureVisibility.cs) | 5 | Centralize two off-by-default UI switches and null optional native-menu gestures while retaining compiled implementations. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 75 | Hide and disable built-in emulator and Claude/chat/MCP toolbar/menu controls, including the optional menu separator, while retaining external emulator access. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 136 | Skip the F6 binding while the built-in emulator UI is hidden without deleting its launch implementation. |
+| [tests/TabMenus/Program.cs](tests/TabMenus/Program.cs) | 38 | Verify compiled toolbar/native-menu states, absent optional accelerators, inert F6 and retained external emulator menu/button/F5 access. |
+| [tests/TabMenus/README.md](tests/TabMenus/README.md) | 8 | Document the optional-control checks and their restoration switches. |
+
+Behavior: The Claude chat button, built-in emulator button, their native menu entries and Claude MCP/setup menu entries are hidden and disabled. Optional native accelerators are absent and F6 has no window binding; Command-Shift-C is no longer advertised by hidden chat. The external emulator play button, native menu and F5 remain available. Flipping the two centralized UI switches restores the retained controls and shortcuts.
+
+Validation: Five freshly built targeted groups pass 204 assertions with zero failures: TabMenus 33, ExternalEmulatorLaunch 24, ClipboardRouting 78, WelcomeScreen 27 and StartupUpdates 42. Checks inspect actual MainWindow controls/native menu items and press F6 without opening an emulator; external launch tests use an injected process starter. The complete Mac suite is not repeated for this UI-only change; its preceding baseline remains 50 groups/13,118 assertions. Fresh dependency builds retain eight existing Core warnings.
+
+Scope: Claude/chat/MCP and embedded emulator implementations are left intact, including existing explicit programmatic/CLI entry points; this is UI availability, not backend removal. Verification launches no emulator core or assistant service and modifies no user ROM or personal settings. External mGBA preferences/launch behavior, Core, scripting, compilation, allocation/relocation and history remain unchanged.

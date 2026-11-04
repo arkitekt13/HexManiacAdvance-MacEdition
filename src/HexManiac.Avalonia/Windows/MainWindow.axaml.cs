@@ -133,11 +133,13 @@ public partial class MainWindow : Window {
       Edit(Key.A, cmd, textSelectAll);
       KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.F5),
          Command = new StubCommand { Execute = _ => LaunchExternalEmulator(), CanExecute = _ => true } });
-      // F5 launches the saved ROM in the chosen external app; F6 runs the editor's current bytes.
-      KeyBindings.Add(new KeyBinding {
-         Gesture = new KeyGesture(Key.F6),
-         Command = new StubCommand { CanExecute = _ => true, Execute = _ => OpenEmulator() },
-      });
+      // Keep the optional implementation, but do not register its shortcut while its UI is hidden.
+      if (OptionalFeatureVisibility.ShowBuiltInEmulator) {
+         KeyBindings.Add(new KeyBinding {
+            Gesture = new KeyGesture(Key.F6),
+            Command = new StubCommand { CanExecute = _ => true, Execute = _ => OpenEmulator() },
+         });
+      }
       Add(Key.W, cmd, nameof(EditorViewModel.Close), FileSystem);
 
       Add(Key.Z, cmd, nameof(EditorViewModel.Undo));

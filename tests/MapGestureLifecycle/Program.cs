@@ -19,7 +19,7 @@ using System.Diagnostics;
 
 if (args.Length == 0) {
    var total = 0;
-   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions", "same-cell-history" }) {
+   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions", "same-cell-history", "reveal-focus", "reveal-tab", "reveal-context", "reveal-navigation", "reveal-normal" }) {
       var start = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true };
       start.ArgumentList.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
       start.ArgumentList.Add(name);
@@ -349,8 +349,45 @@ if(scenario=="paint-capture" || scenario=="pan-capture" || scenario=="select-cap
    var direct=new SyntheticMapFixture(7,5);_ = direct.Map.PixelData;
    direct.Map.DrawBlock(direct.ViewPort.ChangeHistory.CurrentChange,1,-1,0,0);
    Check(direct.Model.ReadMultiByteValue(SyntheticMapFixture.Cells,2)==1,"A map's initial coordinate cache must not suppress its first top-left draw.");
+ } else if(scenario.StartsWith("reveal-")) {
+   Check(view.Focus(),"Reveal must start with map keyboard focus.");
+   window.KeyPressQwerty(PhysicalKey.Space,RawInputModifiers.None);Layout();
+   Check(mapper.ShowBeneath&&mapper.PrimaryMap.ShowBeneath,"Space reveals the current map.");
+   if(scenario=="reveal-focus") {
+      var field=window.GetVisualDescendants().OfType<TextBox>().First(t=>t.IsEffectivelyVisible&&!t.GetVisualAncestors().Contains(view));
+      Check(field.Focus()&&!view.IsKeyboardFocusWithin,"Focus must actually move to a toolbar field.");Layout();
+      Check(!mapper.ShowBeneath,"Map reveal must clear as soon as the field takes focus.");
+      window.KeyReleaseQwerty(PhysicalKey.Space,RawInputModifiers.None);Layout();
+      var original=field.Text??"";field.CaretIndex=original.Length;field.SelectionStart=field.SelectionEnd=original.Length;
+      window.KeyPressQwerty(PhysicalKey.Space,RawInputModifiers.None);window.KeyTextInput(" ");window.KeyReleaseQwerty(PhysicalKey.Space,RawInputModifiers.None);Layout();
+      Check(field.Text==original+" "&&!mapper.ShowBeneath,"Space remains native text input and does not reveal the map while a field owns focus.");
+   } else if(scenario=="reveal-tab") {
+      editor.SelectedIndex=0;Layout();Check(!mapper.ShowBeneath,"Detaching the map tab clears reveal before key release.");
+      window.KeyReleaseQwerty(PhysicalKey.Space,RawInputModifiers.None);editor.SelectedIndex=1;Layout();view=window.GetVisualDescendants().OfType<MapTab>().Single();
+   } else if(scenario=="reveal-context") {
+      var otherModel=new PokemonModel(baseline.ToArray(),new StoredMetadata(metadata),viewport.Singletons);
+      var other=new ViewPort("reveal-context.bin",otherModel,InstantDispatch.Instance,viewport.Singletons,tutorials:editor.MapTutorials,fs:fs);
+      other.InitializationWorkload.GetAwaiter().GetResult();var replacement=other.MapEditor;_ = replacement.PrimaryMap.PixelData;
+      var otherBytes=otherModel.RawData.ToArray();view.DataContext=replacement;Layout();
+      Check(!mapper.ShowBeneath&&!replacement.ShowBeneath,"Context replacement clears the old reveal state without inheriting it.");
+      window.KeyReleaseQwerty(PhysicalKey.Space,RawInputModifiers.None);view.DataContext=mapper;Layout();
+      Check(otherBytes.SequenceEqual(otherModel.RawData)&&!other.Undo.CanExecute(null),"Reveal context changes preserve the independent document.");
+   } else if(scenario=="reveal-navigation") {
+      mapper.NavigateTo(0,0,6,6);Layout();
+      Check(!mapper.ShowBeneath&&!mapper.PrimaryMap.ShowBeneath,"Explicit navigation must not carry a held reveal onto the replacement map.");
+      window.KeyReleaseQwerty(PhysicalKey.Space,RawInputModifiers.None);
+   } else {window.KeyReleaseQwerty(PhysicalKey.Space,RawInputModifiers.None);Layout();}
+   Check(!mapper.ShowBeneath&&!mapper.PrimaryMap.ShowBeneath,"Both view model and rendered map end reveal mode.");
+   Check(view.Focus(),"The map must accept focus again after interruption.");
+   window.KeyPressQwerty(PhysicalKey.Space,RawInputModifiers.None);Layout();Check(mapper.ShowBeneath,"Reveal can be used again after cleanup.");
+   window.KeyReleaseQwerty(PhysicalKey.Space,RawInputModifiers.None);Layout();Check(!mapper.ShowBeneath,"Normal key release still clears reveal.");
+   var modifier=OperatingSystem.IsMacOS()?RawInputModifiers.Meta:RawInputModifiers.Control;
+   var modifierKey=OperatingSystem.IsMacOS()?PhysicalKey.MetaLeft:PhysicalKey.ControlLeft;
+   window.KeyPressQwerty(modifierKey,modifier);Layout();Check(mapper.HideEvents,"Command/control still hides events.");
+   window.KeyReleaseQwerty(modifierKey,RawInputModifiers.None);Layout();Check(!mapper.HideEvents,"Modifier release still restores event visibility.");
+   Check(baseline.SequenceEqual(model.RawData),"Reveal and focus cleanup must not write ROM bytes.");
 } else throw new ArgumentException("Unknown scenario");
-if(scenario!="navigation-stroke") Check(metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Audit must preserve metadata.");
+if(scenario!="navigation-stroke"&&scenario!="reveal-navigation") Check(metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Audit must preserve metadata.");
 else Console.WriteLine("NAVIGATION_METADATA_EQUAL_TO_START:"+metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()));
 Console.WriteLine($"CHILD_CHECKS:{checks}");
 window.Editor=null;window.Close();

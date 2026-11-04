@@ -133,12 +133,13 @@ context isolation and save/reload/history boundaries. Border/connection gestures
 cleanup mechanism, but their native resize interactions are not directly covered by this group.
 HMA-013 is subsequently fixed in entry 108: Escape/direct Cancel first finish the owning
 interaction, then clear brush state. Enforced scenarios retain valid bytes/history and prevent
-held movement/release from painting or swapping. HMA-011 and HMA-014 remain outstanding.
+held movement/release from painting or swapping. HMA-011 and HMA-014 were still outstanding
+at entry 108; their subsequent fixes are documented below.
 A separate preserve-mode non-bag rectangle packing finding is tracked as HMA-015; it is not
 changed by the lifecycle fixes.
 
 
-Fresh post-fix validation: `scripts/verify-mac.sh --no-restore` passes all 52 groups / 15,482
+Entry 108 post-fix validation: `scripts/verify-mac.sh --no-restore` passes all 52 groups / 15,482
 assertions, zero failures or skipped groups. MapGestureLifecycle supplies 273 assertions in
 26 isolated scenarios. This supersedes the investigation-only baseline above; the original
 failed observations remain historical and are not counted as passing tests. The upstream suite
@@ -156,3 +157,18 @@ HMA-011 follow-up (entry 110): Fresh non-double strokes reset coordinate suppres
 visible maps while retaining fill's lastDrawVal. Enforced same-cell Undo/Redo, saved-state,
 permission/art changes, consecutive bag suppression and initial top-left checks now pass.
 The original same-cell failed observations above remain historical evidence.
+
+
+HMA-014 follow-up (entry 111): Transient reveal/Command state clears on focus/lifetime/context
+changes and explicit navigation/cancellation. A window-deactivation handler is subscribed only
+while attached. Five enforced scenarios add 61 assertions for focus/tab/context/navigation and
+normal release/reuse, preserving text-field Space input, Command hide-events behavior and ROM
+bytes/metadata. Native activation delivery and compositor timing remain manual limits. Original
+failed observations above are retained as history; HMA-011/012/013/014/015 are now implemented.
+
+
+Final entry 111 validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 52
+Mac regression groups / 15,854 assertions, zero failures and zero skipped groups. The expanded
+MapGestureLifecycle group passes 645 assertions across 33 isolated scenarios. The upstream
+xUnit suite was not rerun; native hardware/deactivation/compositor delivery remains outside
+the headless verification scope.

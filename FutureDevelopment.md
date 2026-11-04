@@ -237,11 +237,15 @@ Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUD
 
 ## HMA-014 — Clear transient reveal mode when map focus/context changes
 
-**Status:** Reproduced, not implemented. Space reveal remains on when focus moves to a toolbar
-text field or another tab before Space is released. Lost-focus cleanup omits ShowBeneath.
+**Status:** Fixed in changelog entry 111. Original behavior: Space reveal could remain on when
+focus moved to a toolbar field or another tab before key release.
 
-Scope: Clear transient reveal state across focus/context/lifetime boundaries without consuming
-text-entry keys or breaking Command hide-events behavior.
+Implemented: Clear transient reveal/Command state on focus loss, detach, context replacement,
+explicit navigation/cancellation and window deactivation; remove the window subscription on
+detach. Ignore old-context property notifications and align the reveal transition to the new
+context. Enforced headless focus/tab/context/navigation/release controls preserve native Space
+text input, Command event visibility and bytes/metadata. Native window activation delivery and
+compositor animation timing remain manual verification limits.
 Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
 
 

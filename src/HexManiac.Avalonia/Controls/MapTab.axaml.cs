@@ -38,6 +38,7 @@ public partial class MapTab : UserControl {
    private MapEditorViewModel ViewModel => DataContext as MapEditorViewModel;
    private MapEditorViewModel subscribed;
    private readonly MapHoverPreview hoverPreview;
+   private WindowBase keyboardWindow;
 
    public event EventHandler FocusElement;
 
@@ -47,8 +48,18 @@ public partial class MapTab : UserControl {
       DataContextChanged += (sender, e) => UpdateDataContext();
       AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Bubble);
       AddHandler(KeyUpEvent, HandleKeyUp, RoutingStrategies.Bubble);
-      AttachedToVisualTree += (sender, e) => Focus();
-      DetachedFromVisualTree += (sender, e) => { InterruptPointerInteraction(); HideMapTooltip(); };
+      AttachedToVisualTree += (sender, e) => {
+         keyboardWindow = TopLevel.GetTopLevel(this) as WindowBase;
+         if (keyboardWindow != null) keyboardWindow.Deactivated += HandleWindowDeactivated;
+         Focus();
+      };
+      DetachedFromVisualTree += (sender, e) => {
+         ResetTransientKeys(subscribed);
+         if (keyboardWindow != null) keyboardWindow.Deactivated -= HandleWindowDeactivated;
+         keyboardWindow = null;
+         InterruptPointerInteraction();
+         HideMapTooltip();
+      };
       // Inspect the actual target before bubbling map handlers can reuse an NPC preview.
       AddHandler(PointerMovedEvent, DismissTooltipOutsideMap, RoutingStrategies.Tunnel, handledEventsToo: true);
       SizeChanged += (sender, e) => {
@@ -88,6 +99,7 @@ public partial class MapTab : UserControl {
    }
 
    private void UpdateDataContext() {
+      ResetTransientKeys(subscribed);
       InterruptPointerInteraction();
       if (subscribed != null) {
          subscribed.PropertyChanged -= HandleContextPropertyChanged;
@@ -102,14 +114,17 @@ public partial class MapTab : UserControl {
          subscribed.AutoscrollBlocks += AutoscrollBlocks;
          subscribed.AutoscrollTiles += AutoscrollTiles;
       }
+      UpdateReveal(ViewModel?.ShowBeneath ?? false);
       UpdateStampPreviewVisibility();
    }
 
    private void HandleInteractionInterrupt(object sender, EventArgs e) {
+      if (ReferenceEquals(sender, ViewModel)) ResetTransientKeys(ViewModel);
       if (ReferenceEquals(sender, interactionOwner)) InterruptPointerInteraction();
    }
 
    private void HandleContextPropertyChanged(object sender, PropertyChangedEventArgs e) {
+      if (!ReferenceEquals(sender, ViewModel)) return;
       if (e.PropertyName == nameof(MapEditorViewModel.HoverContentVersion)) hoverPreview.Invalidate();
       if (e.PropertyName == nameof(MapEditorViewModel.ShowBeneath)) UpdateReveal(ViewModel.ShowBeneath);
       if (e.PropertyName == nameof(MapEditorViewModel.BlockSelectionToggle)) StartSelectionPop();
@@ -410,8 +425,16 @@ public partial class MapTab : UserControl {
 
    protected override void OnLostFocus(RoutedEventArgs e) {
       base.OnLostFocus(e);
-      if (ViewModel != null) ViewModel.HideEvents = false;
+      ResetTransientKeys(ViewModel);
+   }
+
+   private void HandleWindowDeactivated(object sender, EventArgs e) => ResetTransientKeys(ViewModel);
+
+   private void ResetTransientKeys(MapEditorViewModel owner) {
       waitingForControlUp = false;
+      if (owner == null) return;
+      owner.ShowBeneath = false;
+      owner.HideEvents = false;
    }
 
    private void ButtonMove(object sender, PointerEventArgs e) {

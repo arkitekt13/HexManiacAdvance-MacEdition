@@ -31,9 +31,9 @@ to one latest-source measurement, protected by [ScriptWidthUpdates](ScriptWidthU
 The [mixing-bag review](BLOCK_BAG_REVIEW.md) verifies Mac Command-click controls, corrects their
 tooltip and records the original preserve-permission flood-fill defect.
 The subsequent fix is protected by [BlockBagFill](BlockBagFill/README.md).
-The [map transition audit](MAP_TRANSITION_AUDIT.md) records newly reproduced interruption,
-Escape, same-cell/history and reveal-state gaps. Interrupted gestures and Escape cleanup are protected
-by [MapGestureLifecycle](MapGestureLifecycle/README.md); see the report for remaining findings.
+The [map transition audit](MAP_TRANSITION_AUDIT.md) records original interruption, Escape,
+same-cell/history, rectangle-permission and reveal-state failures and their subsequent fixes.
+[MapGestureLifecycle](MapGestureLifecycle/README.md) protects the implemented follow-ups.
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

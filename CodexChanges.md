@@ -1915,3 +1915,22 @@ Behavior: A new stroke at the previously edited cell now applies after Undo/Redo
 Evidence and validation: Before implementation, the new same-cell scenario fails when the post-Undo repaint remains unchanged. It now passes 23 assertions covering exact bytes/metadata, independent history, saved-state transitions, permission/art replacement, same-position random suppression and exact random Redo. The separately rebuilt BlockBagReview passes 17 controls and prints True / 4001,4001,4001; BlockBagFill freshly builds and passes 2,081 assertions. Complete-suite validation follows the remaining independent reveal-state fix.
 
 Scope: Coordinate-cache lifetime only. Numeric parsing, fill-region matching, compilation, pointer relocation, history algorithms and random choice remain unchanged. Verification uses fabricated data and in-memory Save, with no personal ROM/settings or emulator.
+
+## 111 — Clear transient map reveal state when keyboard ownership changes (HMA-014)
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 51 | Pair window-deactivation subscriptions with visual attachment, clear transient reveal/Command state across focus/context/lifetime/navigation boundaries and align the reveal transition to the new context. |
+| [tests/MapGestureLifecycle/Program.cs](tests/MapGestureLifecycle/Program.cs) | 352 | Enforce focus, tab, independent-context, navigation and normal-release reveal ownership while preserving native text Space and Command event hiding. |
+| [tests/MapGestureLifecycle/README.md](tests/MapGestureLifecycle/README.md) | 57 | Document reveal ownership checks and explicit native activation/compositor limits. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 240 | Mark HMA-014 fixed and record supported lifecycle boundaries. |
+| [tests/MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md) | 166 | Record the implemented reveal follow-up without rewriting original audit failures. |
+| [tests/README.md](tests/README.md) | 34 | Describe the original map findings and link all implemented lifecycle/history/permission/reveal follow-ups. |
+
+Behavior: Space reveal no longer remains active when focus moves to a field, another tab/context or a replacement map before key release. Lost focus, detachment, context replacement, explicit navigation/cancellation and window deactivation clear transient reveal/Command state. The window subscription is removed on detach. Old-context property notifications cannot animate the replacement context, and its reveal transition is explicitly aligned. Space in a focused text field remains native text input; Command event hiding/release still works.
+
+Evidence: Before implementation, the enforced focus regression fails immediately after the toolbar field takes focus because map reveal remains true. Five headless scenarios now pass 61 assertions, covering actual focus movement, tab detach/return, independent-document context replacement, alias navigation, normal release/reuse, native Space text input, Command state and unchanged ROM bytes/metadata. Alias navigation deliberately excludes equality to pre-navigation metadata, as documented by the original audit.
+
+Validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 52 regression groups / 15,854 assertions, zero failures and zero skipped groups. MapGestureLifecycle now passes 645 assertions across 33 isolated scenarios; the three independent follow-ups add 372 assertions to its prior baseline. Existing map selection, bag fill, interrupted gestures/Escape, native clipboard/field routing, script compilation/resource atomicity, retained drafts, HMA-006/007 and Undo/Redo protections remain passing. The separate upstream suite was not rerun; fresh dependency builds retain eight existing Core warnings.
+
+Scope: Transient Mac UI keyboard state only. No changes to parsing, compilation, allocation/relocation, map writing/history algorithms or user ROM/settings. Native macOS activation delivery and reveal-mask/compositor animation timing are not verified by these headless scenarios; window-deactivation cleanup is wired through the normal WindowBase event with paired subscription lifetime. The separate upstream xUnit suite is not rerun.

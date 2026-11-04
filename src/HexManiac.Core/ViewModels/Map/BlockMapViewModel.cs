@@ -1316,6 +1316,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
          var complete = new HashSet<Point> { new(xx, yy) };
          var check = new List<Point> { new(xx - 1, yy), new(xx + 1, yy), new(xx, yy - 1), new(xx, yy + 1) };
+         if (collisionIndex < 0) collisionIndex = lastDrawVal >> 10;
          var targets = blockIndexes.Select(bi => (collisionIndex << 10) | bi).ToList();
          var rnd = new Random();
          lock (pixelWriteLock) {

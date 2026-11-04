@@ -94,7 +94,7 @@ Check(viewport.Undo.CanExecute(null),"Bag painting is undoable.");
 mapper.Undo.Execute(null);Layout();Check(before.SequenceEqual(model.RawData),"Undo restores every map byte.");
 Check(metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize())&&viewport.Redo.CanExecute(null),"Undo restores metadata and preserves Redo.");
 mapper.Redo.Execute(null);Layout();Check(painted.SequenceEqual(model.RawData),"Redo restores bag painting.");
-// Characterize the public Core fill operation separately from pointer/shortcut checks.
+// Verify the public Core fill operation separately from pointer/shortcut checks.
 // Explicit press kinds avoid relying on the headless clock's double-click counting.
 mapper.Undo.Execute(null);Layout();
 mapper.SelectBlock(1,0);mapper.ReleaseBlock(1,0);mapper.CollisionIndex=-1;Layout();
@@ -107,6 +107,7 @@ mapper.PrimaryDown(local.x,local.y,PrimaryInteractionStart.Click);mapper.Primary
 Check(model.ReadMultiByteValue(SyntheticMapFixture.Cells+(6*24+6)*2,2)==0x4001,$"Fill characterization starts with a valid first stamp; brush={mapper.DrawBlockIndex}, bagWidth={mapper.BlockBag.PixelWidth}, value={model.ReadMultiByteValue(SyntheticMapFixture.Cells+(6*24+6)*2,2):X4}.");
 mapper.PrimaryDown(local.x,local.y,PrimaryInteractionStart.DoubleClick);mapper.PrimaryUp(local.x,local.y);Layout();
 var fill=Enumerable.Range(6,3).Select(x=>model.ReadMultiByteValue(SyntheticMapFixture.Cells+(6*24+x)*2,2)).ToArray();
+Check(fill.All(v=>v==0x4001), "Bag flood fill must preserve existing movement permissions.");
 Console.WriteLine("FLOOD_FILL_PRESERVES_MOVEMENT:"+fill.All(v=>v==0x4001));
 Console.WriteLine("FLOOD_FILL_VALUES:"+string.Join(",",fill.Select(v=>v.ToString("X4"))));
 window.Editor=null;window.Close();Console.WriteLine($"CHECKS_PASSED:{checks}");

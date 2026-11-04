@@ -1803,3 +1803,25 @@ Verification: The review passes 16 positive assertions, including actual Command
 Separate outstanding defect: With CollisionIndex=-1 and a one-member bag, a valid first stamp writes 4000→4001, but Core double-click fill changes neighboring matching cells to FC01. PaintBlockBag packs the negative preservation sentinel into movement bits. The review explicitly prints FLOOD_FILL_PRESERVES_MOVEMENT:False and 4001,FC01,FC01; this failed characterization is not included as a passing preservation assertion. HMA-010 remains unimplemented, with explicit-permission, region/boundary, multi-member and exact history regressions recommended before changing map writes.
 
 Scope: Only user-facing bag help changes in the application. Core map writing, collision/elevation, randomness, history, scripting/compilation and game-engine behavior remain unchanged. Follow-up priorities are the confirmed fill defect, Mac shortcut/help consistency, combined map-tool/history gestures and attributed full script-tab rendering work.
+
+## 105 — Preserve movement permissions during mixing-bag flood fill (HMA-010)
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs](src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs) | 1319 | Resolve negative bag-fill permission selection from the original region, matching ordinary PaintBlock. |
+| [tests/BlockBagFill/BlockBagFill.csproj](tests/BlockBagFill/BlockBagFill.csproj) | 1 | Add the synthetic fill group to automatic Mac regression discovery. |
+| [tests/BlockBagFill/Program.cs](tests/BlockBagFill/Program.cs) | 1 | Protect permissions, random member validity, full-word region boundaries, exact bytes/metadata and Save/Undo/Redo/reload. |
+| [tests/BlockBagFill/README.md](tests/BlockBagFill/README.md) | 1 | Describe the 80-case matrix, original failure and synthetic/in-memory scope. |
+| [tools/BlockBagReview/Program.cs](tools/BlockBagReview/Program.cs) | 109 | Require the formerly failed fill-preservation characterization to pass. |
+| [tools/BlockBagReview/README.md](tools/BlockBagReview/README.md) | 5 | Document the now-enforced preservation check. |
+| [tests/BLOCK_BAG_REVIEW.md](tests/BLOCK_BAG_REVIEW.md) | 41 | Retain historical reproduction and record the subsequent fix and regression coverage. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 189 | Mark HMA-010 fixed and link the regression evidence. |
+| [tests/README.md](tests/README.md) | 33 | Link the implemented fill regression group. |
+
+Behavior: With a one-member bag and preserved movement selection, connected cells containing 4000 now become 4001 rather than FC01. The fill reads movement bits from the original full-word region value, using the same fallback as ordinary PaintBlock. Explicit permission selection, exact region matching, random selection, first-stamp behavior and history algorithms are unchanged.
+
+Evidence: The regression was run before changing Core and failed on a neighboring preserve-mode cell with actual FC01. The fixed matrix passes 2,081 assertions over original movement values 0/1/16/63, preserve and explicit 0/1/16/62 settings, one/two-member bags, connected/disconnected regions, differing permissions, all map edges and scaled/translated coordinates. Checks compare every unrelated byte and all metadata, save/reload in memory at edited/undone/redone states, and require Redo to restore the exact random result. Empty-bag fill remains inert.
+
+Validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 51 groups and 15,209 assertions, with zero failures and zero skipped groups. This includes the 2,081 new fill assertions plus existing map and scripting protections. The separately rebuilt real-control BlockBagReview passes 17 checks and prints FLOOD_FILL_PRESERVES_MOVEMENT:True with 4001,4001,4001. The upstream xUnit suite was not rerun; fresh dependency builds retain eight existing Core warnings.
+
+Scope: One Core fallback line; no changes to numerical parsing, script compilation, allocation, pointer relocation, metadata/history algorithms, bag shortcuts or user ROMs. Synthetic fixtures only; Save is captured in memory and independently reloaded. Native double-click timing remains outside the headless check; the standalone pointer review invokes explicit Core press kinds for its final fill assertion.

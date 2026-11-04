@@ -186,17 +186,16 @@ Evidence and scope: [SCRIPT_EDITOR_REVIEW.md](tests/SCRIPT_EDITOR_REVIEW.md).
 
 ## HMA-010 — Preserve movement permissions during mixing-bag flood fill
 
-**Status:** Reproduced with fabricated map data through the public Core fill path; not fixed.
+**Status:** Fixed in changelog entry 105, with automated synthetic regressions.
 
-**Reproduction:** Disable automatic movement selection, use CollisionIndex=-1 to preserve
+**Original reproduction:** Disable automatic movement selection, use CollisionIndex=-1 to preserve
 permissions and a one-member block bag containing block 1. Start a stroke over a three-cell
 connected region containing 4000. A normal first stamp correctly writes 4001; double-click fill
 then produces 4001,FC01,FC01. The Mac Command-click bag controls work independently of this bug.
 
-**Cause and next step:** PaintBlockBag packs the negative preservation sentinel into replacement
-values instead of resolving movement bits from the existing region. Add failing preserve-mode,
-explicit-permission, multi-member, region/boundary and neighboring-data regressions, then use
-existing paint/fill semantics and protect exact Undo/Redo/save/reload. No Core fix is included
-in the shortcut/help investigation.
+**Fix:** PaintBlockBag now resolves a negative preservation sentinel from the original region
+value, matching ordinary PaintBlock. BlockBagFill covers preserve-mode, explicit-permission,
+multi-member, region/boundary and neighboring-data behavior plus exact Undo/Redo/Save/reload.
+The original shortcut/help investigation is retained as historical evidence.
 
 Evidence and limits: [BLOCK_BAG_REVIEW.md](tests/BLOCK_BAG_REVIEW.md).

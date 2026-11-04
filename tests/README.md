@@ -29,7 +29,8 @@ width handler and repeated queued measurements without changing application beha
 The implemented [width coalescing follow-up](SCRIPT_WIDTH_COALESCING.md) reduces queued bursts
 to one latest-source measurement, protected by [ScriptWidthUpdates](ScriptWidthUpdates/README.md).
 The [mixing-bag review](BLOCK_BAG_REVIEW.md) verifies Mac Command-click controls, corrects their
-tooltip and records the separate outstanding preserve-permission flood-fill defect.
+tooltip and records the original preserve-permission flood-fill defect.
+The subsequent fix is protected by [BlockBagFill](BlockBagFill/README.md).
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

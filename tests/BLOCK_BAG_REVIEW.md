@@ -22,8 +22,9 @@ events on the scaled block image and bag icon. It verifies Command add/remove/cl
 Mac Control-click controls, selected brush identity, no byte/metadata/history changes from bag
 membership, and deterministic painting with a one-member bag. The latter must change only the
 intended cell from 4000 to 4001, preserve movement permissions, and round-trip bytes/metadata
-through Undo/Redo. Sixteen positive assertions include the fill characterization's valid first
-stamp; they do not count the known failed fill-preservation result as passing behavior.
+through Undo/Redo. The original review passed sixteen positive controls and separately recorded
+the failed fill result below. Following the HMA-010 fix, the tool also asserts fill preservation
+and passes seventeen checks.
 
 Reproduce from the repository root:
 
@@ -38,11 +39,11 @@ history coverage. No user ROM or settings is modified, and no emulator is launch
 Mac suite was not rerun for tooltip/investigation-only work. Native OS pointer delivery remains
 normal desktop verification.
 
-## Separate confirmed Core fill defect — HMA-010, not implemented
+## HMA-010 — original reproduction and subsequent fix
 
 With AutoUpdateCollision=false, CollisionIndex=-1 means preserving existing movement settings.
 A one-block bag containing block 1 stamps correctly: 4000→4001. The public Core double-click
-fill operation then changes adjacent matching cells to FC01 instead of 4001. The probe prints:
+fill operation originally changed adjacent matching cells to FC01 instead of 4001. Before the fix, the probe printed:
 
 ```text
 FLOOD_FILL_PRESERVES_MOVEMENT:False
@@ -55,17 +56,22 @@ so it does not rely on the headless clock's double-click counting. It resets the
 duplicate-cell cache through GetBlock before the independent fill check. That stroke reset is
 not a production change or a claim about native repaint-after-Undo behavior.
 
-BlockMapViewModel.PaintBlockBag directly packs collisionIndex<<10 into replacement values;
+BlockMapViewModel.PaintBlockBag originally directly packed collisionIndex<<10 into replacement values;
 -1 therefore becomes FC00 in the stored upper bits. Its neighboring-cell matching uses the
-previous full block value but has no preserve-mode permission fallback. DrawBlock and ordinary
-PaintBlock already have preservation handling. This is shared Core behavior, independent of
-Mac shortcut mapping, and has not been fixed by this investigation.
+previous full block value but had no preserve-mode permission fallback. DrawBlock and ordinary
+PaintBlock already have preservation handling. The follow-up fix resolves negative collisionIndex
+from lastDrawVal >> 10, matching ordinary PaintBlock. Explicit permissions, region matching,
+random selection and history algorithms are unchanged. This is shared Core behavior, independent
+of Mac shortcut mapping.
 
-Recommended next fix: add a failing regression for preserve-mode bag fill, then resolve
-permission bits using the existing fill/paint semantics. Cover explicit permissions, elevation/
-collision bits, one/multiple members, connected versus disconnected matching regions, all map
-edges, neighboring data and exact Undo/Redo/save/reload. Random tests should assert valid bag
-membership and preserved bits rather than require a particular random sequence.
+The automated [BlockBagFill](BlockBagFill/README.md) group reproduces the original failure and
+protects preserve/explicit modes, elevation/collision bits, one/multiple members, connected versus
+disconnected matching regions, all map edges, neighboring bytes/metadata and exact Undo/Redo/Save/
+reload. Random checks assert bag membership; Redo must restore the exact original random result.
+The standalone tool now prints True and 4001,4001,4001 and fails if preservation regresses.
+Fresh follow-up validation passes all 51 Mac groups / 15,209 assertions, with zero failures or
+skipped groups; BlockBagFill contributes 2,081 assertions. The separately rebuilt real-control
+review passes 17 checks. The upstream xUnit suite was not rerun.
 
 ## Useful follow-up areas
 

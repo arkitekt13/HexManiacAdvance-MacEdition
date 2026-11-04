@@ -40,6 +40,8 @@ confirmed border bounds overrun. The implemented bounds fix is protected by
 [BorderBounds](BorderBounds/README.md) and actual pointer cases in MapGestureLifecycle; see
 the review for the subsequent explicit nine-grid override fix and the remaining latent
 negative-state finding.
+Direct map PNG export, conflict choices, safe file replacement and native-resolution rendering are
+covered by [MapImageExport](MapImageExport/README.md).
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

@@ -135,6 +135,11 @@ namespace HavenSoft.HexManiac.Core.Models {
       bool? ShowCustomMessageBox(string message, bool showYesNoCancel = true, params ProcessModel[] links);
    }
 
+   /// <summary>Optional platform support for exporting a rendered map beside its ROM.</summary>
+   public interface IMapImageExporter {
+      void ExportMapImage(short[] pixels, int width, string romPath, string mapName);
+   }
+
    public record ProcessModel(string DisplayText, string Content);
 
    public interface IWorkDispatcher {

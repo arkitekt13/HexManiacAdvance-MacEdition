@@ -2315,11 +2315,6 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       public void ExportMapImage(bool includeAllMaps, MapDisplayOptions options) {
          // from the primary map, find all connected maps
-         var savePrimarySelected = primaryMap.IsSelected;
-         var savePrimaryShowEvents = primaryMap.ShowEvents;
-
-         primaryMap.IsSelected = false;
-         primaryMap.ShowEvents = options;
          var maps = new List<BlockMapViewModel>(new[] { primaryMap });
          var directions = new[] { MapDirection.Left, MapDirection.Up, MapDirection.Right, MapDirection.Down };
          for (int i = 0; i < maps.Count && includeAllMaps; i++) {
@@ -2329,28 +2324,36 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
             }
          }
 
-         // determine how big the image needs to be
-         var left = maps.Min(map => map.LeftEdge) / primaryMap.SpriteScale;
-         var right = maps.Max(map => map.RightEdge) / primaryMap.SpriteScale;
-         var top = maps.Min(map => map.TopEdge) / primaryMap.SpriteScale;
-         var bottom = maps.Max(map => map.BottomEdge) / primaryMap.SpriteScale;
-         var width = (int)Math.Round(right - left);
-         var height = (int)Math.Round(bottom - top);
+         var states = maps.Select(map => (map, map.IsSelected, map.ShowEvents)).ToArray();
+         try {
+            foreach (var map in maps) { map.IsSelected = false; map.ShowEvents = options; }
+            // determine how big the image needs to be
+            var left = maps.Min(map => map.LeftEdge) / primaryMap.SpriteScale;
+            var right = maps.Max(map => map.RightEdge) / primaryMap.SpriteScale;
+            var top = maps.Min(map => map.TopEdge) / primaryMap.SpriteScale;
+            var bottom = maps.Max(map => map.BottomEdge) / primaryMap.SpriteScale;
+            var width = (int)Math.Round(right - left);
+            var height = (int)Math.Round(bottom - top);
 
-         // create a canvas that's the right size
-         var canvas = new CanvasPixelViewModel(width, height);
+            // create a canvas that's the right size
+            var canvas = new CanvasPixelViewModel(width, height);
 
-         // draw all the maps
-         foreach (var map in maps) {
-            canvas.Draw(map, (int)(map.LeftEdge / map.SpriteScale - left), (int)(map.TopEdge / map.SpriteScale - top));
+            // draw all the maps
+            foreach (var map in maps) {
+               canvas.Draw(map, (int)(map.LeftEdge / map.SpriteScale - left), (int)(map.TopEdge / map.SpriteScale - top));
+            }
+
+            // export it as an image
+            if (fileSystem is IMapImageExporter exporter) {
+               var name = primaryMap.FullName + (includeAllMaps ? "-connected" : "");
+               exporter.ExportMapImage(canvas.PixelData, canvas.PixelWidth, FullFileName, name);
+            } else {
+               fileSystem.CopyImage = (canvas.PixelData, canvas.PixelWidth);
+               ViewPort.RaiseMessage("Map copied to clipboard");
+            }
+         } finally {
+            foreach (var state in states) { state.map.IsSelected = state.IsSelected; state.map.ShowEvents = state.ShowEvents; }
          }
-
-         // export it as an image
-         fileSystem.CopyImage = (canvas.PixelData, canvas.PixelWidth);
-         ViewPort.RaiseMessage("Map copied to clipboard");
-
-         primaryMap.IsSelected = savePrimarySelected;
-         primaryMap.ShowEvents = savePrimaryShowEvents;
       }
    }
 

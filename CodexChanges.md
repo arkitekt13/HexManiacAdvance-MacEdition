@@ -2014,3 +2014,20 @@ Validation: WelcomeScreen builds with zero warnings/errors and passes all 33 ass
 | src/HexManiac.Avalonia/Controls/StartScreen.axaml | 31 | Center link-button content vertically so contributor names align with the adjacent bold credit labels. |
 
 Validation: WelcomeScreen builds and passes all 33 assertions, including three window sizes and existing button states and Open behavior. Visually inspected the newly rendered 1200x800 control and confirmed all three names align with their labels while retaining clickable buttons. Native interaction remains a manual check.
+
+## 117 — Export map PNGs beside the ROM with explicit conflict choices
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacPlatform/MapImageExporter.cs | 9 | Save map PNGs in MapImages beside the ROM with safe filenames, overwrite/copy/cancel choices, numbered copies, temporary-file publication and save-picker fallback. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 444 | Connect map export to the Mac PNG encoder, existing option/save dialogs and a successful-save confirmation with Reveal in Finder. |
+| src/HexManiac.Core/Models/IFileSystem.cs | 139 | Add optional map image export support without changing existing filesystem implementations. |
+| src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs | 2316 | Route native-resolution map renders to platform export, distinguish connected images and restore selection and event visibility in a finally block. |
+| tests/MapImageExport/Program.cs | 11 | Verify destination policy, conflict actions, races, encoding failures, fallback, actual PNG pixels/dimensions, renderer routing and unchanged ROM bytes, metadata and history. |
+| tests/MapImageExport/README.md | 1 | Document export behavior, automated verification and manual Mac dialog, event-appearance and Finder checks. |
+| tests/MapImageExport/MapImageExport.csproj | 1 | Include the synthetic map fixture and production Mac assembly in the portable export regression group. |
+| tests/README.md | 43 | Include the PNG export regression group in the coverage guide. |
+
+Behavior: Edit Map Header > Export Image saves a PNG under MapImages in the ROM directory, using the existing map name and bank/map ID; All Connected Maps adds -connected. First export needs no destination prompt. An existing image offers Overwrite, Save Updated Copy (the first available numbered name from 2), or the dialog's Cancel action; closing the dialog also cancels. Unsaved/relative ROM paths use a save picker; an unavailable destination or failed write offers one fallback picker. A temporary file is encoded and flushed before publication, so failed encoding does not truncate an existing PNG, and a competing new-file writer is not silently overwritten. Successful saves offer Reveal in Finder. Existing clipboard export remains available to other filesystem implementations.
+
+Validation: MapImageExport passes 33 assertions, including a decodable PNG with exact RGB555 pixels, all three event display modes, native 16-pixel tile dimensions, connected naming, state restoration after export failure and unchanged bytes/metadata/history. The complete `scripts/verify-mac.sh --no-restore` run freshly passes 54 regression groups / 16,723 assertions, zero failures and zero skipped groups. NuGet reports NU1900 warnings because its vulnerability-data service is unavailable; builds and checks succeed. The separate upstream suites were not rerun. Tests use temporary files and fabricated maps only; no user ROM or settings are changed. Native dialog appearance, Finder reveal, multi-map visual composition and live event-marker appearance remain manual checks.

@@ -1234,3 +1234,17 @@ Evidence: The user's mouse-only failure reproduces when the test delivers real h
 Validation: All 29 Mac groups pass 6,306 assertions with zero failed or skipped groups, including 128 encounter checks and 294 script/autocomplete checks. The pointer press assertion requires editor focus and an open list before release; accepted values, other encounter slots, pointers, metadata and Undo/Redo remain passing.
 
 Scope: Shared autocomplete presentation only; matching, selected values, numeric parsing, compilation, ROM writes and history algorithms are unchanged. Pointer tests use synthetic encounters and scripts in headless popup windows; native mouse confirmation remains for the user's next relaunch.
+
+## 074 — Pan the Mac map with Option and primary drag
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 234 | Route macOS Option-left-drag through the existing middle-button pan path while tracking primary-button release independently of modifier state. |
+| [tests/MapSelection/Program.cs](tests/MapSelection/Program.cs) | 133 | Add exact pan-distance, modifier-release ordering, copied/single brush retention, byte/metadata/history integrity and post-pan painting regressions. |
+| [tests/MapSelection/README.md](tests/MapSelection/README.md) | 21 | Explain the trackpad gesture, preserved brush behavior and headless/native verification boundary. |
+
+Evidence: The new Option-drag position assertion fails before the UI mapping is added. Afterward the focused map group passes 394 checks, including 46 added pan/post-pan assertions. Option-left and middle drag move by the expected screen pixels at 1x/2x zoom without modifying any ROM bytes, metadata or saved/Undo/Redo state. The brush stays selected, release completes even when Option was released first, and ordinary painting remains undoable afterward.
+
+Complete Mac validation: All 29 groups pass 6,352 assertions with zero failed or skipped groups; the build introduces no new compiler warnings.
+
+Scope: Mac pointer mapping and physical release tracking only; shared Core painting/panning/history, Control-click selection, Command rectangle painting, arrow-key navigation and Space reveal behavior are unchanged. All fixtures are fabricated; native trackpad confirmation remains for the user after relaunch.

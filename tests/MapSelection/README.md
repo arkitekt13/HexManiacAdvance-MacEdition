@@ -18,6 +18,12 @@ On macOS, Control-left-drag now uses the existing secondary-button selection pat
 captures a rectangle of placed blocks, and ordinary left-click stamps it elsewhere. A physical
 secondary-button drag remains supported. Command-left-drag remains rectangle painting.
 
+Option-left-drag pans the map on macOS without discarding the active brush. Hold Option before
+pressing, then drag over the map; releasing Option early continues panning until mouse-up.
+Middle-button drag remains supported. Checks cover both release orders and 1x/2x zoom, exact
+pan distance, copied/single-tile brush retention, unchanged ROM bytes/metadata/history and normal
+painting immediately afterward. Native trackpad interaction still needs a manual confirmation.
+
 The selection checks on macOS exercise Control held through release, Control released before mouse-up,
 and physical secondary-button dragging at 1x and 2x. Each case captures a 2x3 pattern, verifies
 selection makes no ROM edits or undo entries, stamps it twice, checks every block and collision

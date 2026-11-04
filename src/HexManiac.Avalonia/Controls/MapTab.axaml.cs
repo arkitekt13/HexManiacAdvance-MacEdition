@@ -161,6 +161,7 @@ public partial class MapTab : UserControl {
    // track which button is being used. Set to XButton1 when not in use.
    private MouseButton withinMapInteraction = MouseButton.XButton1;
    private bool controlSelectGesture;
+   private bool optionPanGesture;
    private bool mapCaptured, backgroundCaptured, blocksCaptured, borderCaptured;
 
    private static readonly object NoTooltip = new object[0];
@@ -231,7 +232,12 @@ public partial class MapTab : UserControl {
       // the physical button for release, even if Control is released first.
       controlSelectGesture = OperatingSystem.IsMacOS() && button == MouseButton.Left &&
          e.KeyModifiers.HasFlag(KeyModifiers.Control);
+      // Reuse middle-button panning for trackpads, retaining the physical button
+      // so releasing Option before the mouse does not end or strand the gesture.
+      optionPanGesture = OperatingSystem.IsMacOS() && button == MouseButton.Left &&
+         e.KeyModifiers == KeyModifiers.Alt;
       if (controlSelectGesture) button = MouseButton.Right;
+      else if (optionPanGesture) button = MouseButton.Middle;
       UpdateTooltipContent(NoTooltip);
       Focus();
       e.Handled = true;
@@ -345,8 +351,9 @@ public partial class MapTab : UserControl {
       e.Handled = true;
       var element = (Control)sender;
       var previousInteraction = withinMapInteraction;
-      var releaseButton = controlSelectGesture ? MouseButton.Left : previousInteraction;
+      var releaseButton = controlSelectGesture || optionPanGesture ? MouseButton.Left : previousInteraction;
       controlSelectGesture = false;
+      optionPanGesture = false;
       withinMapInteraction = MouseButton.XButton1;
       if (mapCaptured) { e.Pointer.Capture(null); mapCaptured = false; }
       if (previousInteraction == MouseButton.XButton1) return;

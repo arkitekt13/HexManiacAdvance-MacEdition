@@ -19,7 +19,7 @@ using System.Diagnostics;
 
 if (args.Length == 0) {
    var total = 0;
-   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions" }) {
+   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions", "same-cell-history" }) {
       var start = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true };
       start.ArgumentList.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
       start.ArgumentList.Add(name);
@@ -320,6 +320,35 @@ if(scenario=="paint-capture" || scenario=="pan-capture" || scenario=="select-cap
    }
    Check(permissionsOnly.SequenceEqual(model.RawData),"Permission-only rectangle preserves every complete ten-bit block ID.");
    mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData),"Permission-only rectangle restores exactly.");
+ } else if(scenario=="same-cell-history") {
+   Click(Cell(6,6));Check(Value(6,6)==0x4001,"Initial same-cell control must paint.");
+   mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData),"Undo must restore all original bytes.");
+   Click(Cell(6,6));Check(Value(6,6)==0x4001,"A fresh click at the same position after Undo must paint again.");
+   var first=model.RawData.ToArray();
+   mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData)&&!mapper.Undo.CanExecute(null),"Fresh repaint is one independent Undo step.");
+   mapper.Redo.Execute(null);Layout();Check(first.SequenceEqual(model.RawData),"Redo restores the exact same-cell repaint.");
+   byte[] saved=null;string[] stored=null;
+   fs.Save=file=>{saved=file.Contents.ToArray();return true;};fs.SaveMetadata=(_,lines)=>{stored=lines.ToArray();return true;};
+   viewport.Save.Execute(fs);Check(viewport.ChangeHistory.IsSaved&&first.SequenceEqual(saved),"Save records the repainted checkpoint.");
+   mapper.CollisionIndex=1;Click(Cell(6,6));Check(Value(6,6)==0x0401,"Same-cell permission changes after Redo must apply.");
+   var second=model.RawData.ToArray();
+   mapper.Undo.Execute(null);Layout();Check(first.SequenceEqual(model.RawData)&&viewport.ChangeHistory.IsSaved,"Undo the permission change returns to the exact saved checkpoint.");
+   mapper.Redo.Execute(null);Layout();Check(second.SequenceEqual(model.RawData)&&!viewport.ChangeHistory.IsSaved,"Redo retains exact permissions and dirty state.");
+   mapper.SelectBlock(0,0);mapper.ReleaseBlock(0,0);mapper.CollisionIndex=-1;Layout();Click(Cell(6,6));
+   Check(Value(6,6)==0x0400,"A new brush can replace art at the same position while preserving permissions.");
+   mapper.Undo.Execute(null);Layout();Check(second.SequenceEqual(model.RawData),"Brush replacement has a separate exact Undo entry.");
+   mapper.ToggleBlockInBag(0,0);mapper.ToggleBlockInBag(1,0);mapper.SelectBlock(1,0);mapper.ReleaseBlock(1,0);mapper.CollisionIndex=2;Layout();
+   Down(Cell(7,6));var once=model.RawData.ToArray();
+   for(int i=0;i<10;i++) {window.MouseMove(Cell(7,6),RawInputModifiers.LeftMouseButton);Layout();}
+   Check(once.SequenceEqual(model.RawData),"Repeated movement at one position within the same stroke must not reroll the random bag.");
+   Up(Cell(7,6));mapper.Undo.Execute(null);Layout();Check(second.SequenceEqual(model.RawData),"Bag stroke remains a separate history entry.");
+   mapper.Redo.Execute(null);Layout();Check(once.SequenceEqual(model.RawData),"Bag Redo restores the exact original random result.");
+   var reloaded=new PokemonModel(saved,new StoredMetadata(stored),viewport.Singletons);
+   Check(first.SequenceEqual(reloaded.RawData)&&metadata.SequenceEqual(reloaded.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Same-cell edits preserve independent saved bytes and metadata.");
+   // Direct callers must also be able to draw the very first cell at (0,0).
+   var direct=new SyntheticMapFixture(7,5);_ = direct.Map.PixelData;
+   direct.Map.DrawBlock(direct.ViewPort.ChangeHistory.CurrentChange,1,-1,0,0);
+   Check(direct.Model.ReadMultiByteValue(SyntheticMapFixture.Cells,2)==1,"A map's initial coordinate cache must not suppress its first top-left draw.");
 } else throw new ArgumentException("Unknown scenario");
 if(scenario!="navigation-stroke") Check(metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Audit must preserve metadata.");
 else Console.WriteLine("NAVIGATION_METADATA_EQUAL_TO_START:"+metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()));

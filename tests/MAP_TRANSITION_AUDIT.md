@@ -150,3 +150,9 @@ enforced regression. FillRect uses the existing per-cell RepeatBlock path for si
 while copied multi-cell patterns continue through RepeatBlocks. The 12-case permission/bag
 matrix and copy/permission-only/history controls add 288 passing assertions. The original
 negative-sentinel packing finding above remains historical evidence.
+
+
+HMA-011 follow-up (entry 110): Fresh non-double strokes reset coordinate suppression across
+visible maps while retaining fill's lastDrawVal. Enforced same-cell Undo/Redo, saved-state,
+permission/art changes, consecutive bag suppression and initial top-left checks now pass.
+The original same-cell failed observations above remain historical evidence.

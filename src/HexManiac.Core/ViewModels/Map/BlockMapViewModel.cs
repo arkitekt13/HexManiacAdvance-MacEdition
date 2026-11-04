@@ -947,7 +947,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          return (data & 0x3FF, data >> 10);
       }
 
-      private int lastDrawVal, lastDrawX, lastDrawY;
+      private int lastDrawVal, lastDrawX = -1, lastDrawY = -1;
+
+      // Keep lastDrawVal: a following double-click fill still needs the original region value.
+      public void BeginDrawStroke() => (lastDrawX, lastDrawY) = (-1, -1);
 
       /// <summary>
       /// If collisionIndex is not valid, it's ignored.

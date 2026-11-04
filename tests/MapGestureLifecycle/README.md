@@ -29,8 +29,7 @@ The original ghost-paint regression and Escape capture regression failed before 
 These are enforced tests,
 separate from the historical observations in tools/MapTransitionReview. Native OS activation,
 trackpad hardware, border/connection resizing and fully combined 9-grid/wave edits remain
-outside this group's direct scenario coverage. Same-cell-after-history and Space reveal are
-separate outstanding findings, not declared fixed by this group.
+outside this group's direct scenario coverage. Space reveal remains a separate outstanding finding until its follow-up implementation.
 
 
 Rectangle-permission coverage runs a 12-case matrix of preserve/explicit 0/1/62 settings with
@@ -38,3 +37,9 @@ no bag, a one-member bag and a two-member bag over mixed original 0/1/16/63 perm
 It checks rectangle growth/shrink restores outside cells, exact unrelated bytes/metadata,
 Save/reload and exact Undo/Redo (including random results). Copied multi-cell patterns still
 repeat their packed source data; permission-only rectangles retain block IDs.
+
+
+Same-cell history coverage repaints after Undo, changes permissions after Redo, replaces art
+without changing permissions, checks saved-state/history boundaries, preserves consecutive
+same-position bag suppression and exact random Redo, and validates an initial direct top-left
+draw. Only coordinate suppression resets at a fresh stroke; fill's original-region value remains.

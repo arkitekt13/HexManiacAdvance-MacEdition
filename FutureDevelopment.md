@@ -202,12 +202,13 @@ Evidence and limits: [BLOCK_BAG_REVIEW.md](tests/BLOCK_BAG_REVIEW.md).
 
 ## HMA-011 — Reset map stroke deduplication across independent edits
 
-**Status:** Reproduced, not implemented. Painting the same cell after Undo silently skips the
-new edit; changing movement permissions at that cell after Redo is also skipped. DrawBlock's
-lastDrawX/lastDrawY suppression survives the independent operation/history refresh.
+**Status:** Fixed in changelog entry 110. Original behavior: Painting the same cell after Undo
+or changing its permissions after Redo could be skipped by persistent coordinate suppression.
 
-Scope: Reset coordinate suppression at fresh-stroke boundaries without losing lastDrawVal's
-original-region role in double-click/bag fill. Preserve random results, exact history and saves.
+Implemented: Reset coordinate suppression on visible maps at the beginning of a fresh non-double
+stroke, preserving lastDrawVal for subsequent fill and suppressing redundant movement within
+the stroke. Initial coordinates are invalid so the first top-left draw is never skipped.
+Regression evidence: [MapGestureLifecycle](tests/MapGestureLifecycle/README.md).
 Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
 
 ## HMA-012 — Finish interrupted map/picker gestures and history boundaries

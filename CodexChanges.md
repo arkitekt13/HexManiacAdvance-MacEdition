@@ -1898,3 +1898,20 @@ Behavior: A non-bag single-block rectangle with preserve permissions now changes
 Evidence: Before the fix, the enforced preserve-mode non-bag case fails at cell 6,6 with actual FC01. The new rectangle scenario passes 288 assertions across 12 preserve/explicit permission and bag configurations, mixed original permissions 0/1/16/63, grow/shrink restoration, valid art membership, unrelated byte/pointer preservation, exact random Undo/Redo, Save/reload metadata and copied/permission-only controls. Freshly built MapSelection and BlockBagFill also pass 394 and 2,081 assertions respectively, zero failures/skips. Complete-suite validation follows the subsequent independent history/reveal fixes.
 
 Scope: Reuse existing fill rules rather than packing a negative permission sentinel into ROM data. No changes to numeric parsing, compilation, pointer relocation, history algorithms, user ROMs or settings. Tests use fabricated data and in-memory Save; native hardware behavior is not measured.
+
+## 110 — Scope duplicate map-position suppression to a fresh stroke (HMA-011)
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs](src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs) | 950 | Initialize cached coordinates as invalid and expose a coordinate-only BeginDrawStroke reset, retaining the original-region value used by fill. |
+| [src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs](src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs) | 873 | Reset coordinate suppression across visible maps before a new non-double stroke, leaving same-stroke suppression intact. |
+| [tests/MapGestureLifecycle/Program.cs](tests/MapGestureLifecycle/Program.cs) | 322 | Enforce same-cell repaint after Undo, permission changes after Redo, art replacement, saved-state boundaries, random suppression and the initial top-left edit. |
+| [tests/MapGestureLifecycle/README.md](tests/MapGestureLifecycle/README.md) | 50 | Document fresh-stroke and original-fill-value guarantees. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 203 | Mark HMA-011 fixed with regression evidence. |
+| [tests/MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md) | 159 | Record the implemented follow-up while retaining original failed observations. |
+
+Behavior: A new stroke at the previously edited cell now applies after Undo/Redo and after changing art or movement permissions. Coordinates start invalid so a direct initial draw at (0,0) also works. Repeated movement at the same location within one stroke remains suppressed; lastDrawVal is retained so a following ordinary/bag double-click fill still matches the original packed region.
+
+Evidence and validation: Before implementation, the new same-cell scenario fails when the post-Undo repaint remains unchanged. It now passes 23 assertions covering exact bytes/metadata, independent history, saved-state transitions, permission/art replacement, same-position random suppression and exact random Redo. The separately rebuilt BlockBagReview passes 17 controls and prints True / 4001,4001,4001; BlockBagFill freshly builds and passes 2,081 assertions. Complete-suite validation follows the remaining independent reveal-state fix.
+
+Scope: Coordinate-cache lifetime only. Numeric parsing, fill-region matching, compilation, pointer relocation, history algorithms and random choice remain unchanged. Verification uses fabricated data and in-memory Save, with no personal ROM/settings or emulator.

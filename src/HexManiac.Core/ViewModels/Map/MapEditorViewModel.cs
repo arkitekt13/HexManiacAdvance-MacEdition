@@ -866,6 +866,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
             }
             Hover(x, y);
          } else {
+            foreach (var visibleMap in VisibleMaps) visibleMap.BeginDrawStroke();
             drawSource = ToBoundedMapTilePosition(map, x, y, 1, 1);
             lastDraw = drawSource;
             if (click == PrimaryInteractionStart.ControlClick) RectangleDrawMove(x, y);

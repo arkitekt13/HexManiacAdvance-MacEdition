@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 
 namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
 
@@ -9,6 +11,15 @@ public partial class StartScreen : Grid {
    public StartScreen() {
       InitializeComponent();
       VersionInformation.Text = VersionLabel;
+   }
+
+   private void Navigate(object sender, RoutedEventArgs e) {
+      if (sender is Control { Tag: string url }) {
+         var start = new ProcessStartInfo("open") { UseShellExecute = false };
+         start.ArgumentList.Add(url);
+         Process.Start(start);
+      }
+      e.Handled = true;
    }
 }
 

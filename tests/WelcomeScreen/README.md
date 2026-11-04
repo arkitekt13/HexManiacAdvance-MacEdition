@@ -16,5 +16,10 @@ dotnet tests/WelcomeScreen/bin/Debug/net8.0/WelcomeScreen.dll
 Optionally pass a PNG output path to render a preview of the actual control without a window.
 
 Manual verification: relaunch with no ROM, inspect the lettering and version footer, click Open
-File and select a ROM, then close the final tab to return to welcome. Also check picker Cancel,
+ROM and select a ROM, then close the final tab to return to welcome. Also check picker Cancel,
 Cmd+O, drag-and-drop, and launching with a ROM directly through Finder.
+
+The layout checks also cover the credit block and footer links at all three sizes. The welcome
+screen credits Haven, xavierkeys and arkitekt13 with clickable GitHub profiles; Mac Help opens
+the fork README macOS section, while issue reporting and GitHub open this fork. Browser launching
+and native keyboard/mouse appearance still need a live macOS check.

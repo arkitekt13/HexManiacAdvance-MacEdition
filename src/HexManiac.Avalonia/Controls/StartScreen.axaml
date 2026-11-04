@@ -1,5 +1,6 @@
 <Grid xmlns="https://github.com/avaloniaui"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:app="clr-namespace:HavenSoft.HexManiac.AvaloniaUI"
       xmlns:hsv="clr-namespace:HavenSoft.HexManiac.AvaloniaUI.Resources"
       x:Class="HavenSoft.HexManiac.AvaloniaUI.Controls.StartScreen"
       Background="#19181F" RowDefinitions="*,Auto,Auto">
@@ -21,10 +22,18 @@
       <Style Selector="Button.welcomeOpen:focus-visible /template/ Border#WelcomeButtonSurface">
          <Setter Property="BorderBrush" Value="#E2CAFF"/>
       </Style>
+      <Style Selector="Button.welcomeLink">
+         <Setter Property="Background" Value="Transparent"/>
+         <Setter Property="Foreground" Value="#BBA6D5"/>
+         <Setter Property="BorderThickness" Value="0"/>
+         <Setter Property="Padding" Value="2,0"/>
+         <Setter Property="MinHeight" Value="20"/>
+         <Setter Property="FontSize" Value="13"/>
+      </Style>
    </Grid.Styles>
 
    <!-- Scale lettering down for smaller windows while keeping the action button at a usable size. -->
-   <Grid Margin="28,32,28,0">
+   <Grid Margin="28,16,28,0">
       <Ellipse Width="760" Height="360" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center">
          <Ellipse.Fill>
             <RadialGradientBrush>
@@ -35,15 +44,29 @@
       </Ellipse>
       <StackPanel MaxWidth="760" HorizontalAlignment="Stretch" VerticalAlignment="Center">
          <Viewbox MaxWidth="720" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center">
-            <StackPanel Width="720" Margin="12,16">
-               <TextBlock Name="WelcomeTitle" Text="Hex Maniac Advance" FontSize="54" FontWeight="Bold"
+            <StackPanel Width="720" Margin="12,8">
+               <TextBlock Name="WelcomeTitle" Text="HexManiacAdvance" FontSize="54" FontWeight="Bold"
                           FontFamily="Inter, Helvetica Neue, sans-serif" Foreground="#B997EA"
                           HorizontalAlignment="Center" TextAlignment="Center"/>
-               <TextBlock Name="MacSubtitle" Text="Mac" FontSize="36" Margin="0,0,0,16"
-                          FontFamily="Snell Roundhand, Apple Chancery, cursive" Foreground="#F5F2F9"
+               <TextBlock Name="MacSubtitle" Text="Mac Edition" FontSize="27" FontWeight="Light" Margin="0,4,0,0"
+                          FontFamily="Inter, Helvetica Neue, sans-serif" Foreground="#F5F2F9"
                           HorizontalAlignment="Center"/>
             </StackPanel>
          </Viewbox>
+         <StackPanel Name="WelcomeCredits" Spacing="0" Margin="0,0,0,20" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4">
+               <TextBlock Text="Developed By:" FontWeight="Bold" FontSize="13" Foreground="#A39BAE" VerticalAlignment="Center"/>
+               <Button Name="DeveloperLink" Classes="welcomeLink" Content="Haven" Tag="https://github.com/haven1433" Click="Navigate"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4">
+               <TextBlock Text="Ported By:" FontWeight="Bold" FontSize="13" Foreground="#A39BAE" VerticalAlignment="Center"/>
+               <Button Name="PortAuthorLink" Classes="welcomeLink" Content="xavierkeys" Tag="https://github.com/xavierkeys" Click="Navigate"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4">
+               <TextBlock Text="Forked By:" FontWeight="Bold" FontSize="13" Foreground="#A39BAE" VerticalAlignment="Center"/>
+               <Button Name="ForkAuthorLink" Classes="welcomeLink" Content="arkitekt13" Tag="https://github.com/arkitekt13" Click="Navigate"/>
+            </StackPanel>
+         </StackPanel>
          <Button Name="OpenFileButton" Classes="welcomeOpen" Command="{Binding Open}"
                  Width="182" Height="46" HorizontalAlignment="Center"
                  AutomationProperties.Name="Open ROM file">
@@ -60,7 +83,7 @@
             </Button.Template>
             <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                <Path Width="18" Height="18" Stretch="Uniform" Fill="White" Data="{hsv:Icon Open}"/>
-               <TextBlock Text="Open File" FontSize="15" VerticalAlignment="Center"/>
+               <TextBlock Text="Open ROM" FontSize="15" VerticalAlignment="Center"/>
             </StackPanel>
          </Button>
          <TextBlock Text="⌘O  ·  or drop a ROM here" Foreground="#85808F" FontSize="12"
@@ -76,6 +99,15 @@
          <Button Grid.Column="1" Content="Dismiss" Command="{Binding ClearError}"/>
       </Grid>
    </Border>
-   <TextBlock Name="VersionInformation" Grid.Row="2" Foreground="#85808F" FontSize="11"
-              HorizontalAlignment="Center" TextAlignment="Center" Margin="20,16,20,22"/>
+   <StackPanel Grid.Row="2" Margin="20,12,20,16" Spacing="8" HorizontalAlignment="Center">
+      <StackPanel Name="WelcomeLinks" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+         <Button Name="MacHelpLink" Classes="welcomeLink" Content="Mac Help" Tag="{x:Static app:AppIdentity.MacHelpUrl}" Click="Navigate"/>
+         <TextBlock Text="·" Foreground="#85808F" VerticalAlignment="Center"/>
+         <Button Name="ReportIssueLink" Classes="welcomeLink" Content="Report an Issue" Tag="{x:Static app:AppIdentity.IssuesUrl}" Click="Navigate"/>
+         <TextBlock Text="·" Foreground="#85808F" VerticalAlignment="Center"/>
+         <Button Name="RepositoryLink" Classes="welcomeLink" Content="GitHub" Tag="{x:Static app:AppIdentity.RepositoryUrl}" Click="Navigate"/>
+      </StackPanel>
+      <TextBlock Name="VersionInformation" Foreground="#85808F" FontSize="11"
+                 HorizontalAlignment="Center" TextAlignment="Center" Margin="0"/>
+   </StackPanel>
 </Grid>

@@ -1994,3 +1994,15 @@ Evidence: The enforced pre-fix case retains inner-corner 3001 after explicit per
 Validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 53 regression groups / 16,684 assertions, zero failures and zero skipped groups. BorderBounds contributes 190 assertions; MapGestureLifecycle passes 1,285 assertions across 36 isolated scenarios, including 38 border-pointer checks and 602 nine-grid checks. Existing copied patterns, bag fill, rectangle permissions, interruption/Escape, same-cell editing, reveal ownership, clipboard routing, compilation/resource atomicity, pending drafts/persistence and HMA-006/007/history protections remain passing. The separate upstream suites were not rerun; fresh dependency builds retain eight existing Core warnings.
 
 Scope: Current-brush explicit override tracking and packed write composition only. No new permission selector, preservation mode, numeric parser, compiler, allocation/relocation or history algorithm is added. HMA-016's forced negative copied-brush state remains outstanding. All tests use fabricated maps/in-memory Save; user ROM/settings and emulator behavior are unchanged. Native hardware/gameplay and game-specific art validation remain manual limits.
+
+## 115 — Refresh the Mac Edition welcome screen and add contributor credits
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml | 42 | Present HexManiacAdvance with a clean Mac Edition subtitle, smaller credits with bold labels and linked names, an Open ROM action and a compact help footer. |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs | 16 | Open contributor profiles and support links through macOS with the destination passed as a separate process argument. |
+| src/HexManiac.Avalonia/AppIdentity.cs | 9 | Define the Mac Help destination in the fork README alongside the existing repository and issue URLs. |
+| tests/WelcomeScreen/Program.cs | 54 | Extend existing window-size checks to include the contributor block and support links. |
+| tests/WelcomeScreen/README.md | 23 | Record the credit and support destinations and the remaining native browser verification. |
+
+Validation: WelcomeScreen builds with zero warnings/errors and passes all 33 assertions, including bounds at 1200x800, 800x600 and 500x400, rounded button states, existing Open command, zero-tab lifecycle, visible errors, shell mounting and version identity. Rendered and visually inspected the actual compiled control at 1200x800. No ROM or settings changed. Browser launches and native interaction remain manual checks; the full regression suite was not rerun for this presentation-only change.

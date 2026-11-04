@@ -94,12 +94,12 @@
                 </NativeMenu>
               </NativeMenuItem.Menu>
             </NativeMenuItem>
-            <NativeMenuItem Header="Cut" Gesture="Cmd+X" Command="{Binding Cut}" />
-            <NativeMenuItem Header="Copy" Gesture="Cmd+C" Command="{Binding Copy}" />
-            <NativeMenuItem Header="Deep Copy" Gesture="Cmd+Shift+C" Command="{Binding DeepCopy}" />
-            <NativeMenuItem Header="Paste / Replace" Gesture="Cmd+V" Command="{Binding Paste}" />
-            <NativeMenuItem Header="Delete" Command="{Binding Delete}" />
-            <NativeMenuItem Header="Select All" Gesture="Cmd+A" Command="{Binding SelectAll}" />
+            <NativeMenuItem Header="Cut" Gesture="Cmd+X" />
+            <NativeMenuItem Header="Copy" Gesture="Cmd+C" />
+            <NativeMenuItem Header="Deep Copy" Gesture="Cmd+Shift+C" />
+            <NativeMenuItem Header="Paste / Replace" Gesture="Cmd+V" />
+            <NativeMenuItem Header="Delete" />
+            <NativeMenuItem Header="Select All" Gesture="Cmd+A" />
             <NativeMenuItemSeparator />
             <NativeMenuItem Header="Find" Gesture="Cmd+F" Command="{Binding ShowFind}" CommandParameter="{x:True}" />
             <NativeMenuItem Header="Find Next" Gesture="F3" Command="{Binding FindNext}" />

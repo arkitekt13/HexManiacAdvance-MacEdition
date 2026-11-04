@@ -20,6 +20,8 @@ Continuous wild-encounter text editing, focus/caret retention and species autoco
 by [WildEncounterEditing](WildEncounterEditing/README.md).
 Tab Control-click/secondary-click menus, targeted Duplicate and native Finder reveal routing are
 covered by [TabMenus](TabMenus/README.md).
+Script/text clipboard shortcut and native Edit menu focus routing are covered by
+[ClipboardRouting](ClipboardRouting/README.md).
 Production trainer, sprite, palette, and ordinary text-stream template checks are documented
 in [StreamTemplates/README.md](StreamTemplates/README.md).
 

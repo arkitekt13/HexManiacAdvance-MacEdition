@@ -1267,3 +1267,21 @@ Evidence: The Control-click assertion fails before the handler change. All 23 fo
 Complete Mac validation: All 30 groups pass 6,375 assertions with zero failed or skipped groups, including the new 23-check tab menu/Finder group.
 
 Scope: Mac tab UI and platform reveal only; Windows/shared Core file-location commands, diff/patch implementations, ROM data and history algorithms are unchanged. Tests use synthetic files/models and a reveal recorder. Native trackpad/menu behavior and Finder selecting the real file remain for user confirmation after relaunch.
+
+## 076 — Route clipboard commands to the focused text editor
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Windows/MainWindow.Editing.cs](src/HexManiac.Avalonia/Windows/MainWindow.Editing.cs) | 12 | Route editing commands to the focused TextBox, guard read-only operations, and use existing tab commands when focus is outside text input. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 89 | Initialize shared editing commands and intercept text clipboard shortcuts before they can reach binary editing. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 97 | Replace direct ROM clipboard bindings with the commands installed by the window for the native Edit menu. |
+| [tests/ClipboardRouting/ClipboardRouting.csproj](tests/ClipboardRouting/ClipboardRouting.csproj) | 1 | Add a full-window headless regression group with synthetic ROMs and the headless clipboard. |
+| [tests/ClipboardRouting/Program.cs](tests/ClipboardRouting/Program.cs) | 53 | Exercise routed clipboard shortcuts, native menu commands, script rejection/correction/history, ordinary text templates and preserved binary paste. |
+| [tests/ClipboardRouting/README.md](tests/ClipboardRouting/README.md) | 1 | Document the original ROM-writing reproduction, automated coverage and remaining native UI checks. |
+| [tests/README.md](tests/README.md) | 23 | Link the new clipboard focus regression group. |
+
+Evidence: With the script TextBox focused, the original routed Cmd+C copied hex data and Cmd+V wrote clipboard bytes `AA BB` directly into the synthetic ROM, replacing opcode `6A` with `AA` and removing source focus. Both window shortcuts and native Edit menu commands were bound directly to the selected ROM's commands. They now share focus routing through the native TextBox operations; an unavailable text operation never falls through to binary editing. Select All, Cut, legacy Cmd+B, Deep Copy and Delete receive the same text-focus guard.
+
+Validation: The complete Mac suite passes 31 groups and 6,453 assertions with zero failures or skipped groups. The new group passes 78 assertions, including backward selection paste, LF/CRLF source, focus retention, byte/metadata preservation on rejection, retained diagnostics, blocked Save/Save As, correction/retry and actual Cmd+Z/Shift+Cmd+Z round trips. Dialogue, fixed name-table text and all four encounter stream sizes retain text clipboard routing; native-menu binary paste remains undoable. The new group was also rebuilt and rerun after strengthening keyboard-history and paste-event checks. Builds report zero warnings and errors.
+
+Scope: Mac presentation/command routing only; compilation, numeric parsing, pointer relocation, ROM history and game-engine behavior are unchanged. Existing workflow checks continue to cover HMA-006/007/008 protections. Headless tests use synthetic files and their own clipboard; AppKit menu-bar event delivery and clipboard exchange with another application remain for user confirmation after relaunch.

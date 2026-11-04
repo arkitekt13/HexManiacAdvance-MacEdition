@@ -136,7 +136,7 @@
             <StackPanel Name="BlockBag" VerticalAlignment="Bottom" HorizontalAlignment="Left"
                         Orientation="Horizontal" IsVisible="{Binding BlockBagVisible}">
                <ToolTip.Tip>
-                  <TextBlock>Ctrl+Click to add/remove blocks from the mixing bag.<LineBreak/>Ctrl+Click the bag icon to empty it.<LineBreak/><LineBreak/>When drawing a block from the mixing bag,<LineBreak/>any block from the mixing bag will be used at random.<LineBreak/><Run FontStyle="Italic">(Also works with double-click.)</Run><LineBreak/><LineBreak/>Use it to make more interesting grass or ground.</TextBlock>
+                  <TextBlock MaxWidth="360" TextWrapping="Wrap"><Run Text="{x:Static local:MapTab.BlockBagShortcutText}"/><LineBreak/><LineBreak/>Select a bag member as your brush, then paint to randomly mix its blocks.<LineBreak/><Run FontStyle="Italic">Double-click on the map to fill a matching area with the bag.</Run><LineBreak/><LineBreak/>Use it to make more interesting grass or ground.</TextBlock>
                </ToolTip.Tip>
                <Path Data="{res:Icon Bag}" Fill="{DynamicResource Primary}" Width="16" Height="16" Stretch="Fill" />
                <local:PixelImage VerticalAlignment="Center" DataContext="{Binding BlockBag}" />

@@ -31,6 +31,10 @@ namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
 /// * ToolTipService.SetIsEnabled becomes the ToolTip attached properties.
 /// </summary>
 public partial class MapTab : UserControl {
+   public static string BlockBagShortcutText { get; } = OperatingSystem.IsMacOS()
+      ? "Command-click (⌘-click) blocks to add/remove them from the mixing bag.\nCommand-click the bag icon to empty it."
+      : "Ctrl-click blocks to add/remove them from the mixing bag.\nCtrl-click the bag icon to empty it.";
+
    private MapEditorViewModel ViewModel => DataContext as MapEditorViewModel;
    private MapEditorViewModel subscribed;
    private readonly MapHoverPreview hoverPreview;

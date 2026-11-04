@@ -1782,3 +1782,24 @@ Behavior: The Claude chat button, built-in emulator button, their native menu en
 Validation: Five freshly built targeted groups pass 204 assertions with zero failures: TabMenus 33, ExternalEmulatorLaunch 24, ClipboardRouting 78, WelcomeScreen 27 and StartupUpdates 42. Checks inspect actual MainWindow controls/native menu items and press F6 without opening an emulator; external launch tests use an injected process starter. The complete Mac suite is not repeated for this UI-only change; its preceding baseline remains 50 groups/13,118 assertions. Fresh dependency builds retain eight existing Core warnings.
 
 Scope: Claude/chat/MCP and embedded emulator implementations are left intact, including existing explicit programmatic/CLI entry points; this is UI availability, not backend removal. Verification launches no emulator core or assistant service and modifies no user ROM or personal settings. External mGBA preferences/launch behavior, Core, scripting, compilation, allocation/relocation and history remain unchanged.
+
+## 104 — Verify mixing-bag controls, correct Mac help and record fill permission defect
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 34 | Supply platform-correct mixing-bag shortcut help for the existing Command-on-Mac/Control-elsewhere input mapping. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 139 | Replace misleading literal Ctrl-click help with the actual modifier, bounded wrapping and explicit bag-member brush instructions. |
+| [tools/BlockBagReview/BlockBagReview.csproj](tools/BlockBagReview/BlockBagReview.csproj) | 1 | Add standalone real-control review tooling using the existing fabricated map fixture. |
+| [tools/BlockBagReview/Program.cs](tools/BlockBagReview/Program.cs) | 1 | Verify scaled pointer bag controls, selected brush, single-cell permission/history preservation and separately characterize preserve-mode Core fill. |
+| [tools/BlockBagReview/README.md](tools/BlockBagReview/README.md) | 1 | Explain the distinction between passing positive controls and the recorded failed fill-preservation characterization. |
+| [tests/BLOCK_BAG_REVIEW.md](tests/BLOCK_BAG_REVIEW.md) | 1 | Document confirmed Mac usage, scope, reproducible fill bytes and prioritized follow-up areas. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 187 | Track HMA-010 as a reproduced but unimplemented preserve-permission mixing-bag flood-fill defect. |
+| [tests/README.md](tests/README.md) | 31 | Link the mixing-bag control/help review and outstanding fill finding. |
+
+Finding and help correction: The feature was already ported: Command-click in the Mac Blocks picker toggles bag members and Command-click on the bag clears it. Literal Windows Ctrl text made it look unavailable. The tooltip now states the real modifier and explains that selecting a bag member activates random drawing; raw 8×8 tile editing is a separate picker. No shortcut or random-selection algorithm changes.
+
+Verification: The review passes 16 positive assertions, including actual Command/Control pointer contrasts, add/remove/clear, unchanged bytes/metadata/history from brush state, deterministic one-member stamping with movement bits preserved and exact Undo/Redo. The existing MapSelection group freshly builds and passes 394 assertions after the tooltip change. Full Mac/upstream suites were not repeated for tooltip/investigation-only work; fresh dependency builds retain eight existing Core warnings. Verification uses fabricated ROM data, launches no emulator and modifies no personal settings.
+
+Separate outstanding defect: With CollisionIndex=-1 and a one-member bag, a valid first stamp writes 4000→4001, but Core double-click fill changes neighboring matching cells to FC01. PaintBlockBag packs the negative preservation sentinel into movement bits. The review explicitly prints FLOOD_FILL_PRESERVES_MOVEMENT:False and 4001,FC01,FC01; this failed characterization is not included as a passing preservation assertion. HMA-010 remains unimplemented, with explicit-permission, region/boundary, multi-member and exact history regressions recommended before changing map writes.
+
+Scope: Only user-facing bag help changes in the application. Core map writing, collision/elevation, randomness, history, scripting/compilation and game-engine behavior remain unchanged. Follow-up priorities are the confirmed fill defect, Mac shortcut/help consistency, combined map-tool/history gestures and attributed full script-tab rendering work.

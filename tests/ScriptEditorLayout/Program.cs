@@ -74,7 +74,8 @@ var diagnostics = diagnosticVm.ErrorLocations.ToArray();
 Dispatcher.UIThread.RunJobs();
 Console.WriteLine($"DIAGNOSTIC_REBUILDS:{decorationRebuilds}");
 Check(decorationRebuilds == 1, "One diagnostic burst must rebuild error decorations once.");
-Check(commentLayer.Inlines.OfType<Run>().Count(run => run.TextDecorations?.Count > 0) == 32,
+var diagnosticLayer = diagnosticEditor.FindControl<DiagnosticUnderlineLayer>("DiagnosticLayer");
+Check(diagnosticLayer.Diagnostics.Count == 32,
    "Every error and warning must remain decorated after coalescing.");
 Check(string.Concat(commentLayer.Inlines.OfType<Run>().Select(run => run.Text)) == diagnosticVm.CommentContent,
    "Diagnostic decorations must preserve every character and line break.");
@@ -84,7 +85,7 @@ Check(diagnosticEditor.EditBox.Text == diagnosticVm.Content, "Rendering must not
 decorationRebuilds = 0;
 diagnosticVm.ErrorLocations.Clear();
 Dispatcher.UIThread.RunJobs();
-Check(decorationRebuilds == 1 && commentLayer.Inlines.OfType<Run>().All(run => run.TextDecorations?.Count is not > 0),
+Check(decorationRebuilds == 1 && diagnosticLayer.Diagnostics.Count == 0,
    "Cleared diagnostics must remove all old underlines in one update.");
 
 // Switch scripts while an update is queued: only the current model may be rendered.
@@ -97,7 +98,7 @@ Dispatcher.UIThread.RunJobs();
 Check(decorationRebuilds == 1, "A context switch during a diagnostic burst must render the current script once.");
 Check(string.Concat(commentLayer.Inlines.OfType<Run>().Select(run => run.Text)) == replacementVm.CommentContent,
    "Queued updates must use the current script, not the previous model.");
-Check(commentLayer.Inlines.OfType<Run>().Count(run => run.TextDecorations?.Count > 0) == 1,
+Check(diagnosticLayer.Diagnostics.SequenceEqual(replacementVm.ErrorLocations),
    "The replacement model's diagnostic must be displayed.");
 decorationRebuilds = 0;
 diagnosticVm.ErrorLocations.Clear();

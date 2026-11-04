@@ -183,7 +183,8 @@ public partial class AutocompleteOverlay : UserControl {
          var quoteCount = text.Substring(line.Start, line.Column).Count(c => c == '"');
 
          if (e.Key == Key.Space && quoteCount % 2 == 0) {
-            e.Handled = AutocompleteOptionChosen(items[index]) && DataContext is not CodeBody;
+            // Script space acceptance still receives the physical text-input space next.
+            e.Handled = AutocompleteOptionChosen(items[index], synchronizeScriptCaret: false) && DataContext is not CodeBody;
          } else if (e.Key == Key.OemQuotes && quoteCount % 2 == 1) {
             AutocompleteOptionChosen(items[index]);
             e.Handled = true;
@@ -224,15 +225,22 @@ public partial class AutocompleteOverlay : UserControl {
       AutocompleteOptionChosen(item);
    }
 
-   private bool AutocompleteOptionChosen(AutoCompleteSelectionItem item) {
+   private bool AutocompleteOptionChosen(AutoCompleteSelectionItem item, bool synchronizeScriptCaret = true) {
       var box = TargetTextBox;
       if (box == null) return false;
       var text = box.Text ?? string.Empty;
       var line = LineAt(text, box.CaretIndex);
       var needChanges = text.Substring(line.Start, line.Length) != item.CompletionText.TrimEnd();
       if (needChanges) {
-         box.Text = text[..line.Start] + item.CompletionText + text[(line.Start + line.Length)..];
-         box.CaretIndex = line.Start + Math.Clamp(line.Column + item.CompletionText.Length - line.Length, 0, item.CompletionText.Length);
+         var replacement = text[..line.Start] + item.CompletionText + text[(line.Start + line.Length)..];
+         var caret = line.Start + Math.Clamp(line.Column + item.CompletionText.Length - line.Length, 0, item.CompletionText.Length);
+         if (synchronizeScriptCaret && DataContext is CodeBody body && Target is TextEditor editor && ReferenceEquals(editor.ViewModel, body.Editor)) {
+            // ScriptChanged must see the completed operand position, just as it does for typing.
+            body.ApplyCompletion(replacement, caret);
+         } else {
+            box.Text = replacement;
+            box.CaretIndex = caret;
+         }
       }
 
       ClearAutocompleteOptions();

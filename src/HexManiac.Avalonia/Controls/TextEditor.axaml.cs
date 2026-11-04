@@ -12,10 +12,8 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Threading;
-using HavenSoft.HexManiac.AvaloniaUI.Resources;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.ViewModels;
-using CoreTheme = HavenSoft.HexManiac.Core.ViewModels.Theme;
 
 namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
 
@@ -75,6 +73,8 @@ public partial class TextEditor : UserControl {
 
    public TextEditor() {
       InitializeComponent();
+      DiagnosticLayer.Target = TransparentLayer;
+      TransparentLayer.LayoutUpdated += (_, _) => DiagnosticLayer.InvalidateVisual();
       foreach (var layer in Layers) {
          var transform = new TranslateTransform();
          layer.RenderTransform = transform;
@@ -137,7 +137,11 @@ public partial class TextEditor : UserControl {
 
    private void HandleViewModelCaretMove(object sender, EventArgs e) {
       var vm = (TextEditorViewModel)sender;
-      if (TransparentLayer.CaretIndex != vm.CaretIndex) TransparentLayer.CaretIndex = vm.CaretIndex;
+      var caret = vm.CaretIndex;
+      // Assistance can change source reentrantly while a two-way TextBox edit is being
+      // published. Synchronize that source before positioning the requested caret.
+      if (TransparentLayer.Text != vm.Content) TransparentLayer.SetCurrentValue(TextBox.TextProperty, vm.Content);
+      if (TransparentLayer.CaretIndex != caret) TransparentLayer.CaretIndex = caret;
    }
 
    /// WPF had to suppress RequestBringIntoView around the focus call; Avalonia's Focus() does not
@@ -176,6 +180,7 @@ public partial class TextEditor : UserControl {
    }
 
    private void TextScrollChanged(object sender, ScrollChangedEventArgs e) {
+      DiagnosticLayer.InvalidateVisual();
       foreach (var layer in Layers) {
          var transform = layerTransforms[layer];
          transform.Y = -scrollViewer.Offset.Y;
@@ -184,60 +189,10 @@ public partial class TextEditor : UserControl {
       }
    }
 
-   private static IBrush Brush(string name) => ThemeDictionary.Brush(name);
-
-   /// <summary>
-   /// The squiggly underline. WPF built a TextDecoration with a tiled DrawingBrush pen;
-   /// Avalonia's TextDecoration takes the same idea with Stroke / StrokeThickness.
-   /// </summary>
-   private static TextDecoration Squiggle(IBrush color) {
-      var geometry = Geometry.Parse("M0,0 L1,1 2,0");
-      var brush = new DrawingBrush(new GeometryDrawing { Brush = color, Geometry = geometry }) {
-         TileMode = TileMode.Tile,
-         DestinationRect = new RelativeRect(0, 0, 3, 2, RelativeUnit.Absolute),
-      };
-      return new TextDecoration {
-         Location = TextDecorationLocation.Underline,
-         Stroke = brush,
-         StrokeThickness = 2,
-         StrokeOffset = -1,
-         StrokeOffsetUnit = TextDecorationUnit.Pixel,
-         StrokeThicknessUnit = TextDecorationUnit.Pixel,
-      };
-   }
-
    private void UpdateErrorDecorations() {
-      if (ViewModel == null) return;
-      var text = SyntaxLayerTextConverter.Normalize(ViewModel.CommentContent);
       var inlines = CommentLayer.Inlines;
       inlines.Clear();
-      int character = 0, line = 0;
-
-      var errorDecoration = new TextDecorationCollection { Squiggle(Brush(nameof(CoreTheme.Error))) };
-      var warningDecoration = new TextDecorationCollection { Squiggle(Brush(nameof(CoreTheme.Data1))) };
-
-      var lineEnd = Environment.NewLine.ToCharArray().Last();
-
-      foreach (var error in ViewModel.ErrorLocations) {
-         var previousLines = character;
-         while (line < error.Line && character < text.Length) {
-            character++;
-            if (text[character - 1] == lineEnd) line++;
-         }
-
-         if (error.Start + error.Length > text.Length - character) break;
-         inlines.Add(new Run(text.Substring(previousLines, character - previousLines + error.Start)));
-         if (error.Type == SegmentType.Error) {
-            inlines.Add(new Run(text.Substring(character + error.Start, error.Length)) { TextDecorations = errorDecoration });
-         } else if (error.Type == SegmentType.Warning) {
-            inlines.Add(new Run(text.Substring(character + error.Start, error.Length)) { TextDecorations = warningDecoration });
-         } else {
-            throw new NotImplementedException();
-         }
-
-         character += error.Start + error.Length;
-      }
-
-      if (character < text.Length) inlines.Add(new Run(text.Substring(character)));
+      inlines.Add(new Run(SyntaxLayerTextConverter.Normalize(ViewModel?.CommentContent)));
+      DiagnosticLayer.SetDiagnostics(ViewModel?.ErrorLocations.ToArray() ?? Array.Empty<TextSegment>());
    }
 }

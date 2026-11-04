@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using HavenSoft.HexManiac.AvaloniaUI.Implementations;
 using HavenSoft.HexManiac.AvaloniaUI.Resources;
 using HavenSoft.HexManiac.Core;
@@ -189,9 +189,10 @@ public class PixelImage : Image {
    // compositor is never reading the buffer being written.
    private WriteableBitmap bitmapFront, bitmapBack;
    private INotifyPropertyChanged subscribed;
-   // UpdateSource is async for map bitmaps, so several calls can be in flight at once and finish
-   // out of order. Only the newest is allowed to publish.
+   // Map updates are queued/coalesced. Only the newest context/generation may prepare
+   // live model state and publish pixels; detachment cancels pending preparation.
    private int updateGeneration;
+   private bool detached;
 
    private bool showDebugGrid;
    public bool ShowDebugGrid {
@@ -253,6 +254,12 @@ public class PixelImage : Image {
 
    public PixelImage() {
       DataContextChanged += (sender, e) => UpdateDataContext();
+      DetachedFromVisualTree += (_, _) => { detached = true; updateGeneration++; };
+      AttachedToVisualTree += (_, _) => {
+         if (!detached) return;
+         detached = false;
+         UpdateSource();
+      };
       UseLayoutRounding = true; // WPF: SnapsToDevicePixels
       Stretch = Stretch.Fill;
       RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.None);
@@ -271,9 +278,14 @@ public class PixelImage : Image {
    }
 
    private void HandleDataContextPropertyChanged(object sender, PropertyChangedEventArgs e) {
+      if (!Dispatcher.UIThread.CheckAccess()) {
+         Dispatcher.UIThread.Post(() => HandleDataContextPropertyChanged(sender, e));
+         return;
+      }
+      if (!ReferenceEquals(sender, subscribed)) return;
       if (e.PropertyName == nameof(IPixelViewModel.SpriteScale)) {
          // Zoom changes layout, not pixel content. Keep the current bitmap and any
-         // pending background pixel update instead of converting/uploading it again.
+         // pending queued map update instead of converting/uploading it again.
          UpdateLayoutSize();
          return;
       }
@@ -309,19 +321,32 @@ public class PixelImage : Image {
       return source;
    }
 
-   public async void UpdateSource() {
+   public void UpdateSource() {
+      if (!Dispatcher.UIThread.CheckAccess()) {
+         Dispatcher.UIThread.Post(UpdateSource);
+         return;
+      }
+      if (detached) return;
       var vm = ViewModel;
       if (vm == null || vm.PixelWidth < 0 || vm.PixelHeight < 0) return;
       var generation = ++updateGeneration;
-      short[] pixels;
-      if (vm is not BlockMapViewModel) {
-         pixels = vm.PixelData;
-      } else {
-         pixels = await Task.Run(() => vm.PixelData);
+      if (vm is BlockMapViewModel) {
+         // PixelData lazily discovers events/text and can change model metadata/history.
+         // It is live model work, not a pure pixel calculation safe for Task.Run.
+         // Queue one UI pass so rapid invalidations can settle before building the map.
+         Dispatcher.UIThread.Post(() => {
+            if (generation != updateGeneration || !ReferenceEquals(vm, ViewModel)) return;
+            PublishPixels(vm, generation);
+         }, DispatcherPriority.Background);
+         return;
       }
-      // A newer update started while this one was off building its pixels: that one wins.
-      if (generation != updateGeneration) return;
-      if (pixels == null || ViewModel == null) return;
+      PublishPixels(vm, generation);
+   }
+
+   private void PublishPixels(IPixelViewModel vm, int generation) {
+      var pixels = vm.PixelData;
+      if (generation != updateGeneration || !ReferenceEquals(vm, ViewModel)) return;
+      if (pixels == null) return;
       if (!UseTrueTransparency) {
          pixels = ConvertTransparentPixels(pixels);
          ClearOwnOpacityMask();

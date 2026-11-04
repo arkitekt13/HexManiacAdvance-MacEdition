@@ -755,12 +755,16 @@ label2:;goto <000050>;end";
       }
 
       [Fact]
-      public void Script_AddOpenBrace_AutoAddCloseBrace() {
+      public void Script_AddOpenBrace_RetainRejectedDraftWithoutModelWrites() {
          EventScript = "loadpointer 0 <100>;end";
+         var before = Model.RawData.ToArray();
 
          EventScript = "loadpointer 0 <100>;{;end";
 
-         Assert.Equal("loadpointer 0 <100>;{;};end", EventScript);
+         Assert.Equal("loadpointer 0 <100>;{;end", EventScript);
+         Assert.True(Tool.Contents[0].HasError);
+         Assert.NotEmpty(Tool.Contents[0].Editor.ErrorLocations);
+         Assert.Equal(before, Model.RawData);
       }
 
       [Fact]

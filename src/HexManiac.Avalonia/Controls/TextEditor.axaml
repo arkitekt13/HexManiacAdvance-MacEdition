@@ -30,6 +30,7 @@
                Tag="{Binding $parent[local:TextEditor].Tag}"
                ContextMenu="{Binding $parent[local:TextEditor].ContextMenuOverride}"
                Text="{Binding Content, Mode=TwoWay}" />
+      <local:DiagnosticUnderlineLayer Name="DiagnosticLayer" IsHitTestVisible="False" />
       <Rectangle Name="CornerCover" HorizontalAlignment="Right" VerticalAlignment="Bottom" Fill="{DynamicResource Background}" Margin="1" UseLayoutRounding="True" />
    </Grid>
 </UserControl>

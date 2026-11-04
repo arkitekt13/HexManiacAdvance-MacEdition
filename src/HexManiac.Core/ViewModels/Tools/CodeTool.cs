@@ -343,13 +343,17 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          if (HasPendingScriptChanges && !scriptDrafts.Contains(body)) FlushPendingScriptChanges();
          scriptDrafts.Add(body);
          body.TryCompleteCommandToken();
-         if (InsertAutoActive && body.TryInsertAuto()) {
+         if (InsertAutoActive && body.TryInsertAuto(out var autoCaret)) {
+            var assistedSource = body.Content;
+            var assistedAddress = body.Address;
             // update the caret later, or weird stuff happens
             singletons.WorkDispatcher.DispatchWork(() =>
-               singletons.WorkDispatcher.BlockOnUIWork(() => body.Editor.CaretIndex += 6)
+               singletons.WorkDispatcher.BlockOnUIWork(() => {
+                  if (Contents.Contains(body) && scriptDrafts.Contains(body) && body.Address == assistedAddress && body.Content == assistedSource)
+                     body.Editor.CaretIndex = autoCaret;
+               })
             );
          }
-         if (InsertAutoActive) body.TryInsertAuto();
          var delta = body.Content.Length - e.OldValue.Length;
          var deltaSize = Math.Abs(delta);
          if (body.CaretPosition >= deltaSize && body.CaretPosition < body.Content.Length - deltaSize) {
@@ -407,8 +411,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          /*
          action();
          /*/
-         body.CaretPosition += ScriptParser.InsertMissingClosers(ref codeContent, body.CaretPosition);
-         body.Content = codeContent;
+         // Typed dialogue assistance creates a complete block; unfinished manual drafts
+         // stay untouched and are diagnosed by the compiler instead of auto-closed here.
          pendingScriptCompile = action;
          var generation = ++scriptCompileGeneration;
          recompileTimer.DelayCall(TimeSpan.FromSeconds(.5), () => {

@@ -81,6 +81,13 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          RequestCaretMove.Raise(this);
       }
 
+      /// <summary>Publish a replacement with its intended caret available to content observers.</summary>
+      public void SetContentAndCaret(string replacement, int index) {
+         caretIndex = Math.Clamp(index, 0, replacement.Length);
+         Content = replacement;
+         RequestCaretMove.Raise(this);
+      }
+
       public void FocusKeyboard() => RequestKeyboardFocus.Raise(this);
 
       private void UpdateLayers() {

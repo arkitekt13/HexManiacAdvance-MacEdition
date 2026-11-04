@@ -1302,3 +1302,176 @@ Evidence: On a fabricated map, both Backspace and forward Delete removed the Scr
 Validation: The new group passes 63 assertions for character and boundary deletion, caret arrows, Escape, stable field/focus, event count, unchanged pointers/bytes/metadata when removing redundant address zeroes, a second event field, address clearing with existing null-pointer parsing and Undo, map-focused deletion with exact Undo/Redo, and map-focused panning/cancellation. The first complete-suite attempt stopped on the unrelated FocusAnimation movement timing assertion; that group passed all 13 assertions on an immediate standalone rerun. The fresh complete-suite rerun passes all 32 groups and 6,516 assertions with zero failures or skipped groups; builds report zero warnings and errors.
 
 Scope: Mac map keyboard command routing only; pointer parsing, event data layouts, compilation, history and game-engine behavior are unchanged. Tests use synthetic maps without user ROMs. Native Delete/Fn+Delete interaction remains for user confirmation after relaunch.
+
+## 078 — Make dialogue overflow and script error underlines visible
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/DiagnosticUnderlineLayer.cs](src/HexManiac.Avalonia/Controls/DiagnosticUnderlineLayer.cs) | 15 | Draw warning/error paths using the actual textbox layout and viewport so blank syntax placeholders cannot suppress them. |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml](src/HexManiac.Avalonia/Controls/TextEditor.axaml) | 33 | Add a non-interactive diagnostic layer above the transparent editor without changing text input or focus. |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs](src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs) | 188 | Preserve comment text and coalesced diagnostic publication while replacing whitespace TextDecorations with the independent painter. |
+| [tests/DialogueDiagnostics/DialogueDiagnostics.csproj](tests/DialogueDiagnostics/DialogueDiagnostics.csproj) | 1 | Add headless synthetic dialogue rendering checks using the real compiler and editor. |
+| [tests/DialogueDiagnostics/Program.cs](tests/DialogueDiagnostics/Program.cs) | 49 | Check actual underline pixels for the reported script, correction, manual line breaks, scrolling, whitespace/error spans and existing Enter encoding. |
+| [tests/DialogueDiagnostics/README.md](tests/DialogueDiagnostics/README.md) | 1 | Document the rendering defect, pixel coverage, Enter behavior and real-ROM limits. |
+| [tests/ScriptEditorLayout/Program.cs](tests/ScriptEditorLayout/Program.cs) | 77 | Retain diagnostic coalescing and context-switch checks against the new painter's diagnostic snapshot. |
+| [tests/ScriptEditorLayout/README.md](tests/ScriptEditorLayout/README.md) | 17 | Distinguish diagnostic publication checks from the new rendered-pixel verification. |
+| [tests/README.md](tests/README.md) | 27 | Link the visible dialogue diagnostic regression group. |
+
+Evidence: The exact reported `msgbox.npc <auto>` dialogue generated an overflow warning but rendered no underline. The original decoration was attached to blank syntax placeholders, whose trailing-whitespace TextDecorations Avalonia omits. Earlier diagnostic-record/decorated-Run counts did not verify visible pixels. The new path renderer uses actual text-position rectangles, clips to the scroll viewport, and retains theme warning/error colors without modifying source or adding prompts.
+
+Validation: The new group passes 27 assertions covering the screenshot's exact sentence with LF/CRLF, visible pixels below the overflowing suffix, disappearing warnings after correction or manual breaks, both scroll directions, whitespace-only warnings, red error underlines, stale/unsorted ranges, retained focus and unchanged source/ROM bytes/metadata. A rendered image of the example was also inspected visually. Existing PCS behavior is characterized unchanged: Enter inserts a line break, subsequent single breaks scroll, and a blank line inserts a paragraph/page break. The complete Mac suite passes 33 groups and 6,543 assertions with zero failures or skipped groups; builds report zero warnings and errors.
+
+Scope: Mac diagnostic presentation only; width estimation, compilation, relocation, history, text encoding and game-engine behavior are unchanged. No popup or automatic wrapping is added. The synthetic probe uses the fallback font-width path; in-game appearance with a real ROM remains for user confirmation after relaunch.
+
+## 079 — Select short field values when navigating with Tab
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml](src/HexManiac.Avalonia/Controls/TabView.axaml) | 566 | Attach keyboard focus handling to the shared stream field template. |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml.cs](src/HexManiac.Avalonia/Controls/TabView.axaml.cs) | 618 | Select complete single-line PCS table entries only when focus arrives through Tab navigation. |
+| [src/HexManiac.Avalonia/Controls/AngleTextBox.cs](src/HexManiac.Avalonia/Controls/AngleTextBox.cs) | 158 | Preserve the navigation reason and modifiers when a proxy field creates its real textbox so scalar fields retain native Tab selection. |
+| [tests/ShortFieldTabSelection/ShortFieldTabSelection.csproj](tests/ShortFieldTabSelection/ShortFieldTabSelection.csproj) | 1 | Add headless short-field selection regressions using the actual table and scalar controls. |
+| [tests/ShortFieldTabSelection/Program.cs](tests/ShortFieldTabSelection/Program.cs) | 37 | Exercise multiple-choice replacements, pointers, neighboring bytes, history, proxy activation and exclusions for large editors. |
+| [tests/ShortFieldTabSelection/README.md](tests/ShortFieldTabSelection/README.md) | 1 | Document keyboard-only selection scope, automated coverage and native checks. |
+| [tests/README.md](tests/README.md) | 29 | Link the short-field Tab selection regression group. |
+
+Evidence: The multiple-choice fields use a shared multiline-capable TextBox, which does not select everything on Tab as a native single-line textbox does. The handler is limited to PCS streams containing one source line; whole lists/tables and dedicated script/dialogue editors are excluded. AngleTextBox also lost Tab's focus reason during proxy activation, and subscribed to attachment after assigning Content; it now subscribes before attachment and forwards the original navigation reason without forcing mouse or programmatic selection.
+
+Validation: The new group passes 21 assertions for Tab/Shift+Tab, typing replacement, mouse placement, programmatic focus, refresh without reselection, unchanged neighboring bytes/pointers, exact Undo/Redo, scalar proxy activation, multiline/list exclusions, script indentation and dedicated dialogue exclusion. The complete-suite attempt stopped on the previously observed FocusAnimation movement timing assertion, which also failed on an isolated rerun; no production animation code changed. All remaining 25 groups were then freshly built and executed using the documented build/run procedure and passed 5,502 assertions. Across all 34 groups, 33 passed 6,551 assertions, one group failed (FocusAnimation), and none were skipped. Builds report zero warnings and errors; a completely passing suite is not claimed.
+
+Scope: Mac field focus/selection only; numeric parsing, text encoding, relocation, history and game-engine behavior are unchanged. Native multiple-choice and scalar Tab navigation remain for user confirmation after relaunch.
+
+## 080 — Restore script automatic pointers and unused-ID assistance
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml](src/HexManiac.Avalonia/Controls/TabView.axaml) | 860 | Bind the script control's owning CodeBody explicitly and correct the Mac unused-ID shortcut hints. |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs](src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs) | 143 | Synchronize reentrantly assisted source into the native textbox before applying its requested caret. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 346 | Use a guarded absolute caret target after automatic pointer insertion and remove a redundant second insertion attempt. |
+| [tools/ScriptWorkflowReview/WorkflowFixture.cs](tools/ScriptWorkflowReview/WorkflowFixture.cs) | 104 | Allow UI dispatch to be queued in synthetic editor tests while retaining deterministic compilation debounce. |
+| [tests/ScriptAssistance/ScriptAssistance.csproj](tests/ScriptAssistance/ScriptAssistance.csproj) | 1 | Add full-window script typing assistance checks with fabricated ROM data. |
+| [tests/ScriptAssistance/Program.cs](tests/ScriptAssistance/Program.cs) | 21 | Exercise real Space/Cmd+U input, helper buttons, visible source/caret synchronization and history round trips. |
+| [tests/ScriptAssistance/README.md](tests/ScriptAssistance/README.md) | 1 | Document UI coverage, investigator isolation and existing unused-ID scanner limitations. |
+| [tests/README.md](tests/README.md) | 31 | Link the script assistance regression group. |
+
+Evidence: The script TextEditor's Tag resolved to its nested TextEditorViewModel instead of CodeBody, so selection/key handlers returned early and the model caret stayed at zero. Fixing that binding also exposed a reentrant two-way binding issue: `<auto>` existed in model source while the native textbox retained old text, and a relative deferred caret increment could position incorrectly. The restoration synchronizes the source before a guarded absolute caret request. Flag/variable eligibility, investigator allocation and normal compilation remain existing Core behavior.
+
+Validation: Five focused groups pass 1,133 assertions: ScriptAssistance 61, ScriptWorkflowSafety 598, AutocompleteMapping 294, ClipboardRouting 78 and ScriptEditorLayout 102. Builds report zero warnings/errors on this verification run. Actual typed msgbox/msgbox.npc/preparemsg insert visible `<auto>`; setflag/checkflag and setvar/addvar expose the proper helper and insert one explicit operand through button or Cmd+U, with exact Undo/Redo. The fixture's predictable investigator verifies UI routing, not real-ROM scan completeness.
+
+Scope: Restore existing behavior in its own commit; dialogue scaffolding is a separate subsequent change. Numeric parsing, allocator/scanner rules, ROM relocation, encoding and history algorithms are unchanged. Native typing remains for user confirmation after relaunch.
+
+## 081 — Create complete dialogue scaffolds instead of completing missing braces
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/CodeBody.cs](src/HexManiac.Core/ViewModels/Tools/CodeBody.cs) | 282 | Insert `<auto>` plus one complete dialogue block for an unambiguous final text operand and return its editable-body caret target. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 346 | Use the scaffold's absolute caret target and replace immediate legacy missing-brace completion with retained source and compiler diagnostics. |
+| [src/HexManiac.Core/Models/Code/ScriptParser.cs](src/HexManiac.Core/Models/Code/ScriptParser.cs) | 555 | Normalize complete inline blocks without inventing missing closers and atomically reject unfinished resource blocks with a diagnostic. |
+| [src/HexManiac.Tests/CodeToolTests.cs](src/HexManiac.Tests/CodeToolTests.cs) | 758 | Replace the obsolete automatic-close expectation with rejected-source, diagnostic and unchanged-byte assertions. |
+| [tests/DialogueScaffolding/DialogueScaffolding.csproj](tests/DialogueScaffolding/DialogueScaffolding.csproj) | 1 | Add dedicated synthetic dialogue scaffold, compilation and persistence safety checks. |
+| [tests/DialogueScaffolding/Program.cs](tests/DialogueScaffolding/Program.cs) | 9 | Cover seven command forms, three newline styles, exact allocation/caller/history behavior, opt-outs, rejected drafts and stale caret callbacks. |
+| [tests/DialogueScaffolding/README.md](tests/DialogueScaffolding/README.md) | 1 | Document the new typing flow, replacement of runtime brace completion and verification limits. |
+| [tests/ScriptAssistance/Program.cs](tests/ScriptAssistance/Program.cs) | 45 | Verify real typing creates exactly one scaffold, places the caret inside and immediately accepts dialogue text. |
+| [tests/ScriptAssistance/README.md](tests/ScriptAssistance/README.md) | 6 | Update the keyboard-flow description for the new caret destination. |
+| [tests/README.md](tests/README.md) | 33 | Link the scaffold regression group. |
+
+Behavior: A space before a supported final dialogue pointer now creates `<auto>` followed by opening/closing braces with an editable blank line, and positions the caret on that line. Common msgbox variants, preparemsg and loadpointer's text operand are covered. Existing blocks and following commands are preserved; multiple-text-pointer commands and non-text resources retain ordinary pointer assistance. Existing automatic-insertion and Spartan-mode opt-outs remain. Source assistance itself writes no ROM bytes; allocation and relocation occur through the normal compiler/history transaction.
+
+Replacement: The previous immediate and compiler-time missing-brace completion paths are disabled in the application. Incomplete manually written blocks remain rejected drafts with visible diagnostics, including Save/Save As/Close protection and correction/retry. Complete inline blocks still normalize normally. The public legacy normalization utility retains its compatibility mode for direct callers; application compilation explicitly disables completion.
+
+Validation: DialogueScaffolding passes 261 assertions and real-window ScriptAssistance passes 64. Together with ScriptWorkflowSafety's 598 assertions, focused final checks pass 923 assertions. Tests verify LF/CRLF/CR, end-of-editor caret timing, exact text bytes, relocated callers, complete Undo/Redo, existing-block exclusion, opt-outs, stale callbacks after Undo/navigation, and rollback of earlier resource relocation when a later block is unclosed. All 36 Mac groups were exercised: 35 pass 6,876 assertions, FocusAnimation fails its previously observed movement timing assertion, and no groups are skipped. The standard runner stopped at that failure; the remaining 26 groups were freshly built/run separately, and the final expanded scaffold checks were rebuilt/rerun afterward. Existing Core compiler warnings remain; no build errors occurred.
+
+Upstream: After replacing the obsolete brace-closing expectation, in-process verification reports 1,779 passed, one failed and 935 skipped from 2,715 discovered cases. The remaining failure is the previously documented ScriptTests.ErrorInScript_ClickOff_ResetScriptEditor expectation, which conflicts with retained rejected source. Results are retained in artifacts/upstream-tests/run.Me9kcz. A fully passing overall suite is not claimed.
+
+Scope: Source scaffolding and explicit unfinished-block rejection only; valid-script encoding, numeric parsing, unused-ID scanning/allocation rules, pointer relocation, ROM history and game-engine behavior are unchanged. No user ROM was used. Native typing remains for user confirmation after relaunch.
+
+## 082 — Scaffold player, camera and other movement blocks
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/CodeBody.cs](src/HexManiac.Core/ViewModels/Tools/CodeBody.cs) | 306 | Extend complete source scaffolding to an unambiguous final movement pointer while retaining dialogue support and other resource exclusions. |
+| [tests/DialogueScaffolding/Program.cs](tests/DialogueScaffolding/Program.cs) | 87 | Verify player/camera/NPC/applymovement scaffolds, exact movement bytes, actor operands, pointers, history and rejected-draft protection. |
+| [tests/ScriptAssistance/Program.cs](tests/ScriptAssistance/Program.cs) | 21 | Exercise actual move.player/move.camera typing, inside-body caret placement and subsequent movement input. |
+| [tests/DialogueScaffolding/README.md](tests/DialogueScaffolding/README.md) | 10 | Document movement eligibility and movement-specific encoding checks. |
+| [tests/ScriptAssistance/README.md](tests/ScriptAssistance/README.md) | 6 | Document movement typing coverage alongside dialogue and unused-ID helpers. |
+| [tests/README.md](tests/README.md) | 33 | Include movement in the scaffold regression coverage description. |
+
+Behavior: Typing move.player or move.camera followed by a space now inserts `<auto>` plus a complete movement block and positions the caret on its editable blank line. The same final-movement-operand rule supports move.npc and applymovement after their actor argument. Existing movement blocks are preserved, and other resource types such as marts retain pointer-only assistance. Movement bodies continue through the existing enum-based movement encoder with FE termination; camera/player macro requirements and actor operands are unchanged.
+
+Validation: Four focused groups pass 2,622 assertions: DialogueScaffolding 384, ScriptAssistance 80, ScriptWorkflowSafety 598 and ScriptArgumentSafety 1,560. New coverage includes four movement command forms across LF/CRLF/CR, exact instruction bytes and terminator, preserved actor IDs/following end command, known callers after relocation, complete byte/metadata Undo/Redo, existing-block exclusion and unclosed-draft save protection. Actual window typing checks both player and camera macros. Builds complete without errors; existing Core warnings are unchanged. The complete suites were not repeated for this narrow extension; their most recent limitations remain recorded in entry 081.
+
+Scope: Movement source scaffolding only; compilation/encoding, pointer relocation, history, numeric parsing and game-engine behavior are unchanged. Tests use synthetic data and no user ROMs. Native movement typing remains for user confirmation after relaunch.
+
+## 083 — Keep cold map discovery and rendering on the UI thread
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TileImage.cs](src/HexManiac.Avalonia/Controls/TileImage.cs) | 324 | Queue/coalesce live map preparation on the UI thread instead of reading lazy model state inside Task.Run, and marshal worker refresh notifications safely. |
+| [src/HexManiac.Avalonia/Controls/TileImage.cs](src/HexManiac.Avalonia/Controls/TileImage.cs) | 255 | Cancel queued model preparation on detachment or context replacement and refresh the current context on reattachment. |
+| [tests/MapRendering/SyntheticMapFixture.cs](tests/MapRendering/SyntheticMapFixture.cs) | 43 | Add an optional real NPC event whose unformatted script/text pointers force lazy metadata discovery without altering default fixtures. |
+| [tests/MapThreadSafety/MapThreadSafety.csproj](tests/MapThreadSafety/MapThreadSafety.csproj) | 1 | Add headless thread-ownership regression checks with the actual map renderer and command subscriber. |
+| [tests/MapThreadSafety/Program.cs](tests/MapThreadSafety/Program.cs) | 23 | Reproduce the reported cold-map Save-button failure and verify UI ownership, metadata/history, cancellation, painting and responsiveness. |
+| [tests/MapThreadSafety/README.md](tests/MapThreadSafety/README.md) | 1 | Document the precise reproduction, root cause, fixed ownership and real-ROM performance limits. |
+| [tests/README.md](tests/README.md) | 35 | Link the cold NPC map/thread-safety regression group. |
+
+Evidence: Opening the map editor could report InvalidOperationException, "Call from invalid thread", while still allowing subsequent interaction. PixelImage read BlockMapViewModel.PixelData inside Task.Run, but that getter can lazily discover NPC scripts/text, add formatting metadata and update history. The resulting Save.CanExecuteChanged reached an Avalonia Button from the worker thread. A synthetic NPC map with unformatted text and a real bound Save button reproduced the same stack before the fix. Earlier map checks either had no such NPC data or pre-read pixels, missing cold discovery.
+
+Behavior: Map preparation now runs as a deferred, coalesced UI-thread pass. Model metadata/history changes and bitmap publication share UI ownership; stale or detached requests cannot prepare abandoned models. Worker refresh notifications are marshalled before touching controls. Zoom still changes layout without regenerating pixels, and reattachment refreshes the current context. The fix does not suppress the exception or merely dispatch the final Save notification.
+
+Validation: Six focused groups pass 1,798 assertions, including 22 new thread-safety checks. The complete Mac suite passes 37 groups and 7,050 assertions with zero failures or skipped groups. The new group was rebuilt/rerun after strengthening direct history-thread verification. Checks require successful bitmap publication and actual NPC annotation, unchanged ROM bytes, metadata-only history semantics, UI-owned history/Save notifications, one publication per refresh burst, worker requests, canceled/null/replaced/detached contexts, reattachment and painting Undo/Redo. Cold synthetic 36x36/96x64 renders measured roughly 19–32 ms on this host; higher-priority UI work ran before the queued cold render. Builds report zero errors.
+
+Scope: Mac pixel presentation/thread ownership only; NPC discovery, metadata tracking, ROM bytes, script compilation, encoding, relocation, history algorithms and game-engine behavior are unchanged. No user ROM was opened. Synthetic timings are not guarantees for complex real maps; native map entry, zoom and painting remain for user confirmation after relaunch. Any future background map rendering must use immutable prepared state rather than live model getters.
+
+## 084 — Run script assistance after accepting command suggestions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 231 | Publish script completions with their intended caret for Enter and suggestion clicks while preserving physical Space input. |
+| [src/HexManiac.Core/ViewModels/TextEditorViewModel.cs](src/HexManiac.Core/ViewModels/TextEditorViewModel.cs) | 95 | Add an atomic content/caret replacement for completion observers. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeBody.cs](src/HexManiac.Core/ViewModels/Tools/CodeBody.cs) | 367 | Refresh operand help and unused-ID eligibility after accepting a completion. |
+| [tests/ScriptAssistance/Program.cs](tests/ScriptAssistance/Program.cs) | 20 | Exercise nine commands through typed Space, Enter and actual suggestion clicks, including compilation and history. |
+| [tests/ScriptAssistance/README.md](tests/ScriptAssistance/README.md) | 3 | Document completion acceptance coverage. |
+
+Evidence: The expanded real-window regression failed before the fix: accepting a partial command changed source while ScriptChanged still saw the old caret. The trailing space supplied by the completion therefore missed pointer/block assistance. Selection also needed to refresh flag/variable helper eligibility.
+
+Behavior: Enter and mouse acceptance use the same existing pointer/scaffold rules as typing, including dialogue and movement bodies and their interior caret. Flag/variable completions expose their existing helpers. Physical Space acceptance retains its following text-input event; operand completions and source suffixes retain their existing mapping.
+
+Validation: ScriptAssistance 258, AutocompleteMapping 294, DialogueScaffolding 384 and ScriptWorkflowSafety 598 pass (1,534 assertions). The regression reproduced missing auto insertion before the fix. Tests use synthetic data. Existing Core build warnings are unchanged. Compilation, numeric parsing, allocator rules, ROM encoding, relocation and delayed recovery protections are unchanged.
+
+## 085 — Restore map event context menus on Mac
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 24 | Restore the event menu resource with shared command labels and parameters. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 274 | Release map capture before opening an event menu and open it explicitly only when an event is hit. |
+| [tests/MapRendering/SyntheticMapFixture.cs](tests/MapRendering/SyntheticMapFixture.cs) | 54 | Add an optional synthetic warp without changing default map fixtures. |
+| [tests/MapEventMenus/MapEventMenus.csproj](tests/MapEventMenus/MapEventMenus.csproj) | 1 | Register the headless event-menu regression group. |
+| [tests/MapEventMenus/Program.cs](tests/MapEventMenus/Program.cs) | 53 | Exercise real secondary/Control-clicks, warp commands, pointer release, canceled creation, tabs and map history. |
+| [tests/MapEventMenus/README.md](tests/MapEventMenus/README.md) | 1 | Document routing coverage and map-allocation limits. |
+| [tests/README.md](tests/README.md) | 28 | Link the event-menu regression group. |
+
+Evidence: Shared Core already supplied Create New Map, Open in New Tab and Delete Warp, and SelectDown already prioritized visible events. The Mac map surface had no context menu for ShowMenu to open. The new actual-pointer regression failed before the restoration.
+
+Behavior: Secondary-click and Mac Control-click on a visible warp open those original commands before underlying tile selection. Other supported event types reuse their existing shared menus. Opening a menu releases capture immediately. Explicit opening prevents empty cells from displaying a stale event menu; their tile-selection gestures remain available.
+
+Validation: MapEventMenus 68, MapSelection 394 and MapZoom 1,158 pass (1,620 assertions). Coverage includes both gestures at 1x/2x zoom, early Control release, canceled bank selection with unchanged bytes/metadata/history, destination tabs, deletion Undo/Redo and painting/panning exclusions. The existing map-selection group verifies exact repeated stamps and Option-pan. Map creation allocation/relocation algorithms and game behavior are unchanged; the new routing test cancels before allocation and uses no user ROM.
+
+## 086 — Stabilize object sprite previews and recover recycled selector state
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 36 | Fit complete ordinary/dynamic overworld images into fixed-size previews and stable popup rows. |
+| [src/HexManiac.Avalonia/Controls/AngleComboBox.cs](src/HexManiac.Avalonia/Controls/AngleComboBox.cs) | 141 | Add opt-in selection recovery from a current one-way model index after option replacement, with coalesced queued updates. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 320 | Let focused combo boxes handle their keys without triggering map commands. |
+| [tests/MapSpriteSelection/MapSpriteSelection.csproj](tests/MapSpriteSelection/MapSpriteSelection.csproj) | 1 | Register the headless object sprite-selector regression group. |
+| [tests/MapSpriteSelection/Program.cs](tests/MapSpriteSelection/Program.cs) | 66 | Reproduce layout/selection failures and verify large-image transitions, real input, virtualized rows, history and context replacement. |
+| [tests/MapSpriteSelection/README.md](tests/MapSpriteSelection/README.md) | 1 | Document root causes, coverage, sample-ROM observation and native confirmation limits. |
+| [tests/README.md](tests/README.md) | 30 | Link the sprite-selector regression group. |
+
+Evidence: A read-only inspection of the local FireRed sample found sprite 108 is 64x64 while 106/107/109 are 32x32. Existing 2x previews expanded 108 to 128x128 and moved the surrounding fields; a synthetic regression reproduced the layout jump. History/reopen also reproduced a blank selector: UI index -1 with the ROM graphics byte still 108. Replacing option objects after selection evaluation coerced the UI selection; ignoring its negative write protected the ROM but left the unchanged model index undisplayed. A separate actual-key check showed map arrow commands intercepting selector navigation.
+
+Behavior: Full sprite images fit into 64x64 thumbnails without cropping or altering their source bitmaps. Ordinary and dynamic graphics pickers use stable rows. An opt-in one-way model index restores the current selection after option changes settle, and generation checks prevent abandoned queued replacements from restoring stale IDs. Existing two-way selection remains responsible for actual graphics edits. Focused combo boxes retain their native key handling.
+
+Validation: MapSpriteSelection passes 180 assertions. The tests require stable layout, complete bitmap dimensions, fresh pixels across small/large transitions (including an expanded 96x128 image), actual keyboard/wheel/pointer selection, populated virtualized rows around 108, popup reopen, unchanged unrelated ROM bytes and pointer/format metadata, exact Undo/Redo, and rapid switches between objects with different graphics IDs. The pre-fix stable-layout and history/reopen assertions failed as described above. The complete Mac suite, rebuilt with `scripts/verify-mac.sh --no-restore`, passes 39 groups and 7,476 assertions with zero failures and zero skipped groups across all three fixes. No new build warnings were introduced.
+
+Scope: Mac selector presentation, selection recovery and keyboard routing only. Sprite bytes, numeric IDs, dynamic graphics rules, map rendering, engine behavior, compilation, pointers and shared history algorithms are unchanged. Automated tests use synthetic data; the sample ROM was read without saving. The user's exact native trackpad/blank-list sequence remains for confirmation after relaunch.

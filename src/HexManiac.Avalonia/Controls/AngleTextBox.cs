@@ -31,6 +31,8 @@ public class AngleTextBox : ContentControl {
    private ContextMenu menu;
 
    private bool keepTextBoxForContextMenu;
+   private NavigationMethod focusNavigationMethod;
+   private KeyModifiers focusKeyModifiers;
    public TextBox GetTextBox() {
       keepTextBoxForContextMenu = true;
       UpdateFieldTextBox(true);
@@ -153,7 +155,13 @@ public class AngleTextBox : ContentControl {
       // Activate on enter/focus, deactivate on exit/blur. WPF could just re-read IsMouseOver
       // inside the handler; in Avalonia IsPointerOver/IsFocused are not reliably updated by the
       // time the event runs, so the direction is passed in explicitly.
-      GotFocus += (sender, e) => UpdateFieldTextBox(true, takeFocus: true);
+      GotFocus += (sender, e) => {
+         if (ReferenceEquals(e.Source, this)) {
+            focusNavigationMethod = e.NavigationMethod;
+            focusKeyModifiers = e.KeyModifiers;
+         }
+         UpdateFieldTextBox(true, takeFocus: true);
+      };
       LostFocus += (sender, e) => UpdateFieldTextBox(false);
       PointerEntered += (sender, e) => UpdateFieldTextBox(true);
       // Swapping Content moves the visual out from under the cursor, which makes Avalonia raise
@@ -207,12 +215,13 @@ public class AngleTextBox : ContentControl {
             textBox.Bind(TextBox.TextProperty, new Binding(nameof(FieldArrayElementViewModel.Content)));
          }
          textBox.Bind(ForegroundProperty, new Binding(nameof(Foreground)) { Source = this });
-         Content = textBox;
          if (takeFocus || IsKeyboardFocusWithin) {
             textBox.AttachedToVisualTree += HandleTextboxLoaded;
          } else {
             Focusable = false;
          }
+         // Register before Content attaches the child, otherwise its first attachment is missed.
+         Content = textBox;
       } else if (!isActive && Content is TextBox box && !box.IsKeyboardFocusWithin) {
          RefreshProxy();
       }
@@ -228,7 +237,12 @@ public class AngleTextBox : ContentControl {
 
    private void HandleTextboxLoaded(object sender, EventArgs e) {
       var textBox = (TextBox)sender;
-      textBox.Focus();
+      textBox.AttachedToVisualTree -= HandleTextboxLoaded;
+      // Preserve Tab's navigation reason across proxy activation so the native single-line
+      // TextBox selects all. Mouse/programmatic focus retains its normal caret behavior.
+      textBox.Focus(focusNavigationMethod, focusKeyModifiers);
+      focusNavigationMethod = NavigationMethod.Unspecified;
+      focusKeyModifiers = KeyModifiers.None;
       Focusable = false;
    }
 }

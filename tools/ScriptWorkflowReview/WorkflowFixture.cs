@@ -100,6 +100,7 @@ public record WorkflowState(byte[] Bytes, string[] Metadata) {
 // Preserve production debounce/coalescing while exposing deterministic boundaries.
 // This runs scheduled callbacks synchronously; it does not simulate thread races.
 public sealed class WorkflowDispatch : IWorkDispatcher {
+   public Func<Action, Task> DispatchOverride { get; set; }
    readonly List<Timer> timers = new();
    public int Executed { get; private set; }
    public int Replaced { get; private set; }
@@ -117,7 +118,10 @@ public sealed class WorkflowDispatch : IWorkDispatcher {
    public void Clear() { foreach (var timer in timers) timer.Reset(); }
    public Task WaitForRenderingAsync() => Task.CompletedTask;
    public void BlockOnUIWork(Action action) => action();
-   public Task DispatchWork(Action action) { action?.Invoke(); return Task.CompletedTask; }
+   public Task DispatchWork(Action action) {
+      if (DispatchOverride != null) return DispatchOverride(action);
+      action?.Invoke(); return Task.CompletedTask;
+   }
    public Task RunBackgroundWork(Action action) => DispatchWork(action);
    public IDelayWorkTimer CreateDelayTimer() { var timer = new Timer(this); timers.Add(timer); return timer; }
    sealed class Timer(WorkflowDispatch owner) : IDelayWorkTimer {

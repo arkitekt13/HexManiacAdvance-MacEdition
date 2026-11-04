@@ -416,9 +416,14 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
 
       private record StreamInfo(ExpectedPointerType PointerType, int Source, int Destination);
 
+      public static int InsertMissingClosers(ref string script, int caret) => InsertMissingClosers(ref script, caret, completeMissing: true);
+
       /// <summary>Put stream braces on their own lines without changing existing line separators or dialogue.</summary>
+      /// <param name="script">Source to normalize.</param>
+      /// <param name="caret">Original caret position in the source.</param>
+      /// <param name="completeMissing">Legacy utility mode; normal compilation passes false and diagnoses unfinished blocks.</param>
       /// <returns>The caret displacement caused by inserted or removed characters.</returns>
-      public static int InsertMissingClosers(ref string script, int caret) {
+      public static int InsertMissingClosers(ref string script, int caret, bool completeMissing) {
          var originalCaret = caret;
          caret = Math.Clamp(caret, 0, script.Length);
          var text = script.ToList();
@@ -467,6 +472,7 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
             }
 
             if (close == -1) {
+               if (!completeMissing) continue;
                // Close an unfinished stream before the following command, never inside its token.
                if (NewlineLength(i + 1) == 0) Insert(i + 1, newline);
                close = i + 1 + NewlineLength(i + 1);
@@ -482,7 +488,7 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
 
             // Keep one editable empty line in an empty stream and place a newly typed caret there.
             var bodyStart = i + 1 + NewlineLength(i + 1);
-            if (close == bodyStart) {
+            if (completeMissing && close == bodyStart) {
                Insert(close, newline);
                close += newline.Length;
                if (caretAfterOpening) caret = bodyStart;
@@ -546,7 +552,9 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
          ignoreCharacterCount = 0;
          movedData = new List<(int, int)>();
          var deferredContent = new List<DeferredStreamToken>();
-         int adjustCaret = InsertMissingClosers(ref script, caret);
+         // Source assistance owns block creation. Normalize complete inline blocks, but
+         // never silently close an unfinished draft during compilation.
+         int adjustCaret = InsertMissingClosers(ref script, caret, completeMissing: false);
          caret += adjustCaret;
          var streamTypes = new List<ExpectedPointerType>();
          var lines = script.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)
@@ -564,6 +572,7 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
             var line = lines[i].Trim();
             if (line.EndsWith(":")) continue; // label, not code. Don't parse.
             if (line == "{") {
+               var openingLine = i;
                var streamStart = i + 1;
                var indentCount = 1;
                i += 1;
@@ -572,6 +581,11 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
                   if (line == "{") indentCount += 1;
                   if (line == "}") indentCount -= 1;
                   i += 1;
+               }
+               if (indentCount != 0) {
+                  CompileError.Raise(this, new("Dialogue/resource block is missing a closing brace.",
+                     new(openingLine, 0, lines[openingLine].Length, SegmentType.Error)));
+                  return null;
                }
                i -= 1;
                var streamEnd = i;

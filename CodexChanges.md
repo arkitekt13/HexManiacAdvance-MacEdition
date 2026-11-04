@@ -1629,3 +1629,18 @@ Outcome: The first audit pass fixes image/block Control-click painting, missing 
 Validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 46 regression groups and 7,883 assertions, with zero failures and zero skipped groups. Six new groups contribute 273 assertions: ImageEditorInput 38, ColorEditorInput 93, PaletteHistory 36, PaletteClipboard 40, MacSecondaryActions 43 and MapHistoryRefresh 23. Existing script workflow, compilation/resource failure safety, source retention, save/reload, map selection/zoom/events, portraits, trainer streams, text/names and encounters continue to pass. The separate upstream xUnit/optional-ROM suite was not rerun and is not included in these counts.
 
 Scope and limits: No user ROM, personal settings, emulator preference, real image clipboard or engine address is changed. Shared Core changes only presentation-cache validity for map summaries; numeric parsing, encoding, compilation, resource allocation, pointer relocation and history algorithms are unchanged. The audit explicitly leaves custom grouped-field legacy/stub paths, dormant unused controls and unrepresented hardware/native/image-mode combinations as follow-up coverage rather than claiming exhaustive parity. This is an implementation/audit report; the user guide remains separate work.
+
+## 096 — Measure NPC hover event construction and document a targeted optimization
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/MapHoverBenchmark/MapHoverBenchmark.csproj](tools/MapHoverBenchmark/MapHoverBenchmark.csproj) | 1 | Add a standalone offscreen performance tool using the existing synthetic map fixture and production Core paths. |
+| [tools/MapHoverBenchmark/Program.cs](tools/MapHoverBenchmark/Program.cs) | 1 | Measure lookup, event construction, script summaries and hover across twelve fabricated maps with sample-level timing/allocation output and preservation checks. |
+| [tests/MAP_HOVER_PERFORMANCE.md](tests/MAP_HOVER_PERFORMANCE.md) | 1 | Record repeated Release measurements, a benchmark-only coordinate-first prototype and implementation requirements for events, metadata, relocation and history. |
+| [tests/README.md](tests/README.md) | 19 | Link the NPC hover investigation separately from regression and native-performance claims. |
+
+Finding: Moving to a new tile constructs every event editor before matching coordinates, including script analysis for unrelated NPCs. On a synthetic 32-NPC branching map, repeated Release processes measured empty lookup at 4.510/4.532 ms and 5,325.55 KiB per call, versus 0.044/0.044 ms and 54.42 KiB for a coordinate-first NPC-only prototype. Single-script summary cost was about 0.056 ms. The recommended first optimization is filtering current event rows before editor construction; persistent summary caching and background model access are deferred.
+
+Validation: Both Release benchmark runs pass 120 checks each, including expected counts/branches, prototype summary parity and unchanged warm-hover bytes, metadata and clean history. Existing MapHoverPreview 134, MapHistoryRefresh 23 and MapThreadSafety 22 freshly pass (179 assertions, zero failures). The tool builds in Debug and Release; the complete Mac suite was not repeated for tooling-only changes. Eight pre-existing Core compiler warnings appear on fresh dependency builds.
+
+Scope: Investigation/tooling only; no production optimization, game ROM, settings, compilation, numeric parsing, pointer relocation or history algorithm changes. Synthetic/offscreen timing excludes native input, rendering/layout and real graphics-table costs and is not a frame-rate promise.

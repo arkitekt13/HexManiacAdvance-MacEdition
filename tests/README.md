@@ -16,6 +16,8 @@ with `--integration` and see [INTEGRATION_BASELINE.md](INTEGRATION_BASELINE.md) 
 See individual group READMEs for any manual GUI checks that remain.
 The 2026-11-04 [Mac input/history audit](MAC_INPUT_HISTORY_AUDIT.md) records confirmed fixes,
 coverage, preservation checks and deliberately unclaimed native/legacy paths.
+The [NPC hover performance investigation](MAP_HOVER_PERFORMANCE.md) measures event construction
+and script summaries and proposes a coordinate-first optimization without changing production code.
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

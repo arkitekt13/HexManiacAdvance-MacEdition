@@ -16,6 +16,7 @@ using HavenSoft.HexManiac.Core.Models.Runs;
 using HavenSoft.HexManiac.Core.ViewModels;
 using HavenSoft.HexManiac.Core.ViewModels.Map;
 using HavenSoft.HexManiac.Performance;
+using HexManiac.Core.Models.Runs.Sprites;
 using System.Diagnostics;
 using System.Security.Cryptography;
 
@@ -61,6 +62,8 @@ foreach (var startup in Enumerable.Range(0, 3)) {
    } else {
       var fixture = new SyntheticMapFixture(24, 20);
       var model = fixture.Model;
+      model.ObserveRunWritten(new NoDataChangeDeltaModel(),
+         new BlockmapRun(model,SyntheticMapFixture.Cells,new SortedSpan<int>(0x14C),24,20));
       var token = new ModelDelta();
       foreach (var address in new[] { 0x104, 0x108, 0x10C }) model.WritePointer(token, address, 0x110);
       var format = model.GetNextRun(0x100).FormatString;
@@ -90,6 +93,42 @@ foreach (var startup in Enumerable.Range(0, 3)) {
    var modelBytes = SHA256.HashData(viewport.Model.RawData);
    var metadata = viewport.Model.ExportMetadata(null, viewport.Singletons.MetadataInfo).Serialize();
    var initialUndo = viewport.Undo.CanExecute(null);
+   var dimensions = view.FindControl<TextBlock>("MapDimensionsText")!;
+   string ExpectedSize() {
+      var layout = mapper.PrimaryMap.GetLayout();
+      return $"Map: {layout.GetValue("width")} × {layout.GetValue("height")} tiles";
+   }
+   Check(dimensions.Text == ExpectedSize(), "Status dimensions must use the current map layout, excluding borders.");
+   var zoomIn = view.FindControl<Button>("ZoomInButton")!;
+   var zoomOut = view.FindControl<Button>("ZoomOutButton")!;
+   void ClickZoom(Button button, double expected) {
+      var old = mapper.PrimaryMap;
+      var (scale,left,top,width,height) = (old.SpriteScale,old.LeftEdge,old.TopEdge,old.PixelWidth,old.PixelHeight);
+      var point = button.TranslatePoint(new Avalonia.Point(button.Bounds.Width/2,button.Bounds.Height/2),window)!.Value;
+      Check(button.IsEnabled, "A valid zoom step must remain enabled.");
+      window.MouseDown(point,MouseButton.Left);window.MouseUp(point,MouseButton.Left);Layout();
+      Check(mapper.PrimaryMap.SpriteScale == expected, "A status button click must use exactly one existing zoom step.");
+      Check(Math.Abs(mapper.PrimaryMap.LeftEdge-(left*(expected/scale)-(mapper.PrimaryMap.PixelWidth-width)/2))<=1 &&
+         Math.Abs(mapper.PrimaryMap.TopEdge-(top*(expected/scale)-(mapper.PrimaryMap.PixelHeight-height)/2))<=1,
+         "Button zoom must use the view-center anchor and existing border-visibility compensation.");
+      Check(dimensions.Text == ExpectedSize(), "Zoom and border toggling must not change native map dimensions.");
+   }
+   if (startup == 0) {
+      foreach(var scale in new[]{.5,.25,.125,.0625}) ClickZoom(zoomOut,scale);
+      Check(!zoomOut.IsEnabled && zoomIn.IsEnabled, "Zoom out must disable at 1/16x.");
+      foreach(var scale in new[]{.125,.25,.5,1d,2,3,4,5,6,7,8,9,10}) ClickZoom(zoomIn,scale);
+      Check(!zoomIn.IsEnabled && zoomOut.IsEnabled, "Zoom in must disable at 10x.");
+      for(int scale=9;scale>=1;scale--) ClickZoom(zoomOut,scale);
+      var layout=mapper.PrimaryMap.GetLayout();
+      var expectedTip=$"{(long)layout.GetValue("width")*16} × {(long)layout.GetValue("height")*16} pixels · 16 × 16 pixels per tile";
+      Check((string)ToolTip.GetTip(dimensions)==expectedTip,"Dimensions tooltip must expose native pixel size independent of zoom.");
+      if(romBytes==null) {
+         mapper.NavigateTo(0,0,10,10);Layout();
+         Check(dimensions.Text==ExpectedSize(),"Map navigation must bind the newly selected map dimensions.");
+         mapper.NavigateTo(3,0,10,10);Layout();
+      }
+   }
+
    var arrow = view.GetVisualDescendants().OfType<Avalonia.Controls.Border>().First(border =>
       border.Name == "PathBackground" && border.DataContext is ExpansionSlider candidate &&
       candidate.ContextItems.Any(command => command.Text == "Create New Map"));
@@ -173,8 +212,29 @@ foreach (var startup in Enumerable.Range(0, 3)) {
    Check(metadata.SequenceEqual(viewport.Model.ExportMetadata(null, viewport.Singletons.MetadataInfo).Serialize()),
       "Zoom must preserve pointer/anchor metadata.");
    Check(initialUndo == viewport.Undo.CanExecute(null), "Zoom must not create edit history.");
+   if(startup==0 && romBytes==null) {
+      var originalText=dimensions.Text;
+      mapper.PrimaryMap.GetMapSliders().Single(s=>s.Icon==MapSliderIcons.ExtendRight).Move(1,0);
+      Layout();
+      Check(dimensions.Text=="Map: 25 × 20 tiles","Resizing must refresh status width immediately.");
+      mapper.PrimaryMap.GetMapSliders().Single(s=>s.Icon==MapSliderIcons.ExtendDown).Move(0,1);
+      viewport.ChangeHistory.ChangeCompleted();Layout();
+      Check(dimensions.Text=="Map: 25 × 21 tiles","Resizing must refresh status height immediately.");
+      Check((string)ToolTip.GetTip(dimensions)=="400 × 336 pixels · 16 × 16 pixels per tile","Resizing must refresh the native pixel tooltip.");
+      mapper.Undo.Execute(null);Layout();
+      Check(dimensions.Text==originalText,"Undo must restore the original dimension readout.");
+      mapper.Redo.Execute(null);Layout();
+      Check(dimensions.Text=="Map: 25 × 21 tiles","Redo must restore resized dimensions.");
+      mapper.Undo.Execute(null);Layout();
+      Check(modelBytes.SequenceEqual(SHA256.HashData(viewport.Model.RawData)),"Resize verification must restore all original ROM bytes.");
+      Check(metadata.SequenceEqual(viewport.Model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Resize Undo must restore pointer and anchor metadata.");
+   }
    if (romBytes != null) Check(maxNeighbors > 3, "Local FireRed scenario must load deeper neighboring maps.");
    Console.WriteLine($"ZOOM_COMPLETE:{zoomCount} elapsed_ms={timer.Elapsed.TotalMilliseconds:F1} max_visible_maps={maxNeighbors}");
+   if(startup==0 && Environment.GetEnvironmentVariable("HMA_MAP_STATUS_PREVIEW") is string preview) {
+      using var bitmap=new RenderTargetBitmap(new PixelSize((int)view.Bounds.Width,(int)view.Bounds.Height));
+      bitmap.Render(view);bitmap.Save(preview);
+   }
    // Detach before closing so MainWindow does not persist application settings or prompt for edits.
    window.Editor = null;
    window.Close();

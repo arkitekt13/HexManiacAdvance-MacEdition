@@ -5,7 +5,7 @@ namespace HavenSoft.HexManiac.AvaloniaUI;
 
 /// <summary>Mac application identity; independent of Core's metadata format/migration version.</summary>
 public static class AppIdentity {
-   public const string RepositoryUrl = "https://github.com/arkitekt13/HexManiacAdvance-mac";
+   public const string RepositoryUrl = "https://github.com/arkitekt13/HexManiacAdvance-MacEdition";
    public const string MacHelpUrl = RepositoryUrl + "/blob/avalonia-port/README.md#on-macos";
    public const string IssuesUrl = RepositoryUrl + "/issues";
    public static string VersionNumber {

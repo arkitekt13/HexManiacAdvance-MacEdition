@@ -1178,12 +1178,25 @@
          </Rectangle.RenderTransform>
       </Rectangle>
 
-      <!-- Hover coordinates and zoom readout, bottom right of the map. -->
-      <Canvas Width="160" Height="16" Background="{DynamicResource Background}" Grid.Row="1" Grid.Column="1"
-              HorizontalAlignment="Right" VerticalAlignment="Bottom" ZIndex="2">
-         <TextBlock Canvas.Left="20" Text="{Binding HoverPoint}" Background="{DynamicResource Background}" />
-         <TextBlock Canvas.Left="90" Text="{Binding ZoomLevel}" Background="{DynamicResource Background}" />
-      </Canvas>
+      <!-- Size and native pixel dimensions stay independent of zoom and visible borders. -->
+      <Border Name="MapStatusBar" Background="{DynamicResource Background}" Grid.Row="1" Grid.Column="1"
+              MaxWidth="{Binding #MapView.Bounds.Width}" Padding="8,3" HorizontalAlignment="Right"
+              VerticalAlignment="Bottom" ZIndex="2">
+         <WrapPanel VerticalAlignment="Center">
+            <TextBlock Name="MapDimensionsText" Text="{Binding PrimaryMap.MapDimensions}"
+                       ToolTip.Tip="{Binding PrimaryMap.MapDimensionsTooltip}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+            <TextBlock Text="{Binding HoverPoint}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+               <Button Name="ZoomOutButton" Content="−" Width="28" Height="26" Padding="0"
+                       IsEnabled="{Binding PrimaryMap.CanZoomOut}" Click="ZoomOutClick"
+                       ToolTip.Tip="Zoom out one step" AutomationProperties.Name="Zoom out"/>
+               <TextBlock Text="{Binding ZoomLevel}" MinWidth="65" TextAlignment="Center" VerticalAlignment="Center"/>
+               <Button Name="ZoomInButton" Content="+" Width="28" Height="26" Padding="0"
+                       IsEnabled="{Binding PrimaryMap.CanZoomIn}" Click="ZoomInClick"
+                       ToolTip.Tip="Zoom in one step" AutomationProperties.Name="Zoom in"/>
+            </StackPanel>
+         </WrapPanel>
+      </Border>
 
       <!-- A map-owned hover preview cannot intercept the pointer or open a native popup.
            Keep editor panels and tutorial cards above it. -->

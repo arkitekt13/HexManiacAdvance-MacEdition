@@ -14,7 +14,7 @@ namespace HavenSoft.HexManiac.AvaloniaUI.Updates;
 
 /// <summary>Optional, bounded update discovery; never downloads or installs a release.</summary>
 public sealed class MacUpdateChecker {
-   public const string ApiUrl = "https://api.github.com/repos/arkitekt13/HexManiacAdvance-mac/releases?per_page=30";
+   public const string ApiUrl = "https://api.github.com/repos/arkitekt13/HexManiacAdvance-MacEdition/releases?per_page=30";
    public static string DefaultCachePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
       "HexManiacAdvance", "mac-update-check.json");
    private const int MaximumResponseBytes = 1024 * 1024;

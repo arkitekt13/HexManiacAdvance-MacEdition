@@ -1,5 +1,13 @@
 # Future development
 
+## Release preparation reminders
+
+Review these items when preparing the first public Mac Edition release:
+
+- [ ] Enable GitHub Issues for `arkitekt13/HexManiacAdvance-MacEdition`, then verify that
+  Help > Report an Issue, the welcome-screen link and crash-report links reach the fork's
+  working issue pages; Issues was disabled when checked on November 4, 2026.
+
 ## HMA-001 — Resolve native `.hma` drag-and-drop import failure
 
 **Status:** Deferred; still unresolved after the user's retry of the routing fix.

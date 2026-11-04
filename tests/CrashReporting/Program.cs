@@ -35,7 +35,7 @@ try {
    Check(message.Contains(path) && !message.Contains("Could not save"), "Show actual saved path.");
    Check(links.Single(l => l.DisplayText.Contains("Finder")).Content == "/" + path, "Finder action targets saved file.");
    var github = links.Single(l => l.DisplayText.Contains("GitHub")).Content;
-   Check(github.StartsWith("https://github.com/arkitekt13/HexManiacAdvance-mac/issues/new?"), "Report to our fork.");
+   Check(github.StartsWith("https://github.com/arkitekt13/HexManiacAdvance-MacEdition/issues/new?"), "Report to our fork.");
    Check(!links.Any(l => l.Content.Contains("discord.gg")), "Do not direct fork reports to upstream Discord.");
    Check(links.Single(l => l.Content.StartsWith("~")).Content.Contains("inner diagnostic"), "Clipboard retains full exception chain.");
    var firstLength = new FileInfo(path).Length;

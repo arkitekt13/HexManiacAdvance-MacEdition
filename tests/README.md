@@ -30,6 +30,8 @@ Short-field Tab/Shift+Tab selection, mouse placement and large-editor exclusions
 [ShortFieldTabSelection](ShortFieldTabSelection/README.md).
 Actual script typing, automatic pointer insertion and unused flag/variable UI routing are covered
 by [ScriptAssistance](ScriptAssistance/README.md).
+Complete dialogue scaffolds, caret placement and replacement of legacy missing-brace completion
+are covered by [DialogueScaffolding](DialogueScaffolding/README.md).
 Production trainer, sprite, palette, and ordinary text-stream template checks are documented
 in [StreamTemplates/README.md](StreamTemplates/README.md).
 

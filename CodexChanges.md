@@ -1359,3 +1359,28 @@ Evidence: The script TextEditor's Tag resolved to its nested TextEditorViewModel
 Validation: Five focused groups pass 1,133 assertions: ScriptAssistance 61, ScriptWorkflowSafety 598, AutocompleteMapping 294, ClipboardRouting 78 and ScriptEditorLayout 102. Builds report zero warnings/errors on this verification run. Actual typed msgbox/msgbox.npc/preparemsg insert visible `<auto>`; setflag/checkflag and setvar/addvar expose the proper helper and insert one explicit operand through button or Cmd+U, with exact Undo/Redo. The fixture's predictable investigator verifies UI routing, not real-ROM scan completeness.
 
 Scope: Restore existing behavior in its own commit; dialogue scaffolding is a separate subsequent change. Numeric parsing, allocator/scanner rules, ROM relocation, encoding and history algorithms are unchanged. Native typing remains for user confirmation after relaunch.
+
+## 081 — Create complete dialogue scaffolds instead of completing missing braces
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/CodeBody.cs](src/HexManiac.Core/ViewModels/Tools/CodeBody.cs) | 282 | Insert `<auto>` plus one complete dialogue block for an unambiguous final text operand and return its editable-body caret target. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeTool.cs](src/HexManiac.Core/ViewModels/Tools/CodeTool.cs) | 346 | Use the scaffold's absolute caret target and replace immediate legacy missing-brace completion with retained source and compiler diagnostics. |
+| [src/HexManiac.Core/Models/Code/ScriptParser.cs](src/HexManiac.Core/Models/Code/ScriptParser.cs) | 555 | Normalize complete inline blocks without inventing missing closers and atomically reject unfinished resource blocks with a diagnostic. |
+| [src/HexManiac.Tests/CodeToolTests.cs](src/HexManiac.Tests/CodeToolTests.cs) | 758 | Replace the obsolete automatic-close expectation with rejected-source, diagnostic and unchanged-byte assertions. |
+| [tests/DialogueScaffolding/DialogueScaffolding.csproj](tests/DialogueScaffolding/DialogueScaffolding.csproj) | 1 | Add dedicated synthetic dialogue scaffold, compilation and persistence safety checks. |
+| [tests/DialogueScaffolding/Program.cs](tests/DialogueScaffolding/Program.cs) | 9 | Cover seven command forms, three newline styles, exact allocation/caller/history behavior, opt-outs, rejected drafts and stale caret callbacks. |
+| [tests/DialogueScaffolding/README.md](tests/DialogueScaffolding/README.md) | 1 | Document the new typing flow, replacement of runtime brace completion and verification limits. |
+| [tests/ScriptAssistance/Program.cs](tests/ScriptAssistance/Program.cs) | 45 | Verify real typing creates exactly one scaffold, places the caret inside and immediately accepts dialogue text. |
+| [tests/ScriptAssistance/README.md](tests/ScriptAssistance/README.md) | 6 | Update the keyboard-flow description for the new caret destination. |
+| [tests/README.md](tests/README.md) | 33 | Link the scaffold regression group. |
+
+Behavior: A space before a supported final dialogue pointer now creates `<auto>` followed by opening/closing braces with an editable blank line, and positions the caret on that line. Common msgbox variants, preparemsg and loadpointer's text operand are covered. Existing blocks and following commands are preserved; multiple-text-pointer commands and non-text resources retain ordinary pointer assistance. Existing automatic-insertion and Spartan-mode opt-outs remain. Source assistance itself writes no ROM bytes; allocation and relocation occur through the normal compiler/history transaction.
+
+Replacement: The previous immediate and compiler-time missing-brace completion paths are disabled in the application. Incomplete manually written blocks remain rejected drafts with visible diagnostics, including Save/Save As/Close protection and correction/retry. Complete inline blocks still normalize normally. The public legacy normalization utility retains its compatibility mode for direct callers; application compilation explicitly disables completion.
+
+Validation: DialogueScaffolding passes 261 assertions and real-window ScriptAssistance passes 64. Together with ScriptWorkflowSafety's 598 assertions, focused final checks pass 923 assertions. Tests verify LF/CRLF/CR, end-of-editor caret timing, exact text bytes, relocated callers, complete Undo/Redo, existing-block exclusion, opt-outs, stale callbacks after Undo/navigation, and rollback of earlier resource relocation when a later block is unclosed. All 36 Mac groups were exercised: 35 pass 6,876 assertions, FocusAnimation fails its previously observed movement timing assertion, and no groups are skipped. The standard runner stopped at that failure; the remaining 26 groups were freshly built/run separately, and the final expanded scaffold checks were rebuilt/rerun afterward. Existing Core compiler warnings remain; no build errors occurred.
+
+Upstream: After replacing the obsolete brace-closing expectation, in-process verification reports 1,779 passed, one failed and 935 skipped from 2,715 discovered cases. The remaining failure is the previously documented ScriptTests.ErrorInScript_ClickOff_ResetScriptEditor expectation, which conflicts with retained rejected source. Results are retained in artifacts/upstream-tests/run.Me9kcz. A fully passing overall suite is not claimed.
+
+Scope: Source scaffolding and explicit unfinished-block rejection only; valid-script encoding, numeric parsing, unused-ID scanning/allocation rules, pointer relocation, ROM history and game-engine behavior are unchanged. No user ROM was used. Native typing remains for user confirmation after relaunch.

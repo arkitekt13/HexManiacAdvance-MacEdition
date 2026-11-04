@@ -44,9 +44,11 @@ foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "setflag",
    Check(box.IsFocused && baseline.EqualsModel(f), "Typing assistance preserves focus and does not bypass delayed compilation.");
    if (command.StartsWith("msgbox") || command == "preparemsg") {
       Check(body.Content.Contains("<auto>"), "A space at a supported text-pointer operand inserts <auto>.");
-      Check(box.Text![..box.CaretIndex].EndsWith("<auto>"), "The caret advances past the inserted pointer.");
-      // Existing behavior only inserts the pointer; the separate enhancement adds the block.
-      Check(!body.Content.Contains('{'), "Restoration alone does not add the new dialogue scaffold.");
+      Check(box.Text![..box.CaretIndex].EndsWith("{\n"), "The caret lands inside the empty dialogue body.");
+      Check(body.Content.Count(c => c == '{') == 1 && body.Content.Count(c => c == '}') == 1,
+         "The enhanced assistance creates exactly one complete dialogue scaffold.");
+      window.KeyTextInput("Hello!"); Pump();
+      Check(body.Content.Contains("{\nHello!\n}"), "Typing immediately after assistance enters the dialogue body.");
       f.Dispatch.Flush(); Pump(); Check(!body.HasError, "The existing auto-pointer form still compiles.");
    } else {
       bool flag = command.Contains("flag");

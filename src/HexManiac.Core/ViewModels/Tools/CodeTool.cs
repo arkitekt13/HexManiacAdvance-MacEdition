@@ -343,8 +343,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          if (HasPendingScriptChanges && !scriptDrafts.Contains(body)) FlushPendingScriptChanges();
          scriptDrafts.Add(body);
          body.TryCompleteCommandToken();
-         var autoCaret = body.CaretPosition + 7; // inserted after the newly typed space
-         if (InsertAutoActive && body.TryInsertAuto()) {
+         if (InsertAutoActive && body.TryInsertAuto(out var autoCaret)) {
             var assistedSource = body.Content;
             var assistedAddress = body.Address;
             // update the caret later, or weird stuff happens
@@ -412,8 +411,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          /*
          action();
          /*/
-         body.CaretPosition += ScriptParser.InsertMissingClosers(ref codeContent, body.CaretPosition);
-         body.Content = codeContent;
+         // Typed dialogue assistance creates a complete block; unfinished manual drafts
+         // stay untouched and are diagnosed by the compiler instead of auto-closed here.
          pendingScriptCompile = action;
          var generation = ++scriptCompileGeneration;
          recompileTimer.DelayCall(TimeSpan.FromSeconds(.5), () => {

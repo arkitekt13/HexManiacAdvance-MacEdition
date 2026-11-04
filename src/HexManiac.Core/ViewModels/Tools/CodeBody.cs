@@ -277,7 +277,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
 
       #region <auto> complete
 
-      public bool TryInsertAuto() {
+      public bool TryInsertAuto() => TryInsertAuto(out _);
+
+      public bool TryInsertAuto(out int targetCaret) {
+         targetCaret = CaretPosition;
          if (model.SpartanMode) return false;
          var context = SplitCurrentLine();
          if (context.ContentBoundaryCount != 0) return false;
@@ -296,10 +299,25 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          }
          if (token < 0 || token >= args.Count) return false;
          if (args[token].Type == ArgType.Pointer && args[token].PointerType.IsAny(ExpectedPointerType.Mart, ExpectedPointerType.SpriteTemplate, ExpectedPointerType.Text, ExpectedPointerType.Movement, ExpectedPointerType.Decor)) {
-            var before = Content.Substring(0, CaretPosition + 1);
-            var after = Content.Substring(CaretPosition + 1);
+            var insertionIndex = Math.Min(Content.Length, CaretPosition + (context.Index < context.Line.Length ? 1 : 0));
+            var before = Content.Substring(0, insertionIndex);
+            var after = Content.Substring(insertionIndex);
+            var insertion = "<auto>";
+            targetCaret = before.Length + insertion.Length;
+            // Only unambiguous, final dialogue operands get a text block. Other resource
+            // types and commands with multiple text pointers keep their existing operands.
+            var scaffold = args[token].PointerType == ExpectedPointerType.Text && token == args.Count - 1 &&
+               args.Count(arg => arg.Type == ArgType.Pointer && arg.PointerType == ExpectedPointerType.Text) == 1;
+            if (scaffold && !after.TrimStart().StartsWith("{")) {
+               var firstBreak = Content.IndexOfAny(new[] { '\r', '\n' });
+               var newline = firstBreak < 0 ? Environment.NewLine :
+                  Content[firstBreak] == '\r' && firstBreak + 1 < Content.Length && Content[firstBreak + 1] == '\n'
+                     ? "\r\n" : Content[firstBreak].ToString();
+               insertion += newline + "{" + newline + newline + "}";
+               targetCaret += newline.Length + 1 + newline.Length;
+            }
             using (Scope(ref ignoreEditorContentUpdates, true, old => ignoreEditorContentUpdates = old)) {
-               Editor.Content = before + "<auto>" + after;
+               Editor.Content = before + insertion + after;
                return true;
             }
          }

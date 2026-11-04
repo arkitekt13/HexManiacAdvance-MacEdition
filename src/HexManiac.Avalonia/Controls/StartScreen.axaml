@@ -28,6 +28,7 @@
          <Setter Property="BorderThickness" Value="0"/>
          <Setter Property="Padding" Value="2,0"/>
          <Setter Property="MinHeight" Value="20"/>
+         <Setter Property="VerticalContentAlignment" Value="Center"/>
          <Setter Property="FontSize" Value="13"/>
       </Style>
    </Grid.Styles>

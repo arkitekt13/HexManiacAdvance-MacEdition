@@ -2006,3 +2006,11 @@ Scope: Current-brush explicit override tracking and packed write composition onl
 | tests/WelcomeScreen/README.md | 23 | Record the credit and support destinations and the remaining native browser verification. |
 
 Validation: WelcomeScreen builds with zero warnings/errors and passes all 33 assertions, including bounds at 1200x800, 800x600 and 500x400, rounded button states, existing Open command, zero-tab lifecycle, visible errors, shell mounting and version identity. Rendered and visually inspected the actual compiled control at 1200x800. No ROM or settings changed. Browser launches and native interaction remain manual checks; the full regression suite was not rerun for this presentation-only change.
+
+## 116 — Align welcome-screen credit names with their labels
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml | 31 | Center link-button content vertically so contributor names align with the adjacent bold credit labels. |
+
+Validation: WelcomeScreen builds and passes all 33 assertions, including three window sizes and existing button states and Open behavior. Visually inspected the newly rendered 1200x800 control and confirmed all three names align with their labels while retaining clickable buttons. Native interaction remains a manual check.

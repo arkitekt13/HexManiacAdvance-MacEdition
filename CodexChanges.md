@@ -1302,3 +1302,23 @@ Evidence: On a fabricated map, both Backspace and forward Delete removed the Scr
 Validation: The new group passes 63 assertions for character and boundary deletion, caret arrows, Escape, stable field/focus, event count, unchanged pointers/bytes/metadata when removing redundant address zeroes, a second event field, address clearing with existing null-pointer parsing and Undo, map-focused deletion with exact Undo/Redo, and map-focused panning/cancellation. The first complete-suite attempt stopped on the unrelated FocusAnimation movement timing assertion; that group passed all 13 assertions on an immediate standalone rerun. The fresh complete-suite rerun passes all 32 groups and 6,516 assertions with zero failures or skipped groups; builds report zero warnings and errors.
 
 Scope: Mac map keyboard command routing only; pointer parsing, event data layouts, compilation, history and game-engine behavior are unchanged. Tests use synthetic maps without user ROMs. Native Delete/Fn+Delete interaction remains for user confirmation after relaunch.
+
+## 078 — Make dialogue overflow and script error underlines visible
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/DiagnosticUnderlineLayer.cs](src/HexManiac.Avalonia/Controls/DiagnosticUnderlineLayer.cs) | 15 | Draw warning/error paths using the actual textbox layout and viewport so blank syntax placeholders cannot suppress them. |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml](src/HexManiac.Avalonia/Controls/TextEditor.axaml) | 33 | Add a non-interactive diagnostic layer above the transparent editor without changing text input or focus. |
+| [src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs](src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs) | 188 | Preserve comment text and coalesced diagnostic publication while replacing whitespace TextDecorations with the independent painter. |
+| [tests/DialogueDiagnostics/DialogueDiagnostics.csproj](tests/DialogueDiagnostics/DialogueDiagnostics.csproj) | 1 | Add headless synthetic dialogue rendering checks using the real compiler and editor. |
+| [tests/DialogueDiagnostics/Program.cs](tests/DialogueDiagnostics/Program.cs) | 49 | Check actual underline pixels for the reported script, correction, manual line breaks, scrolling, whitespace/error spans and existing Enter encoding. |
+| [tests/DialogueDiagnostics/README.md](tests/DialogueDiagnostics/README.md) | 1 | Document the rendering defect, pixel coverage, Enter behavior and real-ROM limits. |
+| [tests/ScriptEditorLayout/Program.cs](tests/ScriptEditorLayout/Program.cs) | 77 | Retain diagnostic coalescing and context-switch checks against the new painter's diagnostic snapshot. |
+| [tests/ScriptEditorLayout/README.md](tests/ScriptEditorLayout/README.md) | 17 | Distinguish diagnostic publication checks from the new rendered-pixel verification. |
+| [tests/README.md](tests/README.md) | 27 | Link the visible dialogue diagnostic regression group. |
+
+Evidence: The exact reported `msgbox.npc <auto>` dialogue generated an overflow warning but rendered no underline. The original decoration was attached to blank syntax placeholders, whose trailing-whitespace TextDecorations Avalonia omits. Earlier diagnostic-record/decorated-Run counts did not verify visible pixels. The new path renderer uses actual text-position rectangles, clips to the scroll viewport, and retains theme warning/error colors without modifying source or adding prompts.
+
+Validation: The new group passes 27 assertions covering the screenshot's exact sentence with LF/CRLF, visible pixels below the overflowing suffix, disappearing warnings after correction or manual breaks, both scroll directions, whitespace-only warnings, red error underlines, stale/unsorted ranges, retained focus and unchanged source/ROM bytes/metadata. A rendered image of the example was also inspected visually. Existing PCS behavior is characterized unchanged: Enter inserts a line break, subsequent single breaks scroll, and a blank line inserts a paragraph/page break. The complete Mac suite passes 33 groups and 6,543 assertions with zero failures or skipped groups; builds report zero warnings and errors.
+
+Scope: Mac diagnostic presentation only; width estimation, compilation, relocation, history, text encoding and game-engine behavior are unchanged. No popup or automatic wrapping is added. The synthetic probe uses the fallback font-width path; in-game appearance with a real ROM remains for user confirmation after relaunch.

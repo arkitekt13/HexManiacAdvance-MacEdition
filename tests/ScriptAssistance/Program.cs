@@ -17,6 +17,7 @@ AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
 SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationContext()); Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 int checks = 0;
 void Check(bool value, string message) { checks++; if (!value) throw new InvalidOperationException(message); }
+foreach (var acceptance in new[] { "typed", "enter", "click" })
 foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.player", "move.camera", "setflag", "checkflag", "setvar", "addvar" }) {
    using var f = new WorkflowFixture();
    f.Dispatch.DispatchOverride = action => {
@@ -38,13 +39,31 @@ foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.play
    box.CaretIndex = insertion; box.SelectionStart = box.SelectionEnd = insertion;
    window.KeyTextInput("\n"); Pump(); box.CaretIndex = insertion; box.SelectionStart = box.SelectionEnd = insertion; Pump();
    var baseline = f.State();
-   foreach (char c in command) { window.KeyTextInput(c.ToString()); Pump(); }
-   window.KeyPressQwerty(PhysicalKey.Space, RawInputModifiers.None); window.KeyTextInput(" "); window.KeyReleaseQwerty(PhysicalKey.Space, RawInputModifiers.None); Pump();
+   var prefix = acceptance == "typed" ? command : command[..^1];
+   foreach (char c in prefix) { window.KeyTextInput(c.ToString()); Pump(); }
+   if (acceptance == "typed") {
+      window.KeyPressQwerty(PhysicalKey.Space, RawInputModifiers.None); window.KeyTextInput(" "); window.KeyReleaseQwerty(PhysicalKey.Space, RawInputModifiers.None); Pump();
+   } else {
+      var overlay = window.GetVisualDescendants().OfType<AutocompleteOverlay>().Single(o => ReferenceEquals(o.Target, control));
+      var itemsControl = overlay.FindControl<ItemsControl>("AutocompleteItems")!;
+      var options = ((IEnumerable<AutoCompleteSelectionItem>)itemsControl.ItemsSource!).ToArray();
+      var wanted = Array.FindIndex(options, item => item.CompletionText.Trim() == (command == "msgbox" ? "msgbox.npc" : command));
+      Check(wanted >= 0, $"The command list must offer {command} ({acceptance}): {string.Join(";", options.Select(o => o.CompletionText))}.");
+      for (int i = 0; i < wanted; i++) { window.KeyPressQwerty(PhysicalKey.ArrowDown, RawInputModifiers.None); window.KeyReleaseQwerty(PhysicalKey.ArrowDown, RawInputModifiers.None); Pump(); }
+      if (acceptance == "enter") {
+         window.KeyPressQwerty(PhysicalKey.Enter, RawInputModifiers.None); window.KeyReleaseQwerty(PhysicalKey.Enter, RawInputModifiers.None); Pump();
+      } else {
+         var button = itemsControl.GetVisualDescendants().OfType<Button>().Single(b => b.DataContext is AutoCompleteSelectionItem item && item.IsSelected);
+         var root = TopLevel.GetTopLevel(button)!;
+         var point = button.TranslatePoint(new Avalonia.Point(button.Bounds.Width / 2, button.Bounds.Height / 2), root)!.Value;
+         root.MouseDown(point, MouseButton.Left); root.MouseUp(point, MouseButton.Left); Pump();
+      }
+   }
    Check(body.CaretPosition == box.CaretIndex && box.CaretIndex > insertion, "Actual typing must synchronize script and UI caret positions.");
    Check(box.IsFocused && baseline.EqualsModel(f), "Typing assistance preserves focus and does not bypass delayed compilation.");
    if (command.StartsWith("msgbox") || command.StartsWith("move.") || command == "preparemsg") {
       Check(body.Content.Contains("<auto>"), "A space at a supported text-pointer operand inserts <auto>.");
-      Check(box.Text![..box.CaretIndex].EndsWith("{\n"), "The caret lands inside the empty dialogue body.");
+      Check(box.Text![..box.CaretIndex].EndsWith("{\n"), $"The caret lands inside the empty dialogue body ({acceptance}/{command}, caret {box.CaretIndex}/{body.CaretPosition}, source {body.Content.Replace("\n", "|")}).");
       Check(body.Content.Count(c => c == '{') == 1 && body.Content.Count(c => c == '}') == 1,
          "The enhanced assistance creates exactly one complete dialogue scaffold.");
       var content = command.StartsWith("move.") ? "walk_up" : "Hello!";

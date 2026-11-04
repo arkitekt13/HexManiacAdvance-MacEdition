@@ -360,15 +360,21 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          set {
             if (Editor.CaretIndex == value) return;
             Editor.CaretIndex = value;
-            var context = SplitCurrentLine();
-
-            HelpSourceChanged.Raise(this, context);
-
-            NotifyPropertiesChanged(nameof(CanInsertFlag), nameof(CanInsertVar),
-               nameof(CanFindUses), nameof(CanGotoSource), nameof(CanGotoAddress));
-            findUsesCommand.RaiseCanExecuteChanged();
-            gotoSourceCommand.RaiseCanExecuteChanged();
+            RefreshCaretContext();
          }
+      }
+
+      public void ApplyCompletion(string source, int caret) {
+         Editor.SetContentAndCaret(source, caret);
+         RefreshCaretContext();
+      }
+
+      private void RefreshCaretContext() {
+         HelpSourceChanged.Raise(this, SplitCurrentLine());
+         NotifyPropertiesChanged(nameof(CanInsertFlag), nameof(CanInsertVar),
+            nameof(CanFindUses), nameof(CanGotoSource), nameof(CanGotoAddress));
+         findUsesCommand.RaiseCanExecuteChanged();
+         gotoSourceCommand.RaiseCanExecuteChanged();
       }
 
       private string selectedText;

@@ -1421,3 +1421,19 @@ Behavior: Map preparation now runs as a deferred, coalesced UI-thread pass. Mode
 Validation: Six focused groups pass 1,798 assertions, including 22 new thread-safety checks. The complete Mac suite passes 37 groups and 7,050 assertions with zero failures or skipped groups. The new group was rebuilt/rerun after strengthening direct history-thread verification. Checks require successful bitmap publication and actual NPC annotation, unchanged ROM bytes, metadata-only history semantics, UI-owned history/Save notifications, one publication per refresh burst, worker requests, canceled/null/replaced/detached contexts, reattachment and painting Undo/Redo. Cold synthetic 36x36/96x64 renders measured roughly 19–32 ms on this host; higher-priority UI work ran before the queued cold render. Builds report zero errors.
 
 Scope: Mac pixel presentation/thread ownership only; NPC discovery, metadata tracking, ROM bytes, script compilation, encoding, relocation, history algorithms and game-engine behavior are unchanged. No user ROM was opened. Synthetic timings are not guarantees for complex real maps; native map entry, zoom and painting remain for user confirmation after relaunch. Any future background map rendering must use immutable prepared state rather than live model getters.
+
+## 084 — Run script assistance after accepting command suggestions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs](src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs) | 231 | Publish script completions with their intended caret for Enter and suggestion clicks while preserving physical Space input. |
+| [src/HexManiac.Core/ViewModels/TextEditorViewModel.cs](src/HexManiac.Core/ViewModels/TextEditorViewModel.cs) | 95 | Add an atomic content/caret replacement for completion observers. |
+| [src/HexManiac.Core/ViewModels/Tools/CodeBody.cs](src/HexManiac.Core/ViewModels/Tools/CodeBody.cs) | 367 | Refresh operand help and unused-ID eligibility after accepting a completion. |
+| [tests/ScriptAssistance/Program.cs](tests/ScriptAssistance/Program.cs) | 20 | Exercise nine commands through typed Space, Enter and actual suggestion clicks, including compilation and history. |
+| [tests/ScriptAssistance/README.md](tests/ScriptAssistance/README.md) | 3 | Document completion acceptance coverage. |
+
+Evidence: The expanded real-window regression failed before the fix: accepting a partial command changed source while ScriptChanged still saw the old caret. The trailing space supplied by the completion therefore missed pointer/block assistance. Selection also needed to refresh flag/variable helper eligibility.
+
+Behavior: Enter and mouse acceptance use the same existing pointer/scaffold rules as typing, including dialogue and movement bodies and their interior caret. Flag/variable completions expose their existing helpers. Physical Space acceptance retains its following text-input event; operand completions and source suffixes retain their existing mapping.
+
+Validation: ScriptAssistance 258, AutocompleteMapping 294, DialogueScaffolding 384 and ScriptWorkflowSafety 598 pass (1,534 assertions). The regression reproduced missing auto insertion before the fix. Tests use synthetic data. Existing Core build warnings are unchanged. Compilation, numeric parsing, allocator rules, ROM encoding, relocation and delayed recovery protections are unchanged.

@@ -216,7 +216,7 @@ foreach(var workload in npc?new[]{"npc-argument","npc-dialogue","npc-comment"}:p
                }
                var expectedOptions=options.Select(option=>option.Text).ToArray();
                completionControl.EditBox.CaretIndex=altered.Take(lineIndex).Sum(line=>line.Length+1)+query.Length;
-               Layout();overlay.Target=completionControl;overlay.ClearAutocompleteOptions();
+               Layout();overlay.Target=completionControl;completionControl.EditBox.Focus();Layout();overlay.ClearAutocompleteOptions();
                string[] Shown()=>(overlay.FindControl<ItemsControl>("AutocompleteItems")!.ItemsSource as IEnumerable<AutoCompleteSelectionItem>)?.Select(option=>option.DisplayText).ToArray()??Array.Empty<string>();
                completionControl.EditBox.RaiseEvent(new TextChangedEventArgs(TextBox.TextChangedEvent));var immediate=Shown();Layout();
                var shown=Shown();

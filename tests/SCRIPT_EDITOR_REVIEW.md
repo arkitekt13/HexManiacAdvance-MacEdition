@@ -3,6 +3,10 @@
 Checkpoint: ad86bb30, clean application source. This follow-up adds investigation tooling and
 documentation only. No game ROM is opened and no compiler/editor behavior is changed.
 
+Implemented follow-up: [AutocompleteDismissal](AutocompleteDismissal/README.md) adds focused
+real-control regressions and the shared overlay now guards focus, context, visibility and owner
+lifetime. The observations below retain the original failing-before investigation evidence.
+
 ## Confirmed suggestion lifecycle gaps
 
 The production AutocompleteOverlay uses a separate Popup, with IsOpen bound to the overlay's

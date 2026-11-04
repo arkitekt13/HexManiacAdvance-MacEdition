@@ -40,7 +40,7 @@ AutoCompleteSelectionItem[] Items()=>((overlay.FindControl<ItemsControl>("Autoco
 KeyEventArgs Press(Key key) {var e=new KeyEventArgs{RoutedEvent=InputElement.KeyDownEvent,Key=key};control.EditBox.RaiseEvent(e);Layout();return e;}
 void Prepare(string text,int caret) {
    overlay.Target=null;body.Content=text;Layout();control.EditBox.SelectionStart=caret;control.EditBox.SelectionEnd=caret;control.EditBox.CaretIndex=caret;Layout();
-   overlay.Target=control;overlay.ClearAutocompleteOptions();
+   overlay.Target=control;control.EditBox.Focus();Layout();overlay.ClearAutocompleteOptions();
 }
 void Offer(){control.EditBox.RaiseEvent(new TextChangedEventArgs(TextBox.TextChangedEvent));Layout();}
 string Join(string[] lines,string mode)=>mode=="mixed"?string.Concat(lines.Select((line,i)=>line+(i==lines.Length-1?"":i%2==0?"\r\n":"\n"))):string.Join(mode,lines);

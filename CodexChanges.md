@@ -1953,3 +1953,24 @@ Historical comparison: A separate read-only git archive of 03025d32, before ca25
 Validation: Twenty-five isolated current-build scenarios complete 343 positive setup/preservation controls plus 23 behavioral observations: 13 passing and 10 failing. The failing observations are findings, not passing assertions. All scenarios check unchanged metadata, in-memory Save/reload and exact Undo/Redo; non-overrun cases also check every byte outside their intended region. Save faithfully persists bad data and Redo reapplies it, while Undo restores all original bytes. Freshly built MapSelection and BlockBagFill pass 394 and 2,081 assertions respectively, zero failures/skips. The full Mac suite is not repeated for investigation-only work; its preceding verified baseline remains 52 groups / 15,854 assertions at e64cca67. Upstream suites are not rerun; fresh dependency builds retain eight existing Core warnings.
 
 Scope: Tooling and documentation only, with fabricated data and no user ROM, personal setting or emulator. Border fixture transitions are disabled only to settle the existing panel before real hit/capture checks. Native animations/trackpad delivery, game-specific border dimensions, gameplay and every corner topology remain outside this investigation. Recommended order: bound border reads/writes first, honor explicit nine-grid override at derived corners second, then define copied-source/override/destination-preserve policy before exposing preservation controls. No fixes are implemented in this entry.
+
+## 113 — Reject out-of-range border access before calculating ROM addresses (HMA-018)
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Map/BorderEditor.cs](src/HexManiac.Core/ViewModels/Map/BorderEditor.cs) | 111 | Share a pixel-coordinate guard across both write overloads and reads, preventing outside/negative-fraction/non-finite positions from reaching ROM addresses. |
+| [src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs](src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs) | 1966 | Leave the brush unchanged when border sampling returns an invalid position. |
+| [tests/BorderBounds/BorderBounds.csproj](tests/BorderBounds/BorderBounds.csproj) | 1 | Add automatically discovered offscreen Core border-boundary coverage. |
+| [tests/BorderBounds/Program.cs](tests/BorderBounds/Program.cs) | 1 | Protect default/custom dimensions, each edge, negative fractions, non-finite coordinates, prior Redo, valid clipping, canaries and exact persistence/history. |
+| [tests/BorderBounds/README.md](tests/BorderBounds/README.md) | 1 | Document rejection and valid clipping semantics with synthetic-only scope. |
+| [tests/MapGestureLifecycle/Program.cs](tests/MapGestureLifecycle/Program.cs) | 20 | Add actual captured single/copied border drags across all sides, invalid sampling, capture loss and exact Undo/Redo. |
+| [tests/MapGestureLifecycle/README.md](tests/MapGestureLifecycle/README.md) | 60 | Describe the new pointer-level border protection. |
+| [FutureDevelopment.md](FutureDevelopment.md) | 288 | Mark HMA-018 fixed and retain historical attribution. |
+| [tests/COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md) | 136 | Record the implementation separately from the original failed audit observations. |
+| [tests/README.md](tests/README.md) | 37 | Link implemented border coverage alongside the remaining review findings. |
+
+Behavior: Border writes reject a pointer origin outside the border before conversion or address calculation; even a small negative fraction cannot alias the first cell. Sampling returns -1 outside the region and does not replace the active brush. NaN/infinite coordinates are rejected too. Valid single writes and copied patterns retain their packed data and existing right/bottom intersection clipping. Rejected operations request no change token and retain prior Redo.
+
+Evidence and validation: The new negative-fraction regression fails before the change by writing ROM bytes at (-0.001,8). BorderBounds now passes 190 assertions over default 2x2 and explicit 3x4 layouts, exact/fractional edges, invalid values, retained history, unrelated bytes/metadata, canaries, in-memory Save, independent reload and saved-state Undo/Redo. Two enforced real-pointer border scenarios pass another 38 assertions, checking actual image capture, all four edges, invalid brush sampling and interruption cleanup. The full Mac suite follows the independent nine-grid fix; upstream suites are not rerun. Fresh dependency builds retain eight existing Core warnings.
+
+Scope: Border access validation only; no numerical parser, pointer relocation, painting encoding, history algorithm, compilation, game-engine or user-ROM changes. Valid clipping is preserved; the fixture-only slide animation is disabled for reliable headless hit testing. Native hardware/animation delivery remains outside this verification.

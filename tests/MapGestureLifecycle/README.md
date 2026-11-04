@@ -47,3 +47,10 @@ flags clear, native Space text input remains usable, Command event hiding/releas
 functional and ROM bytes/metadata are preserved. Alias navigation does not claim equality to pre-navigation
 metadata; the stroke-navigation case additionally checks a post-navigation baseline. Native window deactivation delivery
 and reveal-mask/compositor animation timing are not asserted by the headless scenarios.
+
+
+Border single/copied-brush scenarios open the actual border image, disable only its fixture
+slide transition and verify the pointer hit/capture owner. Held movement beyond all four edges
+(including negative fractions), capture loss and release must preserve the exact valid stroke;
+invalid sampling retains the brush, and one Undo/Redo restores complete byte snapshots/canaries.
+Core/default/custom-dimension cases are covered by the separate BorderBounds group.

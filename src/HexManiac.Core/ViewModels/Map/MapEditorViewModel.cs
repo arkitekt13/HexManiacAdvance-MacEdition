@@ -1958,7 +1958,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       public void CompleteBorderDraw() => PrimaryMap.ViewPort.ChangeHistory.ChangeCompleted();
 
       public void ReadBorderBlock(double x, double y) {
-         DrawBlockIndex = PrimaryMap.BorderEditor.GetBlock(x, y);
+         var block = PrimaryMap.BorderEditor.GetBlock(x, y);
+         if (block < 0) return;
+         DrawBlockIndex = block;
          tilesToDraw = new int[1, 1];
          AutoscrollBlocks.Raise(this);
          SelectSingleBlock();

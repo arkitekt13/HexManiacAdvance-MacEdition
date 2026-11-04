@@ -108,10 +108,19 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          HasBorderDimensions = layout.HasField("borderwidth") && layout.HasField("borderheight");
       }
 
+      private bool TryGetCell(double x, double y, out int xx, out int yy) {
+         xx = yy = 0;
+         // Check pixels before conversion: a small negative value otherwise truncates to cell zero.
+         // The positive comparisons also reject NaN and infinities without requesting an edit token.
+         if (!(x >= 0 && y >= 0 && x < Width * 16.0 && y < Height * 16.0)) return false;
+         xx = (int)(x / 16);
+         yy = (int)(y / 16);
+         return true;
+      }
+
       public void Draw(int blockIndex, double x, double y) {
+         if (!TryGetCell(x, y, out var xx, out var yy)) return;
          if (blockIndex < 0 || blockIndex >= blockmap.BlockRenders.Count) return;
-         int xx = (int)(x / 16);
-         int yy = (int)(y / 16);
          var layout = blockmap.GetLayout();
          int width = Width;
          var address = layout.GetAddress("borderblock");
@@ -125,8 +134,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void Draw(int[,] tiles, double x, double y) {
-         int xx = (int)(x / 16);
-         int yy = (int)(y / 16);
+         if (!TryGetCell(x, y, out var xx, out var yy)) return;
          var layout = blockmap.GetLayout();
          var (width, height) = (Width, Height);
          var startAddress = layout.GetAddress("borderblock");
@@ -149,8 +157,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public int GetBlock(double x, double y) {
-         int xx = (int)(x / 16);
-         int yy = (int)(y / 16);
+         if (!TryGetCell(x, y, out var xx, out var yy)) return -1;
          var layout = blockmap.GetLayout();
          int width = Width;
          var address = layout.GetAddress("borderblock");

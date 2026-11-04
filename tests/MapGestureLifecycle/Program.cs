@@ -19,7 +19,7 @@ using System.Diagnostics;
 
 if (args.Length == 0) {
    var total = 0;
-   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions", "same-cell-history", "reveal-focus", "reveal-tab", "reveal-context", "reveal-navigation", "reveal-normal" }) {
+   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions", "same-cell-history", "reveal-focus", "reveal-tab", "reveal-context", "reveal-navigation", "reveal-normal", "border-single-bounds", "border-multi-bounds" }) {
       var start = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true };
       start.ArgumentList.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
       start.ArgumentList.Add(name);
@@ -54,6 +54,9 @@ if(args[0]=="rectangle-permissions") {
    var permissions=new[]{0,1,16,63};
    for(int y=2;y<=9;y++)for(int x=2;x<=9;x++)
       model.WriteMultiByteValue(SyntheticMapFixture.Cells+(y*24+x)*2,2,token,(permissions[(x+y)%4]<<10)|((x+y)%2));
+}
+if(args[0].StartsWith("border-")) {
+   model.WriteMultiByteValue(0x8FE,2,token,0x5AA5);model.WriteMultiByteValue(0x908,2,token,0x6BB6);
 }
 var fs=new StubFileSystem{MetadataFor=_=>Array.Empty<string>()};
 Application.Current!.Resources["FileSystem"]=fs;
@@ -386,6 +389,29 @@ if(scenario=="paint-capture" || scenario=="pan-capture" || scenario=="select-cap
    window.KeyPressQwerty(modifierKey,modifier);Layout();Check(mapper.HideEvents,"Command/control still hides events.");
    window.KeyReleaseQwerty(modifierKey,RawInputModifiers.None);Layout();Check(!mapper.HideEvents,"Modifier release still restores event visibility.");
    Check(baseline.SequenceEqual(model.RawData),"Reveal and focus cleanup must not write ROM bytes.");
+ } else if(scenario.StartsWith("border-")) {
+   if(scenario=="border-multi-bounds") {
+      Down(Cell(2,2),RawInputModifiers.Control);window.MouseMove(Cell(3,3),RawInputModifiers.Control|RawInputModifiers.LeftMouseButton);Up(Cell(3,3));
+      Check(mapper.DrawMultipleTiles,"Border probe must use the actual copied 2x2 brush.");
+   }
+   var border=view.FindControl<PixelImage>("BorderImage")!;
+   border.GetVisualAncestors().OfType<Avalonia.Controls.Border>().First(b=>b.Classes.Contains("slidePanel")).Transitions=null;
+   mapper.PrimaryMap.BorderEditor.ShowBorderPanel=true;Layout();var scale=((IPixelViewModel)border.DataContext!).SpriteScale;
+   Avalonia.Point BorderPoint(double x,double y)=>border.TranslatePoint(new Avalonia.Point(x*scale,y*scale),window)!.Value;
+   Check(ReferenceEquals(window.InputHitTest(BorderPoint(8,8)),border),"The opened border image must be the actual pointer hit target.");
+   Down(BorderPoint(8,8));Check((pointer.Captured as Control)?.Name=="BorderImage","Border drawing must capture its real image.");
+   var valid=model.RawData.ToArray();Check(!baseline.SequenceEqual(valid),"Border stroke must apply a valid edit before leaving its bounds.");
+   foreach(var outside in new[]{(-.01,8d),(-17d,8d),(8d,-.01),(8d,-17d),(32d,8d),(72d,8d),(8d,32d),(8d,72d)}) {
+      window.MouseMove(BorderPoint(outside.Item1,outside.Item2),RawInputModifiers.LeftMouseButton);Layout();
+      Check(valid.SequenceEqual(model.RawData),"Captured movement outside every border edge must preserve the exact valid stroke and all neighboring bytes.");
+   }
+   pointer.Capture(null);Layout();Up(BorderPoint(-17,8));
+   Check(valid.SequenceEqual(model.RawData),"Capture loss/release preserves valid border edits without another write.");
+   var brush=mapper.DrawBlockIndex;var multiple=mapper.DrawMultipleTiles;var source=mapper.MultiTileDrawRender;
+   mapper.ReadBorderBlock(-.01,8);
+   Check(brush==mapper.DrawBlockIndex&&multiple==mapper.DrawMultipleTiles&&ReferenceEquals(source,mapper.MultiTileDrawRender),"Outside sampling leaves the existing brush unchanged.");
+   mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData)&&!mapper.Undo.CanExecute(null),"One Undo restores the complete pre-drag ROM and canaries.");
+   mapper.Redo.Execute(null);Layout();Check(valid.SequenceEqual(model.RawData),"Redo restores exact valid single/copied border data.");
 } else throw new ArgumentException("Unknown scenario");
 if(scenario!="navigation-stroke"&&scenario!="reveal-navigation") Check(metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Audit must preserve metadata.");
 else Console.WriteLine("NAVIGATION_METADATA_EQUAL_TO_START:"+metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()));

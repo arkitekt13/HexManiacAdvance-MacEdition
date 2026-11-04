@@ -36,7 +36,9 @@ same-cell/history, rectangle-permission and reveal-state failures and their subs
 [MapGestureLifecycle](MapGestureLifecycle/README.md) protects the implemented follow-ups.
 The [copied-brush and border review](COPIED_BRUSH_REVIEW.md) separately records normal copying
 controls, latent preserve-state handling, explicit nine-grid corner inconsistencies and a
-confirmed border bounds overrun; those new findings are not implemented fixes.
+confirmed border bounds overrun. The implemented bounds fix is protected by
+[BorderBounds](BorderBounds/README.md) and actual pointer cases in MapGestureLifecycle; see
+the review for the other findings and subsequent implementation status.
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

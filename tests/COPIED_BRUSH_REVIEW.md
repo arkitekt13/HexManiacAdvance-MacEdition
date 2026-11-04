@@ -131,3 +131,13 @@ remain outside this synthetic review. The historical snapshot is separate eviden
 from the 25 current scenarios and their 343 controls.
 
 Reproduction and scenario definitions: [CopiedBrushReview](../tools/CopiedBrushReview/README.md).
+
+
+## HMA-018 implementation follow-up
+
+Entry 113 fixes border bounds before pixel conversion/address calculation for both writes and
+sampling. The original checkpoint results above remain historical. BorderBounds passes 190
+assertions over default/custom dimensions, invalid origins and retained Redo, valid clipping
+and Save/reload/history. Two enforced real-pointer scenarios add 38 assertions for single and
+copied border drags, all sides, invalid sampling and capture interruption. HMA-016 and HMA-017
+remain separate work in this commit.

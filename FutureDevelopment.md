@@ -287,12 +287,15 @@ Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
 
 ## HMA-018 — Bound border pointer coordinates before accessing ROM data
 
-**Status:** Reproduced through actual border dragging, not fixed. Moving outside the left edge
+**Status:** Fixed in changelog entry 113. Original behavior: Moving outside the left edge
 writes before border data with single/multi brushes; a single brush can also write after the
 right edge. A separate build of pre-gesture-fix checkpoint 03025d32 reproduces the same left
 overrun, confirming that this predates the recent capture-lifecycle change.
 
-Priority: Fix before further border-tool feature work. Guard reads and writes before address
-calculation, including negative fractional pixels, each edge, single/multi brushes and custom
-dimensions. Preserve unrelated bytes/pointers/metadata and exact Save/Undo/Redo boundaries.
+Implemented: Guard pixel coordinates before conversion/address calculation in both drawing
+overloads and GetBlock; rejected reads leave the active brush unchanged. Invalid origins do
+not request history tokens, preserving Redo. Valid right/bottom intersections retain clipping.
+Regressions cover default/custom dimensions, fractional/exact edges, non-finite coordinates,
+captured pointer drags, packed data and exact Save/reload/Undo/Redo.
+Coverage: [BorderBounds](tests/BorderBounds/README.md) and MapGestureLifecycle.
 Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).

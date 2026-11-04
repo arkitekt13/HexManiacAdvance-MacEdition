@@ -426,7 +426,7 @@
               <Grid ColumnDefinitions="*,Auto" ToolTip.Tip="{Binding FullFileName}">
                 <Grid.ContextMenu>
                   <ContextMenu>
-                    <MenuItem Header="Show in Finder" Command="{hsv:MethodCommand LaunchFileLocation}" CommandParameter="{DynamicResource FileSystem}" />
+                    <MenuItem Header="Show in Finder" Click="RevealTabInFinder" />
                     <MenuItem Header="Duplicate Tab" Command="{hsv:MethodCommand Duplicate}"/>
                     <MenuItem Header="Diff with Left" Command="{Binding DiffLeft}" />
                     <MenuItem Header="Diff with Right" Command="{Binding DiffRight}" />

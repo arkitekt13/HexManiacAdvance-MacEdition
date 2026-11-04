@@ -1248,3 +1248,22 @@ Evidence: The new Option-drag position assertion fails before the UI mapping is 
 Complete Mac validation: All 29 groups pass 6,352 assertions with zero failed or skipped groups; the build introduces no new compiler warnings.
 
 Scope: Mac pointer mapping and physical release tracking only; shared Core painting/panning/history, Control-click selection, Command rectangle painting, arrow-key navigation and Space reveal behavior are unchanged. All fixtures are fabricated; native trackpad confirmation remains for the user after relaunch.
+
+## 075 — Open tab menus with Control-click and reveal files in Finder
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs](src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs) | 757 | Open the clicked tab's menu before Control-click can start drag capture and route file reveal to its owning saved file with visible errors. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.axaml](src/HexManiac.Avalonia/Windows/MainWindow.axaml) | 429 | Connect Show in Finder to the Mac reveal handler instead of the shared Windows Explorer method. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileReveal.cs](src/HexManiac.Avalonia/MacPlatform/MacFileReveal.cs) | 7 | Provide an injectable reveal capability and build/run macOS open -R requests using separate path arguments. |
+| [src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs](src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs) | 45 | Implement the native file-reveal capability on the Mac file system. |
+| [tests/TabMenus/Program.cs](tests/TabMenus/Program.cs) | 1 | Test Control/secondary-click, menu targeting, duplicate/reorder/close, ROM/map Finder routing, arguments and error handling without launching Finder. |
+| [tests/TabMenus/TabMenus.csproj](tests/TabMenus/TabMenus.csproj) | 1 | Add an automatically discovered headless group using fabricated map data. |
+| [tests/TabMenus/README.md](tests/TabMenus/README.md) | 1 | Document event coverage, Finder substitution and remaining native checks. |
+| [tests/README.md](tests/README.md) | 21 | Link tab menu and file-reveal coverage. |
+
+Evidence: The Control-click assertion fails before the handler change. All 23 focused checks pass afterward, including both Control release orders, unchanged tab order during menu gestures, targeted duplication, ordinary left-drag reordering and middle-click close. Finder argument construction preserves spaces/quotes; the actual menu routes ROM and map tabs to their owning file, handles missing/untitled files and surfaces launch failures without invoking explorer.exe.
+
+Complete Mac validation: All 30 groups pass 6,375 assertions with zero failed or skipped groups, including the new 23-check tab menu/Finder group.
+
+Scope: Mac tab UI and platform reveal only; Windows/shared Core file-location commands, diff/patch implementations, ROM data and history algorithms are unchanged. Tests use synthetic files/models and a reveal recorder. Native trackpad/menu behavior and Finder selecting the real file remain for user confirmation after relaunch.

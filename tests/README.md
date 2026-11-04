@@ -18,6 +18,8 @@ External emulator first-use selection, remembered application paths and source-a
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered
 by [WildEncounterEditing](WildEncounterEditing/README.md).
+Tab Control-click/secondary-click menus, targeted Duplicate and native Finder reveal routing are
+covered by [TabMenus](TabMenus/README.md).
 Production trainer, sprite, palette, and ordinary text-stream template checks are documented
 in [StreamTemplates/README.md](StreamTemplates/README.md).
 

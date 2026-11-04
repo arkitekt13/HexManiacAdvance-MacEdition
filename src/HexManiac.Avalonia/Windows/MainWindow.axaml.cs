@@ -755,6 +755,25 @@ public partial class MainWindow : Window {
 
    private bool tabCaptured;
 
+   private async void RevealTabInFinder(object sender, RoutedEventArgs e) {
+      if (Editor == null || sender is not MenuItem item) return;
+      var target = item.DataContext is MapEditorViewModel map ? map.ViewPort : item.DataContext as IEditableViewPort;
+      if (target == null || string.IsNullOrEmpty(target.FileName) || FileSystem?.Exists(target.FullFileName) != true) {
+         Editor.ErrorMessage = "This tab does not have an existing saved file to show in Finder.";
+         return;
+      }
+      if (FileSystem is not IFileRevealer revealer) {
+         Editor.ErrorMessage = "Showing files in Finder is unavailable.";
+         return;
+      }
+      try {
+         var error = await revealer.RevealFileAsync(target.FullFileName);
+         if (error != null) Editor.ErrorMessage = "Could not show the file in Finder: " + error;
+      } catch (Exception exception) when (exception is System.IO.IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception) {
+         Editor.ErrorMessage = "Could not show the file in Finder: " + exception.Message;
+      }
+   }
+
    private void TabMouseDown(object sender, PointerPressedEventArgs e) {
       if (sender is not Control element) return;
       var properties = e.GetCurrentPoint(element).Properties;
@@ -769,6 +788,12 @@ public partial class MainWindow : Window {
       }
 
       if (!properties.IsLeftButtonPressed) return;
+      if (OperatingSystem.IsMacOS() && e.KeyModifiers.HasFlag(KeyModifiers.Control)) {
+         var header = element.GetVisualAncestors().OfType<Control>().FirstOrDefault(control => control.ContextMenu != null);
+         header?.ContextMenu?.Open(header);
+         e.Handled = true;
+         return;
+      }
       e.Pointer.Capture(element);
       tabCaptured = true;
    }

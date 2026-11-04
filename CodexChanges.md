@@ -1513,3 +1513,20 @@ Evidence: The input audit found that only a physical right button entered the im
 Behavior: Mac Control-click now uses the same shared sampling path as secondary-click. Releasing Control first does not alter the gesture; only the original physical mouse button ends the captured interaction. Primary drawing and middle-button behavior retain their existing strategies.
 
 Validation: ImageEditorInput 38, PortraitFreshness 68 and StreamTemplates 123 pass (229 assertions). Sampling preserves all ROM bytes, metadata and history; normal drawing plus actual Cmd+Z/Cmd+Shift+Z preserves exact model snapshots and refreshes bound bitmaps for compressed/uncompressed sprites. The pre-fix Control-click regression fails as described. No user ROM is used; encoding, palette values, pointer relocation and history algorithms are unchanged.
+
+## 089 — Propagate named swatch colors into palette edits
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/Swatch.axaml.cs](src/HexManiac.Avalonia/Controls/Swatch.axaml.cs) | 40 | Decode Avalonia color names as well as existing bare/hash-prefixed theme hex before publishing swatch changes. |
+| [tests/ColorEditorInput/ColorEditorInput.csproj](tests/ColorEditorInput/ColorEditorInput.csproj) | 1 | Register actual color-field input regressions with the shared synthetic image fixture. |
+| [tests/ColorEditorInput/PalettePopup.cs](tests/ColorEditorInput/PalettePopup.cs) | 12 | Locate and drive the real code-created palette popup through its input root. |
+| [tests/ColorEditorInput/Program.cs](tests/ColorEditorInput/Program.cs) | 16 | Reproduce failed White input and verify named/numeric colors, channel encoding, focus and unrelated data. |
+| [tests/ColorEditorInput/README.md](tests/ColorEditorInput/README.md) | 1 | Document the serialization mismatch and input preservation checks. |
+| [tests/README.md](tests/README.md) | 30 | Link the color-field regression group. |
+
+Evidence: Entering 7FFF into the real palette field displayed White but did not update the ROM. Avalonia Color.ToString serializes familiar colors as names; Swatch used a shared hex-only theme decoder and returned without raising ResultChanged. The existing UI already advertised and accepted color words, making this a broken propagation path.
+
+Behavior: The swatch uses Avalonia's color decoder for the UI strings it receives, retaining bare hex support for theme bindings. Familiar colors now follow the same existing palette write/refresh path as other colors. Invalid drafts do not publish edits.
+
+Validation: ColorEditorInput passes 93 assertions across six 16-bit codes, eight named colors, exact raw-ROM/rendered channel ordering, unchanged unrelated bytes and metadata, retained popup/focus, all previously supported theme-hex forms and invalid input. The 7FFF regression fails before the fix. Core script numeric parsing, palette encoding/quantization, relocation and history algorithms are unchanged; no user ROM or theme settings are modified.

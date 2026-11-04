@@ -1496,3 +1496,20 @@ Behavior: NPC summaries now use one noninteractive view inside the map, anchored
 Validation: MapHoverPreview passes 134 assertions, including zero visibility oscillation or spurious pointer exits for both preview sizes, actual click-through input, all five image bitmaps, complete summary content, viewport corners, small-window resizing, detach/reattach, context replacement, and the real map's NPC summaries at two zoom levels. Real-map checks also require unchanged ROM bytes, pointer/format metadata and undo history. The pre-fix regression fails on the reported feedback loop. The complete freshly built Mac suite passes 40 groups and 7,610 assertions with zero failures or skipped groups (`scripts/verify-mac.sh --no-restore`); no new build warnings were introduced.
 
 Scope: Mac NPC preview presentation and ownership only. Existing summary/scanner limits, dialogue content, sprite decoding, compilation, pointer relocation, ROM edits and shared history algorithms are unchanged. Tests use synthetic data; no user ROM is opened or changed. Very tall summaries may display smaller text to retain the complete preview. Native trackpad confirmation remains after relaunch.
+
+## 088 — Make image-canvas Control-click sample instead of paint
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/ImageEditorView.axaml.cs](src/HexManiac.Avalonia/Controls/ImageEditorView.axaml.cs) | 87 | Route Mac Control-left-click through the existing eyedropper and retain the physical button for a matching release. |
+| [tests/ImageEditorInput/ImageEditorInput.csproj](tests/ImageEditorInput/ImageEditorInput.csproj) | 1 | Register the real-window image input regression group. |
+| [tests/ImageEditorInput/SyntheticImageFixture.cs](tests/ImageEditorInput/SyntheticImageFixture.cs) | 13 | Fabricate compressed/uncompressed sprites with valid palette pointers and a real editor window. |
+| [tests/ImageEditorInput/Program.cs](tests/ImageEditorInput/Program.cs) | 17 | Reproduce unintended painting and verify sampling, release, drawing, bitmap freshness and Mac history shortcuts. |
+| [tests/ImageEditorInput/README.md](tests/ImageEditorInput/README.md) | 1 | Document reproduction and input/history coverage. |
+| [tests/README.md](tests/README.md) | 30 | Link the image editor input regression group. |
+
+Evidence: The input audit found that only a physical right button entered the image eyedropper. A real-window synthetic regression confirmed Control-left-click changed a sprite pixel from 1 to the selected drawing color 7. Physical secondary-click correctly sampled it.
+
+Behavior: Mac Control-click now uses the same shared sampling path as secondary-click. Releasing Control first does not alter the gesture; only the original physical mouse button ends the captured interaction. Primary drawing and middle-button behavior retain their existing strategies.
+
+Validation: ImageEditorInput 38, PortraitFreshness 68 and StreamTemplates 123 pass (229 assertions). Sampling preserves all ROM bytes, metadata and history; normal drawing plus actual Cmd+Z/Cmd+Shift+Z preserves exact model snapshots and refreshes bound bitmaps for compressed/uncompressed sprites. The pre-fix Control-click regression fails as described. No user ROM is used; encoding, palette values, pointer relocation and history algorithms are unchanged.

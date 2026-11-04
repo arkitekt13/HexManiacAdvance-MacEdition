@@ -26,6 +26,8 @@ Map event address/text editing and guarded Delete, Backspace, arrows and Escape 
 covered by [MapEventEditing](MapEventEditing/README.md).
 Map event Control-click/secondary menus, warp commands and pointer release are covered by
 [MapEventMenus](MapEventMenus/README.md).
+Image-canvas secondary/Control-click sampling and draw/history preservation are covered by
+[ImageEditorInput](ImageEditorInput/README.md).
 Stable object sprite previews, selection recovery, popup scrolling and map history are covered by
 [MapSpriteSelection](MapSpriteSelection/README.md).
 Rendered dialogue overflow/error underlines and existing Enter/paragraph encoding are covered by

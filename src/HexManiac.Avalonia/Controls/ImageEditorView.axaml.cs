@@ -21,6 +21,7 @@ public partial class ImageEditorView : UserControl {
    private ImageEditorViewModel ViewModel => DataContext as ImageEditorViewModel;
    private bool isPointerCaptured;
    private MouseButton capturedButton;
+   private MouseButton physicalButton;
 
    public ImageEditorView() {
       InitializeComponent();
@@ -87,13 +88,18 @@ public partial class ImageEditorView : UserControl {
    private void ImagePointerPressed(object sender, PointerPressedEventArgs e) {
       if (ViewModel == null) return;
       var properties = e.GetCurrentPoint(ImageContainer).Properties;
+      if (isPointerCaptured) return;
+      if (!properties.IsLeftButtonPressed && !properties.IsRightButtonPressed && !properties.IsMiddleButtonPressed) return;
+      physicalButton = properties.IsMiddleButtonPressed ? MouseButton.Middle :
+         properties.IsRightButtonPressed ? MouseButton.Right : MouseButton.Left;
       e.Pointer.Capture(ImageContainer);
       isPointerCaptured = true;
 
       if (properties.IsMiddleButtonPressed) {
          capturedButton = MouseButton.Middle;
          ViewModel.PanDown(Point(e));
-      } else if (properties.IsRightButtonPressed) {
+      } else if (properties.IsRightButtonPressed || (OperatingSystem.IsMacOS() &&
+         properties.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Control))) {
          capturedButton = MouseButton.Right;
          ViewModel.EyeDropperDown(Point(e));
       } else if (properties.IsLeftButtonPressed) {
@@ -106,6 +112,7 @@ public partial class ImageEditorView : UserControl {
 
    private void ImagePointerReleased(object sender, PointerReleasedEventArgs e) {
       if (!isPointerCaptured || ViewModel == null) return;
+      if (e.InitialPressMouseButton != physicalButton) return;
       var point = Point(e);
       if (capturedButton == MouseButton.Middle) ViewModel.PanUp(point);
       else if (capturedButton == MouseButton.Right) ViewModel.EyeDropperUp(point);

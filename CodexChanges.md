@@ -1437,3 +1437,21 @@ Evidence: The expanded real-window regression failed before the fix: accepting a
 Behavior: Enter and mouse acceptance use the same existing pointer/scaffold rules as typing, including dialogue and movement bodies and their interior caret. Flag/variable completions expose their existing helpers. Physical Space acceptance retains its following text-input event; operand completions and source suffixes retain their existing mapping.
 
 Validation: ScriptAssistance 258, AutocompleteMapping 294, DialogueScaffolding 384 and ScriptWorkflowSafety 598 pass (1,534 assertions). The regression reproduced missing auto insertion before the fix. Tests use synthetic data. Existing Core build warnings are unchanged. Compilation, numeric parsing, allocator rules, ROM encoding, relocation and delayed recovery protections are unchanged.
+
+## 085 — Restore map event context menus on Mac
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml](src/HexManiac.Avalonia/Controls/MapTab.axaml) | 24 | Restore the event menu resource with shared command labels and parameters. |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 274 | Release map capture before opening an event menu and open it explicitly only when an event is hit. |
+| [tests/MapRendering/SyntheticMapFixture.cs](tests/MapRendering/SyntheticMapFixture.cs) | 54 | Add an optional synthetic warp without changing default map fixtures. |
+| [tests/MapEventMenus/MapEventMenus.csproj](tests/MapEventMenus/MapEventMenus.csproj) | 1 | Register the headless event-menu regression group. |
+| [tests/MapEventMenus/Program.cs](tests/MapEventMenus/Program.cs) | 53 | Exercise real secondary/Control-clicks, warp commands, pointer release, canceled creation, tabs and map history. |
+| [tests/MapEventMenus/README.md](tests/MapEventMenus/README.md) | 1 | Document routing coverage and map-allocation limits. |
+| [tests/README.md](tests/README.md) | 28 | Link the event-menu regression group. |
+
+Evidence: Shared Core already supplied Create New Map, Open in New Tab and Delete Warp, and SelectDown already prioritized visible events. The Mac map surface had no context menu for ShowMenu to open. The new actual-pointer regression failed before the restoration.
+
+Behavior: Secondary-click and Mac Control-click on a visible warp open those original commands before underlying tile selection. Other supported event types reuse their existing shared menus. Opening a menu releases capture immediately. Explicit opening prevents empty cells from displaying a stale event menu; their tile-selection gestures remain available.
+
+Validation: MapEventMenus 68, MapSelection 394 and MapZoom 1,158 pass (1,620 assertions). Coverage includes both gestures at 1x/2x zoom, early Control release, canceled bank selection with unchanged bytes/metadata/history, destination tabs, deletion Undo/Redo and painting/panning exclusions. The existing map-selection group verifies exact repeated stamps and Option-pan. Map creation allocation/relocation algorithms and game behavior are unchanged; the new routing test cancels before allocation and uses no user ROM.

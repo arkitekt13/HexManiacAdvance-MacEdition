@@ -21,6 +21,15 @@
              xmlns:models="clr-namespace:HavenSoft.HexManiac.Core.Models;assembly=HexManiac.Core"
              Focusable="True">
    <UserControl.Resources>
+      <ContextMenu x:Key="MapEventMenu" ItemsSource="{Binding ContextItems}">
+         <ContextMenu.ItemContainerTheme>
+            <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+               <Setter Property="Header" Value="{Binding Text}" />
+               <Setter Property="Command" Value="{Binding}" />
+               <Setter Property="CommandParameter" Value="{Binding Parameter}" />
+            </ControlTheme>
+         </ContextMenu.ItemContainerTheme>
+      </ContextMenu>
       <local:EqualityToBooleanConverter x:Key="Equality" />
       <local:PointConverter x:Key="PointConverter" />
    </UserControl.Resources>

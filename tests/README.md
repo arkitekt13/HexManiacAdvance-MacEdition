@@ -24,6 +24,8 @@ Script/text clipboard shortcut and native Edit menu focus routing are covered by
 [ClipboardRouting](ClipboardRouting/README.md).
 Map event address/text editing and guarded Delete, Backspace, arrows and Escape shortcuts are
 covered by [MapEventEditing](MapEventEditing/README.md).
+Map event Control-click/secondary menus, warp commands and pointer release are covered by
+[MapEventMenus](MapEventMenus/README.md).
 Rendered dialogue overflow/error underlines and existing Enter/paragraph encoding are covered by
 [DialogueDiagnostics](DialogueDiagnostics/README.md).
 Short-field Tab/Shift+Tab selection, mouse placement and large-editor exclusions are covered by

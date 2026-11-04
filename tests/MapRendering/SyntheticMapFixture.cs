@@ -12,7 +12,7 @@ public sealed class SyntheticMapFixture {
    public PokemonModel Model { get; }
    public ViewPort ViewPort { get; }
    public BlockMapViewModel Map { get; }
-   public SyntheticMapFixture(int width, int height, bool withScriptEvent = false, bool withNpcText = false) {
+   public SyntheticMapFixture(int width, int height, bool withScriptEvent = false, bool withNpcText = false, bool withWarp = false) {
       var data = new byte[Math.Max(0x20000, Cells + width * height * 2)];
       void Word(int address, int value) => BitConverter.GetBytes(value).CopyTo(data, address);
       void Pointer(int address, int target) => Word(address, 0x08000000 + target);
@@ -49,6 +49,11 @@ public sealed class SyntheticMapFixture {
          // Keep script/text pointers unformatted so lazy event discovery must annotate them.
          const string objects = "[id. graphics. unused:1 x:|z y:|z elevation.11 moveType. range:|t|x::|y:: trainerType: trainerRangeOrBerryID: script<> flag:|h padding:]/objectCount";
          headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<{objects}> warps<> scripts<> signposts<>]1> mapscripts<>]1";
+      }
+      if (withWarp) {
+         Pointer(0x128, 0x160); data[0x161] = 1; Pointer(0x168, 0x16000);
+         data[0x16000] = 2; data[0x16002] = 3; data[0x16007] = 3;
+         headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<> warps<[x:|z y:|z elevation.11 warpID. map. bank.]/warpCount> scripts<> signposts<>]1> mapscripts<>]1";
       }
       var bankFormat = $"[map<{headerFormat}>]1";
       var metadata = new StoredMetadata(anchors: new[] {

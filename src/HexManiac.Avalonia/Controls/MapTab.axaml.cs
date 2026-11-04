@@ -270,6 +270,9 @@ public partial class MapTab : UserControl {
          var result = vm.SelectDown(p.X, p.Y);
          if (result == SelectionInteractionResult.ShowMenu) {
             withinMapInteraction = MouseButton.XButton1;
+            controlSelectGesture = false;
+            e.Pointer.Capture(null);
+            mapCaptured = false;
             ShowMenu(element);
          }
       }
@@ -525,9 +528,11 @@ public partial class MapTab : UserControl {
    }
 
    private void ShowMenu(Control element) {
-      if (element.ContextMenu == null) return;
-      element.ContextMenu.DataContext = ViewModel;
-      element.ContextMenu.Open(element);
+      // Open explicitly rather than attaching a default secondary-click menu to the map:
+      // empty cells must keep tile selection, never reopen a previous event's commands.
+      if (Resources["MapEventMenu"] is not ContextMenu menu) return;
+      menu.DataContext = ViewModel;
+      menu.Open(element);
    }
 
    #endregion

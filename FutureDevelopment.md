@@ -212,12 +212,14 @@ Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUD
 
 ## HMA-012 — Finish interrupted map/picker gestures and history boundaries
 
-**Status:** Reproduced, not implemented. Explicit pointer capture loss can leave paint/pan
+**Status:** Fixed in changelog entry 107, with enforced synthetic lifecycle regressions.
+Original behavior: Explicit pointer capture loss could leave paint/pan
 active without a pressed button and leave selection/picker state stale. Switching tabs during
 a stroke can merge it with the following stroke into one Undo step.
 
-Scope: Idempotent completion for capture loss, detach and old-context replacement, including
-normal-release reentrancy, exact endpoint handling, per-tool state and one history completion.
+Implemented: Idempotent completion for capture loss, detach, old-context replacement and explicit
+map navigation, including normal-release reentrancy, exact endpoints, per-tool state and one
+history completion. See [MapGestureLifecycle](tests/MapGestureLifecycle/README.md).
 Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
 
 ## HMA-013 — End live map interactions when Escape clears the brush
@@ -237,3 +239,18 @@ text field or another tab before Space is released. Lost-focus cleanup omits Sho
 Scope: Clear transient reveal state across focus/context/lifetime boundaries without consuming
 text-entry keys or breaking Command hide-events behavior.
 Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
+
+
+## HMA-015 — Review preserve-mode packing for a non-bag rectangle brush
+
+**Status:** Reproduced during lifecycle regression development; not implemented here. Selecting
+single block 1, setting CollisionIndex=-1, then Command-dragging a non-bag rectangle writes FC01
+throughout that rectangle. CollisionIndex's existing setter packs the negative sentinel into
+tilesToDraw; FillRect passes those packed values to RepeatBlocks. This is distinct from the
+fixed HMA-010 PaintBlockBag fallback and from interruption cleanup.
+
+Next step: Add a failing packed-brush preserve-mode regression and determine the intended
+per-cell movement behavior alongside explicit permissions and copied multi-cell brushes.
+Keep exact bytes/metadata, rectangle preview/backups, Save/Undo/Redo and bag fill protected.
+The lifecycle rectangle regression deliberately uses explicit permission 0 to isolate gesture
+completion without changing this existing writing path.

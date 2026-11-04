@@ -120,3 +120,15 @@ drag interruption, border editing and connection-arrow dragging, 9-grid/wave-fun
 and every combination of tools. The map-navigation probe uses two bank aliases to one fabricated
 map, not two independent ROM regions. Existing event/menu groups are baseline checks, not proof
 that every combined event transition passes. Native verification should follow the fixes.
+
+
+## Implementation follow-up
+
+HMA-012 is fixed in changelog entry 107 and protected by the enforced MapGestureLifecycle group.
+The original failed observations above remain historical evidence. Ownership is ended before
+explicit map navigation/context replacement; interruption freezes valid applied edits, completes
+history once and abandons pending placement/wave requests. Normal release retains its true
+endpoint and is disarmed before capture is released. New tests include independent-document
+context isolation and save/reload/history boundaries. Border/connection gestures use the same
+cleanup mechanism, but their native resize interactions are not directly covered by this group.
+HMA-011, HMA-013 and HMA-014 are not claimed fixed by entry 107.

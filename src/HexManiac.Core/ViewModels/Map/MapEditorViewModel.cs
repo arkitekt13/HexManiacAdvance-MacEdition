@@ -355,6 +355,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
       private void NavigateTo(int mapID, bool trackChange = true) => NavigateTo(mapID / 1000, mapID % 1000, trackChange);
       private void NavigateTo(int bank, int map, bool trackChange = true) {
+         InterruptInteraction();
          // special case
          if (bank == 127 && map == 127) {
             ExecuteBack();
@@ -381,6 +382,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void NavigateTo(int bank, int map, int x, int y) {
+         InterruptInteraction();
          viewPort.Tools.LogTool.LogMessages.Add($"Navigate to ({x}, {y}) in map {bank}.{map}");
          if (primaryMap != null) {
             backStack.Add(primaryMap.MapID);
@@ -811,6 +813,31 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          else if (interactionType == PrimaryInteractionType.RectangleDraw) DrawUp(x, y);
          else if (interactionType == PrimaryInteractionType.Draw9Grid) DrawUp(x, y);
          interactionType = PrimaryInteractionType.None;
+      }
+
+      public event EventHandler InteractionInterruptRequested;
+
+      private void InterruptInteraction() {
+         InteractionInterruptRequested?.Invoke(this, EventArgs.Empty);
+         CompleteInteraction();
+      }
+
+      /// <summary>Finish already-applied edits when a pointer gesture is interrupted.
+      /// Unlike a normal release, this must not place a pending event or start a wave fill.</summary>
+      public void CompleteInteraction() {
+         var previous = interactionType;
+         var creating = withinEventCreationInteraction;
+         interactionType = PrimaryInteractionType.None;
+         withinEventCreationInteraction = false;
+         eventCreationType = EventCreationType.None;
+         rectangleBackup = null;
+         if (previous == PrimaryInteractionType.None && !creating) return;
+         if (previous == PrimaryInteractionType.Event && selectedEvent is ObjectEventViewModel objEvent) {
+            foreach (var neighbor in PreferLoaded(GetMapNeighbors(primaryMap, 1))) neighbor.UpdateClone(primaryMap, objEvent);
+         }
+         history.ChangeCompleted();
+         if (creating) UpdatePrimaryMap(primaryMap);
+         else primaryMap.RedrawEvents();
       }
 
       Point drawSource, lastDraw;

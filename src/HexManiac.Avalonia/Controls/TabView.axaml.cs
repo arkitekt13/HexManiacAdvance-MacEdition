@@ -615,6 +615,16 @@ public partial class TabView : UserControl {
       if (sender is Control element && element.DataContext is FieldArrayElementViewModel vm) vm.Focus();
    }
 
+   private void HandleStreamKeyboardFocus(object sender, GotFocusEventArgs e) {
+      // The shared stream template also hosts whole encounter tables and multiline text.
+      // Only a single-line PCS value should act like a short replacement field on Tab.
+      if (e.NavigationMethod != NavigationMethod.Tab || sender is not TextBox box ||
+          box.DataContext is not TextStreamElementViewModel stream ||
+          (box.Text ?? string.Empty).IndexOfAny(new[] { '\r', '\n' }) >= 0) return;
+      var destination = stream.Model.ReadPointer(stream.Start);
+      if (stream.Model.GetNextRun(destination) is HavenSoft.HexManiac.Core.Models.Runs.PCSRun) box.SelectAll();
+   }
+
    private void HandleTupleFieldKeyboardFocus(object sender, GotFocusEventArgs e) {
       if (sender is Control element && element.DataContext is NumericTupleElementViewModel vm) vm.Focus();
    }

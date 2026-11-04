@@ -563,6 +563,7 @@
                                                       instead, as they do everywhere else.
                                                    -->
                                                    <TextBox Name="StreamTextBox" UndoLimit="0" Text="{Binding Content, Mode=TwoWay}"
+                                                      GotFocus="HandleStreamKeyboardFocus"
                                                       Background="Transparent"
                                                       VerticalAlignment="Top"
                                                       CaretBrush="{DynamicResource Secondary}"

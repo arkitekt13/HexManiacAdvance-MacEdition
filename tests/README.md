@@ -26,6 +26,8 @@ Map event address/text editing and guarded Delete, Backspace, arrows and Escape 
 covered by [MapEventEditing](MapEventEditing/README.md).
 Rendered dialogue overflow/error underlines and existing Enter/paragraph encoding are covered by
 [DialogueDiagnostics](DialogueDiagnostics/README.md).
+Short-field Tab/Shift+Tab selection, mouse placement and large-editor exclusions are covered by
+[ShortFieldTabSelection](ShortFieldTabSelection/README.md).
 Production trainer, sprite, palette, and ordinary text-stream template checks are documented
 in [StreamTemplates/README.md](StreamTemplates/README.md).
 

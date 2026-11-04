@@ -1322,3 +1322,21 @@ Evidence: The exact reported `msgbox.npc <auto>` dialogue generated an overflow 
 Validation: The new group passes 27 assertions covering the screenshot's exact sentence with LF/CRLF, visible pixels below the overflowing suffix, disappearing warnings after correction or manual breaks, both scroll directions, whitespace-only warnings, red error underlines, stale/unsorted ranges, retained focus and unchanged source/ROM bytes/metadata. A rendered image of the example was also inspected visually. Existing PCS behavior is characterized unchanged: Enter inserts a line break, subsequent single breaks scroll, and a blank line inserts a paragraph/page break. The complete Mac suite passes 33 groups and 6,543 assertions with zero failures or skipped groups; builds report zero warnings and errors.
 
 Scope: Mac diagnostic presentation only; width estimation, compilation, relocation, history, text encoding and game-engine behavior are unchanged. No popup or automatic wrapping is added. The synthetic probe uses the fallback font-width path; in-game appearance with a real ROM remains for user confirmation after relaunch.
+
+## 079 — Select short field values when navigating with Tab
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml](src/HexManiac.Avalonia/Controls/TabView.axaml) | 566 | Attach keyboard focus handling to the shared stream field template. |
+| [src/HexManiac.Avalonia/Controls/TabView.axaml.cs](src/HexManiac.Avalonia/Controls/TabView.axaml.cs) | 618 | Select complete single-line PCS table entries only when focus arrives through Tab navigation. |
+| [src/HexManiac.Avalonia/Controls/AngleTextBox.cs](src/HexManiac.Avalonia/Controls/AngleTextBox.cs) | 158 | Preserve the navigation reason and modifiers when a proxy field creates its real textbox so scalar fields retain native Tab selection. |
+| [tests/ShortFieldTabSelection/ShortFieldTabSelection.csproj](tests/ShortFieldTabSelection/ShortFieldTabSelection.csproj) | 1 | Add headless short-field selection regressions using the actual table and scalar controls. |
+| [tests/ShortFieldTabSelection/Program.cs](tests/ShortFieldTabSelection/Program.cs) | 37 | Exercise multiple-choice replacements, pointers, neighboring bytes, history, proxy activation and exclusions for large editors. |
+| [tests/ShortFieldTabSelection/README.md](tests/ShortFieldTabSelection/README.md) | 1 | Document keyboard-only selection scope, automated coverage and native checks. |
+| [tests/README.md](tests/README.md) | 29 | Link the short-field Tab selection regression group. |
+
+Evidence: The multiple-choice fields use a shared multiline-capable TextBox, which does not select everything on Tab as a native single-line textbox does. The handler is limited to PCS streams containing one source line; whole lists/tables and dedicated script/dialogue editors are excluded. AngleTextBox also lost Tab's focus reason during proxy activation, and subscribed to attachment after assigning Content; it now subscribes before attachment and forwards the original navigation reason without forcing mouse or programmatic selection.
+
+Validation: The new group passes 21 assertions for Tab/Shift+Tab, typing replacement, mouse placement, programmatic focus, refresh without reselection, unchanged neighboring bytes/pointers, exact Undo/Redo, scalar proxy activation, multiline/list exclusions, script indentation and dedicated dialogue exclusion. The complete-suite attempt stopped on the previously observed FocusAnimation movement timing assertion, which also failed on an isolated rerun; no production animation code changed. All remaining 25 groups were then freshly built and executed using the documented build/run procedure and passed 5,502 assertions. Across all 34 groups, 33 passed 6,551 assertions, one group failed (FocusAnimation), and none were skipped. Builds report zero warnings and errors; a completely passing suite is not claimed.
+
+Scope: Mac field focus/selection only; numeric parsing, text encoding, relocation, history and game-engine behavior are unchanged. Native multiple-choice and scalar Tab navigation remain for user confirmation after relaunch.

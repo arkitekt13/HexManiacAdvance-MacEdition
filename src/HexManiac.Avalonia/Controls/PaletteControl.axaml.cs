@@ -2,6 +2,7 @@ using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
@@ -58,6 +59,29 @@ public partial class PaletteControl : UserControl {
    private bool isPointerCaptured;
    private bool swatchEditInProgress;
    private PaletteCollection subscribedPalette;
+   private StubCommand paletteCopy, palettePaste;
+
+   private StubCommand ClipboardCommand(Func<PaletteCollection, ICommand> select, bool needsText = false) => new() {
+      CanExecute = _ => FileSystem != null && (!needsText || FileSystem.CopyText != null) && ViewModel != null && select(ViewModel).CanExecute(FileSystem),
+      Execute = _ => {
+         // The control is constructed before it has a TopLevel/FileSystem. Resolve
+         // this parameter when invoked, never capture null during initialization.
+         var fs = FileSystem;
+         if (fs != null && (!needsText || fs.CopyText != null) && ViewModel != null && select(ViewModel).CanExecute(fs)) select(ViewModel).Execute(fs);
+      },
+   };
+
+   internal void EditClipboard(bool paste) => (paste ? palettePaste : paletteCopy).Execute(null);
+
+   internal void SelectAllColors() {
+      if (ViewModel == null || ViewModel.Elements.Count == 0) return;
+      ViewModel.SelectionStart = 0;
+      ViewModel.SelectionEnd = ViewModel.Elements.Count - 1;
+   }
+
+   internal void RunPaletteCommand(Func<PaletteCollection, ICommand> select) {
+      if (ViewModel != null && select(ViewModel).CanExecute(null)) select(ViewModel).Execute(null);
+   }
 
    private void WatchPalette() {
       if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged -= PaletteContentsChanged;
@@ -173,31 +197,46 @@ public partial class PaletteControl : UserControl {
 
    /// WPF declared these in UserControl.ContextMenu / UserControl.InputBindings with Ctrl.
    private void BuildContextMenu() {
+      paletteCopy = ClipboardCommand(p => p.Copy);
+      palettePaste = ClipboardCommand(p => p.Paste, needsText: true);
       var eyeDropperItem = new MenuItem { Header = "Choose Color from Screen", [ToolTip.TipProperty] = EyeDropperToolTipText };
       eyeDropperItem.Click += GrabScreenColor;
       ContextMenu = new ContextMenu {
          ItemsSource = new Control[] {
-            new MenuItem { Header = "Copy", InputGesture = new KeyGesture(Key.C, HexContent.CommandModifier), [!MenuItem.CommandProperty] = new Avalonia.Data.Binding(nameof(PaletteCollection.Copy)), CommandParameter = FileSystem },
-            new MenuItem { Header = "Paste", InputGesture = new KeyGesture(Key.V, HexContent.CommandModifier), [!MenuItem.CommandProperty] = new Avalonia.Data.Binding(nameof(PaletteCollection.Paste)), CommandParameter = FileSystem },
+            new MenuItem { Header = "Copy", InputGesture = new KeyGesture(Key.C, HexContent.CommandModifier), Command = paletteCopy },
+            new MenuItem { Header = "Paste", InputGesture = new KeyGesture(Key.V, HexContent.CommandModifier), Command = palettePaste },
             new MenuItem { Header = "Create Gradient", InputGesture = new KeyGesture(Key.G, HexContent.CommandModifier), [!MenuItem.CommandProperty] = new Avalonia.Data.Binding(nameof(PaletteCollection.CreateGradient)) },
             new MenuItem { Header = "Merge Colors", InputGesture = new KeyGesture(Key.M, HexContent.CommandModifier), [!MenuItem.CommandProperty] = new Avalonia.Data.Binding(nameof(PaletteCollection.SingleReduce)) },
             eyeDropperItem,
          },
       };
+      ContextMenu.Opened += (_, _) => { paletteCopy.RaiseCanExecuteChanged(); palettePaste.RaiseCanExecuteChanged(); };
    }
 
    private void BuildKeyBindings() {
-      void Add(Key key, KeyModifiers modifiers, string path, bool withFileSystem = false) {
-         var binding = new KeyBinding { Gesture = new KeyGesture(key, modifiers) };
-         binding.Bind(KeyBinding.CommandProperty, new Avalonia.Data.Binding($"DataContext.{path}") { Source = this });
-         if (withFileSystem) binding.CommandParameter = FileSystem;
-         KeyBindings.Add(binding);
+      bool TextOwnsKeys() => TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is TextBox;
+      void Add(Key key, Func<PaletteCollection, ICommand> select) => KeyBindings.Add(new KeyBinding {
+         Gesture = new KeyGesture(key, HexContent.CommandModifier), Command = new StubCommand {
+            CanExecute = _ => ViewModel != null && !TextOwnsKeys(),
+            Execute = _ => RunPaletteCommand(select),
+         },
+      });
+      // Consume palette clipboard shortcuts even when disabled, so they cannot fall
+      // through to an ancestor's image/binary command. Popup text keeps its native route.
+      foreach (var key in new[] { Key.C, Key.V }) {
+         KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(key, HexContent.CommandModifier), Command = new StubCommand {
+            CanExecute = _ => ViewModel != null && !TextOwnsKeys(),
+            Execute = _ => EditClipboard(key == Key.V),
+         }});
       }
-      Add(Key.C, HexContent.CommandModifier, nameof(PaletteCollection.Copy), true);
-      Add(Key.V, HexContent.CommandModifier, nameof(PaletteCollection.Paste), true);
-      Add(Key.G, HexContent.CommandModifier, nameof(PaletteCollection.CreateGradient));
-      Add(Key.M, HexContent.CommandModifier, nameof(PaletteCollection.SingleReduce));
-      Add(Key.Delete, KeyModifiers.None, nameof(PaletteCollection.DeleteColor));
+      KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.A, HexContent.CommandModifier), Command = new StubCommand {
+         CanExecute = _ => ViewModel != null && !TextOwnsKeys(), Execute = _ => SelectAllColors(),
+      }});
+      Add(Key.G, p => p.CreateGradient);
+      Add(Key.M, p => p.SingleReduce);
+      KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.Delete), Command = new StubCommand {
+         CanExecute = _ => ViewModel != null && !TextOwnsKeys(), Execute = _ => RunPaletteCommand(p => p.DeleteColor),
+      }});
    }
 
    private IFileSystem FileSystem {

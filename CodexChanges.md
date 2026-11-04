@@ -1547,3 +1547,21 @@ Evidence: After a valid 1234 color edit, Undo restored the ROM but left the real
 Behavior: External palette replacement, including Undo/Redo, reload and context changes, closes the old editor. Reopening reads current colors. The control follows only its current palette, marshals delayed notifications and unsubscribes on detachment. Own swatch writes are guarded so their existing refresh does not dismiss the popup during typing.
 
 Validation: PaletteHistory passes 36 assertions on compressed/uncompressed image editors; ColorEditorInput still passes all 93 focus/input checks. Coverage includes actual Cmd+Z, exact ROM/metadata and bitmap restoration, preserved redo during inspection, correction after Undo, reload, context changes, detached-source notifications and reattachment. No user ROM is used. Core palette writes, numeric/channel rules, relocation and history algorithms remain unchanged.
+
+## 091 — Keep palette clipboard commands on their focused target
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs](src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs) | 62 | Resolve clipboard filesystem parameters at invocation, refresh menu availability, and consume disabled palette operations without ancestor fallback. |
+| [src/HexManiac.Avalonia/Controls/ImageEditorView.axaml.cs](src/HexManiac.Avalonia/Controls/ImageEditorView.axaml.cs) | 45 | Decline canvas shortcuts while fields/palettes own focus and resolve image clipboard parameters after attachment. |
+| [src/HexManiac.Avalonia/Windows/MainWindow.Editing.cs](src/HexManiac.Avalonia/Windows/MainWindow.Editing.cs) | 16 | Route native Edit commands to focused palette colors while retaining text priority and image/hex fallback elsewhere. |
+| [tests/PaletteClipboard/PaletteClipboard.csproj](tests/PaletteClipboard/PaletteClipboard.csproj) | 1 | Register palette clipboard regressions with shared real-window fixtures. |
+| [tests/PaletteClipboard/Program.cs](tests/PaletteClipboard/Program.cs) | 14 | Reproduce null-parameter crashes and native-menu misrouting, and protect disabled operations, text priority and history. |
+| [tests/PaletteClipboard/README.md](tests/PaletteClipboard/README.md) | 1 | Document routing, command initialization and preservation coverage. |
+| [tests/README.md](tests/README.md) | 30 | Link the palette clipboard regression group. |
+
+Evidence: Cmd+C in the actual palette crashed in PaletteCollection.ExecuteCopy because FileSystem was captured during control construction, before it had a TopLevel. The image clipboard bindings had the same initialization flaw. Once isolated, native Edit-menu Copy used the image/tab fallback rather than the focused palette. A disabled palette Paste also reached an ancestor image binding instead of remaining disabled.
+
+Behavior: Palette/image clipboard bindings resolve their current filesystem at execution. Canvas keys defer to focused palette/text/combo/slider controls. Palette commands consume unavailable operations; null/invalid color text cannot become an image or binary paste. Native Edit commands share palette focus routing, including selecting palette colors; unsupported palette Cut remains a no-op. Text fields keep native text clipboard priority. Context-menu enabled state refreshes when opened.
+
+Validation: PaletteClipboard 40, ClipboardRouting 78, ImageEditorInput 38, PaletteHistory 36 and ColorEditorInput 93 pass (285 assertions). Checks preserve existing color clipboard format and paste-selection advance, exact palette-only writes, sprite/pointer bytes, metadata and Undo/Redo, while verifying keyboard/native/context paths, invalid clipboard safety, popup text and image fallback. Core parsing/encoding and history algorithms are unchanged; no user ROM or real image clipboard is used.

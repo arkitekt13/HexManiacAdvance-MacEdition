@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
 using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.VisualTree;
 using HavenSoft.HexManiac.AvaloniaUI.Controls;
 using HavenSoft.HexManiac.Core.ViewModels;
 
@@ -11,11 +13,18 @@ namespace HavenSoft.HexManiac.AvaloniaUI.Windows;
 public partial class MainWindow {
    // Native menu accelerators and window key bindings must share the same focus routing.
    // In particular, a disabled/read-only text operation must never fall through to ROM editing.
-   private ICommand EditingCommand(Action<TextBox> textAction, Func<ICommand> fallback) => new StubCommand {
+   private PaletteControl FocusedPalette => FocusManager?.GetFocusedElement() is Visual focused
+      ? focused as PaletteControl ?? focused.GetVisualAncestors().OfType<PaletteControl>().FirstOrDefault() : null;
+
+   private ICommand EditingCommand(Action<TextBox> textAction, Func<ICommand> fallback,
+      Action<PaletteControl> paletteAction = null) => new StubCommand {
       CanExecute = _ => true,
       Execute = _ => {
          if (FocusManager?.GetFocusedElement() is TextBox box) {
             textAction(box);
+         } else if (FocusedPalette is PaletteControl palette) {
+            // Unsupported operations in a palette must not fall through to ROM/image edits.
+            paletteAction?.Invoke(palette);
          } else {
             var command = fallback();
             if (command?.CanExecute(null) == true) command.Execute(null);
@@ -26,17 +35,17 @@ public partial class MainWindow {
    private ICommand textCopy, textCut, textPaste, textSelectAll, textDelete, textDeepCopy;
 
    private void InitializeEditingCommands() {
-      textCopy = EditingCommand(box => box.Copy(), () => editor?.Copy);
+      textCopy = EditingCommand(box => box.Copy(), () => editor?.Copy, p => p.EditClipboard(false));
       textCut = EditingCommand(box => { if (!box.IsReadOnly) box.Cut(); }, () => editor?.Cut);
-      textPaste = EditingCommand(box => { if (!box.IsReadOnly) box.Paste(); }, () => editor?.Paste);
-      textSelectAll = EditingCommand(box => box.SelectAll(), () => editor?.SelectAll);
-      textDeepCopy = EditingCommand(box => box.Copy(), () => editor?.DeepCopy);
+      textPaste = EditingCommand(box => { if (!box.IsReadOnly) box.Paste(); }, () => editor?.Paste, p => p.EditClipboard(true));
+      textSelectAll = EditingCommand(box => box.SelectAll(), () => editor?.SelectAll, p => p.SelectAllColors());
+      textDeepCopy = EditingCommand(box => box.Copy(), () => editor?.DeepCopy, p => p.EditClipboard(false));
       textDelete = EditingCommand(box => {
          if (box.IsReadOnly) return;
          if (box.SelectionStart == box.SelectionEnd && box.CaretIndex < (box.Text?.Length ?? 0))
             box.SelectionEnd = box.CaretIndex + 1;
          box.SelectedText = string.Empty;
-      }, () => editor?.Delete);
+      }, () => editor?.Delete, p => p.RunPaletteCommand(v => v.DeleteColor));
       var menu = NativeMenu.GetMenu(this).Items.OfType<NativeMenuItem>().Single(item => item.Header == "Edit").Menu;
       foreach (var item in menu.Items.OfType<NativeMenuItem>()) {
          var command = item.Header switch {
@@ -48,13 +57,21 @@ public partial class MainWindow {
    }
 
    private void HandleTextEditingKeys(object sender, KeyEventArgs e) {
-      if (FocusManager?.GetFocusedElement() is not TextBox) return;
+      var palette = FocusedPalette;
+      bool textFocus = FocusManager?.GetFocusedElement() is TextBox;
+      if (!textFocus && palette == null) return;
+      if (!textFocus && e.KeyModifiers == HexContent.CommandModifier && (e.Key == Key.G || e.Key == Key.M)) {
+         e.Handled = true;
+         palette.RunPaletteCommand(p => e.Key == Key.G ? p.CreateGradient : p.SingleReduce);
+         return;
+      }
       ICommand command = null;
       if (e.KeyModifiers == HexContent.CommandModifier) command = e.Key switch {
          Key.C => textCopy, Key.X => textCut, Key.V or Key.B => textPaste, Key.A => textSelectAll, _ => null,
       };
       if (e.KeyModifiers == (HexContent.CommandModifier | KeyModifiers.Shift) && e.Key == Key.C)
          command = textDeepCopy;
+      if (!textFocus && e.KeyModifiers == KeyModifiers.None && e.Key == Key.Delete) command = textDelete;
       if (command == null) return;
       e.Handled = true;
       command.Execute(null);

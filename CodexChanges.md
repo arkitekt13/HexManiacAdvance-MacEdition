@@ -1727,3 +1727,19 @@ Performance: The unchanged Release full-highlighter benchmark measures 1.341→0
 Validation: The new CommentHighlighting group passes 4,652 assertions. `scripts/verify-mac.sh --no-restore` freshly builds and passes all 49 groups and 12,670 assertions, with zero failures and zero skipped groups. Shared script compilation/resource atomicity, source retention, numeric/name interpretation, save/reload, autocomplete, clipboard and history protections continue to pass. The separate upstream xUnit suite was not rerun; fresh builds retain eight pre-existing Core warnings.
 
 Scope: Only presentation comment-search positions change. Tokenization, numeric parsing, compiler/resource allocation/relocation, game-engine behavior, ROMs, metadata, history and caret algorithms are unchanged. The subsequent document-width/layout investigation is separate.
+
+## 101 — Attribute script width/layout cost and repeated queued measurements
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [tools/ScriptWidthBenchmark/ScriptWidthBenchmark.csproj](tools/ScriptWidthBenchmark/ScriptWidthBenchmark.csproj) | 1 | Add a standalone headless production-control investigation without application instrumentation. |
+| [tools/ScriptWidthBenchmark/Program.cs](tools/ScriptWidthBenchmark/Program.cs) | 1 | Time the actual document-width handler, compare same-size omission controls and record burst-source identity, rendered layers, geometry and diagnostics-only behavior. |
+| [tools/ScriptWidthBenchmark/README.md](tools/ScriptWidthBenchmark/README.md) | 1 | Document reproduction, exact-handler attribution, fixed-width prototype limits and the need to update instrumentation when queued work is introduced. |
+| [tests/SCRIPT_WIDTH_LAYOUT_INVESTIGATION.md](tests/SCRIPT_WIDTH_LAYOUT_INVESTIGATION.md) | 1 | Record repeated measurements and a safe coalescing/regression plan while leaving production layout unchanged. |
+| [tests/README.md](tests/README.md) | 27 | Link the width/layout investigation separately from the completed highlighting optimization. |
+
+Findings: At application checkpoint 26ec1e5c, the complete width handler takes about 3.34 ms/1.34 MB for 500 short lines, 21.96 ms/6.53 MB for 2,000 and 15.64 ms/4.94 MB for 500 Unicode dialogue lines in the second Release run. It is nested within queued layout/render work, not an additive extra phase or the whole remaining editor cost. Same-size omission controls retain final source/layer hashes and measured widths/corner geometry, but do not establish safety for growing/shrinking documents.
+
+Confirmed redundancy: Ten source updates queued before UI draining invoke ten width calculations, all reading the same final source in every production arm. The 500/2,000-short-line bursts spend about 45/178 ms in those width handlers; diagnostics-only bursts invoke none. Coalescing actual measurements to one current-state UI request is the recommended next implementation. Isolated settled edits already measure once, so the proposal targets bursts rather than promising removal of ordinary per-edit shaping cost.
+
+Validation and scope: Two independent Release runs each pass 315 source/rendered-layer/handler/diagnostic invariants; all five endpoint geometry comparisons agree, and the second run verifies one distinct measured source across every ten-call production burst. No production width/layout, compiler, settings, ROM or history code changes. The full suite was not repeated for this tooling-only step; the preceding optimization freshly passed 49 groups/12,670 assertions, zero failures/skips. Full TabView/compiler/native input costs and dynamic-size behavior remain outside the probe. The plan requires caret, scrolling, fonts/Unicode, dimensions, context/lifetime and recent suggestion protections before any implementation.

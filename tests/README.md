@@ -24,6 +24,8 @@ and reproduced stale-suggestion lifecycle gaps; [AutocompleteDismissal](Autocomp
 protects the subsequent focus/context/lifetime fix.
 The [comment-search optimization](COMMENT_HIGHLIGHT_PERFORMANCE.md) records exact-layer
 equivalence and Core timing improvements, protected by [CommentHighlighting](CommentHighlighting/README.md).
+The [width/layout investigation](SCRIPT_WIDTH_LAYOUT_INVESTIGATION.md) attributes the current
+width handler and repeated queued measurements without changing application behavior.
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

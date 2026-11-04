@@ -123,21 +123,23 @@ var mapSurface = new Grid();
 var mapImage = new Avalonia.Controls.Border();
 mapSurface.Children.Add(mapImage);
 var overlay = new TutorialControl();
-var previewController = new MapHoverPreview(mapSurface);
+var previewLayer = new Canvas();
+var previewController = new MapHoverPreview(mapSurface, previewLayer);
 Check(previewController.OwnsSource(mapSurface) && previewController.OwnsSource(mapImage)
    && !previewController.OwnsSource(overlay), "Only the map surface and its children may trigger previews.");
 var preview = new object[] { "NPC dialogue preview" };
 previewController.Update(preview);
-Check(ToolTip.GetTip(mapSurface) is HexContentToolTip, "NPC preview must belong to the map surface.");
+var previewBox = (Viewbox)previewLayer.Children.Single();
+Check(previewBox.IsVisible && !previewLayer.IsHitTestVisible, "NPC preview must be an input-transparent map overlay.");
 previewController.Hide();
-Check(!ToolTip.GetIsOpen(mapSurface) && ToolTip.GetTip(mapSurface) == null,
+Check(!previewBox.IsVisible && ToolTip.GetTip(mapSurface) == null,
    "Leaving the map must close and remove the NPC tooltip.");
 previewController.Update(null);
-Check(ToolTip.GetTip(mapSurface) is HexContentToolTip tip && ReferenceEquals(tip.DataContext, preview),
+Check(previewBox.IsVisible && previewBox.Child is HexContentToolTip tip && ReferenceEquals(tip.DataContext, preview),
    "Re-entering the same NPC cell must recover the cached preview.");
 previewController.Update(Array.Empty<object>());
 previewController.Update(null);
-Check(ToolTip.GetTip(mapSurface) == null, "An empty map cell must clear cached NPC content.");
+Check(!previewBox.IsVisible && ToolTip.GetTip(mapSurface) == null, "An empty map cell must clear cached NPC content.");
 Console.WriteLine("PASS: tutorial stacking configuration, map-only preview sources, dismissal, same-NPC re-entry, and empty-cell clearing.");
 
 Console.WriteLine($"CHECKS_PASSED:{checks}");

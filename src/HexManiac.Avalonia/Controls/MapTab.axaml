@@ -1185,6 +1185,11 @@
          <TextBlock Canvas.Left="90" Text="{Binding ZoomLevel}" Background="{DynamicResource Background}" />
       </Canvas>
 
+      <!-- A map-owned hover preview cannot intercept the pointer or open a native popup.
+           Keep editor panels and tutorial cards above it. -->
+      <Canvas Grid.Column="1" Grid.Row="1" Name="HoverPreviewLayer" ZIndex="2"
+              IsHitTestVisible="False" ClipToBounds="True" />
+
       <!-- Tile Panel -->
       <Border Grid.Column="1" Grid.RowSpan="2" ZIndex="3" HorizontalAlignment="Left"
               BorderBrush="{DynamicResource Backlight}" BorderThickness="1"

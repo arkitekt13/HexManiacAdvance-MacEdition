@@ -39,7 +39,7 @@ public partial class MapTab : UserControl {
 
    public MapTab() {
       InitializeComponent();
-      hoverPreview = new MapHoverPreview(MapView);
+      hoverPreview = new MapHoverPreview(MapView, HoverPreviewLayer);
       DataContextChanged += (sender, e) => UpdateDataContext();
       AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Bubble);
       AddHandler(KeyUpEvent, HandleKeyUp, RoutingStrategies.Bubble);
@@ -145,7 +145,16 @@ public partial class MapTab : UserControl {
       TileViewer.Offset = new Vector(TileViewer.Offset.X, scrollRange * scrollPercent);
    }
 
-   private void UpdateTooltipContent(object content) => hoverPreview.Update(content);
+   private void UpdateTooltipContent(object content) {
+      if (ViewModel == null) return;
+      var vm = ViewModel;
+      var center = MapView.TranslatePoint(new Avalonia.Point(
+         MapView.Bounds.Width / 2 + vm.HighlightCursorX,
+         MapView.Bounds.Height / 2 + vm.HighlightCursorY), HoverPreviewLayer);
+      if (center is not Avalonia.Point point) return;
+      hoverPreview.Update(content, new Rect(point.X - vm.HighlightCursorWidth / 2,
+         point.Y - vm.HighlightCursorHeight / 2, vm.HighlightCursorWidth, vm.HighlightCursorHeight));
+   }
 
    private void HideMapTooltip() => hoverPreview.Hide();
 
@@ -445,6 +454,7 @@ public partial class MapTab : UserControl {
       var vm = ViewModel;
       if (vm == null) return;
       var p = GetCoordinates(element, e);
+      HideMapTooltip();
       vm.Zoom(p.X, p.Y, e.Delta.Y > 0);
       e.Handled = true;
    }

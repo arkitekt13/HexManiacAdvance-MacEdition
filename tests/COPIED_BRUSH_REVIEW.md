@@ -7,7 +7,7 @@ documentation only; application source, existing tests, ROM fixtures and persona
 unchanged. No user ROM or emulator is used. The review creates fabricated maps with mixed
 source/destination permissions, real MainWindow/MapTab controls and actual routed pointer input.
 
-Twenty-five independent current-build scenarios completed with **343 positive setup/preservation
+Twenty-five independent e64cca67 scenarios completed with **343 positive setup/preservation
 controls** and **23 separate behavioral observations: 13 passing, 10 failing**. Failed observations
 are recorded defects/latent-state findings, not included in passing regression counts. Some
 cases only record raw values without claiming a semantic invariant. The executable is outside
@@ -110,7 +110,8 @@ into a safe permission policy; Save/Redo do not sanitize the bad values.
    default, isolate scalar permission policy from tile IDs, and explicitly test correction,
    re-copy, stamping/repetition/nine-grid/border routes and original HMA-010/015 protections.
 
-No implementation is included. The first two failures are reachable through normal controls;
+The original investigation included no implementation; subsequent fixes are recorded below.
+The first two failures are reachable through normal controls;
 the negative-preserve case is characterized through a deliberate Core assignment.
 
 ## Baseline verification and limits
@@ -141,3 +142,23 @@ assertions over default/custom dimensions, invalid origins and retained Redo, va
 and Save/reload/history. Two enforced real-pointer scenarios add 38 assertions for single and
 copied border drags, all sides, invalid sampling and capture interruption. HMA-016 and HMA-017
 remain separate work in this commit.
+
+
+## HMA-017 implementation follow-up
+
+Entry 114 adds a separate current-brush explicit permission override and applies it after art
+selection at every nine-grid write. Fresh copy/picker selection clears it, retaining normal
+mixed copied/derived permissions; explicit choices persist between strokes. Original Core
+Draw9Grid overloads keep their original behavior, forwarding with no override.
+
+The enforced pre-fix case fails on the inner corner retaining 3001 after explicit 00. The
+completed scenario passes 602 assertions across all four inner-corner orientations, 00/01/3F
+before/after activation, unchanged art/geometry/outside bytes, saved-state boundaries, subsequent
+strokes, re-copy/Cancel, original Core API and no-discovery fallback. HMA-016 remains a latent
+Core-state finding; no preserve selector or broader permission-mode feature is added here.
+
+
+Final post-fix verification: `scripts/verify-mac.sh --no-restore` freshly builds and passes all
+53 groups / 16,684 assertions, zero failures or skipped groups. BorderBounds supplies 190 checks;
+MapGestureLifecycle supplies 1,285 across 36 isolated scenarios. HMA-017 and HMA-018 are fixed;
+HMA-016 remains latent and unimplemented. Upstream suites and native gameplay were not rerun.

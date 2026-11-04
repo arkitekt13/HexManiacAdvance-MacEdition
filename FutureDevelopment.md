@@ -276,13 +276,15 @@ Evidence and limits: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
 
 ## HMA-017 — Apply explicit nine-grid permissions to derived inner corners
 
-**Status:** Reproduced through bound Movement selection and real pointer painting, not fixed.
+**Status:** Fixed in changelog entry 114. Original behavior:
 Selecting permission 01 paints normal nine-grid cells with 01 but an inner corner retains 0C
 from discovery. Both before-activation and after-activation selector changes reproduce it.
 
-Plan: Keep corner-art inference while applying the actual explicit movement policy uniformly,
-without flattening ordinary mixed copied-pattern permissions. Cover all corner topologies,
-mode changes, successive strokes, exact bytes/metadata and Save/Undo/Redo.
+Implemented: Track a current-brush explicit override independently of copied packed permissions
+and apply it at every nine-grid write, including discovered/fallback corners. Fresh copying or
+picker selection clears the override; original Core overloads retain their legacy semantics.
+Regressions cover all four inner corners, 00/01/3F before/after activation, successive strokes,
+re-copy/cancel, unchanged art/geometry, fallback APIs and exact persistence/history.
 Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
 
 ## HMA-018 — Bound border pointer coordinates before accessing ROM data

@@ -168,9 +168,11 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       private int collisionIndex = -1;
+      private int? nineGridCollisionOverride;
       public int CollisionIndex {
          get => collisionIndex;
          set {
+            nineGridCollisionOverride = value >= 0 ? value : null;
             Set(ref collisionIndex, value);
             foreach (var map in VisibleMaps) {
                map.CollisionHighlight = value;
@@ -925,7 +927,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       private void Draw9Grid(double x, double y) {
          var map = MapUnderCursor(x, y);
-         map.Draw9Grid(history.CurrentChange, tilesToDraw, x, y);
+         map.Draw9Grid(history.CurrentChange, tilesToDraw, x, y, nineGridCollisionOverride);
          Hover(x, y);
       }
 
@@ -1209,6 +1211,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void SelectUp(double x, double y) {
+         // A freshly selected pattern owns its copied/preferred permissions until explicitly overridden.
+         nineGridCollisionOverride = null;
          interactionType = PrimaryInteractionType.None;
          var map = MapUnderCursor(x, y);
          if (map != primaryMap) return;
@@ -1794,6 +1798,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void SelectBlock(int x, int y) {
+         // A freshly selected pattern owns its copied/preferred permissions until explicitly overridden.
+         nineGridCollisionOverride = null;
          while (y * BlockMapViewModel.BlocksPerRow + x > PrimaryMap.BlockRenders.Count) y -= 1;
          blockInteractionStart = new(x, y);
          selectionFromBlock = false;
@@ -1826,6 +1832,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void ReleaseBlock(int x, int y) {
+         // A freshly selected pattern owns its copied/preferred permissions until explicitly overridden.
+         nineGridCollisionOverride = null;
          var (xx, right) = (x, blockInteractionStart.X);
          if (xx > right) (xx, right) = (right, xx);
          var (yy, bottom) = (y, blockInteractionStart.Y);

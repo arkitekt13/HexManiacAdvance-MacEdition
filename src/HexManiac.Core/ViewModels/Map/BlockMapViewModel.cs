@@ -993,14 +993,16 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          tutorials.Complete(Tutorial.LeftClickMap_DrawBlock);
       }
 
-      public void Draw9Grid(ModelDelta token, int[,] grid, double x, double y) {
+      public void Draw9Grid(ModelDelta token, int[,] grid, double x, double y) => Draw9Grid(token, grid, x, y, null);
+
+      public void Draw9Grid(ModelDelta token, int[,] grid, double x, double y, int? collisionOverride) {
          waveFunctionActive?.Cancel();
          var layout = GetLayout();
          var (width, height) = (layout.GetValue("width"), layout.GetValue("height"));
          var (xx, yy) = ConvertCoordinates(x, y);
          xx = xx.LimitToRange(0, width - 2);
          yy = yy.LimitToRange(0, height - 2);
-         Draw9Grid(token, grid, xx, yy);
+         Draw9Grid(token, grid, xx, yy, collisionOverride);
       }
 
       public void DiscoverCornersFor9Grid(int[,] grid) {
@@ -1145,7 +1147,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       private bool[,] current9gridInteractionMap;
       private int[,]? innerCornersFor9Grid;
       // 9-grid is always drawn 2x2
-      public void Draw9Grid(ModelDelta token, int[,] grid, int x, int y) {
+      public void Draw9Grid(ModelDelta token, int[,] grid, int x, int y) => Draw9Grid(token, grid, x, y, null);
+
+      public void Draw9Grid(ModelDelta token, int[,] grid, int x, int y, int? collisionOverride) {
          waveFunctionActive?.Cancel();
          var innerCornersFor9Grid = this.innerCornersFor9Grid ?? new[,] { { grid[1, 1], grid[1, 1] }, { grid[1, 1], grid[1, 1] } }; // copy so that there's no reference changing during the method
          var layout = GetLayout();
@@ -1166,6 +1170,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
                   if (!xx.InRange(0, width - 1) || !yy.InRange(0, height - 1)) continue;
                   if (!current9gridInteractionMap[xx, yy]) continue;
                   var chosenBlock = Get9GridBlock(current9gridInteractionMap, new(xx, yy), grid, innerCornersFor9Grid);
+                  if (collisionOverride is int permission) chosenBlock = (chosenBlock & 0x3FF) | (permission << 10);
                   model.WriteMultiByteValue(start + (yy * width + xx) * 2, 2, token, chosenBlock);
                }
             }

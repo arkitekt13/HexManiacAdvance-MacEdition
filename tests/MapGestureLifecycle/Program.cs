@@ -19,7 +19,7 @@ using System.Diagnostics;
 
 if (args.Length == 0) {
    var total = 0;
-   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions", "same-cell-history", "reveal-focus", "reveal-tab", "reveal-context", "reveal-navigation", "reveal-normal", "border-single-bounds", "border-multi-bounds" }) {
+   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions", "same-cell-history", "reveal-focus", "reveal-tab", "reveal-context", "reveal-navigation", "reveal-normal", "border-single-bounds", "border-multi-bounds", "nine-grid-overrides" }) {
       var start = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true };
       start.ArgumentList.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
       start.ArgumentList.Add(name);
@@ -54,6 +54,12 @@ if(args[0]=="rectangle-permissions") {
    var permissions=new[]{0,1,16,63};
    for(int y=2;y<=9;y++)for(int x=2;x<=9;x++)
       model.WriteMultiByteValue(SyntheticMapFixture.Cells+(y*24+x)*2,2,token,(permissions[(x+y)%4]<<10)|((x+y)%2));
+}
+if(args[0].StartsWith("nine-grid")) {
+   var permissions=new[]{4,12,32,60};
+   for(int y=0;y<20;y++)for(int x=0;x<24;x++)model.WriteMultiByteValue(SyntheticMapFixture.Cells+(y*24+x)*2,2,token,(permissions[(x+2*y)%4]<<10)|((x+y)%2));
+   var sourcePermissions=new[]{16,12,3,63,1,48,5,9,62};
+   for(int y=0;y<3;y++)for(int x=0;x<3;x++)model.WriteMultiByteValue(SyntheticMapFixture.Cells+((y+2)*24+x+2)*2,2,token,(sourcePermissions[y*3+x]<<10)|((x+y)%2));
 }
 if(args[0].StartsWith("border-")) {
    model.WriteMultiByteValue(0x8FE,2,token,0x5AA5);model.WriteMultiByteValue(0x908,2,token,0x6BB6);
@@ -412,6 +418,88 @@ if(scenario=="paint-capture" || scenario=="pan-capture" || scenario=="select-cap
    Check(brush==mapper.DrawBlockIndex&&multiple==mapper.DrawMultipleTiles&&ReferenceEquals(source,mapper.MultiTileDrawRender),"Outside sampling leaves the existing brush unchanged.");
    mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData)&&!mapper.Undo.CanExecute(null),"One Undo restores the complete pre-drag ROM and canaries.");
    mapper.Redo.Execute(null);Layout();Check(valid.SequenceEqual(model.RawData),"Redo restores exact valid single/copied border data.");
+ } else if(scenario=="nine-grid-overrides") {
+   var movement=view.GetVisualDescendants().OfType<AngleComboBox>().Single(c=>ReferenceEquals(c.ItemsSource,mapper.PrimaryMap.BlockEditor.MovementPermissions));
+   var paths=new[]{new[]{(12,8),(13,8),(12,9)},new[]{(12,8),(13,8),(13,9)},new[]{(12,8),(12,9),(13,9)},new[]{(13,8),(12,9),(13,9)}};
+   var references=new List<byte[]>();
+   void CopyPattern() {
+      mapper.Use9Grid=false;Layout();Down(Cell(2,2),RawInputModifiers.Control);
+      window.MouseMove(Cell(4,4),RawInputModifiers.Control|RawInputModifiers.LeftMouseButton);Up(Cell(4,4));
+      Check(mapper.DrawMultipleTiles&&mapper.IsValid9GridSelection,"Copy the actual mixed-permission 3x3 pattern.");
+   }
+   void DrawL((int,int)[] path) {
+      Down(Cell(path[0].Item1,path[0].Item2));
+      foreach(var (x,y) in path.Skip(1)){window.MouseMove(Cell(x,y),RawInputModifiers.LeftMouseButton);Layout();}
+      Up(Cell(path[^1].Item1,path[^1].Item2));
+   }
+   bool Active((int,int)[] path,int x,int y)=>path.Any(p=>x>=p.Item1&&x<=p.Item1+1&&y>=p.Item2&&y<=p.Item2+1);
+   for(int orientation=0;orientation<paths.Length;orientation++) {
+      var path=paths[orientation];CopyPattern();mapper.Use9Grid=true;Layout();DrawL(path);
+      var reference=model.RawData.ToArray();references.Add(reference);
+      if(orientation==0)Check(Value(13,9)==0x3001,"Unmodified copying must retain the original discovered corner word, not impose the first selected permission.");
+      mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData),"Reference nine-grid shape is exactly undoable.");
+      foreach(var permission in new[]{0,1,63})foreach(var late in new[]{false,true}) {
+         CopyPattern();
+         if(late){mapper.Use9Grid=true;Layout();}
+         movement.SetCurrentValue(ComboBox.SelectedIndexProperty,permission);Layout();Check(mapper.CollisionIndex==permission,"Bound selector must apply the explicit permission.");
+         if(!late){mapper.Use9Grid=true;Layout();}
+         DrawL(path);var edited=model.RawData.ToArray();var expected=baseline.ToArray();
+         for(int y=8;y<=10;y++)for(int x=12;x<=14;x++) {
+            if(!Active(path,x,y))continue;
+            int at=SyntheticMapFixture.Cells+(y*24+x)*2;var original=BitConverter.ToUInt16(reference,at);
+            Check(Value(x,y)>>10==permission,$"Nine-grid orientation={orientation}, permission={permission}, late={late}: {x},{y} must honor the override, actual={Value(x,y):X4}.");
+            Check((Value(x,y)&0x3FF)==(original&0x3FF),"Explicit permissions must not change discovered corner art or nine-grid geometry.");
+            BitConverter.GetBytes((ushort)((original&0x3FF)|(permission<<10))).CopyTo(expected,at);
+         }
+         Check(expected.SequenceEqual(edited),"Override changes only the intended cells and leaves source, pointers and outside bytes untouched.");
+         if(orientation==0&&permission==1&&late) {
+            byte[] saved=null;string[] stored=null;fs.Save=f=>{saved=f.Contents.ToArray();return true;};fs.SaveMetadata=(_,lines)=>{stored=lines.ToArray();return true;};viewport.Save.Execute(fs);
+            var loaded=new PokemonModel(saved,new StoredMetadata(stored),viewport.Singletons);
+            Check(viewport.ChangeHistory.IsSaved&&edited.SequenceEqual(saved)&&edited.SequenceEqual(loaded.RawData)&&metadata.SequenceEqual(loaded.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Nine-grid override saves/reloads exact bytes and metadata.");
+            Down(Cell(5,12));Up(Cell(5,12));
+            for(int y=12;y<=13;y++)for(int x=5;x<=6;x++)Check(Value(x,y)>>10==1,"An explicit choice persists into a second stroke with the same brush.");
+            mapper.Undo.Execute(null);Layout();Check(edited.SequenceEqual(model.RawData)&&viewport.ChangeHistory.IsSaved,"Second stroke has its own Undo entry and restores the saved first shape.");
+         }
+         mapper.Undo.Execute(null);Layout();Check(baseline.SequenceEqual(model.RawData)&&!mapper.Undo.CanExecute(null),"One Undo restores the full original model without extra history.");
+         mapper.Redo.Execute(null);Layout();Check(edited.SequenceEqual(model.RawData),"Redo restores exact art, geometry and permissions.");
+         mapper.Undo.Execute(null);Layout();
+      }
+   }
+   CopyPattern();mapper.Use9Grid=true;Layout();DrawL(paths[0]);
+   Check(references[0].SequenceEqual(model.RawData),"Re-copying clears the previous override and restores original mixed-source/derived-corner semantics.");
+   mapper.Undo.Execute(null);Layout();mapper.Cancel();CopyPattern();mapper.Use9Grid=true;Layout();DrawL(paths[0]);
+   Check(references[0].SequenceEqual(model.RawData),"Cancel and a fresh copied brush cannot inherit an old override.");
+   mapper.Undo.Execute(null);Layout();
+   // Preserve the original int-coordinate API and test the no-discovery fallback separately.
+   byte[] fallbackReference=null;
+   foreach(int? permission in new int?[]{null,0,1,63}) {
+      var fresh=new SyntheticMapFixture(8,8);var seed=new ModelDelta();
+      for(int y=0;y<8;y++)for(int x=0;x<8;x++)fresh.Model.WriteMultiByteValue(SyntheticMapFixture.Cells+(y*8+x)*2,2,seed,0x8001);
+      var grid=new int[3,3];for(int y=0;y<3;y++)for(int x=0;x<3;x++)grid[x,y]=((x+y+1)<<10)|((x+y)%2);
+      fresh.Map.PrepareFor9GridDraw(grid);fresh.ViewPort.ChangeHistory.ClearHistory(false);
+      var before=fresh.Model.RawData.ToArray();var meta=fresh.Model.ExportMetadata(null,fresh.ViewPort.Singletons.MetadataInfo).Serialize();
+      var change=fresh.ViewPort.ChangeHistory.CurrentChange;
+      foreach(var (x,y) in new[]{(2,2),(3,2),(2,3)}) {
+         if(permission is int selected)fresh.Map.Draw9Grid(change,grid,x,y,selected);
+         else fresh.Map.Draw9Grid(change,grid,x,y);
+      }
+      fresh.ViewPort.ChangeHistory.ChangeCompleted();var after=fresh.Model.RawData.ToArray();
+      if(permission==null) {
+         fallbackReference=after;
+         Check(fresh.Model.ReadMultiByteValue(SyntheticMapFixture.Cells+(3*8+3)*2,2)==grid[1,1],"Legacy no-discovery API retains its packed center fallback.");
+      } else {
+         var expected=before.ToArray();
+         for(int y=2;y<=4;y++)for(int x=2;x<=4;x++) {
+            if(x==4&&y==4)continue;int at=SyntheticMapFixture.Cells+(y*8+x)*2;
+            BitConverter.GetBytes((ushort)((BitConverter.ToUInt16(fallbackReference,at)&0x3FF)|(permission.Value<<10))).CopyTo(expected,at);
+         }
+         Check(expected.SequenceEqual(after),"Fallback corner override preserves legacy art and all unrelated bytes for 00/01/3F.");
+      }
+      Check(meta.SequenceEqual(fresh.Model.ExportMetadata(null,fresh.ViewPort.Singletons.MetadataInfo).Serialize()),"Fallback drawing preserves metadata.");
+      fresh.ViewPort.Undo.Execute(null);Check(before.SequenceEqual(fresh.Model.RawData)&&!fresh.ViewPort.Undo.CanExecute(null),"Fallback operation is one exact Undo step.");
+      fresh.ViewPort.Redo.Execute(null);Check(after.SequenceEqual(fresh.Model.RawData),"Fallback Redo restores exact packed bytes.");
+   }
+
 } else throw new ArgumentException("Unknown scenario");
 if(scenario!="navigation-stroke"&&scenario!="reveal-navigation") Check(metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()),"Audit must preserve metadata.");
 else Console.WriteLine("NAVIGATION_METADATA_EQUAL_TO_START:"+metadata.SequenceEqual(model.ExportMetadata(null,viewport.Singletons.MetadataInfo).Serialize()));

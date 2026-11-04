@@ -54,3 +54,12 @@ slide transition and verify the pointer hit/capture owner. Held movement beyond 
 (including negative fractions), capture loss and release must preserve the exact valid stroke;
 invalid sampling retains the brush, and one Undo/Redo restores complete byte snapshots/canaries.
 Core/default/custom-dimension cases are covered by the separate BorderBounds group.
+
+
+Nine-grid overrides are tested over all four inner-corner orientations with explicit permissions
+00/01/3F selected before and after enabling the mode. Differential controls preserve original
+copied/derived corner art and default packed permissions; fresh copying/Cancel clear prior
+overrides, while another stroke with the same brush retains the explicit choice. Every unrelated
+byte and metadata is checked, along with Save/reload and exact Undo/Redo boundaries. Separate
+Core checks retain the original int-coordinate overload and validate fallback corners without
+discovery. Negative copied-brush preservation (HMA-016) remains outside these fixes.

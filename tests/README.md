@@ -38,7 +38,8 @@ The [copied-brush and border review](COPIED_BRUSH_REVIEW.md) separately records 
 controls, latent preserve-state handling, explicit nine-grid corner inconsistencies and a
 confirmed border bounds overrun. The implemented bounds fix is protected by
 [BorderBounds](BorderBounds/README.md) and actual pointer cases in MapGestureLifecycle; see
-the review for the other findings and subsequent implementation status.
+the review for the subsequent explicit nine-grid override fix and the remaining latent
+negative-state finding.
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

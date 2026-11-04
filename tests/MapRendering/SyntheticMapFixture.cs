@@ -12,7 +12,7 @@ public sealed class SyntheticMapFixture {
    public PokemonModel Model { get; }
    public ViewPort ViewPort { get; }
    public BlockMapViewModel Map { get; }
-   public SyntheticMapFixture(int width, int height, bool withScriptEvent = false) {
+   public SyntheticMapFixture(int width, int height, bool withScriptEvent = false, bool withNpcText = false) {
       var data = new byte[Math.Max(0x20000, Cells + width * height * 2)];
       void Word(int address, int value) => BitConverter.GetBytes(value).CopyTo(data, address);
       void Pointer(int address, int target) => Word(address, 0x08000000 + target);
@@ -39,6 +39,16 @@ public sealed class SyntheticMapFixture {
       if (withScriptEvent) {
          Pointer(0x128, 0x160); data[0x162] = 1; Pointer(0x16C, 0x16000);
          headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<> warps<> scripts<[x: y: elevation: trigger:|h index:: script<`xse`>]/scriptCount> signposts<>]1> mapscripts<>]1";
+      }
+      if (withNpcText) {
+         Pointer(0x128, 0x160); data[0x160] = 1; Pointer(0x164, 0x17000);
+         data[0x17000] = 1; Word(0x17004, 2); Word(0x17008, 0);
+         Pointer(0x17010, 0x18000);
+         new byte[] { 0x0F, 0, 0, 0x90, 1, 8, 0x16, 1, 0x40, 1, 0, 2 }.CopyTo(data, 0x18000);
+         PCSString.Convert("\"Discovered NPC text.\"").CopyTo(data, 0x19000);
+         // Keep script/text pointers unformatted so lazy event discovery must annotate them.
+         const string objects = "[id. graphics. unused:1 x:|z y:|z elevation.11 moveType. range:|t|x::|y:: trainerType: trainerRangeOrBerryID: script<> flag:|h padding:]/objectCount";
+         headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<{objects}> warps<> scripts<> signposts<>]1> mapscripts<>]1";
       }
       var bankFormat = $"[map<{headerFormat}>]1";
       var metadata = new StoredMetadata(anchors: new[] {

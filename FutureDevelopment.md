@@ -163,3 +163,19 @@ and diagnostics; correction/retry, successful relocation and HMA-006/007 remain 
 Native full-window event ordering and game execution remain outside the synthetic checks.
 
 Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md).
+
+## HMA-009 — Dismiss stale autocomplete after source/context/visibility changes
+
+**Status:** Reproduced in the actual Mac overlay using synthetic/offscreen controls; not fixed.
+
+**Reproduction:** Open script suggestions, focus another control, then update the bound source.
+The list closes on LostFocus but reopens while the editor is unfocused. Replacing the overlay
+DataContext with an empty CodeBody retains old options. Hiding its parent leaves Popup.IsOpen
+true and restoring it without typing retains the list; native Cocoa visibility is not proven.
+
+**Next step:** Guard opening by current target focus, attachment and effective visibility;
+clear on context/target/lifetime changes; verify window deactivation and queued updates while
+preserving pointer/key acceptance and all shared-overlay hosts. Compiler/draft/history behavior
+must remain unchanged. The user's exact native trigger and non-overlay dropdowns are unverified.
+
+Evidence and scope: [SCRIPT_EDITOR_REVIEW.md](tests/SCRIPT_EDITOR_REVIEW.md).

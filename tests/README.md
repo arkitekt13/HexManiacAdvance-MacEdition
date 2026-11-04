@@ -19,6 +19,8 @@ coverage, preservation checks and deliberately unclaimed native/legacy paths.
 The [NPC hover performance investigation](MAP_HOVER_PERFORMANCE.md) measures event construction
 and script summaries; [MapHoverLookup](MapHoverLookup/README.md) protects coordinate-first hover
 lookup without constructing unrelated NPC editors.
+The [script editor follow-up](SCRIPT_EDITOR_REVIEW.md) records fresh responsiveness measurements
+and reproduced stale-suggestion lifecycle gaps, with no application changes.
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered

@@ -3,6 +3,10 @@
 Application checkpoint: 26ec1e5c, after the comment-search optimization. This investigation
 adds tooling and documentation only; no production width/layout behavior changes.
 
+Implemented follow-up: [SCRIPT_WIDTH_COALESCING.md](SCRIPT_WIDTH_COALESCING.md) records the
+subsequent coalescing change, paired actual-calculation benchmarks and geometry/lifetime tests.
+The observations and omission experiments below retain the original investigation baseline.
+
 ## What was measured
 
 TextEditor's constructor registers a TextBox.TextChanged handler which constructs a Typeface

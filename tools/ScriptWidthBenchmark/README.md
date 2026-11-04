@@ -1,28 +1,32 @@
-# Script document-width attribution
+# Script document-width benchmark
 
 From the repository root:
 
 ```sh
 dotnet build tools/ScriptWidthBenchmark/ScriptWidthBenchmark.csproj -c Release -p:NuGetAudit=false
-DOTNET_TieredCompilation=0 dotnet tools/ScriptWidthBenchmark/bin/Release/net8.0/ScriptWidthBenchmark.dll artifacts/script-performance/width-layout-current.json
+DOTNET_TieredCompilation=0 dotnet tools/ScriptWidthBenchmark/bin/Release/net8.0/ScriptWidthBenchmark.dll artifacts/script-performance/width-current.json
 ```
 
-The investigation uses the actual TextEditor in a headless Skia window after the comment-search
-optimization. It wraps the existing constructor TextChanged delegate to time the complete width
-handler without application instrumentation. Reflection requires exactly one matching instance
-delegate and the probe checks that it actually runs. A second arm omits that delegate only from
-disposable controls after warming the unmodified control; same-size edits keep geometry fixed.
-This is a diagnostic experiment, not a safe general replacement for width measurement.
-The attribution targets the synchronous handler at 26ec1e5c; update the probe if a future handler
-only queues work, so it counts/times actual measurements rather than queue requests.
+The benchmark uses the actual TextEditor in a headless Skia window. A derived control surrounds
+UpdateDocumentWidth, so counts/time/allocations describe real calculations, including deferred
+ones, rather than TextChanged notifications or queue requests. It uses the unchanged production
+measurement routine; no measurements are omitted and no constructor-handler reflection is used.
 
-Five workloads run in both arms: 100/500/2,000 short lines, 500 Unicode/emoji dialogue lines,
-and a single long line made from 500 repeated units. Reports include actual line/character
-counts, seven measured edits after setup/warmup, complete samples, source/layer invariants,
-handler calls/time/allocations, endpoint geometry, ten-edit queued bursts and diagnostics-only
-controls. Timing the handler does not attribute all queued layout/render work to it.
+Five workloads cover 100/500/2,000 short lines, 500 Unicode/emoji dialogue lines and a long line
+made from 500 repeated units. JSON includes actual source line/character counts (plus three
+wrapper lines), seven settled-edit samples after setup/warmup and seven ten-update bursts.
+It records complete source and rendered-layer checks, actual measurement sources/calls, timing,
+allocations, native layer widths and corner dimensions, and diagnostics-only controls. Queue and
+post-measurement scroll-extent restoration are included in total drain time, outside the nested
+UpdateDocumentWidth timer. Independent phase medians must not be added as typing latency.
 
-No compiler, CodeBody/TabView host, game ROM, native keyboard/compositor or background worker
-is used. Source edits are controlled model updates; native typing latency is not measured.
-The tool changes neither production source nor controls outside its disposable windows.
-See [SCRIPT_WIDTH_LAYOUT_INVESTIGATION.md](../../tests/SCRIPT_WIDTH_LAYOUT_INVESTIGATION.md).
+The paired coalescing baseline was captured at 14f688ce after mechanically extracting the exact
+existing calculation into protected methods, before queueing/lifetime changes. Before and after
+use the same observer, fixtures, warmups, samples, runtime and tiered-compilation setting. Every
+report passes 190 invariants. See [SCRIPT_WIDTH_COALESCING.md](../../tests/SCRIPT_WIDTH_COALESCING.md).
+
+The earlier reflection-wrapper/same-size omission experiment remains documented in
+[SCRIPT_WIDTH_LAYOUT_INVESTIGATION.md](../../tests/SCRIPT_WIDTH_LAYOUT_INVESTIGATION.md); its
+315-check reports are historical attribution data, not the current benchmark procedure.
+No compiler, full TabView host, native keyboard/compositor, background work, game ROM or settings
+is used. Edits are controlled model updates and allocations are temporary measured-thread bytes.

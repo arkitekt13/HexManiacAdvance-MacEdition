@@ -66,6 +66,11 @@ public partial class TextEditor : UserControl {
    private ScrollViewer scrollViewer;
    private TextEditorViewModel subscribed;
    private bool errorDecorationUpdateQueued;
+   private bool widthUpdateQueued;
+   private bool widthUpdatesAllowed = true;
+   private int widthUpdateGeneration;
+   private int scrollGeometryVersion;
+   private int widthRequestScrollVersion;
 
    static TextEditor() {
       IsReadOnlyProperty.Changed.AddClassHandler<TextEditor>((self, e) => self.OnIsReadOnlyChanged());
@@ -89,30 +94,75 @@ public partial class TextEditor : UserControl {
       DataContextChanged += (sender, e) => HandleDataContextChanged();
 
       // ExtentWidth is not observable, so check for the horizontal scroll bar when the text changes
-      TransparentLayer.TextChanged += (sender, e) => {
-         var typeface = new Typeface(TransparentLayer.FontFamily, FontStyle.Normal, FontWeight.Normal);
-         var width = new FormattedText(TransparentLayer.Text ?? string.Empty, CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight, typeface, TransparentLayer.FontSize, Brushes.Transparent).Width;
-         foreach (var layer in Layers) layer.Width = width;
-         if (scrollViewer != null && width > scrollViewer.Viewport.Width && scrollViewer.Viewport.Height > scrollViewer.Extent.Height) {
-            CornerCover.Width = 16;
-            CornerCover.Height = 17;
-         } else {
-            CornerCover.Width = 0;
-            CornerCover.Height = 0;
-         }
-      };
+      TransparentLayer.TextChanged += (sender, e) => RequestWidthUpdate();
 
       // WPF used the ScrollViewer.ScrollChanged attached event; Avalonia exposes the TextBox's
       // own ScrollViewer only once the template is applied.
       TransparentLayer.TemplateApplied += (sender, e) => {
+         if (scrollViewer != null) scrollViewer.ScrollChanged -= TextScrollChanged;
          scrollViewer = e.NameScope.Find<ScrollViewer>("PART_ScrollViewer");
          if (scrollViewer != null) scrollViewer.ScrollChanged += TextScrollChanged;
+         CancelWidthUpdate();
+         RequestWidthUpdate();
       };
    }
 
 
+   protected virtual void RequestWidthUpdate() {
+      if (!widthUpdatesAllowed) return;
+      widthRequestScrollVersion = scrollGeometryVersion;
+      if (widthUpdateQueued) return;
+      widthUpdateQueued = true;
+      var generation = widthUpdateGeneration;
+      Dispatcher.UIThread.Post(() => {
+         if (generation != widthUpdateGeneration) return;
+         widthUpdateQueued = false;
+         // Read the live editor/viewport here, never a source or template captured by an old event.
+         if (widthUpdatesAllowed) {
+            UpdateDocumentWidth();
+            // A ScrollChanged after the last request would have won over the old immediate
+            // measurement. Keep that ordering when this calculation is deferred.
+            if (scrollViewer != null && widthRequestScrollVersion != scrollGeometryVersion) {
+               foreach (var layer in Layers) layer.Width = scrollViewer.Extent.Width;
+            }
+         }
+      }, DispatcherPriority.Render);
+   }
+
+   private void CancelWidthUpdate() {
+      widthUpdateGeneration++;
+      widthUpdateQueued = false;
+   }
+
+   protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e) {
+      base.OnAttachedToVisualTree(e);
+      widthUpdatesAllowed = true;
+      CancelWidthUpdate();
+      RequestWidthUpdate();
+   }
+
+   protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e) {
+      widthUpdatesAllowed = false;
+      CancelWidthUpdate();
+      base.OnDetachedFromVisualTree(e);
+   }
+
+   protected virtual void UpdateDocumentWidth() {
+      var typeface = new Typeface(TransparentLayer.FontFamily, FontStyle.Normal, FontWeight.Normal);
+      var width = new FormattedText(TransparentLayer.Text ?? string.Empty, CultureInfo.CurrentCulture,
+         FlowDirection.LeftToRight, typeface, TransparentLayer.FontSize, Brushes.Transparent).Width;
+      foreach (var layer in Layers) layer.Width = width;
+      if (scrollViewer != null && width > scrollViewer.Viewport.Width && scrollViewer.Viewport.Height > scrollViewer.Extent.Height) {
+         CornerCover.Width = 16;
+         CornerCover.Height = 17;
+      } else {
+         CornerCover.Width = 0;
+         CornerCover.Height = 0;
+      }
+   }
+
    private void HandleDataContextChanged() {
+      CancelWidthUpdate();
       if (subscribed != null) {
          subscribed.PropertyChanged -= HandleViewModelPropertyChanged;
          subscribed.RequestCaretMove -= HandleViewModelCaretMove;
@@ -127,6 +177,7 @@ public partial class TextEditor : UserControl {
          subscribed.ErrorLocations.CollectionChanged += HandleViewModelErrorUpdate;
          QueueErrorDecorationUpdate();
       }
+      RequestWidthUpdate();
    }
 
    private void HandleViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
@@ -180,6 +231,7 @@ public partial class TextEditor : UserControl {
    }
 
    private void TextScrollChanged(object sender, ScrollChangedEventArgs e) {
+      scrollGeometryVersion++;
       DiagnosticLayer.InvalidateVisual();
       foreach (var layer in Layers) {
          var transform = layerTransforms[layer];

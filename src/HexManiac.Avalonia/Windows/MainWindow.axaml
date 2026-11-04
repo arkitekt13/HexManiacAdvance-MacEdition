@@ -72,7 +72,9 @@
             <NativeMenuItem Header="Export Project as Text..." Click="ExportProjectClick" />
             <NativeMenuItem Header="Import Project from Text..." Click="ImportProjectClick" />
             <NativeMenuItem Header="Launch in External Emulator" Gesture="F5" Click="LaunchExternalEmulatorClick" />
-            <NativeMenuItem Header="Test in Emulator" Gesture="F6" Click="OpenEmulatorClick" />
+            <NativeMenuItem Header="Test in Emulator" Gesture="{x:Static app:OptionalFeatureVisibility.BuiltInEmulatorGesture}"
+                            IsVisible="{x:Static app:OptionalFeatureVisibility.ShowBuiltInEmulator}"
+                            IsEnabled="{x:Static app:OptionalFeatureVisibility.ShowBuiltInEmulator}" Click="OpenEmulatorClick" />
             <NativeMenuItemSeparator />
             <NativeMenuItem Header="Close Current Tab" Gesture="Cmd+W" Command="{Binding Close}" CommandParameter="{DynamicResource FileSystem}" />
           </NativeMenu>
@@ -198,11 +200,14 @@
             <NativeMenuItem Header="Toggle Automation Tool" Gesture="Cmd+R" ToggleType="CheckBox" IsChecked="{Binding ShowAutomationPanel, Mode=TwoWay}" />
             <NativeMenuItemSeparator />
             <NativeMenuItem Header="Spartan Mode" ToggleType="CheckBox" IsChecked="{Binding SpartanMode, Mode=TwoWay}" />
-            <NativeMenuItemSeparator />
-            <!-- Not in HexManiac.WPF: lets an MCP client (Claude) work on the open ROM. -->
-            <NativeMenuItem Header="Claude Assistant (MCP Server)" ToggleType="CheckBox" Click="ToggleMcpServerClick" />
-            <NativeMenuItem Header="Show MCP Setup Command" Click="ShowMcpSetupClick" />
-            <NativeMenuItem Header="Toggle Claude Chat" Gesture="Cmd+Shift+C" ToggleType="CheckBox" Click="ToggleChatPanelClick" />
+            <NativeMenuItemSeparator IsVisible="{x:Static app:OptionalFeatureVisibility.ShowClaudeIntegration}" />
+            <!-- Retained optional integration; hidden from the normal Mac editing interface. -->
+            <NativeMenuItem Header="Claude Assistant (MCP Server)" ToggleType="CheckBox" Click="ToggleMcpServerClick"
+                            IsVisible="{x:Static app:OptionalFeatureVisibility.ShowClaudeIntegration}" IsEnabled="{x:Static app:OptionalFeatureVisibility.ShowClaudeIntegration}" />
+            <NativeMenuItem Header="Show MCP Setup Command" Click="ShowMcpSetupClick"
+                            IsVisible="{x:Static app:OptionalFeatureVisibility.ShowClaudeIntegration}" IsEnabled="{x:Static app:OptionalFeatureVisibility.ShowClaudeIntegration}" />
+            <NativeMenuItem Header="Toggle Claude Chat" Gesture="{x:Static app:OptionalFeatureVisibility.ClaudeChatGesture}" ToggleType="CheckBox" Click="ToggleChatPanelClick"
+                            IsVisible="{x:Static app:OptionalFeatureVisibility.ShowClaudeIntegration}" IsEnabled="{x:Static app:OptionalFeatureVisibility.ShowClaudeIntegration}" />
           </NativeMenu>
         </NativeMenuItem.Menu>
       </NativeMenuItem>
@@ -401,11 +406,13 @@
                button blank. -->
           <Path Data="M0,0 L5,5 0,10 Z" Fill="{DynamicResource Stream2}"/>
         </Button>
-        <Button ToolTip.Tip="Ask Claude about this ROM (Cmd+Shift+C)" Click="ToggleChatPanelClick">
+        <Button ToolTip.Tip="Ask Claude about this ROM (Cmd+Shift+C)" Click="ToggleChatPanelClick"
+                IsVisible="{x:Static app:OptionalFeatureVisibility.ShowClaudeIntegration}" IsEnabled="{x:Static app:OptionalFeatureVisibility.ShowClaudeIntegration}">
           <Path Data="M0,1 A1,1 0 0 1 1,0 L11,0 A1,1 0 0 1 12,1 L12,7 A1,1 0 0 1 11,8 L4,8 L1.5,10.5 L1.5,8 L1,8 A1,1 0 0 1 0,7 Z M3,3 L9,3 M3,5 L7,5"
                 Stroke="{DynamicResource Accent}" StrokeThickness="1" Fill="Transparent"/>
         </Button>
         <Button ToolTip.Tip="Test in Emulator (F6) - runs the ROM as it is right now, unsaved edits included"
+                IsVisible="{x:Static app:OptionalFeatureVisibility.ShowBuiltInEmulator}" IsEnabled="{x:Static app:OptionalFeatureVisibility.ShowBuiltInEmulator}"
                 Click="OpenEmulatorClick">
           <Path Data="M0,1 L10,1 A1,1 0 0 1 11,2 L11,8 A1,1 0 0 1 10,9 L0,9 A1,1 0 0 1 -1,8 L-1,2 A1,1 0 0 1 0,1 Z M1.5,3.5 L1.5,6.5 M0,5 L3,5 M8,4 A0.9,0.9 0 1 1 8,4.01 M9.6,6 A0.9,0.9 0 1 1 9.6,6.01"
                 Stroke="{DynamicResource Stream2}" StrokeThickness="1" Fill="Transparent"/>

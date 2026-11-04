@@ -1,9 +1,12 @@
 using System;
+using System.Linq;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.VisualTree;
 using HavenSoft.HexManiac.Core.ViewModels;
 using ModelPoint = HavenSoft.HexManiac.Core.Models.Point;
 
@@ -21,6 +24,7 @@ public partial class ImageEditorView : UserControl {
    private ImageEditorViewModel ViewModel => DataContext as ImageEditorViewModel;
    private bool isPointerCaptured;
    private MouseButton capturedButton;
+   private MouseButton physicalButton;
 
    public ImageEditorView() {
       InitializeComponent();
@@ -38,36 +42,46 @@ public partial class ImageEditorView : UserControl {
    private void BuildKeyBindings() {
       var cmd = HexContent.CommandModifier;
 
-      void Add(Key key, KeyModifiers modifiers, string path, object parameter = null) {
-         var binding = new KeyBinding { Gesture = new KeyGesture(key, modifiers) };
-         binding.Bind(KeyBinding.CommandProperty, new Avalonia.Data.Binding($"DataContext.{path}") { Source = this });
-         if (parameter != null) binding.CommandParameter = parameter;
-         KeyBindings.Add(binding);
+      bool CanvasOwnsKeys() {
+         var focused = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
+         if (focused is TextBox || focused is ComboBox || focused is Slider || focused is PaletteControl) return false;
+         return focused is not Visual visual || !visual.GetVisualAncestors().OfType<PaletteControl>().Any();
+      }
+      void Add(Key key, KeyModifiers modifiers, Func<ImageEditorViewModel, ICommand> select,
+         object parameter = null, bool clipboard = false) {
+         object Argument() => clipboard ? FileSystem : parameter;
+         KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(key, modifiers), Command = new StubCommand {
+            CanExecute = _ => CanvasOwnsKeys() && ViewModel != null && (!clipboard || FileSystem != null) && select(ViewModel).CanExecute(Argument()),
+            Execute = _ => {
+               if (CanvasOwnsKeys() && ViewModel != null && (!clipboard || FileSystem != null) && select(ViewModel).CanExecute(Argument()))
+                  select(ViewModel).Execute(Argument());
+            },
+         }});
       }
 
-      Add(Key.OemPlus, KeyModifiers.None, nameof(ImageEditorViewModel.ZoomInCommand));
-      Add(Key.OemMinus, KeyModifiers.None, nameof(ImageEditorViewModel.ZoomOutCommand));
-      Add(Key.Delete, KeyModifiers.None, nameof(ImageEditorViewModel.DeleteCommand));
+      Add(Key.OemPlus, KeyModifiers.None, vm => vm.ZoomInCommand);
+      Add(Key.OemMinus, KeyModifiers.None, vm => vm.ZoomOutCommand);
+      Add(Key.Delete, KeyModifiers.None, vm => vm.DeleteCommand);
 
-      Add(Key.A, KeyModifiers.None, nameof(ImageEditorViewModel.SelectTool), ImageEditorTools.Pan);
-      Add(Key.S, KeyModifiers.None, nameof(ImageEditorViewModel.SelectTool), ImageEditorTools.Select);
-      Add(Key.D, KeyModifiers.None, nameof(ImageEditorViewModel.SelectTool), ImageEditorTools.Draw);
-      Add(Key.F, KeyModifiers.None, nameof(ImageEditorViewModel.SelectTool), ImageEditorTools.Fill);
-      Add(Key.G, KeyModifiers.None, nameof(ImageEditorViewModel.SelectTool), ImageEditorTools.EyeDropper);
-      Add(Key.H, KeyModifiers.None, nameof(ImageEditorViewModel.SelectTool), ImageEditorTools.TilePalette);
+      Add(Key.A, KeyModifiers.None, vm => vm.SelectTool, ImageEditorTools.Pan);
+      Add(Key.S, KeyModifiers.None, vm => vm.SelectTool, ImageEditorTools.Select);
+      Add(Key.D, KeyModifiers.None, vm => vm.SelectTool, ImageEditorTools.Draw);
+      Add(Key.F, KeyModifiers.None, vm => vm.SelectTool, ImageEditorTools.Fill);
+      Add(Key.G, KeyModifiers.None, vm => vm.SelectTool, ImageEditorTools.EyeDropper);
+      Add(Key.H, KeyModifiers.None, vm => vm.SelectTool, ImageEditorTools.TilePalette);
 
-      Add(Key.C, cmd, nameof(ImageEditorViewModel.Copy), FileSystem);
-      Add(Key.V, cmd, nameof(ImageEditorViewModel.Paste), FileSystem);
-      Add(Key.A, cmd, nameof(ImageEditorViewModel.SelectAll));
+      Add(Key.C, cmd, vm => vm.Copy, clipboard: true);
+      Add(Key.V, cmd, vm => vm.Paste, clipboard: true);
+      Add(Key.A, cmd, vm => vm.SelectAll);
 
-      Add(Key.Space, KeyModifiers.None, nameof(ImageEditorViewModel.SelectColor), 0);
+      Add(Key.Space, KeyModifiers.None, vm => vm.SelectColor, 0);
       for (int i = 0; i <= 7; i++) {
-         Add(Key.D0 + i, KeyModifiers.None, nameof(ImageEditorViewModel.SelectColor), i);
+         Add(Key.D0 + i, KeyModifiers.None, vm => vm.SelectColor, i);
       }
-      Add(Key.D1, KeyModifiers.Shift, nameof(ImageEditorViewModel.SetCursorSize), 1);
-      Add(Key.D2, KeyModifiers.Shift, nameof(ImageEditorViewModel.SetCursorSize), 2);
-      Add(Key.D3, KeyModifiers.Shift, nameof(ImageEditorViewModel.SetCursorSize), 4);
-      Add(Key.D4, KeyModifiers.Shift, nameof(ImageEditorViewModel.SetCursorSize), 8);
+      Add(Key.D1, KeyModifiers.Shift, vm => vm.SetCursorSize, 1);
+      Add(Key.D2, KeyModifiers.Shift, vm => vm.SetCursorSize, 2);
+      Add(Key.D3, KeyModifiers.Shift, vm => vm.SetCursorSize, 4);
+      Add(Key.D4, KeyModifiers.Shift, vm => vm.SetCursorSize, 8);
    }
 
    private Core.Models.IFileSystem FileSystem {
@@ -87,13 +101,18 @@ public partial class ImageEditorView : UserControl {
    private void ImagePointerPressed(object sender, PointerPressedEventArgs e) {
       if (ViewModel == null) return;
       var properties = e.GetCurrentPoint(ImageContainer).Properties;
+      if (isPointerCaptured) return;
+      if (!properties.IsLeftButtonPressed && !properties.IsRightButtonPressed && !properties.IsMiddleButtonPressed) return;
+      physicalButton = properties.IsMiddleButtonPressed ? MouseButton.Middle :
+         properties.IsRightButtonPressed ? MouseButton.Right : MouseButton.Left;
       e.Pointer.Capture(ImageContainer);
       isPointerCaptured = true;
 
       if (properties.IsMiddleButtonPressed) {
          capturedButton = MouseButton.Middle;
          ViewModel.PanDown(Point(e));
-      } else if (properties.IsRightButtonPressed) {
+      } else if (properties.IsRightButtonPressed || (OperatingSystem.IsMacOS() &&
+         properties.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Control))) {
          capturedButton = MouseButton.Right;
          ViewModel.EyeDropperDown(Point(e));
       } else if (properties.IsLeftButtonPressed) {
@@ -106,6 +125,7 @@ public partial class ImageEditorView : UserControl {
 
    private void ImagePointerReleased(object sender, PointerReleasedEventArgs e) {
       if (!isPointerCaptured || ViewModel == null) return;
+      if (e.InitialPressMouseButton != physicalButton) return;
       var point = Point(e);
       if (capturedButton == MouseButton.Middle) ViewModel.PanUp(point);
       else if (capturedButton == MouseButton.Right) ViewModel.EyeDropperUp(point);

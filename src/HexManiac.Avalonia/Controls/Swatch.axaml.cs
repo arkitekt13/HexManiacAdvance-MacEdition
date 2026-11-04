@@ -37,8 +37,10 @@ public partial class Swatch : UserControl {
    }
 
    private void OnResultPropertyChanged(AvaloniaPropertyChangedEventArgs e) {
-      if (!CoreTheme.TryConvertColor(Result, out var rgb)) return;
-      hsb = CoreTheme.ToHSB(rgb.r, rgb.g, rgb.b);
+      // Avalonia serializes familiar colors as names (for example "White"). The
+      // palette fields already accept those names; decode the same UI color syntax here.
+      if (!Color.TryParse(Result, out var color) && !Color.TryParse("#" + Result, out color)) return;
+      hsb = CoreTheme.ToHSB(color.R, color.G, color.B);
       UpdateSBPickerHue();
       UpdateSelections();
       ResultChanged?.Invoke(this, e.OldValue as string);

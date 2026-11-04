@@ -35,6 +35,25 @@ Avalonia.Point Point(ITabContent tab){var header=Header(tab);return header.Trans
 void OpenMenu(ITabContent tab){var p=Point(tab);window.MouseDown(p,MouseButton.Right);window.MouseUp(p,MouseButton.Right);Pump();}
 void Click(MenuItem item){var root=TopLevel.GetTopLevel(item)!;var p=item.TranslatePoint(new Avalonia.Point(item.Bounds.Width/2,item.Bounds.Height/2),root)!.Value;root.MouseMove(p);root.MouseDown(p,MouseButton.Left);Pump();root.MouseUp(p,MouseButton.Left);Pump();}
 Pump();
+// Optional integrations remain compiled but have no normal UI entry point for this release.
+IEnumerable<NativeMenuItem> NativeItems(NativeMenu menu) => menu.Items.OfType<NativeMenuItem>()
+   .SelectMany(item => new[] { item }.Concat(item.Menu == null ? Enumerable.Empty<NativeMenuItem>() : NativeItems(item.Menu)));
+var nativeItems=NativeItems(NativeMenu.GetMenu(window)!).ToArray();
+foreach(var label in new[]{"Test in Emulator","Claude Assistant (MCP Server)","Show MCP Setup Command","Toggle Claude Chat"}) {
+   var item=nativeItems.Single(i=>Equals(i.Header,label));
+   Check(!item.IsVisible && !item.IsEnabled && item.Gesture==null,"Optional integration menus must be hidden, disabled and lack accelerators: "+label);
+}
+var toolbarButtons=window.GetVisualDescendants().OfType<Button>().ToArray();
+foreach(var tooltip in new[]{"Ask Claude about this ROM (Cmd+Shift+C)","Test in Emulator (F6) - runs the ROM as it is right now, unsaved edits included"}) {
+   var button=toolbarButtons.Single(b=>Equals(ToolTip.GetTip(b),tooltip));
+   Check(!button.IsVisible && !button.IsEnabled,"Optional toolbar controls must collapse and be disabled.");
+}
+Check(!window.KeyBindings.Any(b=>b.Gesture?.Key==Key.F6),"Hidden built-in emulation must not retain the F6 binding.");
+window.KeyPressQwerty(PhysicalKey.F6,RawInputModifiers.None);window.KeyReleaseQwerty(PhysicalKey.F6,RawInputModifiers.None);Pump();
+Check(!window.IsEmulatorOpen,"F6 cannot open the hidden built-in emulator.");
+var external=nativeItems.Single(i=>Equals(i.Header,"Launch in External Emulator"));
+Check(external.IsVisible && external.IsEnabled && external.Gesture?.Key==Key.F5 && window.KeyBindings.Any(b=>b.Gesture?.Key==Key.F5),"External emulator menu and F5 stay available.");
+Check(toolbarButtons.Single(b=>Equals(ToolTip.GetTip(b),"Launch in External Emulator (F5)")).IsVisible,"External emulator toolbar action stays visible.");
 var revealInfo=MacFileReveal.CreateStartInfo("/tmp/Tab Tests/rom \"quoted\".gba");
 Check(revealInfo.FileName=="/usr/bin/open" && !revealInfo.UseShellExecute && revealInfo.ArgumentList.SequenceEqual(new[]{"-R","/tmp/Tab Tests/rom \"quoted\".gba"}),"Finder reveal uses separate -R/path arguments and preserves spaces/quotes.");
 var bytes=first.Model.RawData.ToArray();

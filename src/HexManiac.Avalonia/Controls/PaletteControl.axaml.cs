@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
@@ -55,6 +57,49 @@ public partial class PaletteControl : UserControl {
    private short[] initialColors;
    private int activeSelection;
    private bool isPointerCaptured;
+   private bool controlContextGesture;
+   private bool swatchEditInProgress;
+   private PaletteCollection subscribedPalette;
+   private StubCommand paletteCopy, palettePaste;
+
+   private StubCommand ClipboardCommand(Func<PaletteCollection, ICommand> select, bool needsText = false) => new() {
+      CanExecute = _ => FileSystem != null && (!needsText || FileSystem.CopyText != null) && ViewModel != null && select(ViewModel).CanExecute(FileSystem),
+      Execute = _ => {
+         // The control is constructed before it has a TopLevel/FileSystem. Resolve
+         // this parameter when invoked, never capture null during initialization.
+         var fs = FileSystem;
+         if (fs != null && (!needsText || fs.CopyText != null) && ViewModel != null && select(ViewModel).CanExecute(fs)) select(ViewModel).Execute(fs);
+      },
+   };
+
+   internal void EditClipboard(bool paste) => (paste ? palettePaste : paletteCopy).Execute(null);
+
+   internal void SelectAllColors() {
+      if (ViewModel == null || ViewModel.Elements.Count == 0) return;
+      ViewModel.SelectionStart = 0;
+      ViewModel.SelectionEnd = ViewModel.Elements.Count - 1;
+   }
+
+   internal void RunPaletteCommand(Func<PaletteCollection, ICommand> select) {
+      if (ViewModel != null && select(ViewModel).CanExecute(null)) select(ViewModel).Execute(null);
+   }
+
+   private void WatchPalette() {
+      if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged -= PaletteContentsChanged;
+      subscribedPalette = ViewModel;
+      if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged += PaletteContentsChanged;
+      ClosePopup();
+   }
+
+   private void PaletteContentsChanged(object sender, NotifyCollectionChangedEventArgs e) {
+      // Undo/Redo, reload or navigation can replace colors while the popup still holds
+      // the old selection/delta baseline. Never leave that stale editor writable.
+      if (!Dispatcher.UIThread.CheckAccess()) {
+         Dispatcher.UIThread.Post(() => PaletteContentsChanged(sender, e));
+         return;
+      }
+      if (!swatchEditInProgress && swatchPopup.IsOpen && ReferenceEquals(sender, subscribedPalette?.Elements)) ClosePopup();
+   }
 
    private const string EyeDropperToolTipText = "Click this, then click any color on your screen to pull that color into the palette.";
 
@@ -125,7 +170,13 @@ public partial class PaletteControl : UserControl {
          },
       };
       LoseKeyboardFocusCausesLoseMultiSelect = true;
-      DetachedFromVisualTree += (sender, e) => { EndScreenGrab(); ClosePopup(); };
+      DataContextChanged += (_, _) => WatchPalette();
+      AttachedToVisualTree += (_, _) => WatchPalette();
+      DetachedFromVisualTree += (sender, e) => {
+         EndScreenGrab(); ClosePopup();
+         if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged -= PaletteContentsChanged;
+         subscribedPalette = null;
+      };
 
       swatchTextBoxes[0].TextChanged += UpdateSwatchColorFromTextBoxes;
       swatchTextBoxes[1].TextChanged += UpdateSwatchColorFromTextBoxes;
@@ -147,31 +198,46 @@ public partial class PaletteControl : UserControl {
 
    /// WPF declared these in UserControl.ContextMenu / UserControl.InputBindings with Ctrl.
    private void BuildContextMenu() {
+      paletteCopy = ClipboardCommand(p => p.Copy);
+      palettePaste = ClipboardCommand(p => p.Paste, needsText: true);
       var eyeDropperItem = new MenuItem { Header = "Choose Color from Screen", [ToolTip.TipProperty] = EyeDropperToolTipText };
       eyeDropperItem.Click += GrabScreenColor;
       ContextMenu = new ContextMenu {
          ItemsSource = new Control[] {
-            new MenuItem { Header = "Copy", InputGesture = new KeyGesture(Key.C, HexContent.CommandModifier), [!MenuItem.CommandProperty] = new Avalonia.Data.Binding(nameof(PaletteCollection.Copy)), CommandParameter = FileSystem },
-            new MenuItem { Header = "Paste", InputGesture = new KeyGesture(Key.V, HexContent.CommandModifier), [!MenuItem.CommandProperty] = new Avalonia.Data.Binding(nameof(PaletteCollection.Paste)), CommandParameter = FileSystem },
+            new MenuItem { Header = "Copy", InputGesture = new KeyGesture(Key.C, HexContent.CommandModifier), Command = paletteCopy },
+            new MenuItem { Header = "Paste", InputGesture = new KeyGesture(Key.V, HexContent.CommandModifier), Command = palettePaste },
             new MenuItem { Header = "Create Gradient", InputGesture = new KeyGesture(Key.G, HexContent.CommandModifier), [!MenuItem.CommandProperty] = new Avalonia.Data.Binding(nameof(PaletteCollection.CreateGradient)) },
             new MenuItem { Header = "Merge Colors", InputGesture = new KeyGesture(Key.M, HexContent.CommandModifier), [!MenuItem.CommandProperty] = new Avalonia.Data.Binding(nameof(PaletteCollection.SingleReduce)) },
             eyeDropperItem,
          },
       };
+      ContextMenu.Opened += (_, _) => { paletteCopy.RaiseCanExecuteChanged(); palettePaste.RaiseCanExecuteChanged(); };
    }
 
    private void BuildKeyBindings() {
-      void Add(Key key, KeyModifiers modifiers, string path, bool withFileSystem = false) {
-         var binding = new KeyBinding { Gesture = new KeyGesture(key, modifiers) };
-         binding.Bind(KeyBinding.CommandProperty, new Avalonia.Data.Binding($"DataContext.{path}") { Source = this });
-         if (withFileSystem) binding.CommandParameter = FileSystem;
-         KeyBindings.Add(binding);
+      bool TextOwnsKeys() => TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is TextBox;
+      void Add(Key key, Func<PaletteCollection, ICommand> select) => KeyBindings.Add(new KeyBinding {
+         Gesture = new KeyGesture(key, HexContent.CommandModifier), Command = new StubCommand {
+            CanExecute = _ => ViewModel != null && !TextOwnsKeys(),
+            Execute = _ => RunPaletteCommand(select),
+         },
+      });
+      // Consume palette clipboard shortcuts even when disabled, so they cannot fall
+      // through to an ancestor's image/binary command. Popup text keeps its native route.
+      foreach (var key in new[] { Key.C, Key.V }) {
+         KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(key, HexContent.CommandModifier), Command = new StubCommand {
+            CanExecute = _ => ViewModel != null && !TextOwnsKeys(),
+            Execute = _ => EditClipboard(key == Key.V),
+         }});
       }
-      Add(Key.C, HexContent.CommandModifier, nameof(PaletteCollection.Copy), true);
-      Add(Key.V, HexContent.CommandModifier, nameof(PaletteCollection.Paste), true);
-      Add(Key.G, HexContent.CommandModifier, nameof(PaletteCollection.CreateGradient));
-      Add(Key.M, HexContent.CommandModifier, nameof(PaletteCollection.SingleReduce));
-      Add(Key.Delete, KeyModifiers.None, nameof(PaletteCollection.DeleteColor));
+      KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.A, HexContent.CommandModifier), Command = new StubCommand {
+         CanExecute = _ => ViewModel != null && !TextOwnsKeys(), Execute = _ => SelectAllColors(),
+      }});
+      Add(Key.G, p => p.CreateGradient);
+      Add(Key.M, p => p.SingleReduce);
+      KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.Delete), Command = new StubCommand {
+         CanExecute = _ => ViewModel != null && !TextOwnsKeys(), Execute = _ => RunPaletteCommand(p => p.DeleteColor),
+      }});
    }
 
    private IFileSystem FileSystem {
@@ -203,11 +269,14 @@ public partial class PaletteControl : UserControl {
    }
 
    private void StartPaletteColorMove(object sender, PointerPressedEventArgs e) {
-      if (ViewModel == null) return;
+      if (ViewModel == null || isPointerCaptured) return;
       swatch.ResultChanged -= SwatchResultChanged;
       Focus();
 
       var properties = e.GetCurrentPoint(this).Properties;
+      controlContextGesture = OperatingSystem.IsMacOS() && properties.IsLeftButtonPressed &&
+         e.KeyModifiers.HasFlag(KeyModifiers.Control);
+      bool primary = properties.IsLeftButtonPressed && !controlContextGesture;
       interactionPoint = e.GetPosition(ItemsControl);
       var elementWidth = Math.Max(1, ItemsControl.Bounds.Width / ViewModel.ColorWidth);
       if (interactionPoint.X > elementWidth * ViewModel.ColorWidth || interactionPoint.X < 0) {
@@ -220,7 +289,7 @@ public partial class PaletteControl : UserControl {
          ViewModel.SelectionEnd = tileIndex;
       } else if (e.KeyModifiers == HexContent.CommandModifier) {
          ViewModel.ToggleSelection(tileIndex);
-      } else if (ViewModel.Elements[tileIndex].Selected && properties.IsLeftButtonPressed && swatchPopup.IsOpen) {
+      } else if (ViewModel.Elements[tileIndex].Selected && primary && swatchPopup.IsOpen) {
          e.Handled = true;
          ClosePopup();
          return;
@@ -237,7 +306,7 @@ public partial class PaletteControl : UserControl {
          UpdateSwatchTextBoxContentFromSwatch();
          initialColors = CollectColorList();
          activeSelection = tileIndex;
-         if (properties.IsLeftButtonPressed) {
+         if (primary) {
             swatchPopup.IsOpen = ViewModel.CanEditColors;
             if (swatchPopup.IsOpen) {
                swatch.ResultChanged += SwatchResultChanged;
@@ -352,6 +421,7 @@ public partial class PaletteControl : UserControl {
 
    private void PaletteColorMove(object sender, PointerEventArgs e) {
       if (ViewModel == null || !ViewModel.CanEditColors || isInScreenGrabMode) return;
+      if (controlContextGesture) return;
       var oldTileIndex = InteractionTileIndex;
       interactionPoint = e.GetPosition(ItemsControl);
       var newTileIndex = InteractionTileIndex;
@@ -388,10 +458,20 @@ public partial class PaletteControl : UserControl {
 
    private void EndPaletteColorMove(object sender, PointerReleasedEventArgs e) {
       if (!isPointerCaptured) return;
+      if (controlContextGesture && e.InitialPressMouseButton != MouseButton.Left) return;
+      var showMenu = controlContextGesture;
+      controlContextGesture = false;
       e.Pointer.Capture(null);
       isPointerCaptured = false;
 
       ViewModel?.CompleteCurrentInteraction();
+      if (showMenu) ContextMenu?.Open(this);
+   }
+
+   protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e) {
+      controlContextGesture = false;
+      isPointerCaptured = false;
+      base.OnPointerCaptureLost(e);
    }
 
    private short[] CollectColorList() => ViewModel.Elements.Select(element => element.Color).ToArray();
@@ -419,21 +499,26 @@ public partial class PaletteControl : UserControl {
 
    private void SwatchResultChanged(object sender, string oldValue) {
       if (!Color.TryParse(swatch.Result, out var newColor)) return;
-      var dif = GetColorDif(newColor);
+      swatchEditInProgress = true;
+      try {
+         var dif = GetColorDif(newColor);
 
-      for (int i = 0; i < ViewModel.Elements.Count; i++) {
-         if (!ViewModel.Elements[i].Selected) continue;
-         if (i == activeSelection) {
-            ViewModel.Elements[i].Color = TileImage.Convert16BitColor(newColor);
-            continue;
+         for (int i = 0; i < ViewModel.Elements.Count; i++) {
+            if (!ViewModel.Elements[i].Selected) continue;
+            if (i == activeSelection) {
+               ViewModel.Elements[i].Color = TileImage.Convert16BitColor(newColor);
+               continue;
+            }
+
+            ViewModel.Elements[i].Color = ApplyDif(i, dif);
          }
 
-         ViewModel.Elements[i].Color = ApplyDif(i, dif);
+         UpdateSwatchTextBoxContentFromSwatch();
+
+         ViewModel.PushColorsToModel();
+      } finally {
+         swatchEditInProgress = false;
       }
-
-      UpdateSwatchTextBoxContentFromSwatch();
-
-      ViewModel.PushColorsToModel();
    }
 
    private string Color32For(int tileIndex) {

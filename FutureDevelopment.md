@@ -163,3 +163,141 @@ and diagnostics; correction/retry, successful relocation and HMA-006/007 remain 
 Native full-window event ordering and game execution remain outside the synthetic checks.
 
 Evidence and limits: [SCRIPT_WORKFLOW_INVESTIGATION.md](tests/SCRIPT_WORKFLOW_INVESTIGATION.md).
+
+## HMA-009 — Dismiss stale autocomplete after source/context/visibility changes
+
+**Status:** Fixed in the shared Mac overlay with focus/context/lifetime guards and 85 new
+synthetic real-control regression checks; native OS event delivery remains manual coverage.
+
+**Reproduction:** Open script suggestions, focus another control, then update the bound source.
+The list closes on LostFocus but reopens while the editor is unfocused. Replacing the overlay
+DataContext with an empty CodeBody retains old options. Hiding its parent leaves Popup.IsOpen
+true and restoring it without typing retains the list; native Cocoa visibility is not proven.
+
+**Implemented:** Suggestions require the current focused, enabled, effectively visible target
+in the same attached, active window. Focus/context/target changes, hidden or disabled ancestors,
+detachment and window deactivation discard options and close the popup. Target/ancestor/window
+subscriptions are cleaned up and rebuilt for reuse; visibility/activation alone never restores
+old options. Outside clicks dismiss without consuming the intended action, including controls
+that keep the editor focused. Compiler/draft/history behavior is unchanged. Existing keyboard/
+mouse acceptance is retained. The user's exact native trigger and non-overlay dropdowns remain unverified.
+
+Evidence and scope: [SCRIPT_EDITOR_REVIEW.md](tests/SCRIPT_EDITOR_REVIEW.md).
+
+## HMA-010 — Preserve movement permissions during mixing-bag flood fill
+
+**Status:** Fixed in changelog entry 105, with automated synthetic regressions.
+
+**Original reproduction:** Disable automatic movement selection, use CollisionIndex=-1 to preserve
+permissions and a one-member block bag containing block 1. Start a stroke over a three-cell
+connected region containing 4000. A normal first stamp correctly writes 4001; double-click fill
+then produces 4001,FC01,FC01. The Mac Command-click bag controls work independently of this bug.
+
+**Fix:** PaintBlockBag now resolves a negative preservation sentinel from the original region
+value, matching ordinary PaintBlock. BlockBagFill covers preserve-mode, explicit-permission,
+multi-member, region/boundary and neighboring-data behavior plus exact Undo/Redo/Save/reload.
+The original shortcut/help investigation is retained as historical evidence.
+
+Evidence and limits: [BLOCK_BAG_REVIEW.md](tests/BLOCK_BAG_REVIEW.md).
+
+## HMA-011 — Reset map stroke deduplication across independent edits
+
+**Status:** Fixed in changelog entry 110. Original behavior: Painting the same cell after Undo
+or changing its permissions after Redo could be skipped by persistent coordinate suppression.
+
+Implemented: Reset coordinate suppression on visible maps at the beginning of a fresh non-double
+stroke, preserving lastDrawVal for subsequent fill and suppressing redundant movement within
+the stroke. Initial coordinates are invalid so the first top-left draw is never skipped.
+Regression evidence: [MapGestureLifecycle](tests/MapGestureLifecycle/README.md).
+Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
+
+## HMA-012 — Finish interrupted map/picker gestures and history boundaries
+
+**Status:** Fixed in changelog entry 107, with enforced synthetic lifecycle regressions.
+Original behavior: Explicit pointer capture loss could leave paint/pan
+active without a pressed button and leave selection/picker state stale. Switching tabs during
+a stroke can merge it with the following stroke into one Undo step.
+
+Implemented: Idempotent completion for capture loss, detach, old-context replacement and explicit
+map navigation, including normal-release reentrancy, exact endpoints, per-tool state and one
+history completion. See [MapGestureLifecycle](tests/MapGestureLifecycle/README.md).
+Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
+
+## HMA-013 — End live map interactions when Escape clears the brush
+
+**Status:** Fixed in changelog entry 108. Original behavior: Escape cleared the active brush,
+but continued held pointer motion still changed map bytes because Cancel left the drawing
+interaction active.
+
+Implemented: Route Cancel through HMA-012 interaction completion before clearing brush fields.
+The UI relinquishes capture for the owning operation; valid edits remain a single Undo step.
+Enforced key/API cancellation scenarios cover painting, rectangles, events, picker, pan, selection
+and pending object/wave templates in [MapGestureLifecycle](tests/MapGestureLifecycle/README.md).
+Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
+
+## HMA-014 — Clear transient reveal mode when map focus/context changes
+
+**Status:** Fixed in changelog entry 111. Original behavior: Space reveal could remain on when
+focus moved to a toolbar field or another tab before key release.
+
+Implemented: Clear transient reveal/Command state on focus loss, detach, context replacement,
+explicit navigation/cancellation and window deactivation; remove the window subscription on
+detach. Ignore old-context property notifications and align the reveal transition to the new
+context. Enforced headless focus/tab/context/navigation/release controls preserve native Space
+text input, Command event visibility and bytes/metadata. Native window activation delivery and
+compositor animation timing remain manual verification limits.
+Evidence and regression plan: [MAP_TRANSITION_AUDIT.md](tests/MAP_TRANSITION_AUDIT.md).
+
+
+## HMA-015 — Preserve movement permissions for a non-bag rectangle brush
+
+**Status:** Fixed in changelog entry 109. Original behavior: Selecting single block 1, setting
+CollisionIndex=-1, then Command-dragging a non-bag rectangle wrote FC01. The setter packed the
+negative sentinel into tilesToDraw, which FillRect passed directly to RepeatBlocks.
+
+Implemented: Single-cell rectangle brushes use RepeatBlock with the chosen art and separate
+permission setting, preserving each destination's movement bits when negative. Bags use the
+same existing path; copied multi-cell patterns keep their packed-source repetition semantics.
+Regressions cover mixed 0/1/16/63 permissions, preserve/explicit settings, one/two-member bags,
+rectangle growth/shrink, copied patterns, permission-only edits, exact bytes/metadata and
+Save/reload/Undo/Redo. Evidence: [MapGestureLifecycle](tests/MapGestureLifecycle/README.md).
+
+## HMA-016 — Separate negative preservation state from copied packed brush values
+
+**Status:** Reproduced through deliberate Core assignment, not implemented. Ordinary copied
+stamps/rectangles and explicit overrides pass, but assigning CollisionIndex=-1 with an active
+multi-cell brush produces FC-prefixed values. The Mac dropdown has no selectable preserve
+entry and ignores empty selection; no ordinary UI trigger was found that retains the copied
+brush while intentionally assigning the negative value.
+
+Plan: Define copy-source, explicit-override and preserve-destination semantics independently
+of packed words before exposing preserve controls. Keep default mixed copied patterns intact.
+Evidence and limits: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
+
+## HMA-017 — Apply explicit nine-grid permissions to derived inner corners
+
+**Status:** Fixed in changelog entry 114. Original behavior:
+Selecting permission 01 paints normal nine-grid cells with 01 but an inner corner retains 0C
+from discovery. Both before-activation and after-activation selector changes reproduce it.
+
+Implemented: Track a current-brush explicit override independently of copied packed permissions
+and apply it at every nine-grid write, including discovered/fallback corners. Fresh copying or
+picker selection clears the override; original Core overloads retain their legacy semantics.
+Regressions cover all four inner corners, 00/01/3F before/after activation, successive strokes,
+re-copy/cancel, unchanged art/geometry, fallback APIs and exact persistence/history.
+Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
+
+## HMA-018 — Bound border pointer coordinates before accessing ROM data
+
+**Status:** Fixed in changelog entry 113. Original behavior: Moving outside the left edge
+writes before border data with single/multi brushes; a single brush can also write after the
+right edge. A separate build of pre-gesture-fix checkpoint 03025d32 reproduces the same left
+overrun, confirming that this predates the recent capture-lifecycle change.
+
+Implemented: Guard pixel coordinates before conversion/address calculation in both drawing
+overloads and GetBlock; rejected reads leave the active brush unchanged. Invalid origins do
+not request history tokens, preserving Redo. Valid right/bottom intersections retain clipping.
+Regressions cover default/custom dimensions, fractional/exact edges, non-finite coordinates,
+captured pointer drags, packed data and exact Save/reload/Undo/Redo.
+Coverage: [BorderBounds](tests/BorderBounds/README.md) and MapGestureLifecycle.
+Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).

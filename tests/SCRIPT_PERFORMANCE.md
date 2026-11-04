@@ -1,5 +1,8 @@
 # Script editor responsiveness checkpoints
 
+Latest follow-up: [COMMENT_HIGHLIGHT_PERFORMANCE.md](COMMENT_HIGHLIGHT_PERFORMANCE.md) removes
+repeated comment-prefix scanning while preserving all six highlighting layers.
+
 Follow-up: [SCRIPT_EDIT_PIPELINE.md](SCRIPT_EDIT_PIPELINE.md) measures the live CodeTool
 edit/deferred-compile path and attached Mac text control, including a newly identified sparse
 variable-alias lookup bottleneck; that investigation changes no application code.

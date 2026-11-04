@@ -31,20 +31,35 @@ namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
 /// * ToolTipService.SetIsEnabled becomes the ToolTip attached properties.
 /// </summary>
 public partial class MapTab : UserControl {
+   public static string BlockBagShortcutText { get; } = OperatingSystem.IsMacOS()
+      ? "Command-click (⌘-click) blocks to add/remove them from the mixing bag.\nCommand-click the bag icon to empty it."
+      : "Ctrl-click blocks to add/remove them from the mixing bag.\nCtrl-click the bag icon to empty it.";
+
    private MapEditorViewModel ViewModel => DataContext as MapEditorViewModel;
    private MapEditorViewModel subscribed;
    private readonly MapHoverPreview hoverPreview;
+   private WindowBase keyboardWindow;
 
    public event EventHandler FocusElement;
 
    public MapTab() {
       InitializeComponent();
-      hoverPreview = new MapHoverPreview(MapView);
+      hoverPreview = new MapHoverPreview(MapView, HoverPreviewLayer);
       DataContextChanged += (sender, e) => UpdateDataContext();
       AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Bubble);
       AddHandler(KeyUpEvent, HandleKeyUp, RoutingStrategies.Bubble);
-      AttachedToVisualTree += (sender, e) => Focus();
-      DetachedFromVisualTree += (sender, e) => HideMapTooltip();
+      AttachedToVisualTree += (sender, e) => {
+         keyboardWindow = TopLevel.GetTopLevel(this) as WindowBase;
+         if (keyboardWindow != null) keyboardWindow.Deactivated += HandleWindowDeactivated;
+         Focus();
+      };
+      DetachedFromVisualTree += (sender, e) => {
+         ResetTransientKeys(subscribed);
+         if (keyboardWindow != null) keyboardWindow.Deactivated -= HandleWindowDeactivated;
+         keyboardWindow = null;
+         InterruptPointerInteraction();
+         HideMapTooltip();
+      };
       // Inspect the actual target before bubbling map handlers can reuse an NPC preview.
       AddHandler(PointerMovedEvent, DismissTooltipOutsideMap, RoutingStrategies.Tunnel, handledEventsToo: true);
       SizeChanged += (sender, e) => {
@@ -84,21 +99,33 @@ public partial class MapTab : UserControl {
    }
 
    private void UpdateDataContext() {
+      ResetTransientKeys(subscribed);
+      InterruptPointerInteraction();
       if (subscribed != null) {
          subscribed.PropertyChanged -= HandleContextPropertyChanged;
+         subscribed.InteractionInterruptRequested -= HandleInteractionInterrupt;
          subscribed.AutoscrollBlocks -= AutoscrollBlocks;
          subscribed.AutoscrollTiles -= AutoscrollTiles;
       }
       subscribed = ViewModel;
       if (subscribed != null) {
          subscribed.PropertyChanged += HandleContextPropertyChanged;
+         subscribed.InteractionInterruptRequested += HandleInteractionInterrupt;
          subscribed.AutoscrollBlocks += AutoscrollBlocks;
          subscribed.AutoscrollTiles += AutoscrollTiles;
       }
+      UpdateReveal(ViewModel?.ShowBeneath ?? false);
       UpdateStampPreviewVisibility();
    }
 
+   private void HandleInteractionInterrupt(object sender, EventArgs e) {
+      if (ReferenceEquals(sender, ViewModel)) ResetTransientKeys(ViewModel);
+      if (ReferenceEquals(sender, interactionOwner)) InterruptPointerInteraction();
+   }
+
    private void HandleContextPropertyChanged(object sender, PropertyChangedEventArgs e) {
+      if (!ReferenceEquals(sender, ViewModel)) return;
+      if (e.PropertyName == nameof(MapEditorViewModel.HoverContentVersion)) hoverPreview.Invalidate();
       if (e.PropertyName == nameof(MapEditorViewModel.ShowBeneath)) UpdateReveal(ViewModel.ShowBeneath);
       if (e.PropertyName == nameof(MapEditorViewModel.BlockSelectionToggle)) StartSelectionPop();
       // The tile highlight's toggle lives on the block editor, one level down, and that object is
@@ -145,7 +172,16 @@ public partial class MapTab : UserControl {
       TileViewer.Offset = new Vector(TileViewer.Offset.X, scrollRange * scrollPercent);
    }
 
-   private void UpdateTooltipContent(object content) => hoverPreview.Update(content);
+   private void UpdateTooltipContent(object content) {
+      if (ViewModel == null) return;
+      var vm = ViewModel;
+      var center = MapView.TranslatePoint(new Avalonia.Point(
+         MapView.Bounds.Width / 2 + vm.HighlightCursorX,
+         MapView.Bounds.Height / 2 + vm.HighlightCursorY), HoverPreviewLayer);
+      if (center is not Avalonia.Point point) return;
+      hoverPreview.Update(content, new Rect(point.X - vm.HighlightCursorWidth / 2,
+         point.Y - vm.HighlightCursorHeight / 2, vm.HighlightCursorWidth, vm.HighlightCursorHeight));
+   }
 
    private void HideMapTooltip() => hoverPreview.Hide();
 
@@ -171,7 +207,60 @@ public partial class MapTab : UserControl {
    private MouseButton withinMapInteraction = MouseButton.XButton1;
    private bool controlSelectGesture;
    private bool optionPanGesture;
-   private bool mapCaptured, backgroundCaptured, blocksCaptured, borderCaptured;
+   private bool backgroundCaptured, blocksCaptured, borderCaptured;
+
+   private IPointer interactionPointer;
+   private Control interactionSurface;
+   private MapEditorViewModel interactionOwner;
+   private Action<Point> interruptedInteraction;
+   private Point interactionPosition;
+   private MouseButton interactionButton;
+
+   private void TrackPointerInteraction(PointerPressedEventArgs e, Control surface, MapEditorViewModel owner, Point position, Action<Point> finish) {
+      InterruptPointerInteraction();
+      var pointer = e.Pointer;
+      interactionButton = PressedButton(e, surface);
+      interactionPointer = pointer;
+      interactionSurface = surface;
+      interactionOwner = owner;
+      interactionPosition = position;
+      interruptedInteraction = finish;
+      surface.PointerCaptureLost += InteractionCaptureLost;
+      pointer.Capture(surface);
+   }
+
+   private void InteractionCaptureLost(object sender, PointerCaptureLostEventArgs e) {
+      if (ReferenceEquals(sender, interactionSurface) && ReferenceEquals(e.Pointer, interactionPointer) && !ReferenceEquals(e.Pointer.Captured, interactionSurface))
+         InterruptPointerInteraction();
+   }
+
+   private void InterruptPointerInteraction() => ReleasePointerInteraction(true);
+
+   private void ReleasePointerInteraction(bool interrupted = false) {
+      if (interruptedInteraction == null) return;
+      var finish = interruptedInteraction;
+      var pointer = interactionPointer;
+      var surface = interactionSurface;
+      var owner = interactionOwner;
+      var position = interactionPosition;
+      // Disarm before releasing capture: normal releases also raise CaptureLost synchronously.
+      interruptedInteraction = null;
+      interactionPointer = null;
+      interactionSurface = null;
+      interactionOwner = null;
+      surface.PointerCaptureLost -= InteractionCaptureLost;
+      withinMapInteraction = MouseButton.XButton1;
+      controlSelectGesture = optionPanGesture = false;
+      backgroundCaptured = blocksCaptured = borderCaptured = false;
+      withinShiftInteraction = false;
+      if (ReferenceEquals(pointer.Captured, surface)) pointer.Capture(null);
+      if (interrupted) {
+         finish(position);
+         owner.ShowHighlightCursor = false;
+         HideMapTooltip();
+      }
+      UpdateStampPreviewVisibility();
+   }
 
    private static readonly object NoTooltip = new object[0];
 
@@ -228,6 +317,16 @@ public partial class MapTab : UserControl {
       return MouseButton.None;
    }
 
+   private static MouseButton ReleasedButton(PointerReleasedEventArgs e, Visual over) =>
+      e.GetCurrentPoint(over).Properties.PointerUpdateKind switch {
+         PointerUpdateKind.LeftButtonReleased => MouseButton.Left,
+         PointerUpdateKind.MiddleButtonReleased => MouseButton.Middle,
+         PointerUpdateKind.RightButtonReleased => MouseButton.Right,
+         PointerUpdateKind.XButton1Released => MouseButton.XButton1,
+         PointerUpdateKind.XButton2Released => MouseButton.XButton2,
+         _ => e.InitialPressMouseButton,
+      };
+
    private void ButtonDown(object sender, PointerPressedEventArgs e) {
       var vm = ViewModel;
       if (vm == null) return;
@@ -251,8 +350,11 @@ public partial class MapTab : UserControl {
       Focus();
       e.Handled = true;
       var p = GetCoordinates(element, e);
-      e.Pointer.Capture(element);
-      mapCaptured = true;
+      TrackPointerInteraction(e, element, vm, p, position => {
+         if (button == MouseButton.Left) vm.CompleteInteraction();
+         else if (button == MouseButton.Middle) vm.DragUp(position.X, position.Y);
+         else if (button == MouseButton.Right) vm.SelectUp(position.X, position.Y);
+      });
 
       if (button == MouseButton.Left) {
          withinMapInteraction = MouseButton.Left;
@@ -271,8 +373,7 @@ public partial class MapTab : UserControl {
          if (result == SelectionInteractionResult.ShowMenu) {
             withinMapInteraction = MouseButton.XButton1;
             controlSelectGesture = false;
-            e.Pointer.Capture(null);
-            mapCaptured = false;
+            ReleasePointerInteraction();
             ShowMenu(element);
          }
       }
@@ -324,8 +425,16 @@ public partial class MapTab : UserControl {
 
    protected override void OnLostFocus(RoutedEventArgs e) {
       base.OnLostFocus(e);
-      if (ViewModel != null) ViewModel.HideEvents = false;
+      ResetTransientKeys(ViewModel);
+   }
+
+   private void HandleWindowDeactivated(object sender, EventArgs e) => ResetTransientKeys(ViewModel);
+
+   private void ResetTransientKeys(MapEditorViewModel owner) {
       waitingForControlUp = false;
+      if (owner == null) return;
+      owner.ShowBeneath = false;
+      owner.HideEvents = false;
    }
 
    private void ButtonMove(object sender, PointerEventArgs e) {
@@ -339,6 +448,7 @@ public partial class MapTab : UserControl {
          return;
       }
       if (!MapReadyForPointer(vm)) return;
+      interactionPosition = p;
       if (withinMapInteraction == MouseButton.Left) {
          vm.PrimaryMove(p.X, p.Y);
       } else if (withinMapInteraction == MouseButton.Middle) {
@@ -364,12 +474,8 @@ public partial class MapTab : UserControl {
       var element = (Control)sender;
       var previousInteraction = withinMapInteraction;
       var releaseButton = controlSelectGesture || optionPanGesture ? MouseButton.Left : previousInteraction;
-      controlSelectGesture = false;
-      optionPanGesture = false;
-      withinMapInteraction = MouseButton.XButton1;
-      if (mapCaptured) { e.Pointer.Capture(null); mapCaptured = false; }
-      if (previousInteraction == MouseButton.XButton1) return;
-      if (e.InitialPressMouseButton != releaseButton) return;
+      if (previousInteraction == MouseButton.XButton1 || ReleasedButton(e, element) != releaseButton) return;
+      ReleasePointerInteraction();
       var vm = ViewModel;
       if (vm == null) return;
       var p = GetCoordinates(element, e);
@@ -405,12 +511,15 @@ public partial class MapTab : UserControl {
       e.Handled = true;
       vm.ClearSelection();
       var p = GetCoordinates(element, e);
-      e.Pointer.Capture(element);
+      TrackPointerInteraction(e, element, vm, p, position => vm.DragUp(position.X, position.Y));
+      backgroundButton = button;
       backgroundCaptured = true;
       withinMapInteraction = MouseButton.Middle;
       UpdateStampPreviewVisibility();
       vm.DragDown(p.X, p.Y);
    }
+
+   private MouseButton backgroundButton;
 
    private void BackgroundMove(object sender, PointerEventArgs e) {
       if (!backgroundCaptured) return;
@@ -420,18 +529,15 @@ public partial class MapTab : UserControl {
       var p = GetCoordinates(element, e);
       e.Handled = true;
       if (withinMapInteraction == MouseButton.XButton1) return;
+      interactionPosition = p;
       vm.DragMove(p.X, p.Y, false);
    }
 
    private void BackgroundUp(object sender, PointerReleasedEventArgs e) {
       if (!backgroundCaptured) return;
       var element = (Control)sender;
-      var previousInteraction = withinMapInteraction;
-      withinMapInteraction = MouseButton.XButton1;
-      e.Pointer.Capture(null);
-      backgroundCaptured = false;
-      if (previousInteraction == MouseButton.XButton1) return;
-      if (e.InitialPressMouseButton != previousInteraction) return;
+      if (ReleasedButton(e, element) != backgroundButton) return;
+      ReleasePointerInteraction();
       var vm = ViewModel;
       if (vm == null) return;
       e.Handled = true;
@@ -445,6 +551,7 @@ public partial class MapTab : UserControl {
       var vm = ViewModel;
       if (vm == null) return;
       var p = GetCoordinates(element, e);
+      HideMapTooltip();
       vm.Zoom(p.X, p.Y, e.Delta.Y > 0);
       e.Handled = true;
    }
@@ -480,9 +587,10 @@ public partial class MapTab : UserControl {
    private void BlocksDown(object sender, PointerPressedEventArgs e) {
       if (blocksCaptured || ViewModel == null) return;
       var element = (Control)sender;
-      e.Pointer.Capture(element);
-      blocksCaptured = true;
       var p = SourcePixelPosition(element, e);
+      var owner = ViewModel;
+      TrackPointerInteraction(e, element, owner, p, position => owner.ReleaseBlock((int)(position.X / 16), (int)(position.Y / 16)));
+      blocksCaptured = true;
       var x = (int)(p.X / 16);
       var y = (int)(p.Y / 16);
       if (e.KeyModifiers == HexContent.CommandModifier) {
@@ -497,14 +605,14 @@ public partial class MapTab : UserControl {
       if (e.KeyModifiers == HexContent.CommandModifier) return;
       var element = (Control)sender;
       var p = SourcePixelPosition(element, e);
+      interactionPosition = p;
       ViewModel.DragBlock((int)(p.X / 16), (int)(p.Y / 16));
       e.Handled = true;
    }
 
    private void BlocksUp(object sender, PointerReleasedEventArgs e) {
-      if (!blocksCaptured || ViewModel == null) return;
-      e.Pointer.Capture(null);
-      blocksCaptured = false;
+      if (!blocksCaptured || ViewModel == null || ReleasedButton(e, (Control)sender) != interactionButton) return;
+      ReleasePointerInteraction();
       var element = (Control)sender;
       var p = SourcePixelPosition(element, e);
       ViewModel.ReleaseBlock((int)(p.X / 16), (int)(p.Y / 16));
@@ -539,11 +647,20 @@ public partial class MapTab : UserControl {
 
    #region Border Interaction
 
-   private void BorderDown(object sender, PointerPressedEventArgs e) => BorderMove(sender, e);
+   private void BorderDown(object sender, PointerPressedEventArgs e) {
+      if (ViewModel == null || borderCaptured) return;
+      var element = (Control)sender;
+      var owner = ViewModel;
+      TrackPointerInteraction(e, element, owner, SourcePixelPosition(element, e), _ => owner.CompleteBorderDraw());
+      borderCaptured = true;
+      BorderMove(sender, e);
+   }
 
    private void BorderSelect(object sender, PointerPressedEventArgs e) {
       var element = (Control)sender;
-      e.Pointer.Capture(element);
+      if (ViewModel == null || borderCaptured) return;
+      var owner = ViewModel;
+      TrackPointerInteraction(e, element, owner, SourcePixelPosition(element, e), _ => owner.CompleteBorderDraw());
       borderCaptured = true;
       // BorderEditor.GetBlock divides by 16, so it wants source pixels; the border renders at 3x.
       var p = SourcePixelPosition(element, e);
@@ -552,13 +669,14 @@ public partial class MapTab : UserControl {
 
    private void BorderMove(object sender, PointerEventArgs e) {
       var element = (Control)sender;
-      if (!e.GetCurrentPoint(element).Properties.IsLeftButtonPressed) return;
+      if (!borderCaptured || !e.GetCurrentPoint(element).Properties.IsLeftButtonPressed) return;
       var p = SourcePixelPosition(element, e);
       ViewModel?.DrawBorder(p.X, p.Y);
    }
 
    private void BorderUp(object sender, PointerReleasedEventArgs e) {
-      if (borderCaptured) { e.Pointer.Capture(null); borderCaptured = false; }
+      if (!borderCaptured || ReleasedButton(e, (Control)sender) != interactionButton) return;
+      ReleasePointerInteraction();
       ViewModel?.CompleteBorderDraw();
    }
 
@@ -677,7 +795,8 @@ public partial class MapTab : UserControl {
          return;
       }
       var p = GetCoordinates(MapButtons, e);
-      e.Pointer.Capture(element);
+      var owner = ViewModel;
+      TrackPointerInteraction(e, element, owner, p, position => owner.ShiftUp(position.X, position.Y));
       withinShiftInteraction = true;
       ViewModel.ShiftDown(p.X, p.Y);
       e.Handled = true;
@@ -686,14 +805,15 @@ public partial class MapTab : UserControl {
    private void ShifterMove(object sender, PointerEventArgs e) {
       if (!withinShiftInteraction || ViewModel == null) return;
       var p = GetCoordinates(MapButtons, e);
+      interactionPosition = p;
       ViewModel.ShiftMove(p.X, p.Y);
       e.Handled = true;
    }
 
    private void ShifterUp(object sender, PointerReleasedEventArgs e) {
       // Do not release capture or consume a context-menu click we never started.
-      if (!withinShiftInteraction || e.InitialPressMouseButton != MouseButton.Left || ViewModel == null) return;
-      e.Pointer.Capture(null);
+      if (!withinShiftInteraction || ReleasedButton(e, (Control)sender) != MouseButton.Left || ViewModel == null) return;
+      ReleasePointerInteraction();
       var p = GetCoordinates(MapButtons, e);
       ViewModel.ShiftUp(p.X, p.Y);
       withinShiftInteraction = false;
@@ -708,10 +828,10 @@ public partial class MapTab : UserControl {
       if (ViewModel?.PrimaryMap == null) return;
       var target = (EventCreationType)((Control)sender).Tag;
       if (target == EventCreationType.Fly && !ViewModel.PrimaryMap.CanCreateFlyEvent) return;
+      var owner = ViewModel;
+      TrackPointerInteraction(e, MapView, owner, GetCoordinates(MapView, e), _ => owner.CompleteInteraction());
       withinMapInteraction = MouseButton.Left;
       controlSelectGesture = false;
-      e.Pointer.Capture(MapView);
-      mapCaptured = true;
       ViewModel.StartEventCreationInteraction(target);
       e.Handled = true;
    }

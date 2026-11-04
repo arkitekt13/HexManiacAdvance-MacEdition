@@ -47,7 +47,7 @@ void Layout(int width, int height) {
 }
 foreach (var size in new[] { new Size(1200, 800), new Size(800, 600), new Size(500, 400) }) {
    Layout((int)size.Width, (int)size.Height);
-   foreach (var name in new[] { "WelcomeTitle", "MacSubtitle", "OpenFileButton", "VersionInformation" }) {
+   foreach (var name in new[] { "WelcomeTitle", "MacSubtitle", "WelcomeCredits", "OpenFileButton", "WelcomeLinks", "VersionInformation" }) {
       var control = welcome.FindControl<Control>(name)!;
       var bounds = new Rect(control.Bounds.Size).TransformToAABB(control.TransformToVisual(root)!.Value);
       Check(bounds.Width > 0 && bounds.Height > 0 && bounds.X >= 0 && bounds.Y >= 0 && bounds.Right <= size.Width + .01 && bounds.Bottom <= size.Height + .01,

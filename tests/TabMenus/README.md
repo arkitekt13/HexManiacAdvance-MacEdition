@@ -5,6 +5,11 @@ These checks use real MainWindow tab headers/context menus and headless pointer 
 fabricated ROMs/maps. Finder requests are recorded by an injected file-system capability; no
 actual Finder window, user file, patch output or emulator is opened.
 
+The group now passes 33 assertions, including the normal UI's hidden/disabled built-in emulator
+and Claude controls, absent native accelerators and F6 binding, a real F6 press that opens no
+emulator, and retained external emulator toolbar/menu/F5 access. The underlying optional
+implementations remain compiled and can be restored through OptionalFeatureVisibility.
+
 Before the fix, the Control-click menu assertion fails although secondary/right-click works.
 Coverage includes Control held through release/released early, moving without tab reordering,
 the clicked tab's DataContext and Duplicate target, preserved menu entries, ordinary drag reorder,

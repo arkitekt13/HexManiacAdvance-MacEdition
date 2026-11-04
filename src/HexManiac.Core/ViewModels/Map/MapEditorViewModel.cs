@@ -168,9 +168,11 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       private int collisionIndex = -1;
+      private int? nineGridCollisionOverride;
       public int CollisionIndex {
          get => collisionIndex;
          set {
+            nineGridCollisionOverride = value >= 0 ? value : null;
             Set(ref collisionIndex, value);
             foreach (var map in VisibleMaps) {
                map.CollisionHighlight = value;
@@ -311,6 +313,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void Refresh() {
+         InvalidateHoverContent();
          format.Refresh();
          primaryMap.ClearCaches(); // needs to reset first, so the width/height is correct when calculating everything else
          UpdatePrimaryMap(primaryMap);
@@ -354,6 +357,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
       private void NavigateTo(int mapID, bool trackChange = true) => NavigateTo(mapID / 1000, mapID % 1000, trackChange);
       private void NavigateTo(int bank, int map, bool trackChange = true) {
+         InterruptInteraction();
          // special case
          if (bank == 127 && map == 127) {
             ExecuteBack();
@@ -380,6 +384,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void NavigateTo(int bank, int map, int x, int y) {
+         InterruptInteraction();
          viewPort.Tools.LogTool.LogMessages.Add($"Navigate to ({x}, {y}) in map {bank}.{map}");
          if (primaryMap != null) {
             backStack.Add(primaryMap.MapID);
@@ -508,6 +513,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
                primaryMap.IsSelected = false;
             }
             primaryMap = map;
+            InvalidateHoverContent();
             primaryMap.BlockEditor.BlockIndex = drawBlockIndex;
             NotifyPropertyChanged(nameof(PrimaryMap));
             if (primaryMap != null) {
@@ -580,7 +586,11 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       private void PrimaryMapPropertyChanged(object sender, PropertyChangedEventArgs e) {
          var map = (BlockMapViewModel)sender;
-         if (e.PropertyName == nameof(BlockMapViewModel.SelectedEvent)) {
+         if (e.PropertyName == nameof(BlockMapViewModel.PixelData)) {
+            // Event/data refreshes can change dialogue or destinations without moving
+            // the pointer to a different tile. The old summary is no longer valid.
+            InvalidateHoverContent();
+         } else if (e.PropertyName == nameof(BlockMapViewModel.SelectedEvent)) {
             if (map.SelectedEvent != selectedEvent) {
                SelectedEvent = map.SelectedEvent;
             }
@@ -654,6 +664,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       public bool HideEvents {
          get => hideEvents; set => Set(ref hideEvents, value, old => {
             foreach (var m in VisibleMaps) m.ShowEvents = hideEvents ? MapDisplayOptions.NoEvents : MapDisplayOptions.AllEvents;
+            InvalidateHoverContent();
             Tutorials.Complete(Tutorial.Ctrl_HideEvents);
          });
       }
@@ -662,6 +673,15 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       // if it returns null: continue displaying previous hover tip
       // if it returns content: display that as the new hover tip
       private static readonly object[] EmptyTooltip = new object[0];
+      private bool hoverContentInvalidated;
+      public int HoverContentVersion { get; private set; }
+
+      private void InvalidateHoverContent() {
+         hoverContentInvalidated = true;
+         HoverContentVersion++;
+         NotifyPropertyChanged(nameof(HoverContentVersion));
+      }
+
       public object Hover(double x, double y) {
          var map = MapUnderCursor(x, y);
          if (map == null) return EmptyTooltip;
@@ -678,7 +698,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          } else {
             var p = ToBoundedMapTilePosition(map, x, y, 1, 1);
             map.HoverPoint = ToPixelPosition(map, x, y);
-            if (UpdateHover(map, p.X, p.Y, 1, 1)) {
+            if (UpdateHover(map, p.X, p.Y, 1, 1) || hoverContentInvalidated) {
+               hoverContentInvalidated = false;
                if (!SpartanMode && interactionType == PrimaryInteractionType.None) {
                   var matches = map.EventsUnderCursor(x, y, false).OfType<BaseEventViewModel>().ToList();
                   if (matches.Count > 0) {
@@ -796,6 +817,31 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          interactionType = PrimaryInteractionType.None;
       }
 
+      public event EventHandler InteractionInterruptRequested;
+
+      private void InterruptInteraction() {
+         InteractionInterruptRequested?.Invoke(this, EventArgs.Empty);
+         CompleteInteraction();
+      }
+
+      /// <summary>Finish already-applied edits when a pointer gesture is interrupted.
+      /// Unlike a normal release, this must not place a pending event or start a wave fill.</summary>
+      public void CompleteInteraction() {
+         var previous = interactionType;
+         var creating = withinEventCreationInteraction;
+         interactionType = PrimaryInteractionType.None;
+         withinEventCreationInteraction = false;
+         eventCreationType = EventCreationType.None;
+         rectangleBackup = null;
+         if (previous == PrimaryInteractionType.None && !creating) return;
+         if (previous == PrimaryInteractionType.Event && selectedEvent is ObjectEventViewModel objEvent) {
+            foreach (var neighbor in PreferLoaded(GetMapNeighbors(primaryMap, 1))) neighbor.UpdateClone(primaryMap, objEvent);
+         }
+         history.ChangeCompleted();
+         if (creating) UpdatePrimaryMap(primaryMap);
+         else primaryMap.RedrawEvents();
+      }
+
       Point drawSource, lastDraw;
       private bool DrawDown(double x, double y, PrimaryInteractionStart click) {
          bool didDraw = true;
@@ -822,6 +868,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
             }
             Hover(x, y);
          } else {
+            foreach (var visibleMap in VisibleMaps) visibleMap.BeginDrawStroke();
             drawSource = ToBoundedMapTilePosition(map, x, y, 1, 1);
             lastDraw = drawSource;
             if (click == PrimaryInteractionStart.ControlClick) RectangleDrawMove(x, y);
@@ -880,7 +927,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       private void Draw9Grid(double x, double y) {
          var map = MapUnderCursor(x, y);
-         map.Draw9Grid(history.CurrentChange, tilesToDraw, x, y);
+         map.Draw9Grid(history.CurrentChange, tilesToDraw, x, y, nineGridCollisionOverride);
          Hover(x, y);
       }
 
@@ -1019,8 +1066,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var (width, height) = (right - left + 1, bottom - top + 1);
 
          var singleSelect = tilesToDraw == null || (tilesToDraw.GetLength(0) == 1 && tilesToDraw.GetLength(1) == 1);
-         if (singleSelect && blockBag.Contains(drawBlockIndex)) {
-            primaryMap.RepeatBlock(() => history.CurrentChange, blockBag, collisionIndex, left, top, width, height, true);
+         if (singleSelect) {
+            IReadOnlyList<int> blocks = blockBag.Contains(drawBlockIndex) ? blockBag : new[] { drawBlockIndex };
+            primaryMap.RepeatBlock(() => history.CurrentChange, blocks, collisionIndex, left, top, width, height, true);
          } else {
             primaryMap.RepeatBlocks(() => history.CurrentChange, tilesToDraw, left, top, width, height, true);
          }
@@ -1163,6 +1211,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void SelectUp(double x, double y) {
+         // A freshly selected pattern owns its copied/preferred permissions until explicitly overridden.
+         nineGridCollisionOverride = null;
          interactionType = PrimaryInteractionType.None;
          var map = MapUnderCursor(x, y);
          if (map != primaryMap) return;
@@ -1666,6 +1716,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void Cancel() {
+         InterruptInteraction();
          SelectedEvent = null;
          DrawMultipleTiles = false;
          BlockEditorVisible = false;
@@ -1747,6 +1798,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void SelectBlock(int x, int y) {
+         // A freshly selected pattern owns its copied/preferred permissions until explicitly overridden.
+         nineGridCollisionOverride = null;
          while (y * BlockMapViewModel.BlocksPerRow + x > PrimaryMap.BlockRenders.Count) y -= 1;
          blockInteractionStart = new(x, y);
          selectionFromBlock = false;
@@ -1779,6 +1832,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void ReleaseBlock(int x, int y) {
+         // A freshly selected pattern owns its copied/preferred permissions until explicitly overridden.
+         nineGridCollisionOverride = null;
          var (xx, right) = (x, blockInteractionStart.X);
          if (xx > right) (xx, right) = (right, xx);
          var (yy, bottom) = (y, blockInteractionStart.Y);
@@ -1911,7 +1966,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       public void CompleteBorderDraw() => PrimaryMap.ViewPort.ChangeHistory.ChangeCompleted();
 
       public void ReadBorderBlock(double x, double y) {
-         DrawBlockIndex = PrimaryMap.BorderEditor.GetBlock(x, y);
+         var block = PrimaryMap.BorderEditor.GetBlock(x, y);
+         if (block < 0) return;
+         DrawBlockIndex = block;
          tilesToDraw = new int[1, 1];
          AutoscrollBlocks.Raise(this);
          SelectSingleBlock();
@@ -2258,11 +2315,6 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       public void ExportMapImage(bool includeAllMaps, MapDisplayOptions options) {
          // from the primary map, find all connected maps
-         var savePrimarySelected = primaryMap.IsSelected;
-         var savePrimaryShowEvents = primaryMap.ShowEvents;
-
-         primaryMap.IsSelected = false;
-         primaryMap.ShowEvents = options;
          var maps = new List<BlockMapViewModel>(new[] { primaryMap });
          var directions = new[] { MapDirection.Left, MapDirection.Up, MapDirection.Right, MapDirection.Down };
          for (int i = 0; i < maps.Count && includeAllMaps; i++) {
@@ -2272,28 +2324,36 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
             }
          }
 
-         // determine how big the image needs to be
-         var left = maps.Min(map => map.LeftEdge) / primaryMap.SpriteScale;
-         var right = maps.Max(map => map.RightEdge) / primaryMap.SpriteScale;
-         var top = maps.Min(map => map.TopEdge) / primaryMap.SpriteScale;
-         var bottom = maps.Max(map => map.BottomEdge) / primaryMap.SpriteScale;
-         var width = (int)Math.Round(right - left);
-         var height = (int)Math.Round(bottom - top);
+         var states = maps.Select(map => (map, map.IsSelected, map.ShowEvents)).ToArray();
+         try {
+            foreach (var map in maps) { map.IsSelected = false; map.ShowEvents = options; }
+            // determine how big the image needs to be
+            var left = maps.Min(map => map.LeftEdge) / primaryMap.SpriteScale;
+            var right = maps.Max(map => map.RightEdge) / primaryMap.SpriteScale;
+            var top = maps.Min(map => map.TopEdge) / primaryMap.SpriteScale;
+            var bottom = maps.Max(map => map.BottomEdge) / primaryMap.SpriteScale;
+            var width = (int)Math.Round(right - left);
+            var height = (int)Math.Round(bottom - top);
 
-         // create a canvas that's the right size
-         var canvas = new CanvasPixelViewModel(width, height);
+            // create a canvas that's the right size
+            var canvas = new CanvasPixelViewModel(width, height);
 
-         // draw all the maps
-         foreach (var map in maps) {
-            canvas.Draw(map, (int)(map.LeftEdge / map.SpriteScale - left), (int)(map.TopEdge / map.SpriteScale - top));
+            // draw all the maps
+            foreach (var map in maps) {
+               canvas.Draw(map, (int)(map.LeftEdge / map.SpriteScale - left), (int)(map.TopEdge / map.SpriteScale - top));
+            }
+
+            // export it as an image
+            if (fileSystem is IMapImageExporter exporter) {
+               var name = primaryMap.FullName + (includeAllMaps ? "-connected" : "");
+               exporter.ExportMapImage(canvas.PixelData, canvas.PixelWidth, FullFileName, name);
+            } else {
+               fileSystem.CopyImage = (canvas.PixelData, canvas.PixelWidth);
+               ViewPort.RaiseMessage("Map copied to clipboard");
+            }
+         } finally {
+            foreach (var state in states) { state.map.IsSelected = state.IsSelected; state.map.ShowEvents = state.ShowEvents; }
          }
-
-         // export it as an image
-         fileSystem.CopyImage = (canvas.PixelData, canvas.PixelWidth);
-         ViewPort.RaiseMessage("Map copied to clipboard");
-
-         primaryMap.IsSelected = savePrimarySelected;
-         primaryMap.ShowEvents = savePrimaryShowEvents;
       }
    }
 

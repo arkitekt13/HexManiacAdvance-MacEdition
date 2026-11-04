@@ -8,6 +8,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 using HavenSoft.HexManiac.AvaloniaUI.Resources;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.Models.Runs;
@@ -41,24 +42,106 @@ public partial class AutocompleteOverlay : UserControl {
    }
 
    protected virtual void OnTargetChanged(AvaloniaPropertyChangedEventArgs e) {
-      var oldSource = e.OldValue;
-      if (oldSource is TextEditor oldEditor) oldSource = oldEditor.TransparentLayer;
-      if (oldSource is TextBox oldTarget) {
+      ClearAutocompleteOptions();
+      UnsubscribeTarget();
+      SubscribeTarget();
+      WatchLifetime();
+   }
+
+   private TextBox subscribedTarget;
+   private readonly HashSet<Visual> lifetimeAncestors = new();
+   private WindowBase ownerWindow;
+
+   private void UnsubscribeTarget() {
+      if (subscribedTarget is TextBox oldTarget) {
          oldTarget.TextChanged -= TargetTextChanged;
          oldTarget.RemoveHandler(KeyDownEvent, TargetKeyDown);
          oldTarget.PropertyChanged -= TargetPropertyChanged;
          oldTarget.LostFocus -= TargetLostFocus;
+         oldTarget.AttachedToVisualTree -= TargetAttached;
+         oldTarget.DetachedFromVisualTree -= TargetDetached;
       }
+      subscribedTarget = null;
+   }
 
-      var newSource = e.NewValue;
-      if (newSource is TextEditor newEditor) newSource = newEditor.TransparentLayer;
-      if (newSource is TextBox newTarget) {
+   private void SubscribeTarget() {
+      if (this.GetVisualRoot() != null && TargetTextBox is TextBox newTarget) {
+         subscribedTarget = newTarget;
          newTarget.TextChanged += TargetTextChanged;
          newTarget.AddHandler(KeyDownEvent, TargetKeyDown, RoutingStrategies.Tunnel);
          newTarget.PropertyChanged += TargetPropertyChanged;
          newTarget.LostFocus += TargetLostFocus;
+         newTarget.AttachedToVisualTree += TargetAttached;
+         newTarget.DetachedFromVisualTree += TargetDetached;
       }
    }
+
+   protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e) {
+      base.OnAttachedToVisualTree(e);
+      ClearAutocompleteOptions();
+      UnsubscribeTarget();
+      SubscribeTarget();
+      WatchLifetime();
+   }
+
+   protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e) {
+      ClearAutocompleteOptions();
+      UnsubscribeTarget();
+      StopWatchingLifetime();
+      base.OnDetachedFromVisualTree(e);
+   }
+
+   private void TargetAttached(object sender, VisualTreeAttachmentEventArgs e) {
+      ClearAutocompleteOptions();
+      WatchLifetime();
+   }
+
+   private void TargetDetached(object sender, VisualTreeAttachmentEventArgs e) {
+      ClearAutocompleteOptions();
+      WatchLifetime();
+   }
+
+   private void StopWatchingLifetime() {
+      foreach (var ancestor in lifetimeAncestors) ancestor.PropertyChanged -= AncestorPropertyChanged;
+      lifetimeAncestors.Clear();
+      if (ownerWindow != null) {
+         ownerWindow.Deactivated -= OwnerDeactivated;
+         ownerWindow.RemoveHandler(PointerPressedEvent, OwnerPointerPressed);
+      }
+      ownerWindow = null;
+   }
+
+   private void WatchLifetime() {
+      StopWatchingLifetime();
+      if (this.GetVisualRoot() == null) return;
+      // The target and overlay can occupy different branches of a template.
+      foreach (var ancestor in this.GetVisualAncestors().Concat(TargetTextBox?.GetVisualAncestors() ?? Enumerable.Empty<Visual>())) {
+         if (lifetimeAncestors.Add(ancestor)) ancestor.PropertyChanged += AncestorPropertyChanged;
+      }
+      ownerWindow = TopLevel.GetTopLevel(this) as WindowBase;
+      if (ownerWindow != null) {
+         ownerWindow.Deactivated += OwnerDeactivated;
+         ownerWindow.AddHandler(PointerPressedEvent, OwnerPointerPressed, RoutingStrategies.Tunnel, handledEventsToo: true);
+      }
+   }
+
+   private void AncestorPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e) {
+      if ((e.Property == IsVisibleProperty || e.Property == IsEnabledProperty) && e.NewValue is false) ClearAutocompleteOptions();
+   }
+
+   private void OwnerDeactivated(object sender, EventArgs e) => ClearAutocompleteOptions();
+
+   private void OwnerPointerPressed(object sender, PointerPressedEventArgs e) {
+      if (!IsVisible || e.Source is not Visual source) return;
+      bool Inside(Visual root) => root != null && (ReferenceEquals(source, root) || source.GetVisualAncestors().Contains(root));
+      if (!Inside(Target) && !Inside(Popup.Child)) ClearAutocompleteOptions();
+      // Observe only: the original pointer event must still reach the clicked control.
+   }
+
+   // Check the host, not this overlay's visibility: a closed overlay must be able to open.
+   private bool CanOffer() => TargetTextBox is TextBox box && box.IsFocused && box.IsEffectivelyVisible && box.IsEffectivelyEnabled &&
+      this.GetVisualParent()?.IsEffectivelyVisible == true && TopLevel.GetTopLevel(this) is TopLevel owner &&
+      ReferenceEquals(TopLevel.GetTopLevel(box), owner) && (ownerWindow == null || ownerWindow.IsActive);
 
    public TextBox TargetTextBox {
       get {
@@ -75,11 +158,13 @@ public partial class AutocompleteOverlay : UserControl {
    public AutocompleteOverlay() {
       InitializeComponent();
       RenderTransform = autocompleteTransform;
+      DataContextChanged += (_, _) => ClearAutocompleteOptions();
    }
 
    public void ClearAutocompleteOptions() {
       AutocompleteItems.ItemsSource = null;
       IsVisible = false;
+      ignoreNextSelectionChange = false;
       if (DataContext is StreamElementViewModel streamViewModel) streamViewModel.ClearAutocomplete();
    }
 
@@ -103,7 +188,10 @@ public partial class AutocompleteOverlay : UserControl {
 
    private void TargetTextChanged(object sender, TextChangedEventArgs e) {
       var box = TargetTextBox;
-      if (box == null) return;
+      if (!ReferenceEquals(sender, box) || !CanOffer()) {
+         ClearAutocompleteOptions();
+         return;
+      }
       if (box.CaretIndex == 0) {
          ClearAutocompleteOptions();
          return;
@@ -119,6 +207,7 @@ public partial class AutocompleteOverlay : UserControl {
          } else if (mapObjectViewModel.ShowTrainerContent) {
             getAutocomplete = mapObjectViewModel.GetTrainerAutocomplete;
          } else {
+            ClearAutocompleteOptions();
             return;
          }
       } else if (DataContext is MultiFieldArrayElementViewModel multi) {
@@ -128,6 +217,7 @@ public partial class AutocompleteOverlay : UserControl {
       } else if (DataContext is CodeBody body) {
          getAutocomplete = body.GetTokenComplete;
       } else {
+         ClearAutocompleteOptions();
          return;
       }
 
@@ -137,7 +227,12 @@ public partial class AutocompleteOverlay : UserControl {
       var verticalStart = lineHeight * (line.Number + 1) + 2;
       double horizontalStart = 0;
 
+      var context = DataContext;
       var options = getAutocomplete(text.Substring(line.Start, line.Length), line.Number, line.Column);
+      if (!CanOffer() || !ReferenceEquals(context, DataContext)) {
+         ClearAutocompleteOptions();
+         return;
+      }
       if (options != null && options.Count > 0) {
          var offset = options[0].CharacterOffset;
          var typeFace = new Typeface(box.FontFamily, box.FontStyle, box.FontWeight);
@@ -162,6 +257,7 @@ public partial class AutocompleteOverlay : UserControl {
    }
 
    private void TargetKeyDown(object sender, KeyEventArgs e) {
+      if (!CanOffer()) { ClearAutocompleteOptions(); return; }
       if (AutocompleteItems.ItemsSource is not IReadOnlyList<AutoCompleteSelectionItem> items) return;
       if (items.Count == 0) return;
       var selected = items.FirstOrDefault(item => item.IsSelected);
@@ -210,6 +306,11 @@ public partial class AutocompleteOverlay : UserControl {
 
    /// WPF had TextBox.SelectionChanged; Avalonia surfaces selection as properties.
    private void TargetPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e) {
+      if (e.Property == DataContextProperty ||
+          ((e.Property == IsVisibleProperty || e.Property == IsEnabledProperty) && e.NewValue is false)) {
+         ClearAutocompleteOptions();
+         return;
+      }
       if (e.Property != TextBox.SelectionStartProperty && e.Property != TextBox.SelectionEndProperty) return;
       if (!ignoreNextSelectionChange) {
          ClearAutocompleteOptions();
@@ -227,7 +328,7 @@ public partial class AutocompleteOverlay : UserControl {
 
    private bool AutocompleteOptionChosen(AutoCompleteSelectionItem item, bool synchronizeScriptCaret = true) {
       var box = TargetTextBox;
-      if (box == null) return false;
+      if (!CanOffer()) { ClearAutocompleteOptions(); return false; }
       var text = box.Text ?? string.Empty;
       var line = LineAt(text, box.CaretIndex);
       var needChanges = text.Substring(line.Start, line.Length) != item.CompletionText.TrimEnd();

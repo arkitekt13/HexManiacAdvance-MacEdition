@@ -1,3 +1,5 @@
+using System;
+
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
@@ -33,7 +35,8 @@ public partial class SelectedBlockEditor : UserControl {
    private void TilePointerPressed(object sender, PointerPressedEventArgs e) {
       if (sender is not Control element || ViewModel == null) return;
       var properties = e.GetCurrentPoint(element).Properties;
-      if (properties.IsRightButtonPressed) {
+      if (properties.IsRightButtonPressed || (OperatingSystem.IsMacOS() &&
+         properties.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Control))) {
          ViewModel.GetSelectionFromTile((IPixelViewModel)element.DataContext);
       } else if (properties.IsLeftButtonPressed) {
          ViewModel.DrawOnTile((IPixelViewModel)element.DataContext);

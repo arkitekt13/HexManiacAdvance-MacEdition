@@ -947,7 +947,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          return (data & 0x3FF, data >> 10);
       }
 
-      private int lastDrawVal, lastDrawX, lastDrawY;
+      private int lastDrawVal, lastDrawX = -1, lastDrawY = -1;
+
+      // Keep lastDrawVal: a following double-click fill still needs the original region value.
+      public void BeginDrawStroke() => (lastDrawX, lastDrawY) = (-1, -1);
 
       /// <summary>
       /// If collisionIndex is not valid, it's ignored.
@@ -990,14 +993,16 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          tutorials.Complete(Tutorial.LeftClickMap_DrawBlock);
       }
 
-      public void Draw9Grid(ModelDelta token, int[,] grid, double x, double y) {
+      public void Draw9Grid(ModelDelta token, int[,] grid, double x, double y) => Draw9Grid(token, grid, x, y, null);
+
+      public void Draw9Grid(ModelDelta token, int[,] grid, double x, double y, int? collisionOverride) {
          waveFunctionActive?.Cancel();
          var layout = GetLayout();
          var (width, height) = (layout.GetValue("width"), layout.GetValue("height"));
          var (xx, yy) = ConvertCoordinates(x, y);
          xx = xx.LimitToRange(0, width - 2);
          yy = yy.LimitToRange(0, height - 2);
-         Draw9Grid(token, grid, xx, yy);
+         Draw9Grid(token, grid, xx, yy, collisionOverride);
       }
 
       public void DiscoverCornersFor9Grid(int[,] grid) {
@@ -1142,7 +1147,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       private bool[,] current9gridInteractionMap;
       private int[,]? innerCornersFor9Grid;
       // 9-grid is always drawn 2x2
-      public void Draw9Grid(ModelDelta token, int[,] grid, int x, int y) {
+      public void Draw9Grid(ModelDelta token, int[,] grid, int x, int y) => Draw9Grid(token, grid, x, y, null);
+
+      public void Draw9Grid(ModelDelta token, int[,] grid, int x, int y, int? collisionOverride) {
          waveFunctionActive?.Cancel();
          var innerCornersFor9Grid = this.innerCornersFor9Grid ?? new[,] { { grid[1, 1], grid[1, 1] }, { grid[1, 1], grid[1, 1] } }; // copy so that there's no reference changing during the method
          var layout = GetLayout();
@@ -1163,6 +1170,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
                   if (!xx.InRange(0, width - 1) || !yy.InRange(0, height - 1)) continue;
                   if (!current9gridInteractionMap[xx, yy]) continue;
                   var chosenBlock = Get9GridBlock(current9gridInteractionMap, new(xx, yy), grid, innerCornersFor9Grid);
+                  if (collisionOverride is int permission) chosenBlock = (chosenBlock & 0x3FF) | (permission << 10);
                   model.WriteMultiByteValue(start + (yy * width + xx) * 2, 2, token, chosenBlock);
                }
             }
@@ -1316,6 +1324,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
          var complete = new HashSet<Point> { new(xx, yy) };
          var check = new List<Point> { new(xx - 1, yy), new(xx + 1, yy), new(xx, yy - 1), new(xx, yy + 1) };
+         if (collisionIndex < 0) collisionIndex = lastDrawVal >> 10;
          var targets = blockIndexes.Select(bi => (collisionIndex << 10) | bi).ToList();
          var rnd = new Random();
          lock (pixelWriteLock) {
@@ -1492,7 +1501,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var border = GetBorderThickness(layout);
          var tileX = (int)((x - LeftEdge) / SpriteScale / 16) - border.West;
          var tileY = (int)((y - TopEdge) / SpriteScale / 16) - border.North;
-         foreach (var e in GetEvents()) {
+         // Hover needs current matching events, not editors for every event on the map.
+         // Keep selection's full construction/wiring path and never retain rows across edits/history.
+         var candidates = autoSelect ? GetEvents() : CreateEventGroup((tileX, tileY))?.All ?? Enumerable.Empty<IEventViewModel>();
+         foreach (var e in candidates) {
             if (e.X == tileX && e.Y == tileY) matches.Add(e);
          }
          if (autoSelect && SelectedEvent != matches.LastOrDefault()) {
@@ -2519,20 +2531,20 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          return list;
       }
 
-      public EventGroupModel EventGroup {
-         get {
-            if (allOverworldSprites == null) allOverworldSprites = RenderOWs(model);
-            if (defaultOverworldSprite == null) defaultOverworldSprite = GetDefaultOW(model);
-            var map = GetMapModel();
-            if (map == null) return null;
-            var eventsTable = map.GetSubTable("events");
-            if (eventsTable == null) return null;
-            var eventElements = eventsTable[0];
-            if (eventElements == null) return null;
-            var events = new EventGroupModel(this, GotoAddress, GotoBankMap, eventElements, eventTemplate, allOverworldSprites, defaultOverworldSprite, BerryInfo, group, this.map);
-            events.DataMoved += HandleEventDataMoved;
-            return events;
-         }
+      public EventGroupModel EventGroup => CreateEventGroup();
+
+      private EventGroupModel CreateEventGroup((int X, int Y)? position = null) {
+         if (allOverworldSprites == null) allOverworldSprites = RenderOWs(model);
+         if (defaultOverworldSprite == null) defaultOverworldSprite = GetDefaultOW(model);
+         var map = GetMapModel();
+         if (map == null) return null;
+         var eventsTable = map.GetSubTable("events");
+         if (eventsTable == null) return null;
+         var eventElements = eventsTable[0];
+         if (eventElements == null) return null;
+         var events = new EventGroupModel(this, GotoAddress, GotoBankMap, eventElements, eventTemplate, allOverworldSprites, defaultOverworldSprite, BerryInfo, group, this.map, position);
+         events.DataMoved += HandleEventDataMoved;
+         return events;
       }
 
       private IReadOnlyList<IEventViewModel> GetEvents() {
@@ -2886,14 +2898,17 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       public event EventHandler<DataMovedEventArgs> DataMoved;
 
-      public EventGroupModel(BlockMapViewModel parent, Action<int> gotoAddress, Action<int, int> gotoBankMap, ModelArrayElement events, EventTemplate eventTemplate, IReadOnlyList<IPixelViewModel> ows, IPixelViewModel defaultOW, BerryInfo berries, int bank, int map) {
+      public EventGroupModel(BlockMapViewModel parent, Action<int> gotoAddress, Action<int, int> gotoBankMap, ModelArrayElement events, EventTemplate eventTemplate, IReadOnlyList<IPixelViewModel> ows, IPixelViewModel defaultOW, BerryInfo berries, int bank, int map, (int X, int Y)? position = null) {
          this.events = events;
+         bool Matches(ModelArrayElement row) => position == null ||
+            (row.GetValue("x") == position.Value.X && row.GetValue("y") == position.Value.Y);
 
          var objectCount = events.GetValue("objectCount");
          var objects = events.GetSubTable("objects");
          var objectList = new List<ObjectEventViewModel>();
          if (objects != null) {
             for (int i = 0; i < objectCount; i++) {
+               if (!Matches(objects[i])) continue;
                var newEvent = new ObjectEventViewModel(parent, gotoAddress, objects[i], eventTemplate, ows, defaultOW, berries);
                newEvent.DataMoved += (sender, e) => DataMoved.Raise(this, e);
                objectList.Add(newEvent);
@@ -2905,7 +2920,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var warps = events.GetSubTable("warps");
          var warpList = new List<WarpEventViewModel>();
          if (warps != null) {
-            for (int i = 0; i < warpCount; i++) warpList.Add(new WarpEventViewModel(warps[i], gotoBankMap));
+            for (int i = 0; i < warpCount; i++) if (Matches(warps[i])) warpList.Add(new WarpEventViewModel(warps[i], gotoBankMap));
          }
          Warps = warpList;
 
@@ -2913,7 +2928,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var scripts = events.GetSubTable("scripts");
          var scriptList = new List<ScriptEventViewModel>();
          if (scripts != null) {
-            for (int i = 0; i < scriptCount; i++) scriptList.Add(new ScriptEventViewModel(gotoAddress, scripts[i], eventTemplate));
+            for (int i = 0; i < scriptCount; i++) if (Matches(scripts[i])) scriptList.Add(new ScriptEventViewModel(gotoAddress, scripts[i], eventTemplate));
          }
          Scripts = scriptList;
 
@@ -2922,6 +2937,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var signpostList = new List<SignpostEventViewModel>();
          if (signposts != null) {
             for (int i = 0; i < signpostCount; i++) {
+               if (!Matches(signposts[i])) continue;
                var newEvent = new SignpostEventViewModel(signposts[i], gotoAddress);
                newEvent.DataMoved += (sender, e) => DataMoved.Raise(this, e);
                signpostList.Add(newEvent);
@@ -2930,7 +2946,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          Signposts = signpostList;
 
          var flyList = new List<FlyEventViewModel>();
-         foreach (var flyEvent in FlyEventViewModel.Create(events.Model, bank, map, () => events.Token)) {
+         foreach (var flyEvent in FlyEventViewModel.Create(events.Model, bank, map, () => events.Token, position)) {
             if (flyEvent.Valid) flyList.Add(flyEvent);
          }
          FlyEvents = flyList;

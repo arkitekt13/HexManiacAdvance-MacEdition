@@ -14,6 +14,34 @@ has zero failures with explicit optional-ROM skips; see [UPSTREAM_BASELINE.md](U
 The second upstream project, `src/HexManiac.Integration`, now has a portable host; select it
 with `--integration` and see [INTEGRATION_BASELINE.md](INTEGRATION_BASELINE.md) for its separate results.
 See individual group READMEs for any manual GUI checks that remain.
+The 2026-11-04 [Mac input/history audit](MAC_INPUT_HISTORY_AUDIT.md) records confirmed fixes,
+coverage, preservation checks and deliberately unclaimed native/legacy paths.
+The [NPC hover performance investigation](MAP_HOVER_PERFORMANCE.md) measures event construction
+and script summaries; [MapHoverLookup](MapHoverLookup/README.md) protects coordinate-first hover
+lookup without constructing unrelated NPC editors.
+The [script editor follow-up](SCRIPT_EDITOR_REVIEW.md) records fresh responsiveness measurements
+and reproduced stale-suggestion lifecycle gaps; [AutocompleteDismissal](AutocompleteDismissal/README.md)
+protects the subsequent focus/context/lifetime fix.
+The [comment-search optimization](COMMENT_HIGHLIGHT_PERFORMANCE.md) records exact-layer
+equivalence and Core timing improvements, protected by [CommentHighlighting](CommentHighlighting/README.md).
+The [width/layout investigation](SCRIPT_WIDTH_LAYOUT_INVESTIGATION.md) attributes the current
+width handler and repeated queued measurements without changing application behavior.
+The implemented [width coalescing follow-up](SCRIPT_WIDTH_COALESCING.md) reduces queued bursts
+to one latest-source measurement, protected by [ScriptWidthUpdates](ScriptWidthUpdates/README.md).
+The [mixing-bag review](BLOCK_BAG_REVIEW.md) verifies Mac Command-click controls, corrects their
+tooltip and records the original preserve-permission flood-fill defect.
+The subsequent fix is protected by [BlockBagFill](BlockBagFill/README.md).
+The [map transition audit](MAP_TRANSITION_AUDIT.md) records original interruption, Escape,
+same-cell/history, rectangle-permission and reveal-state failures and their subsequent fixes.
+[MapGestureLifecycle](MapGestureLifecycle/README.md) protects the implemented follow-ups.
+The [copied-brush and border review](COPIED_BRUSH_REVIEW.md) separately records normal copying
+controls, latent preserve-state handling, explicit nine-grid corner inconsistencies and a
+confirmed border bounds overrun. The implemented bounds fix is protected by
+[BorderBounds](BorderBounds/README.md) and actual pointer cases in MapGestureLifecycle; see
+the review for the subsequent explicit nine-grid override fix and the remaining latent
+negative-state finding.
+Direct map PNG export, conflict choices, safe file replacement and native-resolution rendering are
+covered by [MapImageExport](MapImageExport/README.md).
 External emulator first-use selection, remembered application paths and source-aware Save and
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered
@@ -26,6 +54,18 @@ Map event address/text editing and guarded Delete, Backspace, arrows and Escape 
 covered by [MapEventEditing](MapEventEditing/README.md).
 Map event Control-click/secondary menus, warp commands and pointer release are covered by
 [MapEventMenus](MapEventMenus/README.md).
+NPC summaries and visible flag/script-address fields across map Undo/Redo are covered by
+[MapHistoryRefresh](MapHistoryRefresh/README.md).
+Hex/Copy Bytes Control-click menus and non-mutating block-tile sampling are covered by
+[MacSecondaryActions](MacSecondaryActions/README.md).
+Focused palette keyboard/native/context clipboard commands and safe image/text fallback are covered by
+[PaletteClipboard](PaletteClipboard/README.md).
+Palette popup freshness across Undo/Redo, correction, reload and context changes is covered by
+[PaletteHistory](PaletteHistory/README.md).
+Named/numeric palette input propagation and theme-hex preservation are covered by
+[ColorEditorInput](ColorEditorInput/README.md).
+Image-canvas secondary/Control-click sampling and draw/history preservation are covered by
+[ImageEditorInput](ImageEditorInput/README.md).
 Stable object sprite previews, selection recovery, popup scrolling and map history are covered by
 [MapSpriteSelection](MapSpriteSelection/README.md).
 Rendered dialogue overflow/error underlines and existing Enter/paragraph encoding are covered by
@@ -36,6 +76,8 @@ Actual script typing, automatic pointer insertion and unused flag/variable UI ro
 by [ScriptAssistance](ScriptAssistance/README.md).
 Complete dialogue/movement scaffolds, caret placement and replacement of legacy missing-brace completion
 are covered by [DialogueScaffolding](DialogueScaffolding/README.md).
+Stable simple/complex NPC hover overlays, click-through input and viewport fitting are covered by
+[MapHoverPreview](MapHoverPreview/README.md).
 Cold NPC text discovery during map rendering, UI-thread notifications and canceled render work are
 covered by [MapThreadSafety](MapThreadSafety/README.md).
 Production trainer, sprite, palette, and ordinary text-stream template checks are documented

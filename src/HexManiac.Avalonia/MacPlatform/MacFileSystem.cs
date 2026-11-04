@@ -42,7 +42,7 @@ namespace HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
 ///      return path == null ? null : new LoadedFile(path, File.ReadAllBytes(path));
 ///   }
 /// </summary>
-public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer, IDisposable {
+public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer, IMapImageExporter, IDisposable {
    readonly Func<Window> getOwner;
 
    private readonly Action<Action> dispatchFileChange;
@@ -439,6 +439,21 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
       }
 
       return true;
+   }
+
+   public void ExportMapImage(short[] pixels, int width, string romPath, string mapName) {
+      var exporter = new MapImageExporter(
+         path => ShowOptions("Export Map Image", $"{Path.GetFileName(path)} already exists. What would you like to do?", null,
+            new VisualOption { Index = 0, Option = "Overwrite", ShortDescription = "Replace the existing PNG." },
+            new VisualOption { Index = 1, Option = "Save Updated Copy", ShortDescription = "Keep the existing PNG and save a numbered copy." }),
+         name => PickFileToSave("PNG Image", new[] { "png" }, name),
+         message => ShowCustomMessageBox(message, false));
+      var saved = exporter.Export(romPath, mapName, stream => {
+         using var bitmap = EncodeImage(pixels, width);
+         bitmap.Save(stream);
+      });
+      if (saved != null) ShowCustomMessageBox("Map image saved to:\n" + saved, false,
+         new ProcessModel("Reveal in Finder", "/" + saved));
    }
 
    public void SaveImage(short[] image, int width, string fileName = null) {

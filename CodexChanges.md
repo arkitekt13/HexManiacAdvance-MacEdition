@@ -1285,3 +1285,20 @@ Evidence: With the script TextBox focused, the original routed Cmd+C copied hex 
 Validation: The complete Mac suite passes 31 groups and 6,453 assertions with zero failures or skipped groups. The new group passes 78 assertions, including backward selection paste, LF/CRLF source, focus retention, byte/metadata preservation on rejection, retained diagnostics, blocked Save/Save As, correction/retry and actual Cmd+Z/Shift+Cmd+Z round trips. Dialogue, fixed name-table text and all four encounter stream sizes retain text clipboard routing; native-menu binary paste remains undoable. The new group was also rebuilt and rerun after strengthening keyboard-history and paste-event checks. Builds report zero warnings and errors.
 
 Scope: Mac presentation/command routing only; compilation, numeric parsing, pointer relocation, ROM history and game-engine behavior are unchanged. Existing workflow checks continue to cover HMA-006/007/008 protections. Headless tests use synthetic files and their own clipboard; AppKit menu-bar event delivery and clipboard exchange with another application remain for user confirmation after relaunch.
+
+## 077 — Keep map event shortcuts out of focused text fields
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/MapTab.axaml.cs](src/HexManiac.Avalonia/Controls/MapTab.axaml.cs) | 62 | Guard map key commands at both availability and execution so event text fields receive Delete, Backspace, arrows and Escape without invoking map actions. |
+| [tests/MapRendering/SyntheticMapFixture.cs](tests/MapRendering/SyntheticMapFixture.cs) | 39 | Add an optional fabricated Script Event table while preserving the existing default map fixture. |
+| [tests/MapEventEditing/MapEventEditing.csproj](tests/MapEventEditing/MapEventEditing.csproj) | 1 | Add a full-window headless map event editing regression group. |
+| [tests/MapEventEditing/Program.cs](tests/MapEventEditing/Program.cs) | 47 | Deliver routed editing keys to actual Script Event fields and verify event retention, byte/metadata safety and normal map command history. |
+| [tests/MapEventEditing/README.md](tests/MapEventEditing/README.md) | 1 | Document the deletion reproduction, automated coverage and native keyboard checks. |
+| [tests/README.md](tests/README.md) | 25 | Link the map event keyboard editing regression group. |
+
+Evidence: On a fabricated map, both Backspace and forward Delete removed the Script Event while its Script Address TextBox had focus, reducing scriptCount from 1 to 0. The map's ancestor KeyBindings invoked DeleteCommand before the textbox handled those keys and bypassed the text-focus guard in the separate key event handler. The bindings now decline map commands while any supported text entry control has focus, and recheck focus before execution; their existing map-focused commands and parameters are retained.
+
+Validation: The new group passes 63 assertions for character and boundary deletion, caret arrows, Escape, stable field/focus, event count, unchanged pointers/bytes/metadata when removing redundant address zeroes, a second event field, address clearing with existing null-pointer parsing and Undo, map-focused deletion with exact Undo/Redo, and map-focused panning/cancellation. The first complete-suite attempt stopped on the unrelated FocusAnimation movement timing assertion; that group passed all 13 assertions on an immediate standalone rerun. The fresh complete-suite rerun passes all 32 groups and 6,516 assertions with zero failures or skipped groups; builds report zero warnings and errors.
+
+Scope: Mac map keyboard command routing only; pointer parsing, event data layouts, compilation, history and game-engine behavior are unchanged. Tests use synthetic maps without user ROMs. Native Delete/Fn+Delete interaction remains for user confirmation after relaunch.

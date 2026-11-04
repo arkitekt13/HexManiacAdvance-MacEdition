@@ -111,13 +111,14 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       public event EventHandler EventVisualUpdated;
       public event EventHandler<EventCycleDirection> CycleEvent;
 
-      public static IEnumerable<FlyEventViewModel> Create(IDataModel model, int bank, int map, Func<ModelDelta> tokenFactory) {
+      public static IEnumerable<FlyEventViewModel> Create(IDataModel model, int bank, int map, Func<ModelDelta> tokenFactory, (int X, int Y)? position = null) {
          var flyTable = model.GetTableModel(HardcodeTablesModel.FlySpawns, tokenFactory);
          if (flyTable == null) yield break;
          for (int i = 0; i < flyTable.Count; i++) {
             var flight = flyTable[i];
             if (flight.GetValue("bank") != bank) continue;
             if (flight.GetValue("map") != map) continue;
+            if (position != null && (flight.GetValue("x") != position.Value.X || flight.GetValue("y") != position.Value.Y)) continue;
             yield return new FlyEventViewModel(flight, bank, map, i + 1);
          }
       }

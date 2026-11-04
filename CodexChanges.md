@@ -1644,3 +1644,24 @@ Finding: Moving to a new tile constructs every event editor before matching coor
 Validation: Both Release benchmark runs pass 120 checks each, including expected counts/branches, prototype summary parity and unchanged warm-hover bytes, metadata and clean history. Existing MapHoverPreview 134, MapHistoryRefresh 23 and MapThreadSafety 22 freshly pass (179 assertions, zero failures). The tool builds in Debug and Release; the complete Mac suite was not repeated for tooling-only changes. Eight pre-existing Core compiler warnings appear on fresh dependency builds.
 
 Scope: Investigation/tooling only; no production optimization, game ROM, settings, compilation, numeric parsing, pointer relocation or history algorithm changes. Synthetic/offscreen timing excludes native input, rendering/layout and real graphics-table costs and is not a frame-rate promise.
+
+## 097 — Avoid constructing unrelated map event editors during hover
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs](src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs) | 1495 | Route hover through coordinate-filtered current event groups while retaining ordinary selection and full map rendering behavior. |
+| [src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs](src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs) | 2525 | Share event-group creation and existing callbacks while filtering object, warp, script and signpost rows before editor construction. |
+| [src/HexManiac.Core/ViewModels/Map/IEventViewModel.cs](src/HexManiac.Core/ViewModels/Map/IEventViewModel.cs) | 114 | Filter fly spawn coordinates before editor construction without changing bank/map filtering or original flight indices. |
+| [tests/MapHoverLookup/MapHoverLookup.csproj](tests/MapHoverLookup/MapHoverLookup.csproj) | 1 | Add a discovered regression group using a fabricated map with all five event kinds. |
+| [tests/MapHoverLookup/Program.cs](tests/MapHoverLookup/Program.cs) | 1 | Verify matching order, borders/zoom, visibility, selected-editor preservation, constructor work and immediate position changes across Undo/Redo. |
+| [tests/MapHoverLookup/README.md](tests/MapHoverLookup/README.md) | 1 | Document deterministic failing-before evidence and the division between lookup, actual-view and thread-safety coverage. |
+| [tests/MAP_HOVER_PERFORMANCE.md](tests/MAP_HOVER_PERFORMANCE.md) | 1 | Record implemented production results, repeated Release evidence, preservation checks and remaining native-performance limits. |
+| [tests/README.md](tests/README.md) | 19 | Link the coordinate-first hover regression alongside the performance investigation. |
+
+Evidence: The new regression fails before the fix because an empty-tile hover constructs unrelated NPC sprite selectors. Afterward it constructs none, and a two-NPC stack does exactly twice the selector work of a single matching NPC. Filtered event types, order and row addresses match full enumeration, including stacked objects/warps/scripts/signposts/fly spawns and map-specific flight filtering.
+
+Performance: On the same synthetic 32-NPC branching fixture, Release empty lookup falls from 4.510 ms/5,325.55 KiB to 0.065 ms/84.21 KiB, and NPC lookup from 4.528 ms/5,326.79 KiB to 0.205 ms/249.93 KiB. Full Hover for an empty→NPC pair falls from 9.155 to 0.399 ms. A second independent Release run reproduces 0.065/0.203/0.400 ms respectively, with identical allocations; each benchmark run passes 120 checks. These are synthetic CPU/allocation measurements, not native frame-rate claims.
+
+Validation: `scripts/verify-mac.sh --no-restore` freshly builds and passes all 47 regression groups and 7,933 assertions, with zero failures and zero skipped groups. The new group contributes 50 assertions; existing actual-view hover, NPC dialogue/flag/script-pointer history, cold metadata/thread ownership, map input/rendering and script compilation/resource/source-retention/save/reload protections continue to pass. The separate upstream xUnit suite was not rerun. Build warnings remain the eight pre-existing Core warnings.
+
+Scope: Tables are reacquired for each hover and no persistent cache or background work is introduced. Existing same-cell invalidation, selected editors, callbacks and full rendering/discovery remain intact. No user ROM, settings, numeric parsing, compilation, resource allocation, pointer relocation, history algorithm or game-engine behavior is changed. Native connected-map hover and hardware responsiveness remain manual coverage.

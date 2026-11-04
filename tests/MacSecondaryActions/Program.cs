@@ -7,6 +7,7 @@ using System.Reflection;
 
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
 using Avalonia.Input;
 using Avalonia.Threading;
@@ -64,6 +65,24 @@ if(!args.Contains("--block-only")) {
       Check(hex.ContextMenu?.IsOpen!=true,"Losing capture cancels an abandoned hex context gesture.");
       f.Window.MouseDown(hexPoint,MouseButton.Left);f.Window.MouseUp(hexPoint,MouseButton.Left);f.Pump();
       Check(hex.ContextMenu?.IsOpen!=true,"A canceled context gesture cannot turn the next primary click into a menu.");
+   }
+}
+if(!args.Contains("--block-only"))
+using(var imageFixture=new SyntheticImageFixture(false)) {
+   var palette=imageFixture.View.FindControl<PaletteControl>("PaletteControl")!;
+   var colors=palette.FindControl<ItemsControl>("ItemsControl")!;
+   var swatch=(Popup)typeof(PaletteControl).GetField("swatchPopup",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(palette)!;
+   foreach(var(button,modifier,early)in gestures) {
+      if(modifier==RawInputModifiers.Control&&!OperatingSystem.IsMacOS())continue;
+      palette.ClosePopup();palette.ContextMenu!.Close();
+      var before=imageFixture.Model.RawData.ToArray();var metadata=imageFixture.Metadata();imageFixture.ViewPort.ChangeHistory.ClearHistory(false);
+      var point=colors.TranslatePoint(new Avalonia.Point(colors.Bounds.Width/4*1.5,colors.Bounds.Height/4*.5),imageFixture.Window)!.Value;
+      imageFixture.Window.MouseMove(point);imageFixture.Window.MouseDown(point,button,modifier);imageFixture.Window.MouseUp(point,button,early?RawInputModifiers.None:modifier);imageFixture.Pump();
+      Check(palette.ContextMenu.IsOpen,$"Palette secondary/Control-click must open its actions instead of the primary swatch editor ({button}/{modifier}).");
+      Check(!swatch.IsOpen,"Secondary palette actions must not leave the primary color editor open.");
+      Check(before.SequenceEqual(imageFixture.Model.RawData)&&metadata.SequenceEqual(imageFixture.Metadata())&&!imageFixture.Image.Undo.CanExecute(null),"Opening palette actions preserves bytes, metadata and history.");
+      var copy=palette.ContextMenu.Items.OfType<MenuItem>().Single(i=>Equals(i.Header,"Copy"));copy.Command!.Execute(copy.CommandParameter);palette.ContextMenu.Close();
+      Check(((IFileSystem)imageFixture.FileSystem).CopyText=="1:1:1","A Control-click palette action uses the clicked color and current filesystem.");
    }
 }
 var fixture=new SyntheticMapFixture(24,20);fixture.Model.SetList(new NoDataChangeDeltaModel(),"MapAttributeBehaviors","Normal");

@@ -1602,3 +1602,17 @@ Evidence: Editing the real NPC dialogue field changed both bytes and the hover s
 Behavior: Refresh/history, primary-map changes, map pixel/data invalidation and event visibility changes invalidate the summary cache. The view hides abandoned content immediately; the next same-cell move rebuilds it from the current model. Ordinary same-cell motion still reuses one stable input-transparent preview. This also prevents hidden events from reopening cached NPC content.
 
 Validation: MapHistoryRefresh passes 23 assertions and MapHoverPreview retains all 134 flicker/input checks. Actual map selection and dialogue/flag/script-address fields verify complete byte/metadata restoration, current visible field values, same-cell Undo/Redo summaries, child editors, hidden-event behavior and preserved Redo. The old summary assertion fails before the fix. Only presentation cache validity changes in shared Core; ROM parsing, compilation, numeric rules, pointer writes/relocation and history algorithms remain unchanged. No user ROM is used.
+
+## 094 — Open palette actions with Control-click
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs](src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs) | 280 | Distinguish Mac Control-click from primary color editing, retain physical release state, suppress context-gesture dragging and open the existing palette menu. |
+| [tests/MacSecondaryActions/Program.cs](tests/MacSecondaryActions/Program.cs) | 69 | Reproduce the wrong popup and verify physical/Control menu equivalence, early release, selected-color Copy and model/history preservation. |
+| [tests/MacSecondaryActions/README.md](tests/MacSecondaryActions/README.md) | 3 | Document the expanded palette secondary-action coverage. |
+
+Evidence: The physical right-click opened palette actions, but the same rendered palette received Mac Control-left-click as primary input and opened the color editor instead. The new actual-pointer assertion fails before the normalization.
+
+Behavior: Control-click opens the palette's existing secondary menu for the clicked color. It cannot start primary color editing or reorder colors while held. The gesture retains its physical left-button release if Control is released first and cancels correctly on capture loss. Ordinary primary color editing and existing physical secondary actions remain available.
+
+Validation: MacSecondaryActions now passes 43 assertions; PaletteHistory 36, ColorEditorInput 93 and PaletteClipboard 40 also pass (212 assertions in these four groups). Actual menu Copy resolves the clicked color without changes to ROM bytes, metadata or history. No Core color/encoding/relocation/history algorithms or user ROMs are changed.

@@ -57,6 +57,7 @@ public partial class PaletteControl : UserControl {
    private short[] initialColors;
    private int activeSelection;
    private bool isPointerCaptured;
+   private bool controlContextGesture;
    private bool swatchEditInProgress;
    private PaletteCollection subscribedPalette;
    private StubCommand paletteCopy, palettePaste;
@@ -268,11 +269,14 @@ public partial class PaletteControl : UserControl {
    }
 
    private void StartPaletteColorMove(object sender, PointerPressedEventArgs e) {
-      if (ViewModel == null) return;
+      if (ViewModel == null || isPointerCaptured) return;
       swatch.ResultChanged -= SwatchResultChanged;
       Focus();
 
       var properties = e.GetCurrentPoint(this).Properties;
+      controlContextGesture = OperatingSystem.IsMacOS() && properties.IsLeftButtonPressed &&
+         e.KeyModifiers.HasFlag(KeyModifiers.Control);
+      bool primary = properties.IsLeftButtonPressed && !controlContextGesture;
       interactionPoint = e.GetPosition(ItemsControl);
       var elementWidth = Math.Max(1, ItemsControl.Bounds.Width / ViewModel.ColorWidth);
       if (interactionPoint.X > elementWidth * ViewModel.ColorWidth || interactionPoint.X < 0) {
@@ -285,7 +289,7 @@ public partial class PaletteControl : UserControl {
          ViewModel.SelectionEnd = tileIndex;
       } else if (e.KeyModifiers == HexContent.CommandModifier) {
          ViewModel.ToggleSelection(tileIndex);
-      } else if (ViewModel.Elements[tileIndex].Selected && properties.IsLeftButtonPressed && swatchPopup.IsOpen) {
+      } else if (ViewModel.Elements[tileIndex].Selected && primary && swatchPopup.IsOpen) {
          e.Handled = true;
          ClosePopup();
          return;
@@ -302,7 +306,7 @@ public partial class PaletteControl : UserControl {
          UpdateSwatchTextBoxContentFromSwatch();
          initialColors = CollectColorList();
          activeSelection = tileIndex;
-         if (properties.IsLeftButtonPressed) {
+         if (primary) {
             swatchPopup.IsOpen = ViewModel.CanEditColors;
             if (swatchPopup.IsOpen) {
                swatch.ResultChanged += SwatchResultChanged;
@@ -417,6 +421,7 @@ public partial class PaletteControl : UserControl {
 
    private void PaletteColorMove(object sender, PointerEventArgs e) {
       if (ViewModel == null || !ViewModel.CanEditColors || isInScreenGrabMode) return;
+      if (controlContextGesture) return;
       var oldTileIndex = InteractionTileIndex;
       interactionPoint = e.GetPosition(ItemsControl);
       var newTileIndex = InteractionTileIndex;
@@ -453,10 +458,20 @@ public partial class PaletteControl : UserControl {
 
    private void EndPaletteColorMove(object sender, PointerReleasedEventArgs e) {
       if (!isPointerCaptured) return;
+      if (controlContextGesture && e.InitialPressMouseButton != MouseButton.Left) return;
+      var showMenu = controlContextGesture;
+      controlContextGesture = false;
       e.Pointer.Capture(null);
       isPointerCaptured = false;
 
       ViewModel?.CompleteCurrentInteraction();
+      if (showMenu) ContextMenu?.Open(this);
+   }
+
+   protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e) {
+      controlContextGesture = false;
+      isPointerCaptured = false;
+      base.OnPointerCaptureLost(e);
    }
 
    private short[] CollectColorList() => ViewModel.Elements.Select(element => element.Color).ToArray();

@@ -1530,3 +1530,20 @@ Evidence: Entering 7FFF into the real palette field displayed White but did not 
 Behavior: The swatch uses Avalonia's color decoder for the UI strings it receives, retaining bare hex support for theme bindings. Familiar colors now follow the same existing palette write/refresh path as other colors. Invalid drafts do not publish edits.
 
 Validation: ColorEditorInput passes 93 assertions across six 16-bit codes, eight named colors, exact raw-ROM/rendered channel ordering, unchanged unrelated bytes and metadata, retained popup/focus, all previously supported theme-hex forms and invalid input. The 7FFF regression fails before the fix. Core script numeric parsing, palette encoding/quantization, relocation and history algorithms are unchanged; no user ROM or theme settings are modified.
+
+## 090 — Close stale palette editors after history and context changes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs](src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs) | 59 | Follow the current palette's content replacements and close stale popups after external refresh, with UI dispatch and source checks. |
+| [src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs](src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs) | 446 | Guard own swatch edits so their synchronous refresh retains the active field and popup; release subscriptions on detach. |
+| [tests/PaletteHistory/PaletteHistory.csproj](tests/PaletteHistory/PaletteHistory.csproj) | 1 | Register palette history regressions using shared image/popup fixtures. |
+| [tests/PaletteHistory/Program.cs](tests/PaletteHistory/Program.cs) | 17 | Reproduce stale Undo fields and protect Redo, correction, model/context replacement and live bitmap refresh. |
+| [tests/PaletteHistory/README.md](tests/PaletteHistory/README.md) | 1 | Document the stale baseline and lifecycle coverage. |
+| [tests/README.md](tests/README.md) | 30 | Link the palette history regression group. |
+
+Evidence: After a valid 1234 color edit, Undo restored the ROM but left the real open popup showing 1234. Palette refresh replaced its color objects without resetting the popup's editable values or local delta baseline. The failing-before regression exercised the actual field and shared Undo command.
+
+Behavior: External palette replacement, including Undo/Redo, reload and context changes, closes the old editor. Reopening reads current colors. The control follows only its current palette, marshals delayed notifications and unsubscribes on detachment. Own swatch writes are guarded so their existing refresh does not dismiss the popup during typing.
+
+Validation: PaletteHistory passes 36 assertions on compressed/uncompressed image editors; ColorEditorInput still passes all 93 focus/input checks. Coverage includes actual Cmd+Z, exact ROM/metadata and bitmap restoration, preserved redo during inspection, correction after Undo, reload, context changes, detached-source notifications and reattachment. No user ROM is used. Core palette writes, numeric/channel rules, relocation and history algorithms remain unchanged.

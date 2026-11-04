@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using Avalonia;
@@ -55,6 +56,25 @@ public partial class PaletteControl : UserControl {
    private short[] initialColors;
    private int activeSelection;
    private bool isPointerCaptured;
+   private bool swatchEditInProgress;
+   private PaletteCollection subscribedPalette;
+
+   private void WatchPalette() {
+      if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged -= PaletteContentsChanged;
+      subscribedPalette = ViewModel;
+      if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged += PaletteContentsChanged;
+      ClosePopup();
+   }
+
+   private void PaletteContentsChanged(object sender, NotifyCollectionChangedEventArgs e) {
+      // Undo/Redo, reload or navigation can replace colors while the popup still holds
+      // the old selection/delta baseline. Never leave that stale editor writable.
+      if (!Dispatcher.UIThread.CheckAccess()) {
+         Dispatcher.UIThread.Post(() => PaletteContentsChanged(sender, e));
+         return;
+      }
+      if (!swatchEditInProgress && swatchPopup.IsOpen && ReferenceEquals(sender, subscribedPalette?.Elements)) ClosePopup();
+   }
 
    private const string EyeDropperToolTipText = "Click this, then click any color on your screen to pull that color into the palette.";
 
@@ -125,7 +145,13 @@ public partial class PaletteControl : UserControl {
          },
       };
       LoseKeyboardFocusCausesLoseMultiSelect = true;
-      DetachedFromVisualTree += (sender, e) => { EndScreenGrab(); ClosePopup(); };
+      DataContextChanged += (_, _) => WatchPalette();
+      AttachedToVisualTree += (_, _) => WatchPalette();
+      DetachedFromVisualTree += (sender, e) => {
+         EndScreenGrab(); ClosePopup();
+         if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged -= PaletteContentsChanged;
+         subscribedPalette = null;
+      };
 
       swatchTextBoxes[0].TextChanged += UpdateSwatchColorFromTextBoxes;
       swatchTextBoxes[1].TextChanged += UpdateSwatchColorFromTextBoxes;
@@ -419,21 +445,26 @@ public partial class PaletteControl : UserControl {
 
    private void SwatchResultChanged(object sender, string oldValue) {
       if (!Color.TryParse(swatch.Result, out var newColor)) return;
-      var dif = GetColorDif(newColor);
+      swatchEditInProgress = true;
+      try {
+         var dif = GetColorDif(newColor);
 
-      for (int i = 0; i < ViewModel.Elements.Count; i++) {
-         if (!ViewModel.Elements[i].Selected) continue;
-         if (i == activeSelection) {
-            ViewModel.Elements[i].Color = TileImage.Convert16BitColor(newColor);
-            continue;
+         for (int i = 0; i < ViewModel.Elements.Count; i++) {
+            if (!ViewModel.Elements[i].Selected) continue;
+            if (i == activeSelection) {
+               ViewModel.Elements[i].Color = TileImage.Convert16BitColor(newColor);
+               continue;
+            }
+
+            ViewModel.Elements[i].Color = ApplyDif(i, dif);
          }
 
-         ViewModel.Elements[i].Color = ApplyDif(i, dif);
+         UpdateSwatchTextBoxContentFromSwatch();
+
+         ViewModel.PushColorsToModel();
+      } finally {
+         swatchEditInProgress = false;
       }
-
-      UpdateSwatchTextBoxContentFromSwatch();
-
-      ViewModel.PushColorsToModel();
    }
 
    private string Color32For(int tileIndex) {

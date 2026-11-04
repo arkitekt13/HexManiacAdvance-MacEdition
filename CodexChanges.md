@@ -2031,3 +2031,11 @@ Validation: WelcomeScreen builds and passes all 33 assertions, including three w
 Behavior: Edit Map Header > Export Image saves a PNG under MapImages in the ROM directory, using the existing map name and bank/map ID; All Connected Maps adds -connected. First export needs no destination prompt. An existing image offers Overwrite, Save Updated Copy (the first available numbered name from 2), or the dialog's Cancel action; closing the dialog also cancels. Unsaved/relative ROM paths use a save picker; an unavailable destination or failed write offers one fallback picker. A temporary file is encoded and flushed before publication, so failed encoding does not truncate an existing PNG, and a competing new-file writer is not silently overwritten. Successful saves offer Reveal in Finder. Existing clipboard export remains available to other filesystem implementations.
 
 Validation: MapImageExport passes 33 assertions, including a decodable PNG with exact RGB555 pixels, all three event display modes, native 16-pixel tile dimensions, connected naming, state restoration after export failure and unchanged bytes/metadata/history. The complete `scripts/verify-mac.sh --no-restore` run freshly passes 54 regression groups / 16,723 assertions, zero failures and zero skipped groups. NuGet reports NU1900 warnings because its vulnerability-data service is unavailable; builds and checks succeed. The separate upstream suites were not rerun. Tests use temporary files and fabricated maps only; no user ROM or settings are changed. Native dialog appearance, Finder reveal, multi-map visual composition and live event-marker appearance remain manual checks.
+
+## 118 — Make welcome-screen links recognizable at rest
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml | 33 | Render contributor and footer links with permanent underlines, a consistent purple foreground, brighter hover styling and a visible keyboard-focus outline. |
+
+Validation: WelcomeScreen passes 33 assertions, including three window sizes, existing Open behavior and button states. Visually inspected a fresh rendered preview of the compiled control with all six links underlined and the credits still aligned. Native hover/focus interaction remains a manual check; no new test group was added for this appearance change.

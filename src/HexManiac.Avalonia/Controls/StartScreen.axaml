@@ -30,6 +30,31 @@
          <Setter Property="MinHeight" Value="20"/>
          <Setter Property="VerticalContentAlignment" Value="Center"/>
          <Setter Property="FontSize" Value="13"/>
+         <Setter Property="Template">
+            <ControlTemplate TargetType="Button">
+               <Border Name="WelcomeLinkSurface" Background="Transparent" BorderBrush="Transparent"
+                       BorderThickness="1" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                  <ContentPresenter Name="LinkContent" Content="{TemplateBinding Content}"
+                                    Foreground="{TemplateBinding Foreground}"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                     <ContentPresenter.ContentTemplate>
+                        <DataTemplate>
+                           <TextBlock Text="{Binding}" TextDecorations="Underline"/>
+                        </DataTemplate>
+                     </ContentPresenter.ContentTemplate>
+                  </ContentPresenter>
+               </Border>
+            </ControlTemplate>
+         </Setter>
+      </Style>
+      <Style Selector="Button.welcomeLink:pointerover">
+         <Setter Property="Foreground" Value="#E2CAFF"/>
+      </Style>
+      <Style Selector="Button.welcomeLink:pressed">
+         <Setter Property="Foreground" Value="#AE86E1"/>
+      </Style>
+      <Style Selector="Button.welcomeLink:focus-visible /template/ Border#WelcomeLinkSurface">
+         <Setter Property="BorderBrush" Value="#E2CAFF"/>
       </Style>
    </Grid.Styles>
 

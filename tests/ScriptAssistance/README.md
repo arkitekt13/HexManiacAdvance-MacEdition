@@ -3,7 +3,8 @@
 Run `dotnet run --project tests/ScriptAssistance/ScriptAssistance.csproj` or the complete Mac
 suite. The real MainWindow/TabView editor receives character, Space and Cmd+U input with a
 synthetic ROM. Supported text-pointer commands must visibly insert `<auto>` with the correct
-caret inside a complete dialogue block; setflag/checkflag and setvar/addvar must expose the matching helper button and insert an
+caret inside a complete dialogue or movement block; move.player/move.camera receive real keyboard
+input and compile movement instructions. Setflag/checkflag and setvar/addvar must expose the matching helper button and insert an
 explicit operand through both keyboard and button paths. Completed commands retain exact
 Undo/Redo byte and metadata behavior.
 

@@ -304,10 +304,11 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
             var after = Content.Substring(insertionIndex);
             var insertion = "<auto>";
             targetCaret = before.Length + insertion.Length;
-            // Only unambiguous, final dialogue operands get a text block. Other resource
-            // types and commands with multiple text pointers keep their existing operands.
-            var scaffold = args[token].PointerType == ExpectedPointerType.Text && token == args.Count - 1 &&
-               args.Count(arg => arg.Type == ArgType.Pointer && arg.PointerType == ExpectedPointerType.Text) == 1;
+            // Scaffold unambiguous final dialogue/movement operands. Other resources and
+            // commands with multiple pointers of the same type keep ordinary assistance.
+            var pointerType = args[token].PointerType;
+            var scaffold = pointerType.IsAny(ExpectedPointerType.Text, ExpectedPointerType.Movement) && token == args.Count - 1 &&
+               args.Count(arg => arg.Type == ArgType.Pointer && arg.PointerType == pointerType) == 1;
             if (scaffold && !after.TrimStart().StartsWith("{")) {
                var firstBreak = Content.IndexOfAny(new[] { '\r', '\n' });
                var newline = firstBreak < 0 ? Environment.NewLine :

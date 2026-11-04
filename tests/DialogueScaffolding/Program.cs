@@ -37,8 +37,8 @@ using (var f = new WorkflowFixture()) {
    var body = new CodeBody(f.Model, f.Tool.ScriptParser, null);
    body.Editor.Content = "msgbox.npc \n{\nKeep this text.\n}\nend"; body.CaretPosition = "msgbox.npc".Length;
    Check(body.TryInsertAuto(out _) && body.Content.Count(c => c == '{') == 1 && body.Content.Contains("Keep this text."), "An existing block is preserved instead of duplicated.");
-   body.Editor.Content = "applymovement 0 \nend"; body.CaretPosition = "applymovement 0".Length;
-   Check(body.TryInsertAuto(out _) && body.Content.Contains("<auto>") && !body.Content.Contains('{'), "Movement keeps pointer assistance without receiving a dialogue block.");
+   body.Editor.Content = "pokemart \nend"; body.CaretPosition = "pokemart".Length;
+   Check(body.TryInsertAuto(out _) && body.Content.Contains("<auto>") && !body.Content.Contains('{'), "Mart resources retain pointer assistance without receiving a dialogue/movement block.");
    f.Model.SpartanMode = true; body.Editor.Content = "msgbox.npc "; body.CaretPosition = "msgbox.npc".Length;
    Check(!body.TryInsertAuto(), "Spartan mode retains its existing assistance opt-out.");
    f.Model.SpartanMode = false; f.Tool.InsertAutoActive = false;
@@ -83,5 +83,43 @@ using (var f = new WorkflowFixture()) {
    f.Edit("loadpointer 0 <003000>\n{\n" + new string('A', 180) + "\n}\npreparemsg <auto>\n{\nend");
    Check(f.Body.HasError && before.EqualsModel(f) && !f.View.ChangeHistory.Undo.CanExecute(null),
       "A later unclosed block rolls back prior dialogue/resource relocation, bytes, pointers and metadata.");
+}
+foreach (var newline in new[] { "\n", "\r\n", "\r" })
+foreach (var command in new[] { "move.player", "move.camera", "move.npc 3", "applymovement 3" }) {
+   using var f = new WorkflowFixture();
+   f.Model.SetList(new NoDataChangeDeltaModel(), "movementtypes", "walk_down", "walk_up", "walk_left", "walk_right");
+   var baseline = f.State();
+   var body = new CodeBody(f.Model, f.Tool.ScriptParser, null) { Content = command + " " + newline + "end" };
+   body.CaretPosition = command.Length;
+   Check(body.TryInsertAuto(out int caret), "A final movement operand receives automatic scaffolding.");
+   Check(body.Content == command + " <auto>" + newline + "{" + newline + newline + "}" + newline + "end",
+      "Movement scaffolding preserves newline style and the following command.");
+   Check(caret == body.Content.IndexOf('{') + 1 + newline.Length && baseline.EqualsModel(f),
+      "The movement caret targets the empty body without direct ROM/history writes.");
+   var movements = string.Join(newline, "walk_up", "walk_right", "walk_up", "walk_right");
+   f.Edit(body.Content.Insert(caret, movements));
+   Check(!f.Body.HasError, "The generated movement source compiles normally.");
+   int pointer = f.Model.ReadPointer(f.Body.Address + 3);
+   Check(new byte[] { 1, 3, 1, 3, 0xFE }.SequenceEqual(f.Model.RawData.Skip(pointer).Take(5)),
+      "Movement resources encode enum instructions and the FE terminator, not dialogue text.");
+   int actor = command == "move.player" ? 0xFF : command == "move.camera" ? 0x7F : 3;
+   Check(f.Model.ReadMultiByteValue(f.Body.Address + 1, 2) == actor, "Player/camera/NPC actor operands remain unchanged.");
+   Check(f.Model[f.Body.Address + (command.StartsWith("applymovement") ? 7 : 10)] == 2,
+      "The following end command remains outside the movement stream.");
+   Check(WorkflowFixture.Callers.All(c => f.Model.ReadPointer(c + 1) == f.Body.Address), "Movement script relocation preserves known callers.");
+   var compiled = f.State(); f.View.Undo.Execute(null); f.Dispatch.Flush();
+   Check(baseline.EqualsModel(f), "Undo restores all movement, script, pointer and metadata state.");
+   f.View.Redo.Execute(null); f.Dispatch.Flush(); Check(compiled.EqualsModel(f), "Redo restores the complete compiled movement edit.");
+}
+using (var f = new WorkflowFixture()) {
+   var body = new CodeBody(f.Model, f.Tool.ScriptParser, null) { Content = "move.player \n{\nwalk_up\n}\nend" };
+   body.CaretPosition = "move.player".Length;
+   Check(body.TryInsertAuto(out _) && body.Content.Count(c => c == '{') == 1 && body.Content.Contains("walk_up"),
+      "An existing movement block is not duplicated or overwritten.");
+   var baseline = f.State(); f.Edit("move.camera <auto>\n{\nwalk_up\nend");
+   Check(f.Body.HasError && f.Body.Editor.ErrorLocations.Count > 0 && baseline.EqualsModel(f),
+      "Unclosed movement drafts keep diagnostics and all original ROM/metadata state.");
+   f.View.Save.Execute(f.FileSystem); f.View.SaveAs.Execute(f.FileSystem);
+   Check(f.Saves == 0, "Unclosed movement drafts retain save protection.");
 }
 Console.WriteLine($"CHECKS_PASSED:{checks}");

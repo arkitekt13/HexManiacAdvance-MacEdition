@@ -1384,3 +1384,20 @@ Validation: DialogueScaffolding passes 261 assertions and real-window ScriptAssi
 Upstream: After replacing the obsolete brace-closing expectation, in-process verification reports 1,779 passed, one failed and 935 skipped from 2,715 discovered cases. The remaining failure is the previously documented ScriptTests.ErrorInScript_ClickOff_ResetScriptEditor expectation, which conflicts with retained rejected source. Results are retained in artifacts/upstream-tests/run.Me9kcz. A fully passing overall suite is not claimed.
 
 Scope: Source scaffolding and explicit unfinished-block rejection only; valid-script encoding, numeric parsing, unused-ID scanning/allocation rules, pointer relocation, ROM history and game-engine behavior are unchanged. No user ROM was used. Native typing remains for user confirmation after relaunch.
+
+## 082 — Scaffold player, camera and other movement blocks
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| [src/HexManiac.Core/ViewModels/Tools/CodeBody.cs](src/HexManiac.Core/ViewModels/Tools/CodeBody.cs) | 306 | Extend complete source scaffolding to an unambiguous final movement pointer while retaining dialogue support and other resource exclusions. |
+| [tests/DialogueScaffolding/Program.cs](tests/DialogueScaffolding/Program.cs) | 87 | Verify player/camera/NPC/applymovement scaffolds, exact movement bytes, actor operands, pointers, history and rejected-draft protection. |
+| [tests/ScriptAssistance/Program.cs](tests/ScriptAssistance/Program.cs) | 21 | Exercise actual move.player/move.camera typing, inside-body caret placement and subsequent movement input. |
+| [tests/DialogueScaffolding/README.md](tests/DialogueScaffolding/README.md) | 10 | Document movement eligibility and movement-specific encoding checks. |
+| [tests/ScriptAssistance/README.md](tests/ScriptAssistance/README.md) | 6 | Document movement typing coverage alongside dialogue and unused-ID helpers. |
+| [tests/README.md](tests/README.md) | 33 | Include movement in the scaffold regression coverage description. |
+
+Behavior: Typing move.player or move.camera followed by a space now inserts `<auto>` plus a complete movement block and positions the caret on its editable blank line. The same final-movement-operand rule supports move.npc and applymovement after their actor argument. Existing movement blocks are preserved, and other resource types such as marts retain pointer-only assistance. Movement bodies continue through the existing enum-based movement encoder with FE termination; camera/player macro requirements and actor operands are unchanged.
+
+Validation: Four focused groups pass 2,622 assertions: DialogueScaffolding 384, ScriptAssistance 80, ScriptWorkflowSafety 598 and ScriptArgumentSafety 1,560. New coverage includes four movement command forms across LF/CRLF/CR, exact instruction bytes and terminator, preserved actor IDs/following end command, known callers after relocation, complete byte/metadata Undo/Redo, existing-block exclusion and unclosed-draft save protection. Actual window typing checks both player and camera macros. Builds complete without errors; existing Core warnings are unchanged. The complete suites were not repeated for this narrow extension; their most recent limitations remain recorded in entry 081.
+
+Scope: Movement source scaffolding only; compilation/encoding, pointer relocation, history, numeric parsing and game-engine behavior are unchanged. Tests use synthetic data and no user ROMs. Native movement typing remains for user confirmation after relaunch.

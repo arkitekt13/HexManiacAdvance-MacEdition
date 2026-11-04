@@ -17,7 +17,7 @@ AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
 SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationContext()); Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 int checks = 0;
 void Check(bool value, string message) { checks++; if (!value) throw new InvalidOperationException(message); }
-foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "setflag", "checkflag", "setvar", "addvar" }) {
+foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.player", "move.camera", "setflag", "checkflag", "setvar", "addvar" }) {
    using var f = new WorkflowFixture();
    f.Dispatch.DispatchOverride = action => {
       var completion = new TaskCompletionSource();
@@ -42,13 +42,14 @@ foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "setflag",
    window.KeyPressQwerty(PhysicalKey.Space, RawInputModifiers.None); window.KeyTextInput(" "); window.KeyReleaseQwerty(PhysicalKey.Space, RawInputModifiers.None); Pump();
    Check(body.CaretPosition == box.CaretIndex && box.CaretIndex > insertion, "Actual typing must synchronize script and UI caret positions.");
    Check(box.IsFocused && baseline.EqualsModel(f), "Typing assistance preserves focus and does not bypass delayed compilation.");
-   if (command.StartsWith("msgbox") || command == "preparemsg") {
+   if (command.StartsWith("msgbox") || command.StartsWith("move.") || command == "preparemsg") {
       Check(body.Content.Contains("<auto>"), "A space at a supported text-pointer operand inserts <auto>.");
       Check(box.Text![..box.CaretIndex].EndsWith("{\n"), "The caret lands inside the empty dialogue body.");
       Check(body.Content.Count(c => c == '{') == 1 && body.Content.Count(c => c == '}') == 1,
          "The enhanced assistance creates exactly one complete dialogue scaffold.");
-      window.KeyTextInput("Hello!"); Pump();
-      Check(body.Content.Contains("{\nHello!\n}"), "Typing immediately after assistance enters the dialogue body.");
+      var content = command.StartsWith("move.") ? "walk_up" : "Hello!";
+      window.KeyTextInput(content); Pump();
+      Check(body.Content.Contains("{\n" + content + "\n}"), "Typing immediately after assistance enters the resource body.");
       f.Dispatch.Flush(); Pump(); Check(!body.HasError, "The existing auto-pointer form still compiles.");
    } else {
       bool flag = command.Contains("flag");

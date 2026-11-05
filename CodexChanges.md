@@ -2332,3 +2332,16 @@ Validation: Both the working SDK 8.0.300/runtime 8.0.5 and isolated SDK 10.0.403
 | src/HexManiac.Core/ViewModels/QuickEditItems/ApplyCFRUPatch.cs | 34 | Replace async-without-await with synchronous execution wrapped in completed, faulted or canceled tasks while retaining the patch/save/reopen body. |
 
 Validation: A fresh complete Mac application rebuild passes with zero warnings and zero errors, compared with the eight warnings reproduced before cleanup; no warning suppressions were added. Fresh targeted builds and runs pass BlocksetSelection 199, ScriptWorkflowSafety 598 and ItemTablePresentation 48 assertions, totaling 845 across three groups. A temporary synthetic probe passes five additional checks for completed invalid-tab diagnostics and a faulted missing-resource task with unchanged model bytes; its first setup attempt lacked test resources, then passed after the probe setup was corrected. Two sandbox test builds stalled before output and were terminated, then the serial builds/runs completed outside the sandbox; neither stalled run is counted as a pass. The complete 59-group suite was not rerun for this cleanup. No real CFRU patch, user ROM, personal settings, runtime target, game engine or warning policy changed.
+
+## 142 — Keep the border editor steady while painting and refreshing map data
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs | 636 | Refresh the existing border editor instead of replacing the object that owns live panel visibility. |
+| src/HexManiac.Core/ViewModels/Map/BorderEditor.cs | 111 | Invalidate cached dimensions and rendered border data while retaining visibility and editor subscriptions. |
+| tests/MapGestureLifecycle/Program.cs | 407 | Reproduce the animated hide/show failure and protect stable geometry, capture, complete single/copied strokes, no-ops, cache refresh, history and explicit open/close. |
+| tests/MapGestureLifecycle/README.md | 65 | Explain the new real-animation lifecycle checks and their failing-before reproduction. |
+| tests/BorderBounds/Program.cs | 65 | Verify changed border dimensions and exact Undo/Redo refresh without losing open state. |
+| tests/BorderBounds/README.md | 18 | Record custom-dimension refresh coverage and the updated assertion count. |
+
+Validation: The new animated single-stroke scenario fails against unchanged production code on the first transient hide. After the fix, all 38 MapGestureLifecycle scenarios pass 1,343 assertions, including the two new animated single/copied-border cases; BorderBounds passes 195 assertions. No drawing, pointer relocation, cache-invalidation scope, numeric rules or history algorithm changed, and no user ROM/settings were used. The normal open/close animation remains enabled. Full Mac-suite verification follows the separate image-preview fix; native trackpad confirmation remains useful.

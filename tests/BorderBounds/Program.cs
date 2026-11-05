@@ -57,5 +57,17 @@ foreach(var (width,height) in new[]{(2,2),(3,4)}) {
       viewport.Redo.Execute(null);Check(expected.SequenceEqual(model.RawData)&&viewport.ChangeHistory.IsSaved,"Redo restores the exact saved border values.");
       viewport.Undo.Execute(null);
    }
+   if(border.HasBorderDimensions) {
+      viewport.ChangeHistory.ClearHistory(false);var original=model.RawData.ToArray();
+      border.ShowBorderPanel=true;border.Width=2;border.Height=3;viewport.ChangeHistory.ChangeCompleted();map.ClearCaches();
+      var resized=model.RawData.ToArray();
+      Check(map.BorderEditor.ShowBorderPanel&&map.BorderEditor.Width==2&&map.BorderEditor.Height==3,"Cache refresh retains open state and reloads changed dimensions.");
+      Check(map.BorderEditor.BorderRender.PixelWidth==32&&map.BorderEditor.BorderRender.PixelHeight==48,"Changed border dimensions update the displayed image.");
+      viewport.Undo.Execute(null);map.ClearCaches();
+      Check(original.SequenceEqual(model.RawData)&&map.BorderEditor.Width==width&&map.BorderEditor.Height==height,"Undo refresh restores original dimensions and exact bytes.");
+      Check(map.BorderEditor.BorderRender.PixelWidth==width*16&&map.BorderEditor.BorderRender.PixelHeight==height*16&&map.BorderEditor.ShowBorderPanel,"Undo refresh retains open state with the correct image dimensions.");
+      viewport.Redo.Execute(null);map.ClearCaches();
+      Check(resized.SequenceEqual(model.RawData)&&map.BorderEditor.Width==2&&map.BorderEditor.Height==3&&map.BorderEditor.ShowBorderPanel,"Redo refresh restores resized data without closing the border editor.");
+   }
 }
 Console.WriteLine($"CHECKS_PASSED:{checks}");

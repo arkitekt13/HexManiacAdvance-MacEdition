@@ -633,15 +633,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          dynamicOverworldSprites = null;
          RefreshMapSize(false);
          RefreshBlockAttributeCache();
-         if (borderEditor != null) {
-            var oldShowBorder = borderEditor.ShowBorderPanel;
-            borderEditor.BorderChanged -= HandleBorderChanged;
-            var oldBorderEditor = borderEditor;
-            borderEditor = null;
-            BorderEditor.ShowBorderPanel = oldShowBorder;
-            oldBorderEditor.ShowBorderPanel = false;
-            NotifyPropertyChanged(nameof(BorderEditor));
-         }
+         // Refresh data without replacing the editor that owns the live panel binding.
+         // Retiring an open editor briefly hid the panel and restarted its slide animation.
+         borderEditor?.RefreshFromModel();
          Header.UpdateFromModel();
          ClearPixelCache();
          if (!MapScriptCollection.Unloaded) MapScriptCollection.Load(GetMapModel());

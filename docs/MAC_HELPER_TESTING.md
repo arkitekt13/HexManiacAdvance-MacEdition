@@ -68,5 +68,7 @@ no user ROM, settings or emulator is packaged, and no release is uploaded by thi
 - [ ] Decide Developer ID signing/notarization and publish architecture-labeled assets/checksums with a distinct Mac release identity.
 - [ ] Include the original LICENSE and applicable third-party notices with the distributed archive.
 
-The broad tooltip audit, tutorial village/patch and in-app guides remain future work.
+Use the [release checklist](MAC_RELEASE_CHECKLIST.md) for candidate gates and platform results.
+The optional welcome/tutorial frameworks are implemented; final images, tutorial assets/gameplay,
+the broad tooltip audit and in-app guides remain future work.
 Automated regression counts do not substitute for native Mac or gameplay observations.

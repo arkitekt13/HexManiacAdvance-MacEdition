@@ -2464,3 +2464,14 @@ Validation: Fresh app/test build passes with zero warnings/errors; WelcomeScreen
 | tests/optional-release-assets/mac-verification.json | 1 | Record every fresh regression count, optional asset publish checks and explicit validation limits. |
 
 Validation: The focused tutorial group passes 36 assertions; the complete fresh Mac suite passes 62 groups / 18,164 assertions with zero failures and zero skipped groups. PNG, JSON and UPS probes copy byte-for-byte into publish resources and are removed afterward. An initial suite run was interrupted by concurrent probe cleanup; the final run uses stable folders and completes. App/focused builds emit zero compiler warnings; the existing MapImageExport NU1900 feed diagnostic is separate. No personal ROM/settings, core compiler, numeric parsing, relocation or history code changed. Native save-picker cancellation, the final background appearance and tutorial gameplay await the actual assets; neither final PNG nor patch is bundled yet.
+
+## 151 — Add a staged Mac Edition release checklist
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| docs/MAC_RELEASE_CHECKLIST.md | 1 | Separate recorded verification, private helper preparation, native platform checks, public-release gates and optional asset polish without treating coverage gaps as confirmed bugs. |
+| docs/DEVELOPMENT.md | 52 | Link the release checklist from developer release preparation. |
+| docs/MAC_HELPER_TESTING.md | 71 | Link the staged checklist and distinguish implemented asset frameworks from unfinished final content. |
+| FutureDevelopment.md | 7 | Point release reminders to the candidate gates and platform-results checklist. |
+
+Validation: Local Markdown destinations and whitespace checks pass. Verification totals reference the existing 62-group / 18,164-assertion record; native/clean-machine, Intel, signing, runtime and final-asset work stays explicitly unchecked. This is documentation only; no app code, ROM/settings, dependencies or GitHub release changed, and no regression rerun was required.

@@ -53,12 +53,19 @@ public sealed class BlocksetHoverPreview {
       const double margin = 4;
       double width = Math.Max(1, layer.Bounds.Width - margin * 2);
       double height = Math.Max(1, layer.Bounds.Height - margin * 2);
-      box.MaxWidth = Math.Min(400, width);
+      // Dropdown rows may live in a separate popup root; keep the preview beyond
+      // that popup's right edge so the dropdown cannot obscure the image either.
+      var popup = TopLevel.GetTopLevel(owner);
+      var right = popup != null && !ReferenceEquals(popup, TopLevel.GetTopLevel(layer))
+         ? popup.PointToScreen(new Point(popup.Bounds.Width, 0))
+         : owner.PointToScreen(new Point(owner.Bounds.Width, 0));
+      var point = layer.PointToClient(owner.PointToScreen(default));
+      var left = Math.Max(margin, layer.PointToClient(right).X + 24);
+      if (layer.Bounds.Width - left - margin < 32) left = margin;
+      box.MaxWidth = Math.Min(400, Math.Max(1, layer.Bounds.Width - left - margin));
       box.MaxHeight = height;
       box.Measure(new Size(width, height));
-      // Dropdown rows may live in a separate popup root; convert through screen coordinates.
-      var point = layer.PointToClient(owner.PointToScreen(default));
-      Canvas.SetLeft(box, margin);
+      Canvas.SetLeft(box, left);
       Canvas.SetTop(box, Math.Clamp(point.Y, margin, Math.Max(margin, layer.Bounds.Height - box.DesiredSize.Height - margin)));
    }
 }

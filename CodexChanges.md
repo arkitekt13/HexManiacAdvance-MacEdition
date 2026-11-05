@@ -2082,6 +2082,24 @@ Validation: MapZoom freshly builds and passes all 1,276 assertions, including re
 | tests/BlocksetPreviews/Program.cs | 14 | Exercise both real selector templates, rapid row changes, dismissal, oversized image fitting, window resizing and byte/metadata/history preservation. |
 | tests/BlocksetPreviews/BlocksetPreviews.csproj | 1 | Add the portable synthetic preview regression group to automatic discovery. |
 | tests/BlocksetPreviews/README.md | 1 | Document preview verification and remaining native compositor checks. |
-| FutureDevelopment.md | 296 | Defer the broader hex-editor, Go To and image-selector preview audit at the user's request. |
+| FutureDevelopment.md | 313 | Defer the broader hex-editor, Go To and image-selector preview audit at the user's request. |
 
 Validation: BlocksetPreviews builds with zero warnings/errors and passes 38 assertions using fabricated blocksets and a separate 128x4096 image. The prior native path was independently observed with Pointer placement, hit testing enabled, no image size bounds and a 648-pixel image clipped within a 600-pixel tooltip. Neither selector now attaches that native image tooltip. No user ROM/settings changed. Native Mac flicker and visual placement still require user verification; the render-count defect is handled separately.
+
+## 123 — Render only valid blocks in standalone blockset previews
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/Runs/Sprites/BlockmapRun.cs | 498 | Derive standalone preview length from known table bytes or existing block boundaries and pass the correct highest-used index for blocks and attributes. |
+| src/HexManiac.Avalonia/Controls/BlocksetHoverPreview.cs | 56 | Place fitted images beyond the dropdown popup's right edge when space permits so the list cannot obscure them. |
+| tests/BlocksetPreviews/RenderBounds.cs | 5 | Verify exact pixels and metadata across primary/secondary, FireRed/Ruby-Emerald, short/partial/full-capacity and inferred/formatted blockset tables. |
+| tests/BlocksetPreviews/Program.cs | 19 | Include the renderer matrix and verify both selector previews appear beside their rows. |
+| tests/BlocksetPreviews/README.md | 18 | Document the pre-fix oversized-render reproduction and the retained isolated-secondary preview limitation. |
+| tests/MapGestureLifecycle/Program.cs | 122 | Find a hit-tested empty background point instead of clicking the bottom-right status controls during capture-loss verification. |
+| tests/README.md | 43 | Add blockset preview coverage and identify the broader tooltip audit as deferred. |
+
+Evidence: Before the render correction, the new two-block regression fails with a 128x1040 preview instead of 128x16. The original FireRed probe forced 641 preview blocks even when only two were estimated, exceeding the normal 384-block secondary capacity. The renderer now uses an actual known table byte length (including word-formatted data) or the existing boundary estimator, bounded by the applicable primary/secondary capacity. Only standalone RenderBlockset changes; normal map rendering retains its existing usage-based reads and tile/palette behavior.
+
+Validation: BlocksetPreviews passes 160 assertions: 120 renderer checks across 24 fabricated cases and 40 hover/lifecycle/placement checks. The fresh complete `scripts/verify-mac.sh --no-restore` run passes 55 regression groups / 17,001 assertions, zero failures and zero skipped groups. An earlier full run exposed a gesture probe whose hard-coded background coordinate now fell on the recently added status bar; the corrected probe confirms actual MapBackground capture and retains all eight scenario checks. Existing data/resource compilation, pointer/metadata/history protections, map gestures, Undo/Redo and Mac input regressions pass. The separate upstream suites were not rerun. No user ROM/settings changed; native hover appearance and flicker still require a live user check.
+
+Scope: Secondary previews still show an isolated blockset rather than combining it with a selected primary set, so primary-dependent tiles may remain incomplete. The broader hex-editor/Go To preview audit is deferred in FutureDevelopment.md.

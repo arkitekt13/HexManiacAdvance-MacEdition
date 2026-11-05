@@ -16,6 +16,7 @@ Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 int checks=0;
 void Check(bool ok,string message){checks++;if(!ok)throw new InvalidOperationException(message);}
 var fixture=new SyntheticMapFixture(7,5);
+RenderBounds.Run(Check,fixture.ViewPort.Singletons);
 var bytes=fixture.Model.RawData.ToArray();
 var metadata=fixture.Model.ExportMetadata(null,fixture.ViewPort.Singletons.MetadataInfo).Serialize();
 var view=new MapTab();
@@ -35,6 +36,7 @@ foreach(var name in new[]{"PrimaryBlocksetSelector","SecondaryBlocksetSelector"}
  Check(ToolTip.GetTip(row)==null,"Blockset rows must not open a native image tooltip.");
  Enter(row);Pump();
  Check(box.IsVisible&&ReferenceEquals(image.DataContext,options[0].Render),"Hover must show the current option's image.");
+ Check(box.Bounds.Left>layer.PointToClient(row.PointToScreen(new Point(row.Bounds.Width,0))).X,"Preview must appear beyond the dropdown row, not underneath it.");
  Check(!layer.IsHitTestVisible&&ReferenceEquals(TopLevel.GetTopLevel(box),window),"Preview must be input-transparent and remain in the map window.");
  Check(box.Bounds.Height<=layer.Bounds.Height-8+.01&&box.Bounds.Width<=layer.Bounds.Width-8+.01,"Tall previews must fit within the map area.");
  for(int i=0;i<8;i++){Enter(Row(i%2));Pump();Check(ReferenceEquals(image.DataContext,options[i%2].Render),"Rapid row changes must never retain another option's preview.");}

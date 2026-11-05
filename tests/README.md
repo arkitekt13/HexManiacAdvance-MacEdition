@@ -58,6 +58,8 @@ Map event address/text editing and guarded Delete, Backspace, arrows and Escape 
 covered by [MapEventEditing](MapEventEditing/README.md).
 Map event Control-click/secondary menus, warp commands and pointer release are covered by
 [MapEventMenus](MapEventMenus/README.md).
+NPC pre-placement sprite selection, independent session memory, bounded previews and unchanged
+generated script/save/history behavior are covered by [NpcTemplate](NpcTemplate/README.md).
 NPC summaries and visible flag/script-address fields across map Undo/Redo are covered by
 [MapHistoryRefresh](MapHistoryRefresh/README.md).
 Hex/Copy Bytes Control-click menus and non-mutating block-tile sampling are covered by

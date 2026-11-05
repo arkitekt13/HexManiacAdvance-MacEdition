@@ -91,6 +91,18 @@ the previous build for that architecture. For example, launch an arm64 build wit
 open "artifacts/mac/osx-arm64/HexManiacAdvance.app"
 ```
 
+### Prepare a helper ZIP
+
+```sh
+./package-mac.sh osx-arm64   # or osx-x64
+```
+
+This rebuilds/verifies the app and prepares a local ZIP plus a portable `.sha256` file under
+`artifacts/releases`. The archive includes the app, source/build identification, the original
+LICENSE, credits and standalone helper instructions. Existing archives are preserved; tracked
+working-tree changes are labeled `dirty`. This command does not upload a release or notarize
+anything. From the archive directory, verify a received copy with `shasum -a 256 -c <file>.zip.sha256`.
+
 ### Connect an emulator
 
 Open a ROM and click the **green Play button** (or **F5**) to launch an external emulator.

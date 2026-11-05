@@ -44,6 +44,15 @@ can copy the full report or reveal it in Finder. Settings and emulator choice li
 Please report port bugs here rather than automatically sending them to Haven or the original
 porter. Their projects and tutorials remain credited and linked in the README.
 
+## Preparing a local helper archive
+
+From a clean source checkout, run `./package-mac.sh osx-arm64` (or `osx-x64`).
+The result under `artifacts/releases` contains a self-contained app, START-HERE.txt,
+BUILD-INFO.txt, the original LICENSE and this helper checklist. A matching `.zip.sha256`
+file can be checked beside the ZIP with `shasum -a 256 -c <filename>.zip.sha256`.
+Keep the build identification with any bug report. Dirty tracked source is explicitly labeled;
+no user ROM, settings or emulator is packaged, and no release is uploaded by this command.
+
 ## Maintainer distribution checklist
 
 - [x] Separate investigation evidence from fixes; keep feature/fix commits reviewable.

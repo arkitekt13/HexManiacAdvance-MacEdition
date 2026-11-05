@@ -2286,3 +2286,15 @@ Validation: The deliberate 35-ms delay reproduces the old test's failure with an
 | FutureDevelopment.md | 105 | Mark the bounded repair complete while retaining freshness, legal ranges and native/custom-engine work as separate follow-ups. |
 
 Validation: The expanded regression first fails on BPRE/subvar's second operand against unchanged production code, then passes 1,098 assertions across five synthetic game identities. The original copyvar-source case now excludes that used ID from suggestions. Every reviewed operand/header field is detected in the independent role audit, and existing native reserve inventories are identical before/after. ScriptAssistance 258, DialogueScaffolding 384, ScriptWorkflowSafety 598, MapHistoryRefresh 23 and NpcTemplate 44 also pass. Flags, allocation ranges, numeric parsing, script encoding/relocation, native game code and history algorithms are unchanged; analysis/suggestions preserve bytes, metadata and edit history. Snapshot freshness, native-code completeness and custom-engine safety are not claimed. No user ROM/settings changed.
+
+## 138 — Prepare identifiable helper ZIPs with credits, license, instructions and checksums
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| package-mac.sh | 1 | Rebuild the verified architecture-specific app and stage a local helper ZIP with source/build identity, dirty-state labeling, original license, instructions and portable SHA-256. |
+| tests/MacPackaging/Program.cs | 72 | Verify real ZIP contents/checksum, source identity, credits, user-data exclusion, dirty labeling, archive failure cleanup and existing-output preservation using fake build/sign tools. |
+| tests/MacPackaging/README.md | 1 | Record 43 packaging/archive assertions and distinguish the fake toolchain from native artifact verification. |
+| README.md | 95 | Document local helper ZIP preparation and checksum verification without claiming release upload or notarization. |
+| docs/MAC_HELPER_TESTING.md | 44 | Explain archive contents, build identification and keeping checksum files with distributed helpers. |
+
+Validation: MacPackaging passes 43 assertions, including thirteen new helper-archive checks. Tests encode and inspect real ZIPs containing synthetic bundles; existing ZIP/checksum bytes remain intact on repetition and archive-creation failure publishes nothing. Invalid architectures still fail before building; separate arm64/x64 output and prior build protection remain covered. The original project license and thanks to Haven/xavierkeys accompany the app, and no ROM or emulator preference is copied. The script prepares generated local artifacts only, with no GitHub release or native emulator/app launch. A final real arm64 archive and full regression verification follow separately.

@@ -69,3 +69,19 @@ ROM to prove these paths. Test native pickers/mGBA only when a tester can safely
 existing launcher behavior unless a failure is reproduced. Do not enable optional assistant or
 embedded-emulator UI, change numeric/compiler/game-engine rules or undertake runtime migration
 as a side effect. Signing/notarization credentials and release assets are not fabricated.
+
+## Packaging implementation verification
+
+The staged packager builds successfully with a normal restored `bash publish-mac.sh osx-arm64`.
+The real bundle executable is Mach-O arm64, `codesign --verify --deep --strict` succeeds,
+CFBundleShortVersionString is 0.6.1 (matching the assembly's 0.6.1.0), minimum runtime OS is
+12.0 and the bundle occupies about 145 MiB on this host. Architecture-specific outputs now
+live under `artifacts/mac/osx-arm64` and `artifacts/mac/osx-x64`.
+
+PublishedBundleReview resolves assemblies from that real bundle, not a project reference,
+and passes seven checks from an unrelated directory: empty startup, no errors, resource-directory
+resolution, populated script references, isolated preference save/reload and bundled runtime
+libraries. It finds 61 resource files. This is a managed-loader probe, not a native UI launch
+or a claim of testing without .NET installed. MacPackaging separately passes 30 assertions
+with a fake toolchain for failure preservation, complete-resource/runtime gates, signature
+verification, architecture coexistence, output location and application-derived versioning.

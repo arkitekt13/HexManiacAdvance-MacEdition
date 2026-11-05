@@ -2197,3 +2197,18 @@ Validation: FirstLaunch passes 47 assertions with zero failures. Fourteen additi
 | tests/ExternalEmulatorLaunch/README.md | 1 | Record 31 macOS assertions and correct the obsolete built-in F6 availability note. |
 
 Validation: ExternalEmulatorLaunch passes 31 assertions using temporary fake applications/preferences and injected process starters. Existing first-use cancellation, remembered path, Browse output, Save and Launch, rejected source and failed-save checks still pass. The seven added checks confirm the existing launcher already handles the investigated recovery cases; no launcher implementation or personal preferences changed, and no real emulator was started.
+
+## 131 — Build Mac bundles from any directory without destroying the previous successful build
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| publish-mac.sh | 1 | Validate architectures, resolve repository paths, stage/self-contain/sign/verify bundles and preserve previous output until publication succeeds. |
+| tests/MacPackaging/Program.cs | 1 | Run the real script with a disposable fake toolchain across invalid inputs, build/resource/runtime/signature failures and independent architecture outputs. |
+| tests/MacPackaging/MacPackaging.csproj | 1 | Include packaging control-flow regressions in the complete Mac runner. |
+| tests/MacPackaging/README.md | 1 | Distinguish simulated script checks from real native artifact verification. |
+| tools/PublishedBundleReview/Program.cs | 1 | Load the actual published assemblies from an unrelated directory with isolated preferences and verify resources/settings/runtime presence. |
+| tools/PublishedBundleReview/PublishedBundleReview.csproj | 1 | Keep the artifact probe independent of application project references. |
+| tools/PublishedBundleReview/README.md | 1 | Document reproduction and limits of managed published-startup checks. |
+| tests/FIRST_LAUNCH_READINESS_REVIEW.md | 79 | Record real arm64 publish, architecture, signature, version, resource and startup-loader evidence. |
+
+Validation: MacPackaging passes 30 assertions; the original disposable working-directory probe deleted its previous output before failing. A real restored self-contained arm64 publish now succeeds, has a Mach-O arm64 executable, verified ad-hoc signature, application-matching 0.6.1 bundle version, 61 resource files and approximately 145 MiB disk usage. The independent published-loader probe passes seven checks including script references and isolated settings save/reload. Outputs are architecture-specific under artifacts/mac/osx-arm64 or artifacts/mac/osx-x64; failures retain the last successful bundle and clean their staging directory. Minimum runtime OS is recorded as 12.0, not a certification of all OS versions; native Intel/Gatekeeper/notarization/clean-machine launch remain unverified. No user settings or ROM changed.

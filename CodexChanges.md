@@ -2307,3 +2307,15 @@ Validation: MacPackaging passes 43 assertions, including thirteen new helper-arc
 | tools/TrainerPortraitBenchmark/PortraitFixture.cs | 45 | Apply the same identifier-only compatibility fix to the portrait fixture property. |
 
 Validation: The isolated .NET 10 trial reproduces CS9273 on each property before these changes. The only edits escape the two existing identifier declarations/references; fixture logic, data and public APIs are unchanged. ItemTablePresentation passes 48 assertions and PortraitFreshness passes 68 on the working .NET 8 setup. The complete isolated .NET 10 rerun includes both fixes; results are recorded separately when complete. No application target framework, dependency version, installed SDK, ROM or settings changed.
+
+## 140 — Record final maintenance, compatibility and helper-archive verification
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MAINTENANCE_REVIEW.md | 82 | Record completed bounded repairs, real archive checks, both complete runtime trials and the decision to retain the current application target. |
+| tests/maintenance-review/net8-verification.json | 1 | Preserve all 59 fresh working-runtime group counts and explicit validation limits. |
+| tests/maintenance-review/net10-compatibility.json | 1 | Preserve matching isolated runtime counts, temporary trial changes and earlier compiler/runner stops without claiming migration is complete. |
+| tests/maintenance-review/helper-archive-verification.json | 1 | Record the clean source identity, SHA-256, ZIP integrity, contents and strict extracted-signature checks for the real arm64 helper archive. |
+| tests/README.md | 21 | Link the maintenance investigation and its reproducible evidence from the regression index. |
+
+Validation: Both the working SDK 8.0.300/runtime 8.0.5 and isolated SDK 10.0.403/runtime 10.0.14 pass 59 groups / 17,917 assertions with zero failures and zero skipped groups; exact per-group counts match. The real arm64 helper ZIP from clean implementation commit 52f917a14385 passes SHA-256, complete CRC/content inspection and strict extracted-app signature verification. The installed SDK and working net8.0 app target remain unchanged; no user ROM/preferences changed and no release was published. Separate upstream suites, native launch/emulator/gameplay, Intel, older macOS, Gatekeeper and notarization are not claimed. This entry records evidence only, with no additional application changes.

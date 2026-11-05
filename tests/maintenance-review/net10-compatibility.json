@@ -1,0 +1,262 @@
+{
+  "source_checkpoint": "52f917a14385354e0beccdfb40028d3830a4421b",
+  "experimental_sdk": "10.0.403",
+  "experimental_runtime": "10.0.14",
+  "current_app_target_unchanged": "net8.0",
+  "experimental_app_and_test_targets": "net10.0",
+  "core_target_unchanged": "net6.0",
+  "dependency_versions_changed": false,
+  "groups": [
+    {
+      "group": "AutocompleteDismissal",
+      "assertions": 85
+    },
+    {
+      "group": "AutocompleteMapping",
+      "assertions": 294
+    },
+    {
+      "group": "BlockBagFill",
+      "assertions": 2081
+    },
+    {
+      "group": "BlocksetPreviews",
+      "assertions": 160
+    },
+    {
+      "group": "BlocksetSelection",
+      "assertions": 199
+    },
+    {
+      "group": "BorderBounds",
+      "assertions": 190
+    },
+    {
+      "group": "ClipboardRouting",
+      "assertions": 78
+    },
+    {
+      "group": "ColorEditorInput",
+      "assertions": 93
+    },
+    {
+      "group": "CommentHighlighting",
+      "assertions": 4652
+    },
+    {
+      "group": "CrashReporting",
+      "assertions": 29
+    },
+    {
+      "group": "DialogueDiagnostics",
+      "assertions": 27
+    },
+    {
+      "group": "DialogueScaffolding",
+      "assertions": 384
+    },
+    {
+      "group": "ExternalEmulatorLaunch",
+      "assertions": 31
+    },
+    {
+      "group": "ExternalFileChanges",
+      "assertions": 38
+    },
+    {
+      "group": "FileDrop",
+      "assertions": 24
+    },
+    {
+      "group": "FirstLaunch",
+      "assertions": 47
+    },
+    {
+      "group": "FlagUsageSafety",
+      "assertions": 1098
+    },
+    {
+      "group": "FocusAnimation",
+      "assertions": 25
+    },
+    {
+      "group": "ImageEditorInput",
+      "assertions": 38
+    },
+    {
+      "group": "ItemTablePresentation",
+      "assertions": 48
+    },
+    {
+      "group": "MacPackaging",
+      "assertions": 43
+    },
+    {
+      "group": "MacSecondaryActions",
+      "assertions": 43
+    },
+    {
+      "group": "MapArrowIcons",
+      "assertions": 98
+    },
+    {
+      "group": "MapEventEditing",
+      "assertions": 63
+    },
+    {
+      "group": "MapEventMenus",
+      "assertions": 68
+    },
+    {
+      "group": "MapGestureLifecycle",
+      "assertions": 1285
+    },
+    {
+      "group": "MapHistoryRefresh",
+      "assertions": 23
+    },
+    {
+      "group": "MapHoverLookup",
+      "assertions": 50
+    },
+    {
+      "group": "MapHoverPreview",
+      "assertions": 134
+    },
+    {
+      "group": "MapImageExport",
+      "assertions": 33
+    },
+    {
+      "group": "MapRendering",
+      "assertions": 93
+    },
+    {
+      "group": "MapSelection",
+      "assertions": 394
+    },
+    {
+      "group": "MapSpriteSelection",
+      "assertions": 180
+    },
+    {
+      "group": "MapThreadSafety",
+      "assertions": 22
+    },
+    {
+      "group": "MapUsageSearch",
+      "assertions": 106
+    },
+    {
+      "group": "MapZoom",
+      "assertions": 1276
+    },
+    {
+      "group": "NpcTemplate",
+      "assertions": 44
+    },
+    {
+      "group": "PaletteClipboard",
+      "assertions": 40
+    },
+    {
+      "group": "PaletteHistory",
+      "assertions": 36
+    },
+    {
+      "group": "PatchSafety",
+      "assertions": 357
+    },
+    {
+      "group": "PortraitFreshness",
+      "assertions": 68
+    },
+    {
+      "group": "ProjectExportSafety",
+      "assertions": 13
+    },
+    {
+      "group": "ProjectImport",
+      "assertions": 30
+    },
+    {
+      "group": "SaveSafety",
+      "assertions": 17
+    },
+    {
+      "group": "ScriptArgumentSafety",
+      "assertions": 1560
+    },
+    {
+      "group": "ScriptAssistance",
+      "assertions": 258
+    },
+    {
+      "group": "ScriptEditorLayout",
+      "assertions": 102
+    },
+    {
+      "group": "ScriptWidthUpdates",
+      "assertions": 448
+    },
+    {
+      "group": "ScriptWorkflowSafety",
+      "assertions": 598
+    },
+    {
+      "group": "ShortFieldTabSelection",
+      "assertions": 21
+    },
+    {
+      "group": "StartupUpdates",
+      "assertions": 42
+    },
+    {
+      "group": "StreamTemplates",
+      "assertions": 123
+    },
+    {
+      "group": "TabMenus",
+      "assertions": 33
+    },
+    {
+      "group": "TextSelection",
+      "assertions": 63
+    },
+    {
+      "group": "TutorialLayout",
+      "assertions": 332
+    },
+    {
+      "group": "UpstreamVerificationRunner",
+      "assertions": 29
+    },
+    {
+      "group": "VerificationRunner",
+      "assertions": 9
+    },
+    {
+      "group": "WelcomeScreen",
+      "assertions": 34
+    },
+    {
+      "group": "WildEncounterEditing",
+      "assertions": 128
+    }
+  ],
+  "total_groups": 59,
+  "total_assertions": 17917,
+  "failures": 0,
+  "skipped_groups": 0,
+  "native_ui_or_intel_certified": false,
+  "temporary_changes": [
+    "App and 59 test host target frameworks",
+    "Runner binary path changed to net10.0; SDK selected via process-local PATH",
+    "Two fixture identifiers escaped, also committed in working branch"
+  ],
+  "earlier_trial_stops": [
+    "C# 14 field keyword conflict in item fixture",
+    "Same conflict in portrait fixture",
+    "Hardcoding the SDK path in the trial script bypassed VerificationRunner fake tools; corrected to process-local PATH without a production change"
+  ]
+}

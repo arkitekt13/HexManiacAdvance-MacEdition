@@ -2262,3 +2262,12 @@ Validation: The complete serial Mac runner passes 59 groups / 17,329 assertions,
 | tools/FocusClockReview/README.md | 1 | Explain delay stress, original assertions and isolation. |
 
 Validation: A disposable .NET 10 copy builds successfully and passes ScriptWorkflowSafety's 598 assertions using a temporary SDK/runtime; the working app and installed SDK remain unchanged. The 35-ms clock probe reproduces the old assertion failure and passes all 13 original checks with an independent test clock. The read-only variable audit reconfirms 13 missed command references per game plus conditional-header fields. No production source, user ROM or personal settings changed. Implementations and broader compatibility evidence follow separately.
+
+## 136 — Make the focus-animation regression deterministic without changing the animation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/FocusAnimation/Program.cs | 30 | Give each real outline an independent test clock and verify observed position/size changes under normal and deliberately delayed dispatcher timing. |
+| tests/FocusAnimation/README.md | 1 | Explain the global-clock interference, retained requirements and 25 assertions across six animations. |
+
+Validation: The deliberate 35-ms delay reproduces the old test's failure with an already-completed task before its first sample. The independent-clock adapter passes 25 assertions, including the original cast-crash reproduction, actual movement/resizing, completion and cleanup; ten separate processes pass 250 assertions total. The movement check is strengthened to compare sampled values rather than accept a nonzero initial keyframe. Production FocusOutlineAnimation, duration, rendering and native behavior are unchanged. No ROM or settings used.

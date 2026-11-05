@@ -86,7 +86,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4">
                <TextBlock Text="Ported By:" FontWeight="Bold" FontSize="13" Foreground="#A39BAE" VerticalAlignment="Center"/>
-               <Button Name="PortAuthorLink" Classes="welcomeLink" Content="xavierkeys" Tag="https://github.com/xavierkeys" Click="Navigate"/>
+               <Button Name="PortAuthorLink" Classes="welcomeLink" Content="xavierkeys" Tag="https://github.com/Xkeys-bot/HexManiacAdvance-mac" Click="Navigate"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4">
                <TextBlock Text="Forked By:" FontWeight="Bold" FontSize="13" Foreground="#A39BAE" VerticalAlignment="Center"/>

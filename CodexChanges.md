@@ -2212,3 +2212,13 @@ Validation: ExternalEmulatorLaunch passes 31 assertions using temporary fake app
 | tests/FIRST_LAUNCH_READINESS_REVIEW.md | 79 | Record real arm64 publish, architecture, signature, version, resource and startup-loader evidence. |
 
 Validation: MacPackaging passes 30 assertions; the original disposable working-directory probe deleted its previous output before failing. A real restored self-contained arm64 publish now succeeds, has a Mach-O arm64 executable, verified ad-hoc signature, application-matching 0.6.1 bundle version, 61 resource files and approximately 145 MiB disk usage. The independent published-loader probe passes seven checks including script references and isolated settings save/reload. Outputs are architecture-specific under artifacts/mac/osx-arm64 or artifacts/mac/osx-x64; failures retain the last successful bundle and clean their staging directory. Minimum runtime OS is recorded as 12.0, not a certification of all OS versions; native Intel/Gatekeeper/notarization/clean-machine launch remain unverified. No user settings or ROM changed.
+
+## 132 — Repair the original Mac porter credit destination
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml | 89 | Retain the xavierkeys credit while linking the verified original Mac port instead of the unavailable profile target. |
+| tests/WelcomeScreen/Program.cs | 56 | Assert the original-porter attribution destination without launching a browser. |
+| tests/WelcomeScreen/README.md | 1 | Explain the verified credit link and unchanged native browser check. |
+
+Validation: WelcomeScreen builds and passes 34 assertions, including layout at three window sizes and the new credit URL check. Git history identifies xavierkeys as the original Mac port author, while GitHub identifies the fork parent as Xkeys-bot/HexManiacAdvance-mac; the former profile URL could not be verified. Credit text and visual layout remain unchanged. No ROM or settings changed.

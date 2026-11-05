@@ -20,6 +20,7 @@ ROM and select a ROM, then close the final tab to return to welcome. Also check 
 Cmd+O, drag-and-drop, and launching with a ROM directly through Finder.
 
 The layout checks also cover the credit block and footer links at all three sizes. The welcome
-screen credits Haven, xavierkeys and arkitekt13 with clickable GitHub profiles; Mac Help opens
-the fork README macOS section, while issue reporting and GitHub open this fork. Browser launching
+screen credits Haven, xavierkeys and arkitekt13 with clickable GitHub attribution links; Mac Help opens
+the fork README macOS section, while issue reporting and GitHub open this fork. The porter credit links the verified original
+Mac repository (Xkeys-bot/HexManiacAdvance-mac), retaining the original author name xavierkeys. Browser launching
 and native keyboard/mouse appearance still need a live macOS check.

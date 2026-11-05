@@ -2415,3 +2415,15 @@ Validation: The actual flag and variable deletion/replacement regressions fail b
 | tests/id-suggestion-review/mac-verification.json | 1 | Record all 61 fresh group counts and explicit native/real-ROM/security-audit limits. |
 
 Validation: All 87 focused assertions pass. On the identical synthetic 1,000-entry/25-tail workload, initialization changes from about 1,342 ms to 4.6 ms and a post-edit refresh from 607 ms to 2.2 ms; cached requests remain below 0.05 ms in these single-run observations with unchanged managed allocation. The same candidate is returned, and differential graph checks preserve references, bytes and metadata while reducing repeated visits. The existing public walker, ownership/reservation policy, compiler, numeric grammar, relocation and history are unchanged. The complete serial Mac suite passes 61 groups / 18,123 assertions with zero failures and zero skipped groups; exact counts are in tests/id-suggestion-review/mac-verification.json. Source builds emit no compiler warnings; the existing MapImageExport NU1900 feed diagnostic is separate. The checked-in benchmark reproduces a 2.3-ms refreshed query. No user ROM/preferences, separate upstream-suite certification or real-ROM/native performance claims.
+
+## 147 — Make the GitHub introduction and installation steps easier to follow
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| README.md | 6 | Place Haven/xavierkeys credits directly below the description while retaining clear thanks and original-project links. |
+| README.md | 13 | Put Installation first with release/source options, architecture selection, source ZIP steps and one Terminal command. |
+| README.md | 54 | Replace the editing inventory and technical onboarding with a concise Mac Edition feature list and three practical help links. |
+| docs/MAC_SETUP.md | 1 | Move emulator connection, Mac controls and targeted launch troubleshooting out of installation. |
+| docs/DEVELOPMENT.md | 1 | Preserve bundle building, tester ZIP preparation and regression commands in developer documentation. |
+
+Validation: The GitHub Releases API currently returns no releases, so Option 1 explicitly directs users to source installation until an app download exists. The actual public default-branch ZIP was downloaded without executing it, and its extracted-folder name and Avalonia project path match the documented command. The official .NET 8 page confirms the macOS SDK installer choices. Relative Markdown destinations, command shell syntax, requested section order and whitespace checks pass. No application code, SDK installation, user ROM/preferences or generated release changed; no full regression rerun was needed for documentation-only edits.

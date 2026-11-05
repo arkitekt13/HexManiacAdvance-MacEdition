@@ -2271,3 +2271,18 @@ Validation: A disposable .NET 10 copy builds successfully and passes ScriptWorkf
 | tests/FocusAnimation/README.md | 1 | Explain the global-clock interference, retained requirements and 25 assertions across six animations. |
 
 Validation: The deliberate 35-ms delay reproduces the old test's failure with an already-completed task before its first sample. The independent-clock adapter passes 25 assertions, including the original cast-crash reproduction, actual movement/resizing, completion and cleanup; ten separate processes pass 250 assertions total. The movement check is strengthened to compare sampled values rather than accept a nonzero initial keyframe. Production FocusOutlineAnimation, duration, rendering and native behavior are unchanged. No ROM or settings used.
+
+## 137 — Include confirmed variable operands and map-header comparisons in usage analysis
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/Flags.cs | 109 | Share engine-confirmed variable-reference classification between used-ID discovery and Find Uses, including raw commands inside macros and conditional-header fields. |
+| src/HexManiac.Core/ViewModels/Map/Flags.cs | 190 | Bound conditional rows before reading them while retaining the existing traversal budget and sentinel semantics. |
+| tests/FlagUsageSafety/Program.cs | 30 | Reproduce missing operands before the fix and protect detection/locations, literal exclusions, macro internals, headers, reservations and data/metadata/history immutability. |
+| tests/FlagUsageSafety/README.md | 1 | Record 1,098 assertions and the bounded scope without claiming complete unused-ID safety. |
+| tests/maintenance-review/variable-after-summary.json | 1 | Record zero omissions in the reviewed matrix and unchanged native reserve inventories for five game identities. |
+| tests/FLAG_USAGE_INVESTIGATION.md | 1 | Preserve the original investigation with an explicit implemented follow-up link. |
+| tools/FlagVariableReview/UsageDetectionAudit.cs | 126 | Describe the review as read-only analysis of current helpers rather than assuming no implementation has occurred. |
+| FutureDevelopment.md | 105 | Mark the bounded repair complete while retaining freshness, legal ranges and native/custom-engine work as separate follow-ups. |
+
+Validation: The expanded regression first fails on BPRE/subvar's second operand against unchanged production code, then passes 1,098 assertions across five synthetic game identities. The original copyvar-source case now excludes that used ID from suggestions. Every reviewed operand/header field is detected in the independent role audit, and existing native reserve inventories are identical before/after. ScriptAssistance 258, DialogueScaffolding 384, ScriptWorkflowSafety 598, MapHistoryRefresh 23 and NpcTemplate 44 also pass. Flags, allocation ranges, numeric parsing, script encoding/relocation, native game code and history algorithms are unchanged; analysis/suggestions preserve bytes, metadata and edit history. Snapshot freshness, native-code completeness and custom-engine safety are not claimed. No user ROM/settings changed.

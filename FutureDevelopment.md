@@ -102,7 +102,8 @@ numeric interpretation and shared-Core compilation are unchanged.
 
 ## HMA-005 — Harden unused-ID usage detection after evidence review
 
-**Status:** Investigation and safety baseline completed; production changes await approval.
+**Status:** The bounded command-operand and conditional-header repair is implemented in changelog
+entry 137, with 1,098 focused assertions. Broader freshness/reservation/range analysis remains deferred.
 
 **Evidence:** [FLAG_USAGE_INVESTIGATION.md](tests/FLAG_USAGE_INVESTIGATION.md) cross-checks twelve
 command handlers and byte mappings against FireRed/Emerald/Ruby engine references. Synthetic
@@ -117,9 +118,15 @@ variable distinctions, flag/event/root coverage and read-only analysis. Do not t
 number as a variable or change researched addresses. FlagUsageSafety protects supported behavior;
 the review tool reports omissions without requiring them to persist.
 
-**Possible next scope, requiring approval:** Add only engine-confirmed missing operands/header
-fields with failing-before/passing-after tests. Handle freshness, reservations, native-reserve
-audits, legal ranges, custom engines and incomplete-scan reporting as separately reviewed work.
+**Completed scope:** Engine-confirmed operands from the twelve reviewed opcodes and both
+conditional-header comparison fields now feed used-variable discovery and Find Uses. Raw command
+scanning also sees operands inside presentation macros. Literal/function-ID roles, native/session
+reservations and allocation ranges remain intact; before/after evidence is in
+[MAINTENANCE_REVIEW.md](tests/MAINTENANCE_REVIEW.md).
+
+**Remaining scope:** Freshness after arbitrary manual edits, reservations, native-reserve audits,
+legal ranges, custom engines and incomplete-scan reporting require separately reviewed work.
+The bounded repair is not a claim that every suggested ID is safe in every modified engine.
 
 ## HMA-006 — Prevent deferred script work from applying to a changed context
 

@@ -2319,3 +2319,16 @@ Validation: The isolated .NET 10 trial reproduces CS9273 on each property before
 | tests/README.md | 21 | Link the maintenance investigation and its reproducible evidence from the regression index. |
 
 Validation: Both the working SDK 8.0.300/runtime 8.0.5 and isolated SDK 10.0.403/runtime 10.0.14 pass 59 groups / 17,917 assertions with zero failures and zero skipped groups; exact per-group counts match. The real arm64 helper ZIP from clean implementation commit 52f917a14385 passes SHA-256, complete CRC/content inspection and strict extracted-app signature verification. The installed SDK and working net8.0 app target remain unchanged; no user ROM/preferences changed and no release was published. Separate upstream suites, native launch/emulator/gameplay, Intel, older macOS, Gatekeeper and notarization are not claimed. This entry records evidence only, with no additional application changes.
+
+## 141 — Remove the eight launch-build warnings while preserving execution behavior
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Core/Autos/StubFileSystem.cs | 57 | Remove ineffective optional defaults from explicit implementations while retaining the interface defaults used by callers. |
+| src/HexManiac.Core/Models/CrossTableDataViewPort.cs | 125 | Remove the unused private selectAll field without changing command behavior. |
+| src/HexManiac.Core/Models/Runs/TrainerPokemonTeamRun.cs | 38 | Remove the unused minimumLevels field while retaining the live local minimum-level lookup. |
+| src/HexManiac.Core/Models/Runs/Sprites/BlockmapRun.cs | 340 | Remove the unread palette-count field and constant assignments without changing palette processing. |
+| src/HexManiac.Core/ViewModels/ViewModelCore.cs | 151 | Match XML documentation parameter names to the existing TryUpdate signature. |
+| src/HexManiac.Core/ViewModels/QuickEditItems/ApplyCFRUPatch.cs | 34 | Replace async-without-await with synchronous execution wrapped in completed, faulted or canceled tasks while retaining the patch/save/reopen body. |
+
+Validation: A fresh complete Mac application rebuild passes with zero warnings and zero errors, compared with the eight warnings reproduced before cleanup; no warning suppressions were added. Fresh targeted builds and runs pass BlocksetSelection 199, ScriptWorkflowSafety 598 and ItemTablePresentation 48 assertions, totaling 845 across three groups. A temporary synthetic probe passes five additional checks for completed invalid-tab diagnostics and a faulted missing-resource task with unchanged model bytes; its first setup attempt lacked test resources, then passed after the probe setup was corrected. Two sandbox test builds stalled before output and were terminated, then the serial builds/runs completed outside the sandbox; neither stalled run is counted as a pass. The complete 59-group suite was not rerun for this cleanup. No real CFRU patch, user ROM, personal settings, runtime target, game engine or warning policy changed.

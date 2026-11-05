@@ -36,7 +36,6 @@ namespace HavenSoft.HexManiac.Core.Models.Runs {
       string IUpdateFromParentRun.RepointContentShortName => "Team";
 
       private readonly bool showFullIVByteRange = false;
-      private object minimumLevels;
 
       #region Constructors
 

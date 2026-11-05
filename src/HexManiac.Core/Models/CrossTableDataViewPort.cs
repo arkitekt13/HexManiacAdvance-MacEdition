@@ -122,7 +122,7 @@ public class CrossTableDataViewPort : ViewModelCore, IViewPort {
 
    public ICommand Redo => parent.Redo;
 
-   private StubCommand? copy, deepCopy, clear, selectAll;
+   private StubCommand? copy, deepCopy, clear;
    public ICommand Copy => copy ??= new() { CanExecute = CanCopy, Execute = CopyExecute };
 
    public ICommand DeepCopy => deepCopy ??= new() { CanExecute = CanDeepCopy, Execute = DeepCopyExecute };

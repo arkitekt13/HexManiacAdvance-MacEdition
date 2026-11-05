@@ -31,7 +31,21 @@ Please read the Wiki for information about how to use the included features.";
 
       public bool CanRun(IViewPort viewPort) => viewPort is ViewPort && (uint)Patcher.CalcCRC32(viewPort.Model.RawData) == 0xDD88761C;
 
-      public async Task<ErrorInfo> Run(IViewPort viewPort1) {
+      public Task<ErrorInfo> Run(IViewPort viewPort) {
+         // Keep execution synchronous and report exceptions through the returned task,
+         // matching the original async method without moving model/UI work to a worker.
+         try {
+            return Task.FromResult(RunCore(viewPort));
+         } catch (OperationCanceledException error) {
+            var canceled = new TaskCompletionSource<ErrorInfo>();
+            canceled.SetCanceled(error.CancellationToken);
+            return canceled.Task;
+         } catch (Exception error) {
+            return Task.FromException<ErrorInfo>(error);
+         }
+      }
+
+      private ErrorInfo RunCore(IViewPort viewPort1) {
          if (viewPort1 is not ViewPort viewPort) return new ErrorInfo("Selected tab is expected to be a FireRed data tab.");
          var model = viewPort.Model;
          var patch = File.ReadAllBytes(PatchFileName);

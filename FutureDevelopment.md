@@ -323,12 +323,15 @@ captured pointer drags, packed data and exact Save/reload/Undo/Redo.
 Coverage: [BorderBounds](tests/BorderBounds/README.md) and MapGestureLifecycle.
 Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
 
-## Deferred image-preview audit
+## Image-preview and border-panel lifecycle review
 
-**Status:** Deferred at the user's request after the map-header blockset preview investigation.
+**Status:** Investigated November 5, 2026; confirmed border-panel and hex/Go To image-hint
+failures have bounded repairs and failing-before regressions, recorded in changelog entries
+142–143 and [IMAGE_PREVIEW_LIFECYCLE_REVIEW.md](tests/IMAGE_PREVIEW_LIFECYCLE_REVIEW.md).
 
-Review large image tooltips in the hex editor (`HexContent` / `HexContentToolTip`) and Go To
-previews, plus unconstrained image selector templates. Check size limits, pointer interception,
-popup placement and dismissal under scrolling, recycling and context changes. These are code-audit
-candidates, not confirmed reproductions of the blockset hover flicker; do not apply a blanket
-change to ordinary text tooltips or intentional interactive popups.
+The border panel retains its visibility through cache refreshes. Hex and Go To image hints now
+fit complete content in an input-transparent window overlay and dismiss/reopen by source context.
+NPC summaries, blockset previews, bounded overworld selectors, inline images, selected-block hover
+and deliberate palette/map-list popups were reviewed; no additional reproduced flicker defect
+justified a blanket change. Native trackpad/compositor and multi-display confirmation remains
+part of normal release testing. Ordinary text tips and editable popups retain their behavior.

@@ -42,7 +42,8 @@ public class HexContent : Control {
 
    private Popup recentMenu;
    private ModelPoint downPoint;
-   private ModelPoint mouseOverPoint;
+   private ModelPoint mouseOverPoint = new(-1, -1);
+   private ImagePreviewLayer imagePreviewLayer;
    private bool isPointerCaptured;
    private bool controlContextClick;
    private bool middleButtonDown;
@@ -58,6 +59,7 @@ public class HexContent : Control {
       AvaloniaProperty.Register<HexContent, IViewPort>(nameof(ViewPort));
 
    private void OnViewPortChanged(AvaloniaPropertyChangedEventArgs e) {
+      ClearTooltip();
       if (e.OldValue is IViewPort oldViewPort) {
          oldViewPort.CollectionChanged -= OnViewPortContentChanged;
          oldViewPort.PropertyChanged -= OnViewPortPropertyChanged;
@@ -78,6 +80,7 @@ public class HexContent : Control {
    }
 
    private void OnViewPortContentChanged(object sender, NotifyCollectionChangedEventArgs e) {
+      ClearTooltip();
       InvalidateVisual();
       CursorNeedsUpdate?.Invoke(this, EventArgs.Empty);
    }
@@ -91,6 +94,7 @@ public class HexContent : Control {
       };
 
       if (propertyChangesThatRequireRedraw.Contains(e.PropertyName)) {
+         ClearTooltip();
          InvalidateVisual();
          CursorNeedsUpdate?.Invoke(this, EventArgs.Empty);
       }
@@ -351,6 +355,8 @@ public class HexContent : Control {
       AddConsoleKeyCommand(Key.Enter, ConsoleKey.Enter);
       AddConsoleKeyCommand(Key.Tab, ConsoleKey.Tab);
 
+      ToolTip.SetServiceEnabled(this, false); // Cell hover is driven explicitly below.
+      DetachedFromVisualTree += (_, _) => ClearTooltip();
       DataContextChanged += (sender, e) => ClearTooltip();
       SizeChanged += (sender, e) => {
          UpdateViewPortSize();
@@ -427,7 +433,7 @@ public class HexContent : Control {
          mouseOverPoint = newMouseOverPoint;
          var rawPoint = e.GetPosition(this);
          if ((int)(rawPoint.X / CellWidth) > ViewPort.Width - 1) {
-            ClearTooltip();
+            ClearTooltip(false);
          } else {
             UpdateTooltip(newMouseOverPoint);
          }
@@ -476,7 +482,7 @@ public class HexContent : Control {
          }
       }
       if (needClearToolTip) {
-         ClearTooltip();
+         ClearTooltip(false);
       }
    }
 
@@ -487,9 +493,12 @@ public class HexContent : Control {
    /// WPF repainted the grid here; in Avalonia the tooltip is a popup that owns its own surface,
    /// so the repaint bought nothing and made the hex view flicker while the mouse moved.
    /// </summary>
-   private void ClearTooltip() {
-      if (!tooltipIsEnabled) return;
+   private void ClearTooltip(bool invalidateCell = true) {
+      if (invalidateCell) mouseOverPoint = new(-1, -1);
+      if (!tooltipIsEnabled && imagePreviewLayer == null && !ToolTip.GetIsOpen(this)) return;
       tooltipIsEnabled = false;
+      imagePreviewLayer?.Hide(this);
+      imagePreviewLayer = null;
       ToolTip.SetIsOpen(this, false);
    }
 
@@ -527,7 +536,7 @@ public class HexContent : Control {
 
    protected override void OnPointerExited(PointerEventArgs e) {
       base.OnPointerExited(e);
-      ToolTip.SetIsOpen(this, false);
+      ClearTooltip();
    }
 
    private bool MakeNewToolTip(IDataFormat instance, ModelPoint newMouseOverPoint) {
@@ -537,6 +546,17 @@ public class HexContent : Control {
          ToolTip.SetIsOpen(this, false);
          return false;
       }
+      if (ImagePreviewLayer.HasImages(visitor.Content)) {
+         ToolTip.SetIsOpen(this, false);
+         imagePreviewLayer = ImagePreviewLayer.For(this);
+         imagePreviewLayer?.Show(this, visitor.Content,
+            new Rect(newMouseOverPoint.X * CellWidth - HorizontalScrollValue, newMouseOverPoint.Y * CellHeight, CellWidth, CellHeight),
+            () => { tooltipIsEnabled = false; mouseOverPoint = new(-1, -1); });
+         tooltipIsEnabled = imagePreviewLayer?.IsShowing(this) == true;
+         return tooltipIsEnabled;
+      }
+      imagePreviewLayer?.Hide(this);
+      imagePreviewLayer = null;
       // WPF replaced the whole ToolTip object to avoid text changing as the old one faded out.
       // Avalonia has no such fade, and replacing the tip recreates a popup window - once per
       // cell the pointer crosses - so the control is reused and only its DataContext changes.
@@ -579,6 +599,7 @@ public class HexContent : Control {
 
    protected override void OnPointerWheelChanged(PointerWheelEventArgs e) {
       base.OnPointerWheelChanged(e);
+      ClearTooltip();
       if (ViewPort == null) return;
       var delta = Math.Sign(e.Delta.Y);
       if (e.KeyModifiers == CommandModifier) {

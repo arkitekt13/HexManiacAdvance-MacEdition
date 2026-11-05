@@ -2345,3 +2345,23 @@ Validation: A fresh complete Mac application rebuild passes with zero warnings a
 | tests/BorderBounds/README.md | 18 | Record custom-dimension refresh coverage and the updated assertion count. |
 
 Validation: The new animated single-stroke scenario fails against unchanged production code on the first transient hide. After the fix, all 38 MapGestureLifecycle scenarios pass 1,343 assertions, including the two new animated single/copied-border cases; BorderBounds passes 195 assertions. No drawing, pointer relocation, cache-invalidation scope, numeric rules or history algorithm changed, and no user ROM/settings were used. The normal open/close animation remains enabled. Full Mac-suite verification follows the separate image-preview fix; native trackpad confirmation remains useful.
+
+## 143 — Fit hex and Go To image hints without intercepting their source input
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/ImagePreviewLayer.cs | 15 | Present complete image-bearing hints in a bounded input-transparent window layer with explicit source and window lifetimes. |
+| src/HexManiac.Avalonia/Controls/ImageHoverPreview.cs | 10 | Attach image-only hover ownership to Go To tokens with collection, context and detachment cleanup. |
+| src/HexManiac.Avalonia/Controls/HexContent.cs | 496 | Reset stale cell hover state and route image content through the fitted layer while preserving text tips and unformatted-cell caching. |
+| src/HexManiac.Avalonia/Resources/MenuConverters.cs | 218 | Keep native Go To tooltips for nonempty text-only hints and exclude images handled by the overlay. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 564 | Bind token image-hover content and host one input-transparent image layer in the window. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 262 | Dismiss current image hints when Go To visibility changes. |
+| tests/ImageHoverPreviews/Program.cs | 24 | Reproduce hex/compiled-token failures and protect 56 fitting, re-entry, input, text-tip, collection/context, tab and lifetime invariants. |
+| tests/ImageHoverPreviews/ImageHoverPreviews.csproj | 1 | Run real compiled window templates with synthetic sprite data and headless routed input. |
+| tests/ImageHoverPreviews/README.md | 1 | Document reproduction, assertions, intentional popup exclusions and native verification limits. |
+| tests/IMAGE_PREVIEW_LIFECYCLE_REVIEW.md | 1 | Preserve investigation evidence, the bounded repair decisions and explicit coverage limits. |
+| tests/preview-lifecycle/mac-verification.json | 1 | Record every fresh regression-group count, source checkpoints and native/security-audit limits. |
+| tests/README.md | 17 | Link the preview lifecycle findings and focused regression from the suite index. |
+| FutureDevelopment.md | 324 | Close the deferred code audit with confirmed repairs and retain native verification as release work. |
+
+Validation: The real oversized hex hover and compiled Go To image-token cases fail separately against the prior implementation. ImageHoverPreviews now passes 56 assertions with zero build warnings/errors, including full transformed small/tall/wide image bounds, click-through, same-cell re-entry, text tips, keyboard/mouse selection, collection/context recycling, resizing, Go To closure/reopening, detach/reattach, document-tab changes and exact byte/metadata/history preservation. No script compilation, pointer relocation, game-engine data, numeric rules, interactive palette/map-list popups or global tooltip theme changed. The complete serial Mac suite passes 60 groups / 18,036 assertions with zero failures and zero skipped groups; exact counts are recorded in tests/preview-lifecycle/mac-verification.json. Source builds emit no compiler warnings; MapImageExport retains the existing NU1900 package-vulnerability-feed diagnostic, so successful security-data retrieval is not claimed. Native trackpad/compositor confirmation remains useful, and separate upstream suites were not rerun. No user ROM/settings changed.

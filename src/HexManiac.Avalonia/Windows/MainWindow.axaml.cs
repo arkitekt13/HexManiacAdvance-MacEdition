@@ -259,6 +259,7 @@ public partial class MainWindow : Window {
 
    private void GotoViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
       if (e.PropertyName != nameof(GotoControlViewModel.ControlVisible)) return;
+      ImagePreviewLayer.Hide();
       if (editor.GotoViewModel.ControlVisible) {
          BlurTabs();
          FocusGotoBox();

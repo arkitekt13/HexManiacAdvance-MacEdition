@@ -560,7 +560,8 @@
                                   -->
                                   <ToggleButton BorderThickness="0" Content="{Binding Content}" IsChecked="{Binding IsSelected, Mode=TwoWay}"
                                                 Padding="6" FontSize="15" IsEnabled="{Binding IsSelectable}" ToolTip.ShowDelay="0" ToolTip.Placement="Bottom"
-                                                ToolTip.Tip="{Binding HoverTip, Converter={x:Static hsv:GotoHoverTipConverter.Instance}}" />
+                                                ToolTip.Tip="{Binding HoverTip, Converter={x:Static hsv:GotoHoverTipConverter.Instance}}"
+                                                hsg3hv:ImageHoverPreview.Content="{Binding HoverTip}" />
                                   <Path Data="{hsv:Icon Chevron}" Fill="{DynamicResource Secondary}"
                                         Stretch="Uniform" Width="10" Height="10" Margin="2" IsHitTestVisible="False"
                                         HorizontalAlignment="Right" VerticalAlignment="Bottom"
@@ -588,6 +589,7 @@
     </Border>
     <Rectangle Name="FocusAnimationElement" StrokeThickness="3" Stroke="{DynamicResource Accent}" IsVisible="False"
                HorizontalAlignment="Right" VerticalAlignment="Top"/>
+    <hsg3hv:ImagePreviewLayer Name="ImagePreviewLayer" ZIndex="20"/>
     <!-- Cover the empty workspace; ItemCount also brings welcome back after the last tab closes. -->
     <hsg3hv:StartScreen Name="WelcomeScreen" ZIndex="10"
                        IsVisible="{Binding ItemCount, ElementName=Tabs, Converter={StaticResource EqualityCheck}, ConverterParameter=0}"/>

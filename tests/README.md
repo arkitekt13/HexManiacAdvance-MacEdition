@@ -40,6 +40,10 @@ confirmed border bounds overrun. The implemented bounds fix is protected by
 [BorderBounds](BorderBounds/README.md) and actual pointer cases in MapGestureLifecycle; see
 the review for the subsequent explicit nine-grid override fix and the remaining latent
 negative-state finding.
+Blockset selection stability, synchronous pointer writes and queued refresh/history safety are
+covered by [BlocksetSelection](BlocksetSelection/README.md).
+Bounded blockset selector hover previews and standalone render lengths are covered by
+[BlocksetPreviews](BlocksetPreviews/README.md); the wider image-tooltip audit remains deferred.
 Direct map PNG export, conflict choices, safe file replacement and native-resolution rendering are
 covered by [MapImageExport](MapImageExport/README.md).
 External emulator first-use selection, remembered application paths and source-aware Save and
@@ -54,6 +58,8 @@ Map event address/text editing and guarded Delete, Backspace, arrows and Escape 
 covered by [MapEventEditing](MapEventEditing/README.md).
 Map event Control-click/secondary menus, warp commands and pointer release are covered by
 [MapEventMenus](MapEventMenus/README.md).
+NPC pre-placement sprite selection, independent session memory, bounded previews and unchanged
+generated script/save/history behavior are covered by [NpcTemplate](NpcTemplate/README.md).
 NPC summaries and visible flag/script-address fields across map Undo/Redo are covered by
 [MapHistoryRefresh](MapHistoryRefresh/README.md).
 Hex/Copy Bytes Control-click menus and non-mutating block-tile sampling are covered by

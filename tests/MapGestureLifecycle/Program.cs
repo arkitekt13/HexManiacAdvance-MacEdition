@@ -119,10 +119,19 @@ void LoseCapture() {
    Console.WriteLine("CAPTURE_OWNER:"+owner);pointer.Capture(null);Layout();
    Check(pointer.Captured==null,"Capture must actually be released.");
 }
+Avalonia.Point EmptyBackgroundPoint() {
+   var background=view.FindControl<Control>("MapBackground")!;
+   for(double y=background.Bounds.Height-20;y>=20;y-=48)
+      for(double x=background.Bounds.Width-20;x>=20;x-=48) {
+         var point=background.TranslatePoint(new Avalonia.Point(x,y),window)!.Value;
+         if(ReferenceEquals(window.InputHitTest(point),background))return point;
+      }
+   throw new InvalidOperationException("No actual empty map background point is available.");
+}
 var offMap=new Avalonia.Point(5,5);
 if(scenario=="paint-capture" || scenario=="pan-capture" || scenario=="select-capture" || scenario=="background-capture") {
    var modifier=scenario=="pan-capture"?RawInputModifiers.Alt:scenario=="select-capture"?RawInputModifiers.Control:RawInputModifiers.None;
-   var start=scenario=="background-capture" ? view.FindControl<Control>("MapBackground")!.TranslatePoint(new Avalonia.Point(view.Bounds.Width-20,view.Bounds.Height-20),window)!.Value : Cell(6,6);
+   var start=scenario=="background-capture" ? EmptyBackgroundPoint() : Cell(6,6);
    Down(start,modifier);LoseCapture();Up(offMap);
    var before=model.RawData.ToArray();var left=mapper.PrimaryMap.LeftEdge;var top=mapper.PrimaryMap.TopEdge;
    var multiple=mapper.DrawMultipleTiles;

@@ -109,8 +109,17 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          AvailableTemplateTypes.Add(TemplateType.Legendary);
          AvailableTemplateTypes.Add(TemplateType.HMObject);
 
-         GraphicsOptions.Clear();
-         for (int i = 0; i < owGraphics.Count; i++) GraphicsOptions.Add(VisualComboOption.CreateFromSprite(i.ToString(), owGraphics[i].PixelData, owGraphics[i].PixelWidth, i, 2, true));
+         refreshingNpcGraphics = true;
+         try {
+            GraphicsOptions.Clear();
+            for (int i = 0; i < owGraphics.Count; i++) GraphicsOptions.Add(VisualComboOption.CreateFromSprite(i.ToString(), owGraphics[i].PixelData, owGraphics[i].PixelWidth, i, 2, true));
+            if (npcGraphics >= GraphicsOptions.Count) npcGraphics = 0;
+            // Publish the NPC choices together so refreshing the shared collection cannot
+            // leave its picker blank or replace its remembered selection.
+            NpcGraphicsOptions = GraphicsOptions.ToArray();
+            NotifyPropertyChanged(nameof(NpcGraphicsOptions));
+         } finally { refreshingNpcGraphics = false; }
+         NotifyPropertyChanged(nameof(NpcGraphics));
 
          TypeOptions.Clear();
          var types = model.GetTableModel(HardcodeTablesModel.TypesTableName);
@@ -181,12 +190,25 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       #region Trainer
 
       public ObservableCollection<VisualComboOption> GraphicsOptions { get; } = new();
+      public IReadOnlyList<VisualComboOption> NpcGraphicsOptions { get; private set; } = Array.Empty<VisualComboOption>();
       public ObservableCollection<string> TypeOptions { get; } = new();
 
       private bool useExistingTrainer;
       public bool UseExistingTrainer { get => useExistingTrainer; set => Set(ref useExistingTrainer, value); }
 
       public FilteringComboOptions TrainerOptions { get; } = new();
+
+      private int npcGraphics;
+      private bool refreshingNpcGraphics;
+      public int NpcGraphics {
+         get => npcGraphics;
+         set {
+            if (refreshingNpcGraphics || value < 0 || value >= GraphicsOptions.Count) return;
+            Set(ref npcGraphics, value, old => {
+               if (selectedTemplate == TemplateType.Npc) UpdateObjectTemplateImage();
+            });
+         }
+      }
 
       private int trainerGraphics, maxPokedex = 25, maxLevel = 9, preferredType = 6;
       public int TrainerGraphics {
@@ -401,7 +423,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var factory = new PCSRunContentStrategy();
          factory.TryAddFormatAtDestination(model, token, scriptStart + 2, scriptStart + 9, default, default, default);
 
-         eventModel.Graphics = trainerGraphics;
+         eventModel.Graphics = npcGraphics;
          eventModel.Elevation = 3;
          eventModel.MoveType = 2;
          eventModel.RangeXY = "(3, 3)";
@@ -1088,7 +1110,9 @@ end
       private void UpdateObjectTemplateImage(TemplateType old = default) {
          if (selectedTemplate == TemplateType.None) {
             ObjectTemplateImage = GraphicsOptions[0];
-         } else if (selectedTemplate.IsAny(TemplateType.Trainer, TemplateType.Npc, TemplateType.Tutor, TemplateType.Trade, TemplateType.Legendary, TemplateType.HMObject)) {
+         } else if (selectedTemplate == TemplateType.Npc) {
+            ObjectTemplateImage = GraphicsOptions[NpcGraphics];
+         } else if (selectedTemplate.IsAny(TemplateType.Trainer, TemplateType.Tutor, TemplateType.Trade, TemplateType.Legendary, TemplateType.HMObject)) {
             ObjectTemplateImage = GraphicsOptions[TrainerGraphics];
          } else if (selectedTemplate == TemplateType.Item) {
             ObjectTemplateImage = GraphicsOptions[ItemGraphics];

@@ -711,16 +711,18 @@
             <Grid DataContext="{Binding PrimaryMap.Header}" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
                <local:AngleBorder Direction="Left" Content="Primary Blockset: " />
                <local:AngleBorder Grid.Row="1" Direction="Left" Content="Secondary Blockset: " />
-               <local:AngleComboBox Grid.Column="1" Direction="Out" Margin="0,2,2,2"
+               <local:AngleComboBox Name="PrimaryBlocksetSelector" Grid.Column="1" Direction="Out" Margin="0,2,2,2"
+                                    DropDownClosed="BlocksetPreviewClosed" SelectionChanged="BlocksetSelectionChanged"
                                     ItemsSource="{Binding PrimaryOptions}" SelectedIndex="{Binding PrimaryIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}">
                   <local:AngleComboBox.ItemTemplate>
-                     <DataTemplate><TextBlock Text="{Binding AddressText}" ToolTip.Tip="{Binding Render}" /></DataTemplate>
+                     <DataTemplate><TextBlock Text="{Binding AddressText}" PointerEntered="BlocksetPreviewEntered" /></DataTemplate>
                   </local:AngleComboBox.ItemTemplate>
                </local:AngleComboBox>
-               <local:AngleComboBox Grid.Column="1" Direction="Out" Margin="0,2,2,2" Grid.Row="1"
+               <local:AngleComboBox Name="SecondaryBlocksetSelector" Grid.Column="1" Direction="Out" Margin="0,2,2,2" Grid.Row="1"
+                                    DropDownClosed="BlocksetPreviewClosed" SelectionChanged="BlocksetSelectionChanged"
                                     ItemsSource="{Binding SecondaryOptions}" SelectedIndex="{Binding SecondaryIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}">
                   <local:AngleComboBox.ItemTemplate>
-                     <DataTemplate><TextBlock Text="{Binding AddressText}" ToolTip.Tip="{Binding Render}" /></DataTemplate>
+                     <DataTemplate><TextBlock Text="{Binding AddressText}" PointerEntered="BlocksetPreviewEntered" /></DataTemplate>
                   </local:AngleComboBox.ItemTemplate>
                </local:AngleComboBox>
             </Grid>
@@ -1185,18 +1187,31 @@
          <WrapPanel VerticalAlignment="Center">
             <TextBlock Name="MapDimensionsText" Text="{Binding PrimaryMap.MapDimensions}"
                        ToolTip.Tip="{Binding PrimaryMap.MapDimensionsTooltip}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-            <TextBlock Text="{Binding HoverPoint}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+            <TextBlock VerticalAlignment="Center" Margin="0,0,16,0">
+               <Run Text="X,Y: "/><Run Text="{Binding HoverPoint}"/>
+            </TextBlock>
             <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                <Button Name="ZoomOutButton" Content="−" Width="28" Height="26" Padding="0"
+                       HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16"
                        IsEnabled="{Binding PrimaryMap.CanZoomOut}" Click="ZoomOutClick"
                        ToolTip.Tip="Zoom out one step" AutomationProperties.Name="Zoom out"/>
                <TextBlock Text="{Binding ZoomLevel}" MinWidth="65" TextAlignment="Center" VerticalAlignment="Center"/>
                <Button Name="ZoomInButton" Content="+" Width="28" Height="26" Padding="0"
+                       HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16"
                        IsEnabled="{Binding PrimaryMap.CanZoomIn}" Click="ZoomInClick"
                        ToolTip.Tip="Zoom in one step" AutomationProperties.Name="Zoom in"/>
             </StackPanel>
          </WrapPanel>
       </Border>
+
+      <Canvas Name="BlocksetPreviewLayer" Grid.Column="1" Grid.Row="1" ZIndex="3"
+              IsHitTestVisible="False" ClipToBounds="True">
+         <Viewbox Name="BlocksetPreviewBox" IsVisible="False" Stretch="Uniform" StretchDirection="DownOnly">
+            <Border Background="{DynamicResource Background}" BorderBrush="{DynamicResource Accent}" BorderThickness="1" Padding="4">
+               <local:PixelImage Name="BlocksetPreviewImage"/>
+            </Border>
+         </Viewbox>
+      </Canvas>
 
       <!-- A map-owned hover preview cannot intercept the pointer or open a native popup.
            Keep editor panels and tutorial cards above it. -->
@@ -1360,7 +1375,9 @@
                   <Run Text="Click to choose a template"/>
                </TextBlock>
             </ToolTip.Tip>
-            <local:PixelImage DataContext="{Binding Templates.ObjectTemplateImage}" VerticalAlignment="Center" HorizontalAlignment="Center" TransparentBrush="{DynamicResource Secondary}"/>
+            <Viewbox Width="22" Height="22" Stretch="Uniform" StretchDirection="DownOnly">
+               <local:PixelImage Name="ObjectTemplateIcon" DataContext="{Binding Templates.ObjectTemplateImage}" TransparentBrush="{DynamicResource Secondary}"/>
+            </Viewbox>
          </Border>
          <ToggleButton Padding="0" Width="12" Height="12" VerticalAlignment="Top" Name="ShowTemplateSettingsButton" IsChecked="{Binding ShowTemplateSettings, Mode=TwoWay}">
             <Path Data="{res:Icon Settings}" Fill="{DynamicResource Secondary}" Stretch="Uniform"/>
@@ -1431,7 +1448,19 @@
                      the two placements are two elements, only one of which is ever visible.
                   -->
                   <Panel Grid.Row="1" Grid.ColumnSpan="2" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Top"
-                         IsVisible="{Binding SelectedTemplate, Converter={x:Static res:MatchesAnyConverter.Instance}, ConverterParameter='NPC,Tutor,Trade'}">
+                         IsVisible="{Binding SelectedTemplate, Converter={StaticResource Equality}, ConverterParameter=Npc}">
+                     <local:AngleComboBox Name="NpcTemplateGraphics" Direction="Out" MinWidth="96"
+                                          ItemsSource="{Binding NpcGraphicsOptions}" ItemTemplate="{StaticResource ObjectGraphicsOptionTemplate}"
+                                          SelectedIndex="{Binding NpcGraphics, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}"
+                                          BoundSelectionIndex="{Binding NpcGraphics}"
+                                          AutomationProperties.Name="NPC template sprite">
+                        <local:AngleComboBox.ItemsPanel>
+                           <ItemsPanelTemplate><WrapPanel MaxWidth="256" /></ItemsPanelTemplate>
+                        </local:AngleComboBox.ItemsPanel>
+                     </local:AngleComboBox>
+                  </Panel>
+                  <Panel Grid.Row="1" Grid.ColumnSpan="2" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Top"
+                         IsVisible="{Binding SelectedTemplate, Converter={x:Static res:MatchesAnyConverter.Instance}, ConverterParameter='Tutor,Trade'}">
                      <local:AngleComboBox Direction="Out" MinWidth="50" ItemsSource="{Binding GraphicsOptions}" SelectedIndex="{Binding TrainerGraphics, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}">
                         <local:AngleComboBox.ItemsPanel>
                            <ItemsPanelTemplate><WrapPanel MaxWidth="256" /></ItemsPanelTemplate>

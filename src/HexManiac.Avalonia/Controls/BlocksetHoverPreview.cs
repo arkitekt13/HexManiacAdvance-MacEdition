@@ -1,0 +1,78 @@
+using System;
+using System.ComponentModel;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using HavenSoft.HexManiac.Core.ViewModels.Images;
+
+namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
+
+/// <summary>A bounded map-owned image preview that cannot intercept dropdown input.</summary>
+public sealed class BlocksetHoverPreview {
+   readonly Canvas layer;
+   readonly Viewbox box;
+   readonly PixelImage image;
+   Control owner;
+   INotifyPropertyChanged ownerContext;
+
+   public BlocksetHoverPreview(Canvas layer, Viewbox box, PixelImage image) {
+      (this.layer, this.box, this.image) = (layer, box, image);
+      layer.SizeChanged += (_, _) => { if (owner != null) Place(); };
+      box.SizeChanged += (_, _) => { if (owner != null) Place(); };
+   }
+
+   public void Show(Control row, IPixelViewModel pixels) {
+      Hide();
+      if (pixels == null) return;
+      owner = row;
+      ownerContext = row.DataContext as INotifyPropertyChanged;
+      if (ownerContext != null) ownerContext.PropertyChanged += ContentChanged;
+      owner.PointerExited += Leave;
+      owner.PointerWheelChanged += Scroll;
+      owner.DataContextChanged += ContextChanged;
+      owner.DetachedFromVisualTree += Detached;
+      image.DataContext = pixels;
+      box.IsVisible = true;
+      Place();
+   }
+
+   public void Hide() {
+      if (owner != null) {
+         owner.PointerExited -= Leave;
+         owner.PointerWheelChanged -= Scroll;
+         owner.DataContextChanged -= ContextChanged;
+         owner.DetachedFromVisualTree -= Detached;
+      }
+      if (ownerContext != null) ownerContext.PropertyChanged -= ContentChanged;
+      ownerContext = null;
+      owner = null;
+      box.IsVisible = false;
+      image.DataContext = null;
+   }
+
+   void ContentChanged(object sender, PropertyChangedEventArgs e) => Hide();
+   void Leave(object sender, PointerEventArgs e) => Hide();
+   void Scroll(object sender, PointerWheelEventArgs e) => Hide();
+   void ContextChanged(object sender, EventArgs e) => Hide();
+   void Detached(object sender, VisualTreeAttachmentEventArgs e) => Hide();
+
+   void Place() {
+      const double margin = 4;
+      double width = Math.Max(1, layer.Bounds.Width - margin * 2);
+      double height = Math.Max(1, layer.Bounds.Height - margin * 2);
+      // Dropdown rows may live in a separate popup root; keep the preview beyond
+      // that popup's right edge so the dropdown cannot obscure the image either.
+      var popup = TopLevel.GetTopLevel(owner);
+      var right = popup != null && !ReferenceEquals(popup, TopLevel.GetTopLevel(layer))
+         ? popup.PointToScreen(new Point(popup.Bounds.Width, 0))
+         : owner.PointToScreen(new Point(owner.Bounds.Width, 0));
+      var point = layer.PointToClient(owner.PointToScreen(default));
+      var left = Math.Max(margin, layer.PointToClient(right).X + 24);
+      if (layer.Bounds.Width - left - margin < 32) left = margin;
+      box.MaxWidth = Math.Min(400, Math.Max(1, layer.Bounds.Width - left - margin));
+      box.MaxHeight = height;
+      box.Measure(new Size(width, height));
+      Canvas.SetLeft(box, left);
+      Canvas.SetTop(box, Math.Clamp(point.Y, margin, Math.Max(margin, layer.Bounds.Height - box.DesiredSize.Height - margin)));
+   }
+}

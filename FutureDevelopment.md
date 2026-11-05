@@ -309,3 +309,13 @@ Regressions cover default/custom dimensions, fractional/exact edges, non-finite 
 captured pointer drags, packed data and exact Save/reload/Undo/Redo.
 Coverage: [BorderBounds](tests/BorderBounds/README.md) and MapGestureLifecycle.
 Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
+
+## Deferred image-preview audit
+
+**Status:** Deferred at the user's request after the map-header blockset preview investigation.
+
+Review large image tooltips in the hex editor (`HexContent` / `HexContentToolTip`) and Go To
+previews, plus unconstrained image selector templates. Check size limits, pointer interception,
+popup placement and dismissal under scrolling, recycling and context changes. These are code-audit
+candidates, not confirmed reproductions of the blockset hover flicker; do not apply a blanket
+change to ordinary text tooltips or intentional interactive popups.

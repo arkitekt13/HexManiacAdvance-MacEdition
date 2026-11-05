@@ -495,8 +495,17 @@ namespace HexManiac.Core.Models.Runs.Sprites {
       /// Create a full image of just this one blockset, without using tiles/palettes from another.
       /// </summary>
       public IPixelViewModel RenderBlockset(double scale = 1) {
-         var blocks = ReadBlocks(PrimaryBlocks);
-         var blockAttributes = ReadBlockAttributes(PrimaryBlocks);
+         // ReadBlocks expects the highest used index, not a block count. A standalone
+         // preview has no map-usage index: use the known table length or normal bounds.
+         var blockStart = ReadPointer(12);
+         int previewCount = IsSecondary ? 1024 - PrimaryBlocks : PrimaryBlocks;
+         var known = model.GetNextRun(blockStart);
+         if (known.Start == blockStart && known is ITableRun table && table.Length >= 16)
+            previewCount = Math.Max(1, Math.Min(previewCount, table.Length / 16));
+         else
+            EstimateBlockCount(model, ref previewCount, blockStart, ReadPointer(attributeOffset));
+         var blocks = ReadBlocks(previewCount - 1);
+         var blockAttributes = ReadBlockAttributes(previewCount - 1);
          var tiles = ReadTiles();
          var palettes = ReadPalettes();
          if (IsSecondary) {

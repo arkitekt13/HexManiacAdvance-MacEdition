@@ -2063,3 +2063,90 @@ Validation: GitHub visibly confirms the approved repository rename and `git ls-r
 Behavior: The bottom-right map status area shows the selected map's width and height in tiles, excluding border tiles; hovering shows native pixels at 16x16 per tile, independent of zoom. Minus/plus use the existing view-center zoom path, levels and border compensation, disabling at 1/16x and 10x. Map navigation and width/height resizing, including Undo/Redo, update the bound readout and tooltip. Status contents wrap within available map width rather than using fixed Canvas offsets. No zoom-step, border-rendering, ROM-format or game-engine algorithm is changed.
 
 Validation: Fresh targeted builds and runs pass MapZoom (1,276), MapRendering (93), MapImageExport (33), MapHistoryRefresh (23) and MapSelection (394): five groups / 1,819 assertions, zero failures. MapZoom uses three fresh synthetic sessions, 360 routed wheel events plus real status-button clicks, exact byte/metadata/history checks, actual width/height resize sliders and Undo/Redo. Visually inspected a rendered synthetic map tab with the new status bar. Existing Core and unavailable NuGet vulnerability-feed warnings remain; builds have zero errors. No user ROM or settings changed. The full Mac suite was not repeated for this change; native trackpad usability and tooltip appearance remain manual checks.
+
+## 121 — Polish map status labels and zoom symbols
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 1188 | Label the cursor readout X,Y and center larger bold minus/plus symbols within their existing buttons. |
+
+Validation: MapZoom freshly builds and passes all 1,276 assertions, including real button clicks, endpoint disabling, wheel zoom, dimension tooltips and resize Undo/Redo. Visually inspected the rendered synthetic map tab to confirm centered bold symbols and the coordinate label. Existing Core and unavailable NuGet vulnerability-feed warnings remain; the build has zero errors. No new tests were added for this presentation-only adjustment; native appearance remains a user check.
+
+## 122 — Keep blockset hover previews bounded and input-transparent
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/BlocksetHoverPreview.cs | 10 | Fit the complete preview into the map area and release its image on row exit, scroll, context recycling or detachment. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 714 | Replace both native blockset image tooltips with row hover handlers and a non-interactive map-owned preview layer. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 49 | Dismiss blockset previews on selection, dropdown/header closure, map-context changes, window deactivation and detachment. |
+| tests/BlocksetPreviews/Program.cs | 14 | Exercise both real selector templates, rapid row changes, dismissal, oversized image fitting, window resizing and byte/metadata/history preservation. |
+| tests/BlocksetPreviews/BlocksetPreviews.csproj | 1 | Add the portable synthetic preview regression group to automatic discovery. |
+| tests/BlocksetPreviews/README.md | 1 | Document preview verification and remaining native compositor checks. |
+| FutureDevelopment.md | 313 | Defer the broader hex-editor, Go To and image-selector preview audit at the user's request. |
+
+Validation: BlocksetPreviews builds with zero warnings/errors and passes 38 assertions using fabricated blocksets and a separate 128x4096 image. The prior native path was independently observed with Pointer placement, hit testing enabled, no image size bounds and a 648-pixel image clipped within a 600-pixel tooltip. Neither selector now attaches that native image tooltip. No user ROM/settings changed. Native Mac flicker and visual placement still require user verification; the render-count defect is handled separately.
+
+## 123 — Render only valid blocks in standalone blockset previews
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/Runs/Sprites/BlockmapRun.cs | 498 | Derive standalone preview length from known table bytes or existing block boundaries and pass the correct highest-used index for blocks and attributes. |
+| src/HexManiac.Avalonia/Controls/BlocksetHoverPreview.cs | 56 | Place fitted images beyond the dropdown popup's right edge when space permits so the list cannot obscure them. |
+| tests/BlocksetPreviews/RenderBounds.cs | 5 | Verify exact pixels and metadata across primary/secondary, FireRed/Ruby-Emerald, short/partial/full-capacity and inferred/formatted blockset tables. |
+| tests/BlocksetPreviews/Program.cs | 19 | Include the renderer matrix and verify both selector previews appear beside their rows. |
+| tests/BlocksetPreviews/README.md | 18 | Document the pre-fix oversized-render reproduction and the retained isolated-secondary preview limitation. |
+| tests/MapGestureLifecycle/Program.cs | 122 | Find a hit-tested empty background point instead of clicking the bottom-right status controls during capture-loss verification. |
+| tests/README.md | 43 | Add blockset preview coverage and identify the broader tooltip audit as deferred. |
+
+Evidence: Before the render correction, the new two-block regression fails with a 128x1040 preview instead of 128x16. The original FireRed probe forced 641 preview blocks even when only two were estimated, exceeding the normal 384-block secondary capacity. The renderer now uses an actual known table byte length (including word-formatted data) or the existing boundary estimator, bounded by the applicable primary/secondary capacity. Only standalone RenderBlockset changes; normal map rendering retains its existing usage-based reads and tile/palette behavior.
+
+Validation: BlocksetPreviews passes 160 assertions: 120 renderer checks across 24 fabricated cases and 40 hover/lifecycle/placement checks. The fresh complete `scripts/verify-mac.sh --no-restore` run passes 55 regression groups / 17,001 assertions, zero failures and zero skipped groups. An earlier full run exposed a gesture probe whose hard-coded background coordinate now fell on the recently added status bar; the corrected probe confirms actual MapBackground capture and retains all eight scenario checks. Existing data/resource compilation, pointer/metadata/history protections, map gestures, Undo/Redo and Mac input regressions pass. The separate upstream suites were not rerun. No user ROM/settings changed; native hover appearance and flicker still require a live user check.
+
+Scope: Secondary previews still show an isolated blockset rather than combining it with a selected primary set, so primary-dependent tiles may remain incomplete. The broader hex-editor/Go To preview audit is deferred in FutureDevelopment.md.
+
+## 124 — Prevent map-header tileset selection from rebuilding its own live dropdown
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/MapHeaderViewModel.cs | 85 | Guard reentrant option synchronization during selection, reuse choices by ROM address and refresh the cache when a committed address is missing. |
+| src/HexManiac.Core/ViewModels/Map/MapHeaderViewModel.cs | 150 | Keep explicit graphics invalidation and synchronous pointer writes while ignoring transient invalid indices and programmatic synchronization callbacks. |
+| src/HexManiac.Core/ViewModels/Map/MapHeaderViewModel.cs | 267 | Refresh labels and lazy preview content without replacing equivalent bound option objects. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 570 | Queue presentation-only synchronization after the native selection event with generation, map and header identity checks. |
+| src/HexManiac.Avalonia/Controls/BlocksetHoverPreview.cs | 27 | Dismiss a visible preview when its stable option's content is refreshed and release the content subscription on dismissal. |
+| tests/BlocksetSelection/Program.cs | 23 | Reproduce the real binding crash and verify both selectors across stale, reordered, shrinking, missing-choice and keyboard cases with exact persistence and history checks. |
+| tests/BlocksetSelection/BlocksetSelection.csproj | 1 | Add the portable full-window selection regression to automatic discovery with synthetic map resources. |
+| tests/BlocksetSelection/README.md | 1 | Document the crash mechanism, input and cache matrix, queued callback safety, persistence and remaining native checks. |
+| tests/README.md | 43 | Include selection stability and presentation-only refresh in the regression coverage guide. |
+
+Evidence: The two November 4 crash reports have identical ArgumentOutOfRangeException traces in Avalonia SelectedItems enumeration during ComboBox.OnPointerReleased. A real second map header recreates the shared blockset cache with the same addresses but different option instances. Before this change, the synthetic regression reproduces that exact crash: PrimaryIndex notification calls ClearCaches, which clears the live option collections inside the native selection commit.
+
+Behavior: Pointer assignments still finish synchronously in the original history token; only option-list presentation is deferred until after the selection event. Equivalent address lists keep their option identities while labels and preview content refresh. Genuine membership/order changes are synchronized under a model-write guard, and a committed pointer missing from the shared cache causes a cache refresh from the current ROM model. Queued work is coalesced and checked against the current map/header/context; it cannot reapply an undone selection or affect a newly navigated map. Explicit header refresh still invalidates graphics at unchanged addresses without requiring a collection rebuild.
+
+Validation: BlocksetSelection passes 199 assertions, including twelve primary/secondary input/cache cases, exact four-byte pointer changes, Save before queued work, independent reload, saved-state Undo/Redo, Undo-before-refresh, navigation, invalid indices, stable preview content and changed-graphics refresh/Undo. The new matrix also caught a missing-choice blank-selection edge and an explicit-graphics-refresh preservation gap before completion. The fresh serial `scripts/verify-mac.sh --no-restore` run passes 56 regression groups / 17,200 assertions, zero failures and zero skipped groups. An overlapping run hit the unchanged FocusAnimation movement assertion; it subsequently passed three standalone reruns and the complete serial run without relaxing any assertion. Existing Core/NuGet warning behavior remains; builds succeed. The separate upstream suites were not rerun. No user ROM, settings, crash log or metadata sidecar changed; saves are in memory. Native macOS testing on the user's map remains pending. Numeric parsing, script compilation, relocation and game-engine algorithms are unchanged, and the broader preview audit remains deferred.
+
+## 125 — Restore NPC template sprite selection with an independent remembered choice
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/EventTemplate.cs | 112 | Publish refreshed NPC sprite choices together and retain a valid session selection while ignoring transient binding indices. |
+| src/HexManiac.Core/ViewModels/Map/EventTemplate.cs | 201 | Keep NPC graphics independent of trainer preferences and use that choice for NPC creation and its toolbar icon. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 1378 | Fit the selected template sprite inside the existing toolbar icon box, including oversized sprites. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 1450 | Restore the NPC-only pre-placement picker with the correct enum spelling, bounded sprite previews and the independent selection binding. |
+| tests/NpcTemplate/Program.cs | 25 | Exercise the real settings popup, sprite and template transitions, navigation, refresh, exact generated NPC bytes, in-memory persistence and Undo/Redo. |
+| tests/NpcTemplate/NpcTemplate.csproj | 1 | Include the synthetic headless NPC regression in automatic Mac suite discovery. |
+| tests/NpcTemplate/README.md | 1 | Document the original hidden picker, coverage and session-only retention with remaining native checks. |
+| tests/README.md | 61 | Link NPC template selection and preservation coverage. |
+
+Evidence: The original panel checked the case-sensitive string `NPC` against enum value `Npc`, hiding its sprite picker. Its old binding also shared TrainerGraphics, which consults trainer preferences. The pre-fix headless regression fails because the NPC picker is absent. A follow-up refresh assertion caught the remembered model choice surviving while the displayed selection became blank; publishing the NPC option snapshot together preserves both.
+
+Behavior: Choose the NPC sprite before placement; the toolbar icon and subsequent NPCs use it. Switching templates, closing/reopening settings and navigating maps in the same open ROM retain the choice. Trainer/Legendary keep their existing setting. Large sprites fit bounded previews and the toolbar box. Removing a selected sprite from refreshed options falls back to ID 0. The preference is not persisted across application relaunch. The generated NPC script, dialogue bytes, movement, elevation, range, trainer fields and flag defaults retain their existing behavior.
+
+Validation: NpcTemplate passes 44 assertions. The fresh complete serial `scripts/verify-mac.sh --no-restore` run passes 57 regression groups / 17,244 assertions, zero failures and zero skipped groups. Existing sprite selection, map gesture/cancellation, script compilation/relocation, source editing and history protections pass. Builds succeed with existing Core/NuGet warnings; the separate upstream suites were not rerun. No user ROM, settings or sidecar changed; Save/reload uses memory. Native macOS appearance and dragging the chosen sprite onto the user's map remain manual checks.
+
+## 126 — Publish the updated Mac Edition accomplishments sheet
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | N/A | Publish a four-page summary with 65 accomplishment bullets, updated map/NPC features and the latest verified Mac regression totals. |
+
+Validation: Rendered and visually reviewed all four pages, checked page numbering and extracted text, and confirmed the 57-group / 17,244-assertion totals against the last completed Mac run at code checkpoint 03c69932. Benchmark figures retain workload-specific scope, and planned tutorial/guide work is distinguished from implemented features. This commit adds documentation only; no code, user ROM or settings changes, and no additional test-suite run.

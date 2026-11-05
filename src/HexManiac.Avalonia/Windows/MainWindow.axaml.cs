@@ -75,6 +75,7 @@ public partial class MainWindow : Window {
             editor.RequestDelayedWork += DeferWork;
             BuildKeyBindings();
             FillQuickEditMenus();
+            RefreshTutorialMenu();
             ResetFocus();
          }
       }
@@ -86,6 +87,7 @@ public partial class MainWindow : Window {
       // Call the generated InitializeComponent, not AvaloniaXamlLoader directly: the generated
       // one both loads the XAML and assigns the x:Name fields.
       InitializeComponent();
+      InitializeTutorialMenu();
       InitializeEditingCommands();
       AddHandler(KeyDownEvent, HandleTextEditingKeys, RoutingStrategies.Tunnel);
 
@@ -271,6 +273,7 @@ public partial class MainWindow : Window {
    }
 
    private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
+      if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) RefreshTutorialMenu();
       if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) SyncSelectionFromViewModel();
       if (e.PropertyName == nameof(EditorViewModel.ShowAutomationPanel)) UpdateAutomationPanel();
       if (e.PropertyName == nameof(EditorViewModel.GotoViewModel)) return;

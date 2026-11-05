@@ -184,6 +184,9 @@
               <NativeMenuItem.Menu><NativeMenu /></NativeMenuItem.Menu>
             </NativeMenuItem>
             <NativeMenuItem Header="Scripts" Command="{Binding LaunchScriptsLocation}" />
+            <NativeMenuItemSeparator />
+            <NativeMenuItem Header="Create Tutorial ROM…" IsEnabled="False" Click="CreateTutorialRomClick"
+                            ToolTip="The tutorial patch has not been included in this build yet." />
           </NativeMenu>
         </NativeMenuItem.Menu>
       </NativeMenuItem>

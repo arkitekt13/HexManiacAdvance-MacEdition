@@ -39,6 +39,9 @@ Pump();
 IEnumerable<NativeMenuItem> NativeItems(NativeMenu menu) => menu.Items.OfType<NativeMenuItem>()
    .SelectMany(item => new[] { item }.Concat(item.Menu == null ? Enumerable.Empty<NativeMenuItem>() : NativeItems(item.Menu)));
 var nativeItems=NativeItems(NativeMenu.GetMenu(window)!).ToArray();
+var tutorialItem=nativeItems.Single(i=>Equals(i.Header,"Create Tutorial ROM…"));
+Check(tutorialItem.IsVisible && !tutorialItem.IsEnabled && !string.IsNullOrWhiteSpace(tutorialItem.ToolTip),
+   "Tutorial entry stays visible and explains why it is unavailable for a nonmatching synthetic ROM.");
 foreach(var label in new[]{"Test in Emulator","Claude Assistant (MCP Server)","Show MCP Setup Command","Toggle Claude Chat"}) {
    var item=nativeItems.Single(i=>Equals(i.Header,label));
    Check(!item.IsVisible && !item.IsEnabled && item.Gesture==null,"Optional integration menus must be hidden, disabled and lack accelerators: "+label);

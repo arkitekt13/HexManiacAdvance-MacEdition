@@ -2439,10 +2439,28 @@ Validation: Downloaded baseline 6c64f826 builds with zero errors; network-enable
 
 | File Name | Line | Summary |
 | --- | --- | --- |
-| src/HexManiac.Avalonia/Controls/StartScreen.axaml | 64 | Place an input-transparent map image and dark fade behind the existing welcome content. |
-| src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs | 15 | Load the optional PNG on attachment with bounded decoding, safe fallback and disposal on detach. |
-| src/HexManiac.Avalonia/HexManiac.Avalonia.csproj | 45 | Copy optional release assets into both build and publish resources while preserving their folders. |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml | 61 | Place an input-transparent map image and dark fade behind the existing welcome content. |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs | 14 | Load the optional PNG on attachment with bounded decoding, safe fallback and disposal on detach. |
+| src/HexManiac.Avalonia/HexManiac.Avalonia.csproj | 41 | Copy optional release assets into both build and publish resources while preserving their folders. |
 | OptionalAssets/Welcome/README.md | 1 | Document the fixed background filename, source folder, target map dimensions and release workflow. |
-| tests/WelcomeScreen/Program.cs | 133 | Cover missing/corrupt PNG fallback, native proportions and input-transparent background layout. |
+| tests/WelcomeScreen/Program.cs | 124 | Cover missing/corrupt PNG fallback, native proportions and input-transparent background layout. |
 
 Validation: Fresh app/test build passes with zero warnings/errors; WelcomeScreen passes 38 assertions, including three window sizes, existing actions/credits/error visibility and optional-image loading. No final background image is bundled yet; no ROM, compiler, history or user preferences changed.
+
+## 150 — Prepare safe optional Tutorial Village patch distribution
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/TutorialPatch.cs | 13 | Verify optional manifest/UPS hashes, exact English FireRed 1.1 base and output before creating a separate ROM without overwriting existing ROMs or metadata. |
+| src/HexManiac.Avalonia/Windows/MainWindow.Tutorial.cs | 13 | Add a conditionally enabled Utilities action that preserves pending/rejected source and opens the verified new ROM after the save picker. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 188 | Keep Create Tutorial ROM visible but disabled until the assets and matching base are available. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 78 | Initialize and refresh tutorial availability with the active editor and tab lifecycle. |
+| OptionalAssets/Tutorial/README.md | 1 | Document the UPS/manifest asset locations, required hashes, base revision and safe new-copy workflow. |
+| tests/TutorialPatch/Program.cs | 1 | Protect successful forward application, base/output rejection, metadata/history, new-copy output and retained pending/rejected drafts with 36 synthetic assertions. |
+| tests/TutorialPatch/TutorialPatch.csproj | 1 | Reuse synthetic map and script workflow fixtures without personal ROMs or native windows. |
+| tests/TutorialPatch/README.md | 1 | Explain focused coverage and native picker/gameplay checks awaiting the finished assets. |
+| tests/TabMenus/Program.cs | 42 | Verify the tutorial action is visible, disabled and explanatory for an unavailable or nonmatching base. |
+| tests/README.md | 25 | Link the tutorial checks and both optional release-asset setup guides. |
+| tests/optional-release-assets/mac-verification.json | 1 | Record every fresh regression count, optional asset publish checks and explicit validation limits. |
+
+Validation: The focused tutorial group passes 36 assertions; the complete fresh Mac suite passes 62 groups / 18,164 assertions with zero failures and zero skipped groups. PNG, JSON and UPS probes copy byte-for-byte into publish resources and are removed afterward. An initial suite run was interrupted by concurrent probe cleanup; the final run uses stable folders and completes. App/focused builds emit zero compiler warnings; the existing MapImageExport NU1900 feed diagnostic is separate. No personal ROM/settings, core compiler, numeric parsing, relocation or history code changed. Native save-picker cancellation, the final background appearance and tutorial gameplay await the actual assets; neither final PNG nor patch is bundled yet.

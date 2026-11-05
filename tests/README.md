@@ -40,6 +40,8 @@ confirmed border bounds overrun. The implemented bounds fix is protected by
 [BorderBounds](BorderBounds/README.md) and actual pointer cases in MapGestureLifecycle; see
 the review for the subsequent explicit nine-grid override fix and the remaining latent
 negative-state finding.
+Blockset selection stability, synchronous pointer writes and queued refresh/history safety are
+covered by [BlocksetSelection](BlocksetSelection/README.md).
 Bounded blockset selector hover previews and standalone render lengths are covered by
 [BlocksetPreviews](BlocksetPreviews/README.md); the wider image-tooltip audit remains deferred.
 Direct map PNG export, conflict choices, safe file replacement and native-resolution rendering are

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -12,6 +13,7 @@ public sealed class BlocksetHoverPreview {
    readonly Viewbox box;
    readonly PixelImage image;
    Control owner;
+   INotifyPropertyChanged ownerContext;
 
    public BlocksetHoverPreview(Canvas layer, Viewbox box, PixelImage image) {
       (this.layer, this.box, this.image) = (layer, box, image);
@@ -23,6 +25,8 @@ public sealed class BlocksetHoverPreview {
       Hide();
       if (pixels == null) return;
       owner = row;
+      ownerContext = row.DataContext as INotifyPropertyChanged;
+      if (ownerContext != null) ownerContext.PropertyChanged += ContentChanged;
       owner.PointerExited += Leave;
       owner.PointerWheelChanged += Scroll;
       owner.DataContextChanged += ContextChanged;
@@ -39,11 +43,14 @@ public sealed class BlocksetHoverPreview {
          owner.DataContextChanged -= ContextChanged;
          owner.DetachedFromVisualTree -= Detached;
       }
+      if (ownerContext != null) ownerContext.PropertyChanged -= ContentChanged;
+      ownerContext = null;
       owner = null;
       box.IsVisible = false;
       image.DataContext = null;
    }
 
+   void ContentChanged(object sender, PropertyChangedEventArgs e) => Hide();
    void Leave(object sender, PointerEventArgs e) => Hide();
    void Scroll(object sender, PointerWheelEventArgs e) => Hide();
    void ContextChanged(object sender, EventArgs e) => Hide();

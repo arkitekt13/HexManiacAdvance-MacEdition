@@ -40,6 +40,7 @@ public partial class MapTab : UserControl {
    private readonly MapHoverPreview hoverPreview;
    private readonly BlocksetHoverPreview blocksetPreview;
    private WindowBase keyboardWindow;
+   private int blocksetRefreshGeneration;
 
    public event EventHandler FocusElement;
 
@@ -59,6 +60,7 @@ public partial class MapTab : UserControl {
          Focus();
       };
       DetachedFromVisualTree += (sender, e) => {
+         blocksetRefreshGeneration++;
          ResetTransientKeys(subscribed);
          if (keyboardWindow != null) keyboardWindow.Deactivated -= HandleWindowDeactivated;
          keyboardWindow = null;
@@ -105,6 +107,7 @@ public partial class MapTab : UserControl {
    }
 
    private void UpdateDataContext() {
+      blocksetRefreshGeneration++;
       blocksetPreview?.Hide();
       ResetTransientKeys(subscribed);
       InterruptPointerInteraction();
@@ -564,7 +567,20 @@ public partial class MapTab : UserControl {
       }
    }
 
-   private void BlocksetSelectionChanged(object sender, SelectionChangedEventArgs e) => blocksetPreview?.Hide();
+   private void BlocksetSelectionChanged(object sender, SelectionChangedEventArgs e) {
+      blocksetPreview?.Hide();
+      if (sender is not Control { DataContext: MapHeaderViewModel header }) return;
+      var context = ViewModel;
+      var map = context?.PrimaryMap;
+      var generation = ++blocksetRefreshGeneration;
+      // ROM writes have already completed; only refresh presentation after Avalonia
+      // finishes enumerating the selected items from this event.
+      Dispatcher.UIThread.Post(() => {
+         if (generation == blocksetRefreshGeneration && ReferenceEquals(ViewModel, context) &&
+             map != null && ReferenceEquals(context.PrimaryMap, map) && ReferenceEquals(map.Header, header))
+            header.CompleteBlocksetSelection();
+      }, DispatcherPriority.Background);
+   }
 
    private void BlocksetPreviewClosed(object sender, EventArgs e) => blocksetPreview?.Hide();
 

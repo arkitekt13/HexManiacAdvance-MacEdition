@@ -82,43 +82,68 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          Refresh();
       }
 
+      private int blocksetSelectionDepth;
+      private bool synchronizingBlocksets, blocksetRefreshPending;
+
       public void UpdateFromModel() {
-         if (primaryIndex == -1 || secondaryIndex == -1) return; // only way this can ever be set is later in this same method (recursion guard)
+         if (synchronizingBlocksets) return;
+         if (blocksetSelectionDepth > 0) { blocksetRefreshPending = true; return; }
+         blocksetRefreshPending = false;
          if (map == null) return;
          var layoutTable = map.GetSubTable(Format.Layout);
          if (layoutTable == null) return;
          var layout = layoutTable[0];
          var primaryAddress = layout.GetAddress(Format.PrimaryBlockset);
          var secondaryAddress = layout.GetAddress(Format.SecondaryBlockset);
+         // An open dropdown can retain a valid choice after another header rebuilds
+         // the shared cache. The committed pointers are authoritative.
+         if (!format.BlocksetCache.Primary.Any(option => option.Address == primaryAddress) ||
+             !format.BlocksetCache.Secondary.Any(option => option.Address == secondaryAddress)) format.Refresh();
+         var primary = format.BlocksetCache.Primary;
+         var secondary = format.BlocksetCache.Secondary;
+         var newPrimary = primary.IndexOf(primary.FirstOrDefault(option => option.Address == primaryAddress));
+         var newSecondary = secondary.IndexOf(secondary.FirstOrDefault(option => option.Address == secondaryAddress));
+         if (OptionsCurrent(PrimaryOptions, primary) && OptionsCurrent(SecondaryOptions, secondary) &&
+             primaryIndex == newPrimary && secondaryIndex == newSecondary) return;
 
-         // if this is a no-op, skip
-         var newPrimary = format.BlocksetCache.Primary.IndexOf(format.BlocksetCache.Primary.FirstOrDefault(blockset => blockset.Address == primaryAddress));
-         var newSecondary = format.BlocksetCache.Secondary.IndexOf(format.BlocksetCache.Secondary.FirstOrDefault(blockset => blockset.Address == secondaryAddress));
-         if (
-            PrimaryOptions.SequenceEqual(format.BlocksetCache.Primary) &&
-            SecondaryOptions.SequenceEqual(format.BlocksetCache.Secondary) &&
-            primaryIndex == newPrimary &&
-            secondaryIndex == newSecondary) {
-            // already in a good state
-            // don't actually notify, since there's no changes
-            return;
+         synchronizingBlocksets = true;
+         try {
+            var primaryChanged = SynchronizeOptions(PrimaryOptions, primary);
+            var secondaryChanged = SynchronizeOptions(SecondaryOptions, secondary);
+            var oldPrimary = primaryIndex;
+            var oldSecondary = secondaryIndex;
+            (primaryIndex, secondaryIndex) = (newPrimary, newSecondary);
+            if (primaryChanged || oldPrimary != newPrimary) NotifyPropertyChanged(nameof(PrimaryIndex));
+            if (secondaryChanged || oldSecondary != newSecondary) NotifyPropertyChanged(nameof(SecondaryIndex));
+         } finally { synchronizingBlocksets = false; }
+      }
+
+      private static bool OptionsCurrent(ObservableCollection<BlocksetOption> target, ObservableCollection<BlocksetOption> source) {
+         if (target.Count != source.Count) return false;
+         for (int i = 0; i < target.Count; i++) if (!target[i].IsCurrent(source[i])) return false;
+         return true;
+      }
+
+      private static bool SynchronizeOptions(ObservableCollection<BlocksetOption> target, ObservableCollection<BlocksetOption> source) {
+         if (target.Select(option => option.Address).SequenceEqual(source.Select(option => option.Address))) {
+            for (int i = 0; i < target.Count; i++) target[i].UpdateFrom(source[i]);
+            return false;
          }
+         target.Clear();
+         foreach (var option in source) target.Add(option);
+         return true;
+      }
 
-         PrimaryOptions.Clear();
-         SecondaryOptions.Clear();
-         foreach (var item in format.BlocksetCache.Primary) PrimaryOptions.Add(item);
-         foreach (var item in format.BlocksetCache.Secondary) SecondaryOptions.Add(item);
-
-         // force refresh for primary/secondary index
-         (primaryIndex, secondaryIndex) = (-1, -1);
-         NotifyPropertiesChanged(nameof(PrimaryIndex), nameof(SecondaryIndex));
-         (primaryIndex, secondaryIndex) = (newPrimary, newSecondary);
-         NotifyPropertiesChanged(nameof(PrimaryIndex), nameof(SecondaryIndex));
+      /// <summary>The UI calls this after its native selection event has finished.</summary>
+      public void CompleteBlocksetSelection() {
+         if (blocksetRefreshPending) UpdateFromModel();
       }
 
       public void Refresh() {
          format.Refresh();
          UpdateFromModel();
+         // Data operations also use Refresh to invalidate graphics at unchanged addresses.
+         NotifyPropertiesChanged(nameof(PrimaryIndex), nameof(SecondaryIndex));
       }
 
       public ObservableCollection<BlocksetOption> PrimaryOptions { get; } = new();
@@ -127,19 +152,25 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       public int PrimaryIndex {
          get => primaryIndex;
          set {
-            if (primaryIndex == value || value == -1) return;
-            primaryIndex = value;
-            UpdateBlocksets();
-            NotifyPropertyChanged();
+            if (synchronizingBlocksets || blocksetSelectionDepth > 0 || primaryIndex == value || !value.InRange(0, PrimaryOptions.Count)) return;
+            blocksetSelectionDepth++;
+            try {
+               primaryIndex = value;
+               UpdateBlocksets();
+               NotifyPropertyChanged();
+            } finally { blocksetSelectionDepth--; }
          }
       }
       public int SecondaryIndex {
          get => secondaryIndex;
          set {
-            if (secondaryIndex == value || value == -1) return;
-            secondaryIndex = value;
-            UpdateBlocksets();
-            NotifyPropertyChanged();
+            if (synchronizingBlocksets || blocksetSelectionDepth > 0 || secondaryIndex == value || !value.InRange(0, SecondaryOptions.Count)) return;
+            blocksetSelectionDepth++;
+            try {
+               secondaryIndex = value;
+               UpdateBlocksets();
+               NotifyPropertyChanged();
+            } finally { blocksetSelectionDepth--; }
          }
       }
       private void UpdateBlocksets() {
@@ -147,8 +178,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          if (map.Layout.Element == null) return;
          if (!primaryIndex.InRange(0, PrimaryOptions.Count)) return;
          if (!secondaryIndex.InRange(0, SecondaryOptions.Count)) return;
-         map.Layout.Element.SetAddress(Format.PrimaryBlockset, PrimaryOptions[primaryIndex].Address);
-         map.Layout.Element.SetAddress(Format.SecondaryBlockset, SecondaryOptions[secondaryIndex].Address);
+         var primaryAddress = PrimaryOptions[primaryIndex].Address;
+         var secondaryAddress = SecondaryOptions[secondaryIndex].Address;
+         map.Layout.Element.SetAddress(Format.PrimaryBlockset, primaryAddress);
+         map.Layout.Element.SetAddress(Format.SecondaryBlockset, secondaryAddress);
       }
 
       // flags.|t|allowBiking.|allowEscaping.|allowRunning.|showMapName.
@@ -220,12 +253,25 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
    }
 
    public class BlocksetOption : ViewModelCore { // changing this to a record would interfere with combobox selection changes.
-      private readonly Lazy<IPixelViewModel> render;
+      private Lazy<IPixelViewModel> render;
       public IDataModel Model { get; }
       public int Address { get; }
-      public string NameHint { get; }
+      public string NameHint { get; private set; }
       public IPixelViewModel Render => render?.Value;
       public string AddressText => Address.ToAddress() + NameHint;
+
+      internal bool IsCurrent(BlocksetOption source) => Address == source.Address && ReferenceEquals(Model, source.Model) &&
+         ReferenceEquals(render, source.render) && NameHint == source.NameHint;
+
+      internal void UpdateFrom(BlocksetOption source) {
+         if (IsCurrent(source)) return;
+         render = source.render;
+         if (NameHint != source.NameHint) {
+            NameHint = source.NameHint;
+            NotifyPropertyChanged(nameof(AddressText));
+         }
+         NotifyPropertyChanged(nameof(Render));
+      }
 
       public BlocksetOption(IDataModel model, int address) {
          Model = model;

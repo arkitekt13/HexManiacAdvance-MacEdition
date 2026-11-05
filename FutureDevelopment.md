@@ -12,31 +12,33 @@ Review these items when preparing the first public Mac Edition release:
   Treat runtime/Avalonia compatibility as a separate investigation, not a framework bump hidden
   in UI or packaging work. See the [first-launch investigation](tests/FIRST_LAUNCH_READINESS_REVIEW.md).
 
-## HMA-001 — Resolve native `.hma` drag-and-drop import failure
+## HMA-001 — Verify native `.hma` import with the matching ROM revision
 
-**Status:** Deferred; still unresolved after the user's retry of the routing fix.
+**Status:** Unverified; awaiting the user's retry with the correct ROM revision, not a confirmed
+outstanding import defect.
 
-**Reported behavior:** A dropped script once opened as another tab; later attempts appeared to do
-nothing, and the user reports it still does not work after commit `93eb5e13`.
+**User clarification:** The earlier attempt likely used a patch intended for FireRed 1.0 on a
+FireRed 1.1 ROM. This version mismatch may explain the apparent no-op; it has not yet been
+confirmed by retrying the patch against the required revision.
 
-**Completed partial work:** Map-tab drops now route to their owning ROM, local-file copy effects
+**Earlier observations:** A dropped script once opened as another tab; later attempts appeared
+to do nothing after routing commit `93eb5e13`. Preserve these observations as history rather
+than evidence that the current port still fails with a compatible patch and ROM.
+
+**Completed routing work:** Map-tab drops route to their owning ROM, local-file copy effects
 are explicit, handled child events reach the window, invalid/busy targets have messages, and prior
-edits/imports retain undo boundaries. The headless regression passes 24 checks. These checks do
-not reproduce the user's remaining native Finder/script-specific failure.
+edits/imports retain undo boundaries. The headless regression passes 24 checks; it does not verify
+this particular patch against the matching ROM in native Finder use.
 
-**Next investigation:**
+**Next verification:** Retry the actual patch on a disposable copy of the required FireRed
+revision and confirm the intended ROM changes. No implementation change is justified unless a
+compatible-input failure is reproduced. If it still fails, inspect patch guards/assets, native
+Finder delivery, target routing and parser/completion diagnostics before adding a failing
+regression and proposing a fix.
 
-1. Obtain the actual script, expected patch result, and exact ROM revision; inspect its game/version
-   guards and relative asset requirements without applying it to the user's working ROM.
-2. Capture the native Finder payload and target tab, then confirm whether drag-over, drop, file
-   loading, Editor.Open, and ViewPort.TryImport are each reached.
-3. Trace script completion, update-in-progress state, parser errors, and intentional no-op paths
-   on a disposable ROM copy; distinguish native delivery failure from script incompatibility.
-4. Add a regression for the confirmed failure before changing the implementation.
-
-**Completion criteria:** The user's reproduction reliably applies the intended edits or displays
-an actionable error, never silently opens the script as a binary tab, and preserves unrelated
-ROMs, source files, metadata, and existing undo history.
+**Completion criteria:** Record the matching-revision result; if successful, close this item as
+an input-version mismatch. Any reproduced port fix must preserve unrelated ROMs, source files,
+metadata and existing undo history.
 
 ## HMA-002 — Show the copied map brush beneath the cursor
 

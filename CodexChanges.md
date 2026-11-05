@@ -2298,3 +2298,12 @@ Validation: The expanded regression first fails on BPRE/subvar's second operand 
 | docs/MAC_HELPER_TESTING.md | 44 | Explain archive contents, build identification and keeping checksum files with distributed helpers. |
 
 Validation: MacPackaging passes 43 assertions, including thirteen new helper-archive checks. Tests encode and inspect real ZIPs containing synthetic bundles; existing ZIP/checksum bytes remain intact on repetition and archive-creation failure publishes nothing. Invalid architectures still fail before building; separate arm64/x64 output and prior build protection remain covered. The original project license and thanks to Haven/xavierkeys accompany the app, and no ROM or emulator preference is copied. The script prepares generated local artifacts only, with no GitHub release or native emulator/app launch. A final real arm64 archive and full regression verification follow separately.
+
+## 139 — Keep benchmark-backed test fixtures compatible with the newer C# compiler
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tools/ItemTableBenchmark/ItemFixture.cs | 23 | Escape the existing field lambda identifier inside a property accessor so C# 14 does not interpret it as the new contextual keyword. |
+| tools/TrainerPortraitBenchmark/PortraitFixture.cs | 45 | Apply the same identifier-only compatibility fix to the portrait fixture property. |
+
+Validation: The isolated .NET 10 trial reproduces CS9273 on each property before these changes. The only edits escape the two existing identifier declarations/references; fixture logic, data and public APIs are unchanged. ItemTablePresentation passes 48 assertions and PortraitFreshness passes 68 on the working .NET 8 setup. The complete isolated .NET 10 rerun includes both fixes; results are recorded separately when complete. No application target framework, dependency version, installed SDK, ROM or settings changed.

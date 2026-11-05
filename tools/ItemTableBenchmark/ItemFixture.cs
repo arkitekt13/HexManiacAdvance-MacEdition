@@ -20,7 +20,7 @@ public sealed class ItemFixture {
    public ITableRun Icons => Model.GetTable(HardcodeTablesModel.ItemImagesTableName);
    public List<string> Errors { get; } = new();
    public IEnumerable<IArrayElementViewModel> Members => ViewPort.Tools.TableTool.Groups.SelectMany(group => group.Members);
-   public TextStreamElementViewModel Description => Members.OfType<TextStreamElementViewModel>().Single(field => field.ParentName == "description");
+   public TextStreamElementViewModel Description => Members.OfType<TextStreamElementViewModel>().Single(@field => @field.ParentName == "description");
    public ItemFixture(int count, int descriptionLength, bool images) : this(BuildModel(count, descriptionLength, images)) { }
    private ItemFixture(IDataModel model) {
       Model = model;

@@ -1,0 +1,9 @@
+{
+  "checkpoint": "842bb385",
+  "data": "fabricated maps only",
+  "object_flag": {"generated": "0021", "referenced_after_delete": false, "replacement_suggestion": "0022"},
+  "script_event_variable": {"generated": "4034", "referenced_after_delete": false, "replacement_suggestion": "4035"},
+  "actual_event_creation_and_deletion": true,
+  "failing_regressions": ["deletion-flag", "deletion-variable"],
+  "user_rom_or_preferences_used": false
+}

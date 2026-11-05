@@ -2365,3 +2365,12 @@ Validation: The new animated single-stroke scenario fails against unchanged prod
 | FutureDevelopment.md | 324 | Close the deferred code audit with confirmed repairs and retain native verification as release work. |
 
 Validation: The real oversized hex hover and compiled Go To image-token cases fail separately against the prior implementation. ImageHoverPreviews now passes 56 assertions with zero build warnings/errors, including full transformed small/tall/wide image bounds, click-through, same-cell re-entry, text tips, keyboard/mouse selection, collection/context recycling, resizing, Go To closure/reopening, detach/reattach, document-tab changes and exact byte/metadata/history preservation. No script compilation, pointer relocation, game-engine data, numeric rules, interactive palette/map-list popups or global tooltip theme changed. The complete serial Mac suite passes 60 groups / 18,036 assertions with zero failures and zero skipped groups; exact counts are recorded in tests/preview-lifecycle/mac-verification.json. Source builds emit no compiler warnings; MapImageExport retains the existing NU1900 package-vulnerability-feed diagnostic, so successful security-data retrieval is not claimed. Native trackpad/compositor confirmation remains useful, and separate upstream suites were not rerun. No user ROM/settings changed.
+
+## 144 — Investigate stale flag/variable usage and deleted-event reservations
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ID_SUGGESTION_LIFECYCLE_REVIEW.md | 1 | Record real-tool reproductions, reservation/source-lifetime risks, bounded repair design and preservation requirements. |
+| tests/id-suggestion-lifecycle/before.json | 1 | Preserve the confirmed flag and script-event variable add/delete/reallocate results against the merged baseline. |
+
+Validation: Fabricated maps exercise actual event creation, ID generation and deletion; fresh scans show 0021/4034 are unused after deletion while replacement suggestions incorrectly advance to 0022/4035. Focused regressions fail against the baseline for both cases. No user ROM/preferences were used; implementation and final validation are separate changes.

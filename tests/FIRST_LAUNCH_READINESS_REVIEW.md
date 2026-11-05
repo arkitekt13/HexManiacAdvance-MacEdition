@@ -85,3 +85,26 @@ libraries. It finds 61 resource files. This is a managed-loader probe, not a nat
 or a claim of testing without .NET installed. MacPackaging separately passes 30 assertions
 with a fake toolchain for failure preservation, complete-resource/runtime gates, signature
 verification, architecture coexistence, output location and application-derived versioning.
+
+## Final verification and outstanding distribution checks
+
+- [After-fix probe](release-readiness/startup-after.json): both truncated filenames are retained,
+  invalid metadata returns an error with no exception, and denied settings reads are nonfatal.
+- [Exact Mac group results](release-readiness/mac-verification.json): **59 groups / 17,329 assertions,
+  zero failures, zero skipped groups** in the completed serial run, including FirstLaunch 47,
+  MacPackaging 30, ExternalEmulatorLaunch 31 and WelcomeScreen 34. The separate upstream suites
+  were not rerun. The first complete attempt stopped at the unchanged FocusAnimation movement
+  assertion; its unchanged isolated rerun and the subsequent complete serial run both passed.
+  No animation assertion was relaxed and no animation implementation changed.
+- [Final published bundle](release-readiness/published-bundle-verification.json): rebuilt from
+  `/private/tmp` after the credit fix, verified arm64/signature/version/resources again, then
+  repeated all seven independent managed-loader checks using an isolated profile.
+- GitHub About/website and Issues are updated; before/after settings and reversal instructions
+  are tracked in [repository presentation](../docs/REPOSITORY_PRESENTATION.md). The README,
+  helper checklist and issue template distinguish current Mac behavior from historical notes.
+- The current SDK publishes .NET 8.0.5; runtime servicing/migration remains a separate required
+  public-release task. This audit does not certify that old runtime or untested OS/hardware.
+- No real user ROM, personal settings or metadata sidecar was changed. No emulator or native
+  app window was launched, no crash was induced in the user's running app, and no GitHub
+  issue or other message was sent. Native Finder/Gatekeeper/Intel/clean-machine/gameplay checks
+  remain on the helper checklist; no downloadable release was published by this audit.

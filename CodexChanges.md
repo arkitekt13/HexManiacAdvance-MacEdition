@@ -2237,3 +2237,14 @@ Validation: WelcomeScreen builds and passes 34 assertions, including layout at t
 | tests/README.md | 17 | Link first-launch, packaging and helper-readiness evidence. |
 
 Validation: New relative documentation links and the existing README#on-macos in-app help anchor resolve. GitHub's actual About description/website are updated and Issues is enabled, confirmed in both the web UI and REST metadata; no issues or messages were submitted. The original Mac repository is verified as the fork parent, and Haven's project/wiki remain prominent. No downloadable release is fabricated or claimed; no native compatibility, notarization or runtime upgrade is implied. WelcomeScreen separately passes 34 checks for the repaired attribution link. The final complete Mac suite is running against unchanged application code; its full result will be recorded in a separate evidence checkpoint.
+
+## 134 — Record final helper-readiness verification separately from implementations
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/release-readiness/startup-after.json | 1 | Preserve corrected filename, rejected-metadata and settings-read observations against the original evidence. |
+| tests/release-readiness/mac-verification.json | 1 | Record all 59 regression group/assertion counts, tested checkpoints and the initial unchanged focus-animation failure/retry. |
+| tests/release-readiness/published-bundle-verification.json | 1 | Record the rebuilt arm64 bundle's version, runtime, signature, resources, loader checks and managed-assembly SHA-256. |
+| tests/FIRST_LAUNCH_READINESS_REVIEW.md | 89 | Summarize final validation, live GitHub changes and remaining native/runtime/distribution limits. |
+
+Validation: The complete serial Mac runner passes 59 groups / 17,329 assertions, zero failures and zero skipped groups. The first full attempt stopped on the pre-existing unchanged FocusAnimation movement assertion; its unchanged standalone rerun and subsequent full run both pass without weakening any assertion. The final self-contained arm64 bundle builds from /private/tmp, passes strict signature verification and all seven independent published-loader checks with 61 resources and isolated preference roundtrip. Builds retain existing Core warnings; separate upstream suites were not rerun. No user ROM/settings or native app session changed. Runtime upgrade, native/Intel/OS checks, notarization and actual release publication remain explicit follow-up work; this evidence commit adds no application changes.

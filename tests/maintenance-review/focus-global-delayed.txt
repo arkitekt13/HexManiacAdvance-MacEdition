@@ -1,0 +1,13 @@
+START:0:clock=Avalonia.Media.MediaContext+MediaContextClock
+TICK:0:0:x=:w=NaN:done=True
+TICK:0:1:x=:w=NaN:done=True
+TICK:0:2:x=:w=NaN:done=True
+TICK:0:3:x=:w=NaN:done=True
+TICK:0:4:x=:w=NaN:done=True
+TICK:0:5:x=:w=NaN:done=True
+TICK:0:6:x=:w=NaN:done=True
+TICK:0:7:x=:w=NaN:done=True
+TICK:0:8:x=:w=NaN:done=True
+Unhandled exception. System.InvalidOperationException: Focus animation must actually change position and size.
+   at Program.<<Main>$>g__Check|0_1(Boolean condition, String message, <>c__DisplayClass0_0&) in /Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/tools/FocusClockReview/Program.cs:line 16
+   at Program.<Main>$(String[] args) in /Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/tools/FocusClockReview/Program.cs:line 56

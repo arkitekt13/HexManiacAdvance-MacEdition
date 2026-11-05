@@ -2248,3 +2248,17 @@ Validation: New relative documentation links and the existing README#on-macos in
 | tests/FIRST_LAUNCH_READINESS_REVIEW.md | 89 | Summarize final validation, live GitHub changes and remaining native/runtime/distribution limits. |
 
 Validation: The complete serial Mac runner passes 59 groups / 17,329 assertions, zero failures and zero skipped groups. The first full attempt stopped on the pre-existing unchanged FocusAnimation movement assertion; its unchanged standalone rerun and subsequent full run both pass without weakening any assertion. The final self-contained arm64 bundle builds from /private/tmp, passes strict signature verification and all seven independent published-loader checks with 61 resources and isolated preference roundtrip. Builds retain existing Core warnings; separate upstream suites were not rerun. No user ROM/settings or native app session changed. Runtime upgrade, native/Intel/OS checks, notarization and actual release publication remain explicit follow-up work; this evidence commit adds no application changes.
+
+## 135 — Investigate runtime compatibility, animation timing, variable omissions and helper archives
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MAINTENANCE_REVIEW.md | 1 | Separate confirmed analysis/test defects, promising isolated runtime results and useful archive preparation from speculative work. |
+| tests/maintenance-review/focus-global-delayed.txt | 1 | Preserve the original clock assertion failure under a deliberate dispatcher delay. |
+| tests/maintenance-review/focus-local-delayed.txt | 1 | Record the same real animation passing the original assertions with a local clock under the same delay. |
+| tests/maintenance-review/variable-before-summary.json | 1 | Record freshly reproduced command/header reference omissions across five game identities. |
+| tools/FocusClockReview/Program.cs | 1 | Instrument the production animation with original/global and isolated/local clock adapters for diagnosis only. |
+| tools/FocusClockReview/FocusClockReview.csproj | 1 | Build the independent animation investigation against the Mac app. |
+| tools/FocusClockReview/README.md | 1 | Explain delay stress, original assertions and isolation. |
+
+Validation: A disposable .NET 10 copy builds successfully and passes ScriptWorkflowSafety's 598 assertions using a temporary SDK/runtime; the working app and installed SDK remain unchanged. The 35-ms clock probe reproduces the old assertion failure and passes all 13 original checks with an independent test clock. The read-only variable audit reconfirms 13 missed command references per game plus conditional-header fields. No production source, user ROM or personal settings changed. Implementations and broader compatibility evidence follow separately.

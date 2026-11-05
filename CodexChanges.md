@@ -2427,3 +2427,10 @@ Validation: All 87 focused assertions pass. On the identical synthetic 1,000-ent
 | docs/DEVELOPMENT.md | 1 | Preserve bundle building, tester ZIP preparation and regression commands in developer documentation. |
 
 Validation: The GitHub Releases API currently returns no releases, so Option 1 explicitly directs users to source installation until an app download exists. The actual public default-branch ZIP was downloaded without executing it, and its extracted-folder name and Avalonia project path match the documented command. The official .NET 8 page confirms the macOS SDK installer choices. Relative Markdown destinations, command shell syntax, requested section order and whitespace checks pass. No application code, SDK installation, user ROM/preferences or generated release changed; no full regression rerun was needed for documentation-only edits.
+## 148 — Rehearse downloaded-source installation and helper packaging
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/INSTALLATION_REHEARSAL.md | 1 | Record actual source ZIP build, ARM64 packaging, extracted-signature checks, isolated startup results and explicit native/clean-machine limits. |
+
+Validation: Downloaded baseline 6c64f826 builds with zero errors; network-enabled ARM64 packaging succeeds, ZIP integrity and extracted ad-hoc signature pass, and the startup probe passes seven checks with 61 resource files and isolated preferences. Initial restricted restore reports NU1900 feed warnings. No application code, personal ROM/settings or published release changed; no native-window, clean-machine or Intel certification is claimed. Future welcome-image/tutorial-patch feasibility is recorded without implementation.

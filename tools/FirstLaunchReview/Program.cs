@@ -22,7 +22,7 @@ try {
  var editor=new EditorViewModel(new StubFileSystem{MetadataFor=file=>file==path?File.ReadAllLines(Path.ChangeExtension(path,".toml")):Array.Empty<string>()},InstantDispatch.Instance);
  using var fs=new MacFileSystem(()=>null);
  string failure=null;
- try {typeof(App).GetMethod("TryOpenFile",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,new object[]{editor,fs,path,-1});}
+ try {var pending=typeof(App).GetMethod("TryOpenFile",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,new object[]{editor,fs,path,-1}); if(pending is Task task) await task;}
  catch(TargetInvocationException ex){failure=ex.InnerException!.GetType().Name+": "+ex.InnerException.Message;}
  observations.Add(new{test="rejected-metadata-startup",tabs=editor.Count,error=editor.ErrorMessage,exception=failure});
  if (!OperatingSystem.IsWindows()) {

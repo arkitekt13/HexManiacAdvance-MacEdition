@@ -217,7 +217,7 @@ public partial class App : Application {
          foreach (var file in fileActivated.Files) {
             var path = file.TryGetLocalPath();
             if (string.IsNullOrEmpty(path) || !File.Exists(path)) continue;
-            Dispatcher.UIThread.Post(() => TryOpenFile(editor, fileSystem, path, -1));
+            Dispatcher.UIThread.Post(() => { _ = TryOpenFile(editor, fileSystem, path, -1); });
          }
       };
    }
@@ -242,7 +242,7 @@ public partial class App : Application {
       var parts = line.Split("()");
       if (parts.Length < 2 || !File.Exists(parts[0])) return;
       int.TryParse(parts[1], out int address);
-      TryOpenFile(editor, fileSystem, parts[0], address);
+      _ = TryOpenFile(editor, fileSystem, parts[0], address);
    }
 
    #endregion
@@ -269,18 +269,22 @@ public partial class App : Application {
    private static (string path, int address, bool[] options) ParseArgs(string[] args) {
       var useMetadata = !args.Any(arg => arg == Arg_No_Metadata);
       var showDevMenu = args.Any(arg => arg == Arg_Developer_Menu);
-      args = args.Where(arg => !arg.StartsWith("--")).ToArray();
+      args = args.Where(arg => !arg.StartsWith("--") && !arg.StartsWith("-psn_")).ToArray();
 
       var allArgs = args.Aggregate(string.Empty, (a, b) => a + ' ' + b).Trim();
       var loadAddress = -1;
-      if (allArgs.Contains(":") && allArgs.LastIndexOf(":") > 4) {
-         var parts = allArgs.Split(':');
-         if (!int.TryParse(parts.Last(), NumberStyles.HexNumber, CultureInfo.CurrentCulture, out loadAddress)) loadAddress = -1;
-         allArgs = parts.Take(parts.Length - 1).Aggregate((a, b) => a + ":" + b).Trim();
-      } else if (allArgs.ToLower().Contains(".gba ")) {
-         var parts = allArgs.Split(" ");
-         if (!int.TryParse(parts.Last(), NumberStyles.HexNumber, CultureInfo.CurrentCulture, out loadAddress)) loadAddress = -1;
-         allArgs = parts.Take(parts.Length - 1).Aggregate(string.Empty, (a, b) => a + " " + b).Trim();
+      // A literal filename takes precedence over legacy address syntax on macOS.
+      if (!File.Exists(allArgs)) {
+         var colon = allArgs.LastIndexOf(':');
+         var space = allArgs.LastIndexOf(' ');
+         if (colon > 4 && int.TryParse(allArgs[(colon + 1)..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var colonAddress)) {
+            loadAddress = colonAddress;
+            allArgs = allArgs[..colon].Trim();
+         } else if (space > 0 && allArgs[..space].EndsWith(".gba", StringComparison.OrdinalIgnoreCase) &&
+                    int.TryParse(allArgs[(space + 1)..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var spaceAddress)) {
+            loadAddress = spaceAddress;
+            allArgs = allArgs[..space].Trim();
+         }
       }
 
       return (allArgs, loadAddress, new[] { useMetadata, showDevMenu });
@@ -308,24 +312,30 @@ public partial class App : Application {
       DebugLog(editor, fileName);
       // Persisted flags from older builds referred to upstream Windows releases.
       editor.IsNewVersionAvailable = false;
-      if (!File.Exists(fileName)) return editor;
+      if (!File.Exists(fileName)) {
+         if (!string.IsNullOrEmpty(fileName)) editor.ErrorMessage = "Could not open file (not found or unavailable): " + fileName;
+         return editor;
+      }
       DebugLog(editor, "File Exists");
-      TryOpenFile(editor, fileSystem, fileName, address);
+      _ = TryOpenFile(editor, fileSystem, fileName, address);
       return editor;
    }
 
-   private static void TryOpenFile(EditorViewModel editor, MacFileSystem fileSystem, string fileName, int address) {
+   private static async Task TryOpenFile(EditorViewModel editor, MacFileSystem fileSystem, string fileName, int address) {
       var loadedFile = fileSystem.LoadFile(fileName);
       if (loadedFile == null) return;
-      editor.Open.Execute(loadedFile);
-      DebugLog(editor, "Tab Added");
-      if (editor[editor.SelectedIndex] is ViewPort tab && address >= 0) {
+      var tab = await editor.OpenFileAsync(loadedFile);
+      DebugLog(editor, "Open request completed");
+      if (tab == null || address < 0) return;
+      await tab.Model.InitializationWorkload;
+      await fileSystem.DispatchWork(() => {
+         // An address request belongs only to the actual opened tab, never a previous
+         // selection, a closed document or a tab abandoned while initialization ran.
+         if (!ReferenceEquals(editor.SelectedTab, tab) || tab.Model.ReferenceCount == 0) return;
          DebugLog(editor, $"Loading at Script {address:X6}.");
-         tab.Model.InitializationWorkload.ContinueWith(
-            task => fileSystem.DispatchWork(() => tab.CascadeScript(address)),
-            TaskContinuationOptions.ExecuteSynchronously);
+         tab.CascadeScript(address);
          editor.GotoViewModel.ControlVisible = false;
-      }
+      });
    }
 
    [Conditional("DEBUG")]

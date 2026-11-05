@@ -2162,3 +2162,16 @@ Validation: Rendered and visually reviewed all four pages, checked page numberin
 | tools/FirstLaunchReview/README.md | 1 | Explain reproduction and isolation guarantees. |
 
 Validation: Unchanged application builds; six existing groups pass 752 assertions with zero failures. The baseline probe reproduces filename truncation, an out-of-range startup lookup after metadata rejection and unhandled settings read permissions. A disposable working-directory probe confirms that invalid packaging inputs delete previous output before failing. No production source, personal settings or user ROM changed. Separate implementation commits follow this evidence checkpoint; the complete Mac suite was not rerun during investigation.
+
+## 128 — Preserve startup paths and reject invalid ROM metadata without crashing
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/App.axaml.cs | 269 | Preserve literal filenames, consume only valid address suffixes and bind queued navigation to the actual opened live tab. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 765 | Return an awaitable explicit open result, retain metadata errors, catch malformed numeric metadata and guard import targets after initialization yields. |
+| tests/FirstLaunch/Program.cs | 1 | Cover startup syntax, rejected metadata, retry, cancellation, delayed opening and navigation/close before address callbacks. |
+| tests/FirstLaunch/FirstLaunch.csproj | 1 | Add the isolated headless first-launch group to automatic Mac regression discovery. |
+| tests/FirstLaunch/README.md | 1 | Document preservation checks and the native Finder delivery limitation. |
+| tools/FirstLaunchReview/Program.cs | 1 | Await the explicit startup operation when rerunning the investigation probe. |
+
+Validation: FirstLaunch passes 33 assertions, including actual dispatched address navigation and cancellation after switching/closing tabs. FileDrop 24, SaveSafety 17 and ScriptWorkflowSafety 598 also pass (672 assertions across four groups). The original probe reproduced filename truncation and a startup out-of-range exception before this fix. No user ROM/settings changed; ordinary command/picker opening remains available, and numeric parsing changes are limited to startup address syntax and rejecting malformed sidecar fields, not script operands. The complete suite follows the remaining readiness changes.

@@ -1,3 +1,5 @@
+> Historical upstream/original-port release notes. For current Mac Edition setup, features and helper testing, see [README.md](README.md). These entries do not imply that this fork has published matching downloadable Mac assets.
+
 # HexManiacAdvance for macOS - beta 1
 
 A macOS build of [HexManiacAdvance](https://github.com/haven1433/HexManiacAdvance). Upstream is a

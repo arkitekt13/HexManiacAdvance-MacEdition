@@ -2222,3 +2222,18 @@ Validation: MacPackaging passes 30 assertions; the original disposable working-d
 | tests/WelcomeScreen/README.md | 1 | Explain the verified credit link and unchanged native browser check. |
 
 Validation: WelcomeScreen builds and passes 34 assertions, including layout at three window sizes and the new credit URL check. Git history identifies xavierkeys as the original Mac port author, while GitHub identifies the fork parent as Xkeys-bot/HexManiacAdvance-mac; the former profile URL could not be verified. Credit text and visual layout remain unchanged. No ROM or settings changed.
+
+## 133 — Explain Mac Edition setup, features, credits and helper reporting on GitHub
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| README.md | 1 | Replace obsolete Windows/hidden-feature guidance with Mac setup, source builds, real controls, feature scope, external emulator setup and prominent thanks to Haven and xavierkeys. |
+| docs/MAC_HELPER_TESTING.md | 1 | Provide a practical first-run checklist, report details, metadata locations and explicit remaining native/distribution/runtime work. |
+| docs/REPOSITORY_PRESENTATION.md | 1 | Record reversible before/after About, website and issue-tracker settings, separate from version-controlled documentation. |
+| .github/ISSUE_TEMPLATE/mac_bug_report.md | 1 | Offer a Mac-specific reproduction/environment template without requesting ROM uploads. |
+| FutureDevelopment.md | 7 | Mark issue reporting enabled and retain native link, clean-machine, Intel, signing and runtime-upgrade reminders. |
+| PORT_STATUS.md | 3 | Frame the original porter notes as historical and direct current users to the Mac Edition README. |
+| RELEASE_NOTES.md | 1 | Distinguish historical release notes from current fork assets and installation instructions. |
+| tests/README.md | 17 | Link first-launch, packaging and helper-readiness evidence. |
+
+Validation: New relative documentation links and the existing README#on-macos in-app help anchor resolve. GitHub's actual About description/website are updated and Issues is enabled, confirmed in both the web UI and REST metadata; no issues or messages were submitted. The original Mac repository is verified as the fork parent, and Haven's project/wiki remain prominent. No downloadable release is fabricated or claimed; no native compatibility, notarization or runtime upgrade is implied. WelcomeScreen separately passes 34 checks for the repaired attribution link. The final complete Mac suite is running against unchanged application code; its full result will be recorded in a separate evidence checkpoint.

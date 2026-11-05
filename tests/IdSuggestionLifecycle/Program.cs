@@ -22,7 +22,7 @@ using HavenSoft.HexManiac.Performance;
 
 if(args.Length==0) {
  int total=0;
- foreach(var name in new[]{"deletion-flag","deletion-variable","manual-flag","manual-variable","shared-flag","shared-variable","scopes","pending-syntax","drafts"}) {
+ foreach(var name in new[]{"deletion-flag","deletion-variable","manual-flag","manual-variable","shared-flag","shared-variable","scopes","pending-syntax","drafts","known-script-graph"}) {
   var start=new System.Diagnostics.ProcessStartInfo("dotnet"){RedirectStandardOutput=true,RedirectStandardError=true};
   start.ArgumentList.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);start.ArgumentList.Add(name);
   using var child=System.Diagnostics.Process.Start(start)!;var output=child.StandardOutput.ReadToEnd();var errors=child.StandardError.ReadToEnd();child.WaitForExit();
@@ -63,7 +63,9 @@ var parser=new HavenSoft.HexManiac.Core.Models.Code.ScriptParser(model.GetShortG
 
 
 int Peek(EventTemplate templates,bool variable=false){using var allocation=templates.BeginIdAllocation();return variable?templates.FindNextUnusedVariable():templates.FindNextUnusedFlag();}
-if(args[0]=="scopes") {
+if(args[0]=="known-script-graph") {
+ KnownScriptGraph.Run(Check);
+} else if(args[0]=="scopes") {
  var templates=mapper.Templates;
  using(var outer=templates.BeginIdAllocation()) {
   var first=templates.FindNextUnusedFlag();var second=templates.FindNextUnusedFlag();Check(first==0x21&&second==0x22,"Multiple IDs in one action remain distinct before ROM writes.");

@@ -46,7 +46,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          // scripts protected as well, so reattaching them cannot silently collide with a reuse.
          var roots = SnapshotRuns<XSERun>().Select(run => run.Start).ToArray();
          var commands = new byte[] { 0x16, 0x17, 0x18, 0x19, 0x1A, 0x21, 0x22, 0x26, 0x29, 0x2A, 0x2B, 0x44, 0x47, 0x8F, 0xB3 };
-         foreach (var spot in Flags.GetAllScriptSpots(model, parser, roots, false, commands)) {
+         foreach (var spot in Flags.GetKnownScriptSpots(model, parser, roots, commands)) {
             var length = spot.Line.CompiledByteLength(model, spot.Address, null);
             var opcode = model[spot.Address];
             if (!variable) {

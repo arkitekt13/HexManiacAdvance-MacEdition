@@ -2396,3 +2396,22 @@ Validation: Fabricated maps exercise actual event creation, ID generation and de
 | FutureDevelopment.md | 106 | Mark freshness/owned reservation repair complete while retaining range, native/custom-engine and incomplete-scan work. |
 
 Validation: The actual flag and variable deletion/replacement regressions fail before the repair; the focused group now passes 81 assertions across nine synthetic scenarios. No compiler, numeric grammar, candidate range, trainer policy, game-engine data, pointer relocation or history algorithm changed. Known formatted scripts and retained drafts remain protected; bare unowned investigator calls retain conservative reservations. The final serial Mac suite passes 61 groups / 18,117 assertions with zero failures and zero skipped groups. Source builds emit no compiler warnings; the existing MapImageExport NU1900 vulnerability-feed diagnostic is separate. Exact group counts are recorded in tests/id-suggestion-lifecycle/mac-verification.json; native gameplay/UI and separate upstream xUnit suites were not rerun. No user ROM/preferences used.
+
+## 146 — Review ID reservation design and avoid repeated retained-script tail scans
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/Flags.cs | 497 | Add a retained-script traversal that scans each known formatted entry separately while preserving the normal public map-root walk. |
+| src/HexManiac.Core/ViewModels/Map/IdSuggestionState.cs | 50 | Use the known-entry traversal to avoid following the same formatted tail from every caller. |
+| tests/IdSuggestionLifecycle/KnownScriptGraph.cs | 11 | Compare old/new references through shared/cyclic/unformatted paths and protect public suggestions plus model immutability. |
+| tests/IdSuggestionLifecycle/Program.cs | 26 | Include the independent graph scenario in the existing regression group. |
+| tests/IdSuggestionLifecycle/README.md | 4 | Record 87 assertions across ten scenarios and the differential graph check. |
+| tools/IdSuggestionBenchmark/Program.cs | 9 | Measure actual helper initialization, refreshed/cached queries and allocations using fabricated shared script graphs. |
+| tools/IdSuggestionBenchmark/IdSuggestionBenchmark.csproj | 1 | Reuse the synthetic map/scanner fixtures without ROM or native-window dependencies. |
+| tools/IdSuggestionBenchmark/README.md | 1 | Explain reproducibility and distinguish synthetic single-run observations from real-ROM performance. |
+| tests/ID_SUGGESTION_DESIGN_REVIEW.md | 1 | Record ownership/cache/call-site evaluation, the measured traversal problem and the decision to retain the architecture. |
+| tests/id-suggestion-review/benchmark-before.jsonl | 1 | Preserve the pre-refinement synthetic timing and allocation measurements. |
+| tests/id-suggestion-review/benchmark-after.jsonl | 1 | Preserve matching post-refinement measurements without claiming statistical or real-ROM results. |
+| tests/id-suggestion-review/mac-verification.json | 1 | Record all 61 fresh group counts and explicit native/real-ROM/security-audit limits. |
+
+Validation: All 87 focused assertions pass. On the identical synthetic 1,000-entry/25-tail workload, initialization changes from about 1,342 ms to 4.6 ms and a post-edit refresh from 607 ms to 2.2 ms; cached requests remain below 0.05 ms in these single-run observations with unchanged managed allocation. The same candidate is returned, and differential graph checks preserve references, bytes and metadata while reducing repeated visits. The existing public walker, ownership/reservation policy, compiler, numeric grammar, relocation and history are unchanged. The complete serial Mac suite passes 61 groups / 18,123 assertions with zero failures and zero skipped groups; exact counts are in tests/id-suggestion-review/mac-verification.json. Source builds emit no compiler warnings; the existing MapImageExport NU1900 feed diagnostic is separate. The checked-in benchmark reproduces a 2.3-ms refreshed query. No user ROM/preferences, separate upstream-suite certification or real-ROM/native performance claims.

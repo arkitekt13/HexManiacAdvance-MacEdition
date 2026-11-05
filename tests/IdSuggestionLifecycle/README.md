@@ -1,7 +1,7 @@
 # Flag and variable suggestion lifetimes
 
 Run through `scripts/verify-mac.sh --no-restore`, or build this project and execute its DLL.
-Nine independent synthetic child scenarios pass 81 assertions; any failed child fails the group.
+Ten independent synthetic child scenarios pass 87 assertions; any failed child fails the group.
 
 The baseline fails both actual add/generate/delete/replacement cases: flags advance from 0021
 to 0022 and script-event trigger variables from 4034 to 4035 after their final reference is gone.
@@ -20,3 +20,7 @@ relocation, pending save/close, stale callbacks and failure-atomicity controls. 
 analysis, not exhaustive custom/native-engine detection, legal-range/exhaustion changes or trainer
 record reclamation. Bare legacy investigator calls keep conservative session reservations;
 application tools use explicit operation scopes and CodeTool-owned pending sources.
+
+The known-script graph case compares retained-script reference coverage with the original walker
+through shared tails, cycles and unformatted targets, checks reduced repeated visits and protects
+public suggestions plus byte/metadata immutability; it has no wall-clock performance assertion.

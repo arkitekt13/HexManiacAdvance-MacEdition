@@ -2150,3 +2150,15 @@ Validation: NpcTemplate passes 44 assertions. The fresh complete serial `scripts
 | output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | N/A | Publish a four-page summary with 65 accomplishment bullets, updated map/NPC features and the latest verified Mac regression totals. |
 
 Validation: Rendered and visually reviewed all four pages, checked page numbering and extracted text, and confirmed the 57-group / 17,244-assertion totals against the last completed Mac run at code checkpoint 03c69932. Benchmark figures retain workload-specific scope, and planned tutorial/guide work is distinguished from implemented features. This commit adds documentation only; no code, user ROM or settings changes, and no additional test-suite run.
+
+## 127 — Investigate first launch, helper distribution and GitHub presentation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/FIRST_LAUNCH_READINESS_REVIEW.md | 1 | Record confirmed startup/settings/packaging defects, GitHub attribution and setup gaps, implementation boundaries and deferred release checks before changing code. |
+| tests/release-readiness/startup-before.json | 1 | Preserve original filename truncation, rejected-metadata startup exception and settings permission-failure observations. |
+| tools/FirstLaunchReview/Program.cs | 1 | Reproduce startup behavior with temporary synthetic ROMs, unreadable metadata and stub app settings. |
+| tools/FirstLaunchReview/FirstLaunchReview.csproj | 1 | Build the standalone investigation probe against the actual Mac application. |
+| tools/FirstLaunchReview/README.md | 1 | Explain reproduction and isolation guarantees. |
+
+Validation: Unchanged application builds; six existing groups pass 752 assertions with zero failures. The baseline probe reproduces filename truncation, an out-of-range startup lookup after metadata rejection and unhandled settings read permissions. A disposable working-directory probe confirms that invalid packaging inputs delete previous output before failing. No production source, personal settings or user ROM changed. Separate implementation commits follow this evidence checkpoint; the complete Mac suite was not rerun during investigation.

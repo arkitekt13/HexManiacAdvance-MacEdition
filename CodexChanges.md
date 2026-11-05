@@ -2071,3 +2071,17 @@ Validation: Fresh targeted builds and runs pass MapZoom (1,276), MapRendering (9
 | src/HexManiac.Avalonia/Controls/MapTab.axaml | 1188 | Label the cursor readout X,Y and center larger bold minus/plus symbols within their existing buttons. |
 
 Validation: MapZoom freshly builds and passes all 1,276 assertions, including real button clicks, endpoint disabling, wheel zoom, dimension tooltips and resize Undo/Redo. Visually inspected the rendered synthetic map tab to confirm centered bold symbols and the coordinate label. Existing Core and unavailable NuGet vulnerability-feed warnings remain; the build has zero errors. No new tests were added for this presentation-only adjustment; native appearance remains a user check.
+
+## 122 — Keep blockset hover previews bounded and input-transparent
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/BlocksetHoverPreview.cs | 10 | Fit the complete preview into the map area and release its image on row exit, scroll, context recycling or detachment. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 714 | Replace both native blockset image tooltips with row hover handlers and a non-interactive map-owned preview layer. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 49 | Dismiss blockset previews on selection, dropdown/header closure, map-context changes, window deactivation and detachment. |
+| tests/BlocksetPreviews/Program.cs | 14 | Exercise both real selector templates, rapid row changes, dismissal, oversized image fitting, window resizing and byte/metadata/history preservation. |
+| tests/BlocksetPreviews/BlocksetPreviews.csproj | 1 | Add the portable synthetic preview regression group to automatic discovery. |
+| tests/BlocksetPreviews/README.md | 1 | Document preview verification and remaining native compositor checks. |
+| FutureDevelopment.md | 296 | Defer the broader hex-editor, Go To and image-selector preview audit at the user's request. |
+
+Validation: BlocksetPreviews builds with zero warnings/errors and passes 38 assertions using fabricated blocksets and a separate 128x4096 image. The prior native path was independently observed with Pointer placement, hit testing enabled, no image size bounds and a 648-pixel image clipped within a 600-pixel tooltip. Neither selector now attaches that native image tooltip. No user ROM/settings changed. Native Mac flicker and visual placement still require user verification; the render-count defect is handled separately.

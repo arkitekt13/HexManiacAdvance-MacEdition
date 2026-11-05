@@ -38,6 +38,7 @@ public partial class MapTab : UserControl {
    private MapEditorViewModel ViewModel => DataContext as MapEditorViewModel;
    private MapEditorViewModel subscribed;
    private readonly MapHoverPreview hoverPreview;
+   private readonly BlocksetHoverPreview blocksetPreview;
    private WindowBase keyboardWindow;
 
    public event EventHandler FocusElement;
@@ -45,6 +46,10 @@ public partial class MapTab : UserControl {
    public MapTab() {
       InitializeComponent();
       hoverPreview = new MapHoverPreview(MapView, HoverPreviewLayer);
+      blocksetPreview = new BlocksetHoverPreview(BlocksetPreviewLayer, BlocksetPreviewBox, BlocksetPreviewImage);
+      HeaderPanel.PropertyChanged += (_, e) => {
+         if (e.Property == IsVisibleProperty && !HeaderPanel.IsVisible) blocksetPreview.Hide();
+      };
       DataContextChanged += (sender, e) => UpdateDataContext();
       AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Bubble);
       AddHandler(KeyUpEvent, HandleKeyUp, RoutingStrategies.Bubble);
@@ -59,6 +64,7 @@ public partial class MapTab : UserControl {
          keyboardWindow = null;
          InterruptPointerInteraction();
          HideMapTooltip();
+         blocksetPreview.Hide();
       };
       // Inspect the actual target before bubbling map handlers can reuse an NPC preview.
       AddHandler(PointerMovedEvent, DismissTooltipOutsideMap, RoutingStrategies.Tunnel, handledEventsToo: true);
@@ -99,6 +105,7 @@ public partial class MapTab : UserControl {
    }
 
    private void UpdateDataContext() {
+      blocksetPreview?.Hide();
       ResetTransientKeys(subscribed);
       InterruptPointerInteraction();
       if (subscribed != null) {
@@ -428,7 +435,10 @@ public partial class MapTab : UserControl {
       ResetTransientKeys(ViewModel);
    }
 
-   private void HandleWindowDeactivated(object sender, EventArgs e) => ResetTransientKeys(ViewModel);
+   private void HandleWindowDeactivated(object sender, EventArgs e) {
+      ResetTransientKeys(ViewModel);
+      blocksetPreview.Hide();
+   }
 
    private void ResetTransientKeys(MapEditorViewModel owner) {
       waitingForControlUp = false;
@@ -545,6 +555,18 @@ public partial class MapTab : UserControl {
       vm.DragUp(p.X, p.Y);
       UpdateStampPreviewVisibility();
    }
+
+   private void BlocksetPreviewEntered(object sender, PointerEventArgs e) {
+      if (sender is Control { DataContext: BlocksetOption option } row &&
+          (PrimaryBlocksetSelector.IsDropDownOpen || SecondaryBlocksetSelector.IsDropDownOpen)) {
+         HideMapTooltip();
+         blocksetPreview.Show(row, option.Render);
+      }
+   }
+
+   private void BlocksetSelectionChanged(object sender, SelectionChangedEventArgs e) => blocksetPreview?.Hide();
+
+   private void BlocksetPreviewClosed(object sender, EventArgs e) => blocksetPreview?.Hide();
 
    private void ZoomOutClick(object sender, RoutedEventArgs e) => ZoomFromStatusBar(false, e);
    private void ZoomInClick(object sender, RoutedEventArgs e) => ZoomFromStatusBar(true, e);

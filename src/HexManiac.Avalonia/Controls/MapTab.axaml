@@ -711,16 +711,18 @@
             <Grid DataContext="{Binding PrimaryMap.Header}" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
                <local:AngleBorder Direction="Left" Content="Primary Blockset: " />
                <local:AngleBorder Grid.Row="1" Direction="Left" Content="Secondary Blockset: " />
-               <local:AngleComboBox Grid.Column="1" Direction="Out" Margin="0,2,2,2"
+               <local:AngleComboBox Name="PrimaryBlocksetSelector" Grid.Column="1" Direction="Out" Margin="0,2,2,2"
+                                    DropDownClosed="BlocksetPreviewClosed" SelectionChanged="BlocksetSelectionChanged"
                                     ItemsSource="{Binding PrimaryOptions}" SelectedIndex="{Binding PrimaryIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}">
                   <local:AngleComboBox.ItemTemplate>
-                     <DataTemplate><TextBlock Text="{Binding AddressText}" ToolTip.Tip="{Binding Render}" /></DataTemplate>
+                     <DataTemplate><TextBlock Text="{Binding AddressText}" PointerEntered="BlocksetPreviewEntered" /></DataTemplate>
                   </local:AngleComboBox.ItemTemplate>
                </local:AngleComboBox>
-               <local:AngleComboBox Grid.Column="1" Direction="Out" Margin="0,2,2,2" Grid.Row="1"
+               <local:AngleComboBox Name="SecondaryBlocksetSelector" Grid.Column="1" Direction="Out" Margin="0,2,2,2" Grid.Row="1"
+                                    DropDownClosed="BlocksetPreviewClosed" SelectionChanged="BlocksetSelectionChanged"
                                     ItemsSource="{Binding SecondaryOptions}" SelectedIndex="{Binding SecondaryIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}">
                   <local:AngleComboBox.ItemTemplate>
-                     <DataTemplate><TextBlock Text="{Binding AddressText}" ToolTip.Tip="{Binding Render}" /></DataTemplate>
+                     <DataTemplate><TextBlock Text="{Binding AddressText}" PointerEntered="BlocksetPreviewEntered" /></DataTemplate>
                   </local:AngleComboBox.ItemTemplate>
                </local:AngleComboBox>
             </Grid>
@@ -1201,6 +1203,15 @@
             </StackPanel>
          </WrapPanel>
       </Border>
+
+      <Canvas Name="BlocksetPreviewLayer" Grid.Column="1" Grid.Row="1" ZIndex="3"
+              IsHitTestVisible="False" ClipToBounds="True">
+         <Viewbox Name="BlocksetPreviewBox" IsVisible="False" Stretch="Uniform" StretchDirection="DownOnly">
+            <Border Background="{DynamicResource Background}" BorderBrush="{DynamicResource Accent}" BorderThickness="1" Padding="4">
+               <local:PixelImage Name="BlocksetPreviewImage"/>
+            </Border>
+         </Viewbox>
+      </Canvas>
 
       <!-- A map-owned hover preview cannot intercept the pointer or open a native popup.
            Keep editor panels and tutorial cards above it. -->

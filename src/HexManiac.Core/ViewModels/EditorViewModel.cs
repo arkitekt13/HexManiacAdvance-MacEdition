@@ -762,13 +762,20 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
       private async void ExecuteOpen(object arg) {
          try {
-            var file = arg as LoadedFile ?? fileSystem.OpenFile("GameBoy Advanced", "gba");
-            if (file == null) return;
+            await OpenFileAsync(arg as LoadedFile ?? fileSystem.OpenFile("GameBoy Advanced", "gba"));
+         } catch (IOException ex) { ErrorMessage = ex.Message; }
+      }
+
+      /// <summary>Open an explicit file and return its new tab, or null for import, cancellation or failure.</summary>
+      public async Task<ViewPort> OpenFileAsync(LoadedFile file) {
+         try {
+            if (file == null) return null;
 
             if (SelectedTab is IEditableViewPort editableViewPort) {
                await editableViewPort.Model.InitializationWorkload;
-               var importSuccessful = SelectedTab.TryImport(file, fileSystem);
-               if (importSuccessful) return;
+               // Initialization may yield to navigation or closing the original tab.
+               if (ReferenceEquals(SelectedTab, editableViewPort) && editableViewPort.Model.ReferenceCount > 0 &&
+                   editableViewPort.TryImport(file, fileSystem)) return null;
             }
             UpdateRecentFiles(file.Name);
             string[] metadataText = new string[0];
@@ -778,12 +785,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
             StoredMetadata metadata;
             try {
                metadata = new StoredMetadata(metadataText);
-            } catch (ArgumentNullException nullEx) {
-               ErrorMessage = nullEx.Message;
-               return;
-            } catch (ArgumentOutOfRangeException rangeEx) {
-               ErrorMessage = rangeEx.Message;
-               return;
+            } catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException) {
+               ErrorMessage = "Could not read ROM metadata: " + ex.Message;
+               return null;
             }
             IDataModel model = file.Name.ToLower().EndsWith(".gba") ?
                new HardcodeTablesModel(Singletons, file.Contents, metadata) :
@@ -798,8 +802,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
                }, TaskContinuationOptions.ExecuteSynchronously);
             }
             Add(viewPort);
-         } catch (IOException ex) {
-            ErrorMessage = ex.Message;
+            return viewPort;
+         } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) {
+            ErrorMessage = "Could not open file: " + ex.Message;
+            return null;
          }
       }
 

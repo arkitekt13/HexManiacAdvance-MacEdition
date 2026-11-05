@@ -1,0 +1,53 @@
+[
+  {
+    "test": "startup-arguments",
+    "input": "/tmp/Tutorial Village.gba",
+    "actual": "/tmp/Tutorial Village.gba",
+    "address": -1
+  },
+  {
+    "test": "startup-arguments",
+    "input": "/tmp/Tour.gba backup.gba",
+    "actual": "/tmp/Tour.gba backup.gba",
+    "address": -1
+  },
+  {
+    "test": "startup-arguments",
+    "input": "/tmp/Tour: Village.gba",
+    "actual": "/tmp/Tour: Village.gba",
+    "address": -1
+  },
+  {
+    "test": "startup-arguments",
+    "input": "/tmp/Tutorial Village.gba:71BF40",
+    "actual": "/tmp/Tutorial Village.gba",
+    "address": 7454528
+  },
+  {
+    "test": "startup-arguments",
+    "input": "/tmp/Tutorial Village.gba 71BF40",
+    "actual": "/tmp/Tutorial Village.gba",
+    "address": 7454528
+  },
+  {
+    "test": "rejected-metadata-startup",
+    "tabs": 0,
+    "error": "Could not read ROM metadata: Value cannot be null. (Parameter \u0027The Metadata file has a NamedAnchor that didn\u0027t specify a name!\u0027)",
+    "exception": null
+  },
+  {
+    "test": "unreadable-settings-read",
+    "exception": null
+  },
+  {
+    "test": "clean-profile",
+    "tabs": 0,
+    "recentFiles": 0,
+    "version": "0.6.1"
+  },
+  {
+    "test": "missing-recent-file",
+    "tabs": 0,
+    "recentFiles": 0
+  }
+]

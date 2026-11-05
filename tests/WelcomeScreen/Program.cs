@@ -54,6 +54,7 @@ foreach (var size in new[] { new Size(1200, 800), new Size(800, 600), new Size(5
          $"Welcome element clipped at {size}: {name} {bounds}");
    }
 }
+Check((string)welcome.FindControl<Button>("PortAuthorLink")!.Tag == "https://github.com/Xkeys-bot/HexManiacAdvance-mac", "The original Mac porter credit must link to the verified original port.");
 var open = welcome.FindControl<Button>("OpenFileButton")!;
 Layout(1200, 800);
 var surface = open.GetVisualDescendants().OfType<Avalonia.Controls.Border>().Single(b => b.Name == "WelcomeButtonSurface");

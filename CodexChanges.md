@@ -2150,3 +2150,101 @@ Validation: NpcTemplate passes 44 assertions. The fresh complete serial `scripts
 | output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | N/A | Publish a four-page summary with 65 accomplishment bullets, updated map/NPC features and the latest verified Mac regression totals. |
 
 Validation: Rendered and visually reviewed all four pages, checked page numbering and extracted text, and confirmed the 57-group / 17,244-assertion totals against the last completed Mac run at code checkpoint 03c69932. Benchmark figures retain workload-specific scope, and planned tutorial/guide work is distinguished from implemented features. This commit adds documentation only; no code, user ROM or settings changes, and no additional test-suite run.
+
+## 127 — Investigate first launch, helper distribution and GitHub presentation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/FIRST_LAUNCH_READINESS_REVIEW.md | 1 | Record confirmed startup/settings/packaging defects, GitHub attribution and setup gaps, implementation boundaries and deferred release checks before changing code. |
+| tests/release-readiness/startup-before.json | 1 | Preserve original filename truncation, rejected-metadata startup exception and settings permission-failure observations. |
+| tools/FirstLaunchReview/Program.cs | 1 | Reproduce startup behavior with temporary synthetic ROMs, unreadable metadata and stub app settings. |
+| tools/FirstLaunchReview/FirstLaunchReview.csproj | 1 | Build the standalone investigation probe against the actual Mac application. |
+| tools/FirstLaunchReview/README.md | 1 | Explain reproduction and isolation guarantees. |
+
+Validation: Unchanged application builds; six existing groups pass 752 assertions with zero failures. The baseline probe reproduces filename truncation, an out-of-range startup lookup after metadata rejection and unhandled settings read permissions. A disposable working-directory probe confirms that invalid packaging inputs delete previous output before failing. No production source, personal settings or user ROM changed. Separate implementation commits follow this evidence checkpoint; the complete Mac suite was not rerun during investigation.
+
+## 128 — Preserve startup paths and reject invalid ROM metadata without crashing
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/App.axaml.cs | 269 | Preserve literal filenames, consume only valid address suffixes and bind queued navigation to the actual opened live tab. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 765 | Return an awaitable explicit open result, retain metadata errors, catch malformed numeric metadata and guard import targets after initialization yields. |
+| tests/FirstLaunch/Program.cs | 1 | Cover startup syntax, rejected metadata, retry, cancellation, delayed opening and navigation/close before address callbacks. |
+| tests/FirstLaunch/FirstLaunch.csproj | 1 | Add the isolated headless first-launch group to automatic Mac regression discovery. |
+| tests/FirstLaunch/README.md | 1 | Document preservation checks and the native Finder delivery limitation. |
+| tools/FirstLaunchReview/Program.cs | 1 | Await the explicit startup operation when rerunning the investigation probe. |
+
+Validation: FirstLaunch passes 33 assertions, including actual dispatched address navigation and cancellation after switching/closing tabs. FileDrop 24, SaveSafety 17 and ScriptWorkflowSafety 598 also pass (672 assertions across four groups). The original probe reproduced filename truncation and a startup out-of-range exception before this fix. No user ROM/settings changed; ordinary command/picker opening remains available, and numeric parsing changes are limited to startup address syntax and rejecting malformed sidecar fields, not script operands. The complete suite follows the remaining readiness changes.
+
+## 129 — Keep settings access failures from aborting first launch or replacing unread preferences
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 45 | Allow an isolated app-support path for tests and expose nonfatal settings warnings without overriding the user's profile. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 80 | Load defaults after settings I/O failure, prohibit overwriting unread preferences and use staged writes that preserve earlier settings on failure. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 340 | Convert denied ROM-sidecar reads into an explicit open failure rather than treating unread metadata as absent. |
+| src/HexManiac.Avalonia/App.axaml.cs | 309 | Show settings-read failure as an ordinary nonmodal welcome-screen error. |
+| tests/FirstLaunch/Program.cs | 90 | Check isolated fresh profiles, restart, invalid directories, real permission failures, byte preservation and denied ROM-sidecar opening. |
+| tests/FirstLaunch/README.md | 1 | Document the expanded settings and metadata coverage. |
+
+Validation: FirstLaunch passes 47 assertions with zero failures. Fourteen additional checks exercise the real Mac filesystem with disposable profiles, including chmod-denied reads and read-only writes; unread settings and sidecars remain byte-for-byte unchanged. Existing settings paths and ROM metadata locations remain compatible; only tests inject another directory. No personal preferences or user ROMs changed. Settings-read protection lasts for the session so a later permission change cannot silently replace previously unread preferences with defaults. The complete Mac run follows the remaining readiness work.
+
+## 130 — Verify external emulator setup and recovery for helper testing
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ExternalEmulatorLaunch/Program.cs | 95 | Cover failed preference publication/read, application removal during selection, retry after a launch exception and closing the ROM while the chooser is pending. |
+| tests/ExternalEmulatorLaunch/README.md | 1 | Record 31 macOS assertions and correct the obsolete built-in F6 availability note. |
+
+Validation: ExternalEmulatorLaunch passes 31 assertions using temporary fake applications/preferences and injected process starters. Existing first-use cancellation, remembered path, Browse output, Save and Launch, rejected source and failed-save checks still pass. The seven added checks confirm the existing launcher already handles the investigated recovery cases; no launcher implementation or personal preferences changed, and no real emulator was started.
+
+## 131 — Build Mac bundles from any directory without destroying the previous successful build
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| publish-mac.sh | 1 | Validate architectures, resolve repository paths, stage/self-contain/sign/verify bundles and preserve previous output until publication succeeds. |
+| tests/MacPackaging/Program.cs | 1 | Run the real script with a disposable fake toolchain across invalid inputs, build/resource/runtime/signature failures and independent architecture outputs. |
+| tests/MacPackaging/MacPackaging.csproj | 1 | Include packaging control-flow regressions in the complete Mac runner. |
+| tests/MacPackaging/README.md | 1 | Distinguish simulated script checks from real native artifact verification. |
+| tools/PublishedBundleReview/Program.cs | 1 | Load the actual published assemblies from an unrelated directory with isolated preferences and verify resources/settings/runtime presence. |
+| tools/PublishedBundleReview/PublishedBundleReview.csproj | 1 | Keep the artifact probe independent of application project references. |
+| tools/PublishedBundleReview/README.md | 1 | Document reproduction and limits of managed published-startup checks. |
+| tests/FIRST_LAUNCH_READINESS_REVIEW.md | 79 | Record real arm64 publish, architecture, signature, version, resource and startup-loader evidence. |
+
+Validation: MacPackaging passes 30 assertions; the original disposable working-directory probe deleted its previous output before failing. A real restored self-contained arm64 publish now succeeds, has a Mach-O arm64 executable, verified ad-hoc signature, application-matching 0.6.1 bundle version, 61 resource files and approximately 145 MiB disk usage. The independent published-loader probe passes seven checks including script references and isolated settings save/reload. Outputs are architecture-specific under artifacts/mac/osx-arm64 or artifacts/mac/osx-x64; failures retain the last successful bundle and clean their staging directory. Minimum runtime OS is recorded as 12.0, not a certification of all OS versions; native Intel/Gatekeeper/notarization/clean-machine launch remain unverified. No user settings or ROM changed.
+
+## 132 — Repair the original Mac porter credit destination
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml | 89 | Retain the xavierkeys credit while linking the verified original Mac port instead of the unavailable profile target. |
+| tests/WelcomeScreen/Program.cs | 56 | Assert the original-porter attribution destination without launching a browser. |
+| tests/WelcomeScreen/README.md | 1 | Explain the verified credit link and unchanged native browser check. |
+
+Validation: WelcomeScreen builds and passes 34 assertions, including layout at three window sizes and the new credit URL check. Git history identifies xavierkeys as the original Mac port author, while GitHub identifies the fork parent as Xkeys-bot/HexManiacAdvance-mac; the former profile URL could not be verified. Credit text and visual layout remain unchanged. No ROM or settings changed.
+
+## 133 — Explain Mac Edition setup, features, credits and helper reporting on GitHub
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| README.md | 1 | Replace obsolete Windows/hidden-feature guidance with Mac setup, source builds, real controls, feature scope, external emulator setup and prominent thanks to Haven and xavierkeys. |
+| docs/MAC_HELPER_TESTING.md | 1 | Provide a practical first-run checklist, report details, metadata locations and explicit remaining native/distribution/runtime work. |
+| docs/REPOSITORY_PRESENTATION.md | 1 | Record reversible before/after About, website and issue-tracker settings, separate from version-controlled documentation. |
+| .github/ISSUE_TEMPLATE/mac_bug_report.md | 1 | Offer a Mac-specific reproduction/environment template without requesting ROM uploads. |
+| FutureDevelopment.md | 7 | Mark issue reporting enabled and retain native link, clean-machine, Intel, signing and runtime-upgrade reminders. |
+| PORT_STATUS.md | 3 | Frame the original porter notes as historical and direct current users to the Mac Edition README. |
+| RELEASE_NOTES.md | 1 | Distinguish historical release notes from current fork assets and installation instructions. |
+| tests/README.md | 17 | Link first-launch, packaging and helper-readiness evidence. |
+
+Validation: New relative documentation links and the existing README#on-macos in-app help anchor resolve. GitHub's actual About description/website are updated and Issues is enabled, confirmed in both the web UI and REST metadata; no issues or messages were submitted. The original Mac repository is verified as the fork parent, and Haven's project/wiki remain prominent. No downloadable release is fabricated or claimed; no native compatibility, notarization or runtime upgrade is implied. WelcomeScreen separately passes 34 checks for the repaired attribution link. The final complete Mac suite is running against unchanged application code; its full result will be recorded in a separate evidence checkpoint.
+
+## 134 — Record final helper-readiness verification separately from implementations
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/release-readiness/startup-after.json | 1 | Preserve corrected filename, rejected-metadata and settings-read observations against the original evidence. |
+| tests/release-readiness/mac-verification.json | 1 | Record all 59 regression group/assertion counts, tested checkpoints and the initial unchanged focus-animation failure/retry. |
+| tests/release-readiness/published-bundle-verification.json | 1 | Record the rebuilt arm64 bundle's version, runtime, signature, resources, loader checks and managed-assembly SHA-256. |
+| tests/FIRST_LAUNCH_READINESS_REVIEW.md | 89 | Summarize final validation, live GitHub changes and remaining native/runtime/distribution limits. |
+
+Validation: The complete serial Mac runner passes 59 groups / 17,329 assertions, zero failures and zero skipped groups. The first full attempt stopped on the pre-existing unchanged FocusAnimation movement assertion; its unchanged standalone rerun and subsequent full run both pass without weakening any assertion. The final self-contained arm64 bundle builds from /private/tmp, passes strict signature verification and all seven independent published-loader checks with 61 resources and isolated preference roundtrip. Builds retain existing Core warnings; separate upstream suites were not rerun. No user ROM/settings or native app session changed. Runtime upgrade, native/Intel/OS checks, notarization and actual release publication remain explicit follow-up work; this evidence commit adds no application changes.

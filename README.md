@@ -1,135 +1,185 @@
-# Hex Maniac Advance
+# HexManiacAdvance Mac Edition
 
-HexManiacAdvance is an all-purpose editor designed for editing Pokemon GBA games. It specifically targets the English games Ruby (AXVE), Sapphire (AXPE), FireRed (BPRE), LeafGreen (BPGE), and Emerald (BPEE). It has a reduced set of features when opening other files.
+A macOS edition of **HexManiacAdvance**, the all-purpose editor for Pokémon GBA ROMs,
+with continued work on Mac input, map editing, scripting, reliability and responsiveness.
+This fork is being prepared for helper testing; feedback from real projects is welcome.
 
-Other than standard hex editor features like view/edit, copy/paste, and diff, it also provides improved navigation, display, and editing for working with data within the files. It also has custom editors for complex data like code, images, maps, and the pokedex.
+## Built on remarkable work
 
-Published to Github Using Claude.
+**Haven** created [HexManiacAdvance](https://github.com/haven1433/HexManiacAdvance), its editing
+engine and extensive documentation. Thank you for building the tool that makes this possible.
 
-![Screenshot](https://i.imgur.com/uUYoaqk.png)
+**xavierkeys** established the [original working Mac port](https://github.com/Xkeys-bot/HexManiacAdvance-mac)
+using Avalonia. Thank you for the incredible work bringing HMA to macOS and laying the
+foundation for this edition's continued development.
 
-> **This fork adds a macOS build.** Upstream HexManiacAdvance is a WPF application and runs on
-> Windows only. `src/HexManiac.Avalonia` is a port of that UI to [Avalonia](https://avaloniaui.net),
-> plus a built-in GBA emulator, a live memory viewer, text-based project export, and an MCP server
-> so an AI assistant can read and edit the open ROM. **HexManiac.Core is unmodified**, so the
-> editing behaviour is upstream's. See [PORT_STATUS.md](PORT_STATUS.md) for what was ported, what
-> was measured, and what is still rough.
+This fork is maintained by [arkitekt13](https://github.com/arkitekt13).
+Mac Edition builds on those projects; it does not claim their original features as new work.
 
-## What Can HexManiacAdvance do for me?
-**Data Editing**
-* Edit Pokemon, Trainers, Moves, Items, and more.
-* Use the goto tool to help you locate and edit uncommon data like SoundProof moves, trainer payout, in-game trades, and moves that can't be copied by Metronome.
-* Edit many constants within the game, such as the shiny odds, stat boost from badges, or the exp boost for lucky egg and traded pokemon.
+**Learning HMA? Start with [Haven's wiki and tutorials](https://github.com/haven1433/HexManiacAdvance/wiki).**
+Use this README for Mac setup and differences, and the upstream wiki for general editing,
+script commands, data formats and ROM-hacking guidance.
 
-**Map Editing**
-* Edit existing maps, events, connections, and warps using a separate tab.
-* Simple event scripts are converted into controls directly in the map editor, so you don't need to change your view to edit text, trainers, and more.
-* Jump quickly between related maps, scripts, and tables.
+## What you can edit
 
-**Text Editing**
-* Find and edit almost any text in the game.
-* Safely and automatically repoint text that no longer fits at its original address.
+HMA provides editors for maps, events, dialogue, scripts, Pokémon, trainers, moves, items,
+sprites, palettes and other ROM data, plus hex editing, navigation, patches and backups.
+Its primary targets are the English GBA releases:
 
-**Image Editing**
-* Edit images and tilemaps directly within HMA, or use import/export to convert from PNG so you can use your favorite image editor.
-* Never worry about tilesets again: HMA lets you treat tilemaps just like any other sprite.
-* Edit the title screen, menus, townmap, icons, sprites, and other image data in the game.
-* Have full control over how you handle shared palettes, or ask HMA to do it for you.
+| Game | Game code |
+| --- | --- |
+| Ruby | AXVE |
+| Sapphire | AXPE |
+| FireRed | BPRE |
+| LeafGreen | BPGE |
+| Emerald | BPEE |
 
-**Code Editing**
-* View/Edit event scripts similar to how you would with XSE, but with additional macros.
-* View/Edit other types of scripts used for moves effects, move animations, and trainer ai.
-* View/Edit thumb code.
+Other files and heavily modified ROMs may have reduced or incompatible functionality.
+No game ROMs are included. The tutorial village and playable tutorial patch are still in development.
 
-**Utilities**
-* Safely add the Fairy type to your game.
-* Expand your game with any number of additional moves or tutors.
-* Add abilities similar to Pixilate.
-* Create and apply patches (.ips and .ups).
-* Reorder your pokedex.
-* Export backups as you work.
+## On macOS
 
-**Community**
-* An active discord community to help with any problems you encounter
-* Frequent releases with bugfixes and new features
+### Use a helper build
 
-Here's a quote about the tool from Asith, Pokemon GBA Rom Hacker. Maker of [Spectrobes GBA](https://www.pokecommunity.com/showthread.php?t=459017), judge from [MAGM4](https://discord.gg/aDZuSndX4c), winner of [MAGM5](https://discord.gg/mjhBXsG9jq).
+1. Look for a Mac application asset on **[this fork's Releases page](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases)**,
+   or use a helper build supplied by the maintainer; upstream Windows downloads are different.
+   If no Mac asset is available, follow [Build from source](#build-from-source).
+2. Choose `osx-arm64` for Apple Silicon or `osx-x64` for an Intel Mac, then extract the download
+   and move `HexManiacAdvance.app` into Applications.
+3. Launch the app and use **Open ROM**, **Command-O**, or drag a `.gba` file into the window.
 
-> HexManiacAdvance is now a must-have binary hacking tool. It does what all the old tools did but better and safer, essentially being an all-in-one toolkit. You can make an entire hack using only HMA, and when that's combined with its QoL features and safety nets to not break your rom, there's no reason to use tools of the past. I'm especially impressed with how its new map and script editors have ousted AdvanceMap and XSE - tools that were the only option for a decade - by immediately being 10 times better to use. It has changed the binary hacking standard to the point where classic binary hacking and HMA hacking are completely distinct and I can't imagine working without it.
+Packaged apps include the .NET runtime; testers do not need to install .NET or Visual Studio.
+The current bundle declares macOS 12.0 as its runtime floor, which is not a certification of
+all macOS versions or Intel hardware; see [helper testing and remaining release checks](docs/MAC_HELPER_TESTING.md).
+Microsoft's [current .NET/macOS support information](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
+is separate from that floor.
 
-# Getting Started
+Current helper bundles are **ad-hoc signed, not notarized**. If macOS blocks a trusted build,
+the targeted quarantine-removal command for the app in Applications is:
 
-## As a User
-
-Go visit the [releases](https://github.com/haven1433/HexManiacAdvance/releases) page to grab the latest public build.
-
-Visit the [Wiki](https://github.com/haven1433/HexManiacAdvance/wiki) to see a user guide, tutorials, and other resources.
-
-Visit the [Discord](https://discord.gg/x9eQuBg) to connect with other users.
-
-Running HexManiacAdvance requires Windows and .Net 6.0: [x64](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer) [x86](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x86-installer)
-
-### On macOS
-
-Download `HexManiacAdvance.app` from this fork's releases, drag it to Applications, then **clear the
-download quarantine**:
-
-```
-xattr -dr com.apple.quarantine /Applications/HexManiacAdvance.app
+```sh
+xattr -dr com.apple.quarantine "/Applications/HexManiacAdvance.app"
 ```
 
-That step is not optional. The app is signed only ad-hoc, not notarized, so macOS refuses to open it
-until the quarantine flag is gone - and on recent versions the old right-click > Open trick no longer
-clears it. Nothing needs installing otherwise: the build is self-contained and does not need .NET.
+### Build from source
 
-Requires macOS 11 or later. Open a ROM by double-clicking a `.gba`, dropping one on the app, or
-File > Open.
+Install the [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) for your Mac's
+architecture, then:
 
-**The emulator needs cores.** *File > Test in Emulator* runs the ROM as it stands in the editor,
-unsaved edits and all, but it does not ship an emulator: it loads a libretro core from an installed
-copy of [RetroArch](https://www.retroarch.com). Install RetroArch and download a GBA core (mGBA,
-VBA-M, VBA-Next or gpSP) through its own updater, and HexManiacAdvance will find it. Without one,
-the emulator window explains itself and offers to browse for a core file.
-
-Which core matters more than it sounds:
-
-| | mGBA | VBA-M / VBA-Next / gpSP |
-|---|---|---|
-| Accuracy | best | good |
-| Reset button | works | **does nothing** - use a save state |
-| Live memory | IWRAM only (32KB) | EWRAM (256KB), where flags, variables and the party live |
-
-**The chat panel is optional.** It talks to Claude through an installed
-[Claude Code](https://claude.com/claude-code) CLI, so it uses your existing subscription and needs no
-API key. Without the CLI the panel offers to use an API key instead, and the rest of the app does not
-care either way.
-
-## As a Developer
-
-Clone or download the project, then open the solution with Visual Studio 2022.
-
-On macOS, build and run the Avalonia app with the .NET 8 SDK - Visual Studio is not needed, and the
-WPF project cannot build there:
-
-```
-dotnet build src/HexManiac.Avalonia/HexManiac.Avalonia.csproj
-./publish-mac.sh            # or: ./publish-mac.sh osx-x64
+```sh
+git clone https://github.com/arkitekt13/HexManiacAdvance-MacEdition.git
+cd HexManiacAdvance-MacEdition
+dotnet run --project src/HexManiac.Avalonia/HexManiac.Avalonia.csproj
 ```
 
-`publish-mac.sh` produces a self-contained `artifacts/mac/HexManiacAdvance.app`.
+The first run restores dependencies. For later launches after restoration, add `--no-restore`.
+Build the Avalonia project directly; the Windows WPF solution is not the Mac launch target.
+A supported-runtime upgrade is a separate pre-public-release task; see the checklist below.
 
-Once you have the solution open in Visual Studio, you can find the XUnit automated tests in the test explorer window. Note that some tests expect you to have roms in a folder called "sampleFiles" within `..\HexManiac\artifacts\HexManiac.Tests\bin\Debug\net6.0`.
+To build a self-contained app:
 
-For information on the achitecture of the application, see the [Developer Guide](https://github.com/haven1433/HexManiacAdvance/wiki/Developer-Guide).
+```sh
+./publish-mac.sh osx-arm64    # Apple Silicon
+./publish-mac.sh osx-x64      # Intel
+```
 
-# License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Output is `artifacts/mac/<architecture>/HexManiacAdvance.app`. The script can be invoked by
+absolute path from another directory; it stages and verifies a new bundle before replacing
+the previous build for that architecture. For example, launch an arm64 build with:
 
-## Changes in this fork
+```sh
+open "artifacts/mac/osx-arm64/HexManiacAdvance.app"
+```
 
-Our Mac improvements and regression-covered shared-engine correctness fixes are recorded in
-[CodexChanges.md](CodexChanges.md). Core is no longer strictly unmodified in this fork: save
-failure handling and patch validation have targeted fixes that preserve the shared UI contracts.
-Run `scripts/verify-mac.sh` for the headless regression groups; this command does not claim that
-the separate original xUnit suite has run. Work is committed in separate checkpoints on feature
-branches so individual changes can be reviewed or reverted before merging.
+### Connect an emulator
+
+Open a ROM and click the **green Play button** (or **F5**) to launch an external emulator.
+The first click asks you to select an installed application such as **mGBA.app**; use **Browse**
+if it is missing from the initial application list. HMA remembers the selected path and asks
+again if that app has moved or disappeared.
+
+Unsaved ROM or script changes require **Save and Launch**; canceling, a failed save or rejected
+script source prevents launch. The external emulator runs the saved ROM on disk.
+To choose another emulator, quit HMA and remove only
+`~/Library/Application Support/HexManiacAdvance/external-emulator.txt`, then click Play again.
+
+The embedded emulator and Claude integration code remain in the repository, but their normal
+buttons, menus and shortcuts are hidden/disabled. They are not required for editing or
+external emulator use; RetroArch cores and assistant subscriptions are not setup requirements.
+
+## Mac controls at a glance
+
+| Action | Mac control |
+| --- | --- |
+| Open / Save / Save As | Command-O / Command-S / Command-Shift-S |
+| Undo / Redo | Command-Z / Command-Shift-Z |
+| Copy / Cut / Paste in a text editor | Command-C / Command-X / Command-V |
+| Tab, warp, arrow, hex or palette context menu | Control-click or secondary click |
+| Pan a map with a trackpad | Option + primary-button drag |
+| Select placed map blocks | Control + primary-button drag |
+| Zoom a map | Status-bar minus/plus buttons or the existing wheel gesture |
+| Replace a short field | Tab or Shift-Tab into it, then type over the selected value |
+
+Mixing-bag membership uses **Command-click in the block selector**, which is distinct from
+Control-click context menus. In dialogue, Enter inserts a line break; a blank line introduces
+a paragraph/page break. Overflow warnings are visual guidance, not automatic text wrapping.
+
+## What this edition adds and restores
+
+### Maps and everyday editing
+
+- **Trackpad-friendly controls** - Option-drag panning, accessible context menus and zoom buttons.
+- **Useful map status** - Tile dimensions, native pixel dimensions on hover and labeled cursor coordinates.
+- **Map PNG export** - Export into `MapImages` beside the ROM, with overwrite, numbered-copy and cancel choices.
+- **NPC creation choices** - Choose a sprite before placement and retain that choice within the open ROM session.
+- **Stable previews and selectors** - Bounded large sprites and blocksets, steadier NPC hover previews and repaired tileset selection.
+- **Continuous field editing** - Encounter tables retain focus/caret, mouse suggestions work, and field Delete stays in the field.
+- **Predictable map history** - Fixes for interrupted gestures, same-cell edits, copied blocks and movement permissions.
+
+### Scripting and data protection
+
+- **Dialogue and movement scaffolds** - Eligible commands insert `<auto>` and a complete editable block, including after command completion.
+- **Visible assistance** - Dialogue overflow/error underlines, restored unused flag/variable helpers and cleaner suggestion dismissal.
+- **Focused clipboard actions** - Mac copy, cut and paste stay on the active script/text field.
+- **Protected pending source** - Navigation, Save, Save As, Close, reload and Undo/Redo account for pending or rejected drafts.
+- **Compilation rollback** - Rejected script/resource compilation restores bytes, pointers, relocation, metadata and history while retaining source and diagnostics.
+- **Safer persistence** - Targeted save, patch/project import, external reload and first-launch/settings fixes.
+
+These include focused changes in the shared Core as well as the Mac UI; Core is **not**
+unmodified. Existing game-engine and script numeric-parsing rules are retained.
+HMA scripts (`.hma`) should be dropped onto an open ROM or its map tab; they can be specific
+to a game/revision and may need accompanying assets, unlike ordinary binary documents.
+
+### Measured reductions in repeated work
+
+Recorded workloads remove unnecessary zoom bitmap publications, reduce unrelated event-editor
+construction during hover, coalesce repeated script-width calculations and improve highlighting,
+argument lookup and table/portrait preparation. These are workload-specific improvements,
+not a universal app-speed multiplier.
+
+See the [accomplishments PDF](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf),
+[detailed changelog](CodexChanges.md) and [performance evidence](tests/README.md).
+
+## Help, feedback and verification
+
+- **General HMA tutorials:** [Haven's wiki](https://github.com/haven1433/HexManiacAdvance/wiki).
+- **Editor architecture:** [Haven's Developer Guide](https://github.com/haven1433/HexManiacAdvance/wiki/Developer-Guide).
+- **Mac Edition bugs:** [this fork's issue tracker](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/issues).
+- **Helping test:** [first-run checklist and bug-report details](docs/MAC_HELPER_TESTING.md).
+- **Current work and limits:** [FutureDevelopment.md](FutureDevelopment.md) and the [readiness investigation](tests/FIRST_LAUNCH_READINESS_REVIEW.md).
+
+Run the complete synthetic/headless Mac regressions from the repository root:
+
+```sh
+scripts/verify-mac.sh
+```
+
+Use `--no-restore` when dependencies are already restored. The runner reports groups and
+assertions; it is separate from the original unit/integration suites described in
+[tests/README.md](tests/README.md). Native input, Finder, signing and gameplay still need
+real-machine testing. [PORT_STATUS.md](PORT_STATUS.md) and [RELEASE_NOTES.md](RELEASE_NOTES.md)
+preserve historical port/release notes rather than current setup instructions.
+
+## License
+
+[MIT](LICENSE), retaining the original project's copyright and attribution.

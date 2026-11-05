@@ -3,7 +3,7 @@
 The green triangle, F5 and Run menu use the macOS application chooser on first use and
 remember its path in Application Support/HexManiacAdvance/external-emulator.txt. Missing
 applications trigger selection again. Launch uses `/usr/bin/open -a` with separate arguments,
-without changing Finder associations. F6 remains the built-in emulator.
+without changing Finder associations. The built-in emulator UI/F6 shortcut is currently disabled.
 
 Run `scripts/verify-mac.sh --no-restore` to rebuild and run this group with the other Mac checks.
 The group uses fabricated ROMs, temporary application/preferences and an injected process starter;
@@ -21,3 +21,8 @@ confirm mGBA receives the ROM (use Browse if it is absent from the application l
 and check no picker appears. Test Cancel and Save and
 Launch with unsaved edits on a disposable ROM. Native picker application-bundle selection and
 mGBA's actual response require this manual check; automated tests do not claim native launch.
+
+The helper-readiness extension brings this group to 31 assertions on macOS: preference write
+failure, a removed app while the picker is open, recovery after a launch exception, unreadable
+preferences and closing the selected ROM during selection all remain safe without a launcher
+implementation change. Tests still inject every launch and never start a native emulator.

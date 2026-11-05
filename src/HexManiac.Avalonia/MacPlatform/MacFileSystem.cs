@@ -47,8 +47,12 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
 
    private readonly Action<Action> dispatchFileChange;
    private readonly AsyncLocal<LoadedFile> reloadSnapshot = new();
-   public MacFileSystem(Func<Window> getOwner, Action<Action> dispatchFileChange = null) {
+   private readonly string appSupportDirectory;
+   private bool appMetadataReadFailed;
+   public string AppMetadataWarning { get; private set; }
+   public MacFileSystem(Func<Window> getOwner, Action<Action> dispatchFileChange = null, string appSupportDirectory = null) {
       this.getOwner = getOwner;
+      this.appSupportDirectory = appSupportDirectory;
       this.dispatchFileChange = dispatchFileChange ?? (action => Dispatcher.UIThread.Post(action, DispatcherPriority.ApplicationIdle));
    }
 
@@ -74,18 +78,25 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
    // WindowsFileSystem first: ROM metadata (.toml) lives next to the ROM, and only app-level
    // settings should go to Application Support.
    protected string[] ReadAppMetadata(string applicationName) {
-      var path = MetadataPath(applicationName);
-      return File.Exists(path) ? File.ReadAllLines(path) : new string[0];
+      try {
+         return File.ReadAllLines(MetadataPath(applicationName));
+      } catch (FileNotFoundException) { return Array.Empty<string>(); }
+      catch (DirectoryNotFoundException) { return Array.Empty<string>(); }
+      catch (Exception error) when (error is IOException or UnauthorizedAccessException) {
+         appMetadataReadFailed = true;
+         AppMetadataWarning = "Could not read application settings. Using defaults for this session; existing settings will not be overwritten. " + error.Message;
+         return Array.Empty<string>();
+      }
    }
 
    protected bool WriteAppMetadata(string applicationName, string[] lines) {
-      var path = MetadataPath(applicationName);
-      var temp = path + ".tmp";
+      // Defaults from a failed read must never replace preferences we could not inspect.
+      if (appMetadataReadFailed) return false;
       try {
-         File.WriteAllLines(temp, lines);
-         File.Move(temp, path, overwrite: true); // atomic-ish replace so a crash can't truncate settings
+         AtomicFileWriter.WriteAllLines(MetadataPath(applicationName), lines);
          return true;
-      } catch (IOException) {
+      } catch (Exception error) when (error is IOException or UnauthorizedAccessException) {
+         AppMetadataWarning = "Could not save application settings; existing settings were preserved. " + error.Message;
          return false;
       }
    }
@@ -315,9 +326,11 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
    /// a directory or an extension is a real file, so its metadata stays beside it as a sibling
    /// .toml, which is what the WPF build reads and writes.
    /// </summary>
-   static string MetadataPath(string fileName) {
+   string MetadataPath(string fileName) {
       if (string.IsNullOrEmpty(Path.GetDirectoryName(fileName)) && string.IsNullOrEmpty(Path.GetExtension(fileName))) {
-         return Path.Combine(AppSupportDirectory, fileName + ".toml");
+         var directory = appSupportDirectory ?? AppSupportDirectory;
+         Directory.CreateDirectory(directory);
+         return Path.Combine(directory, fileName + ".toml");
       }
       return fileName.ToLower().EndsWith(".gba") ? Path.ChangeExtension(fileName, ".toml") : fileName + ".toml";
    }
@@ -331,7 +344,13 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
          return appMetadata.Length == 0 ? null : appMetadata;
       }
       var path = MetadataPath(fileName);
-      return File.Exists(path) ? File.ReadAllLines(path) : null;
+      try {
+         return File.Exists(path) ? File.ReadAllLines(path) : null;
+      } catch (UnauthorizedAccessException error) {
+         // ROM metadata is not optional on a failed read: let the editor reject the open
+         // rather than silently rebuilding and overwriting an unread sidecar.
+         throw new IOException("Could not read ROM metadata: " + path, error);
+      }
    }
 
    public bool SaveMetadata(string originalFileName, string[] metadata) {

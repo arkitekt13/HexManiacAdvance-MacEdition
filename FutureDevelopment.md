@@ -4,9 +4,13 @@
 
 Review these items when preparing the first public Mac Edition release:
 
-- [ ] Enable GitHub Issues for `arkitekt13/HexManiacAdvance-MacEdition`, then verify that
-  Help > Report an Issue, the welcome-screen link and crash-report links reach the fork's
-  working issue pages; Issues was disabled when checked on November 4, 2026.
+- [x] Enable GitHub Issues for `arkitekt13/HexManiacAdvance-MacEdition` (enabled November 4, 2026).
+- [ ] Verify Help, welcome-screen and crash-report issue links through a native helper build.
+- [ ] Complete [helper distribution checks](docs/MAC_HELPER_TESTING.md), including clean-machine,
+  Finder cold-start, Intel and actual OS coverage, signing/notarization and release assets.
+- [ ] Upgrade the current .NET 8 runtime before public release; support ends November 10, 2026.
+  Treat runtime/Avalonia compatibility as a separate investigation, not a framework bump hidden
+  in UI or packaging work. See the [first-launch investigation](tests/FIRST_LAUNCH_READINESS_REVIEW.md).
 
 ## HMA-001 — Resolve native `.hma` drag-and-drop import failure
 

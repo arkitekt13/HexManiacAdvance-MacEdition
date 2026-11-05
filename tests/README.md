@@ -14,6 +14,10 @@ has zero failures with explicit optional-ROM skips; see [UPSTREAM_BASELINE.md](U
 The second upstream project, `src/HexManiac.Integration`, now has a portable host; select it
 with `--integration` and see [INTEGRATION_BASELINE.md](INTEGRATION_BASELINE.md) for its separate results.
 See individual group READMEs for any manual GUI checks that remain.
+[FirstLaunch](FirstLaunch/README.md) covers isolated settings, startup paths and rejected ROM opens;
+[MacPackaging](MacPackaging/README.md) covers build-script failure preservation.
+The [helper-readiness investigation](FIRST_LAUNCH_READINESS_REVIEW.md) separates reproduced defects,
+real published-loader checks and native distribution checks still awaiting helpers.
 The 2026-11-04 [Mac input/history audit](MAC_INPUT_HISTORY_AUDIT.md) records confirmed fixes,
 coverage, preservation checks and deliberately unclaimed native/legacy paths.
 The [NPC hover performance investigation](MAP_HOVER_PERFORMANCE.md) measures event construction

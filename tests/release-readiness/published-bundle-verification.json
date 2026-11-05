@@ -1,0 +1,14 @@
+{
+  "application_checkpoint": "6c05c7a6",
+  "bundle_version": "0.6.1",
+  "architecture": "osx-arm64",
+  "minimum_runtime_os": "12.0",
+  "bundled_dotnet_runtime": "8.0.5",
+  "signature": "ad-hoc; codesign --verify --deep --strict succeeds",
+  "resource_files": 61,
+  "published_loader_checks": 7,
+  "managed_assembly_sha256": "3c8d62f314c8ab8ccfa6e95e067d3e535f41bcffd6f401dbe6fdf948b700dc00",
+  "native_window_launched": false,
+  "user_settings_or_roms_changed": false,
+  "native_intel_gatekeeper_clean_machine_verified": false
+}

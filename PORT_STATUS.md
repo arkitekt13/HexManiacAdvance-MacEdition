@@ -1,7 +1,10 @@
 # HexManiac.WPF → HexManiac.Avalonia port status
 
-Fork note: the historical port notes below describe the original port; our subsequent shared
-Core correctness fixes and Mac changes are tracked in [CodexChanges.md](CodexChanges.md).
+Historical record: these notes describe the original Mac port by xavierkeys
+([verified original repository](https://github.com/Xkeys-bot/HexManiacAdvance-mac)).
+For current installation, controls and feature availability, use [README.md](README.md).
+Subsequent Core correctness fixes and Mac changes are tracked in [CodexChanges.md](CodexChanges.md);
+statements below such as unmodified Core, unrun tests or enabled emulator UI describe earlier checkpoints.
 
 Every file in `src/HexManiac.WPF` (84 files, ~17,300 lines), in dependency order.
 Rule: **no changes to HexManiac.Core.** If Core needs the platform, it goes behind an interface.

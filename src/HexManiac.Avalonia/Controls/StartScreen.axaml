@@ -58,6 +58,18 @@
       </Style>
    </Grid.Styles>
 
+   <Grid Grid.RowSpan="3" IsHitTestVisible="False" ClipToBounds="True">
+      <Image Name="WelcomeBackgroundImage" Stretch="UniformToFill" Opacity="0.65"/>
+      <Border>
+         <Border.Background>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+               <GradientStop Color="#6019181F" Offset="0"/>
+               <GradientStop Color="#D919181F" Offset="0.55"/>
+               <GradientStop Color="#FF19181F" Offset="1"/>
+            </LinearGradientBrush>
+         </Border.Background>
+      </Border>
+   </Grid>
    <!-- Scale lettering down for smaller windows while keeping the action button at a usable size. -->
    <Grid Margin="28,16,28,0">
       <Ellipse Width="760" Height="360" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center">

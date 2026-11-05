@@ -2434,3 +2434,15 @@ Validation: The GitHub Releases API currently returns no releases, so Option 1 e
 | tests/INSTALLATION_REHEARSAL.md | 1 | Record actual source ZIP build, ARM64 packaging, extracted-signature checks, isolated startup results and explicit native/clean-machine limits. |
 
 Validation: Downloaded baseline 6c64f826 builds with zero errors; network-enabled ARM64 packaging succeeds, ZIP integrity and extracted ad-hoc signature pass, and the startup probe passes seven checks with 61 resource files and isolated preferences. Initial restricted restore reports NU1900 feed warnings. No application code, personal ROM/settings or published release changed; no native-window, clean-machine or Intel certification is claimed. Future welcome-image/tutorial-patch feasibility is recorded without implementation.
+
+## 149 — Add an optional map background to the welcome screen
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml | 64 | Place an input-transparent map image and dark fade behind the existing welcome content. |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs | 15 | Load the optional PNG on attachment with bounded decoding, safe fallback and disposal on detach. |
+| src/HexManiac.Avalonia/HexManiac.Avalonia.csproj | 45 | Copy optional release assets into both build and publish resources while preserving their folders. |
+| OptionalAssets/Welcome/README.md | 1 | Document the fixed background filename, source folder, target map dimensions and release workflow. |
+| tests/WelcomeScreen/Program.cs | 133 | Cover missing/corrupt PNG fallback, native proportions and input-transparent background layout. |
+
+Validation: Fresh app/test build passes with zero warnings/errors; WelcomeScreen passes 38 assertions, including three window sizes, existing actions/credits/error visibility and optional-image loading. No final background image is bundled yet; no ROM, compiler, history or user preferences changed.

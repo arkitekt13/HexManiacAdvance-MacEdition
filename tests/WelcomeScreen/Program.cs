@@ -121,5 +121,20 @@ if (args.Length == 1) {
    using (var context = bitmap.CreateDrawingContext()) Render(root, context);
    bitmap.Save(args[0]);
 }
+var assetDirectory = Path.Combine(Path.GetTempPath(), "hma-welcome-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(assetDirectory);
+try {
+   var imagePath = Path.Combine(assetDirectory, "background.png");
+   Check(StartScreen.LoadBackground(imagePath) == null, "Missing optional image keeps the plain welcome screen.");
+   File.WriteAllText(imagePath, "not a PNG");
+   Check(StartScreen.LoadBackground(imagePath) == null, "Invalid optional image cannot prevent startup.");
+   using (var image = new RenderTargetBitmap(new PixelSize(1280, 800))) image.Save(imagePath);
+   using (var decoded = StartScreen.LoadBackground(imagePath))
+      Check(decoded != null && decoded.PixelSize.Width == 1280 && decoded.PixelSize.Height == 800,
+         "Optional map PNG loads with preserved proportions and bounded decode width.");
+   var imageLayer = welcome.FindControl<Image>("WelcomeBackgroundImage")!;
+   Check(imageLayer.Stretch == Stretch.UniformToFill && imageLayer.Parent is Grid { IsHitTestVisible: false },
+      "Background fills proportionally without intercepting Open ROM or welcome links.");
+} finally { Directory.Delete(assetDirectory, true); }
 Console.WriteLine($"CHECKS_PASSED:{checks}");
 public record WelcomeModel(ICommand Open, bool ShowError = false, string ErrorMessage = "", ICommand ClearError = null);

@@ -129,7 +129,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       // Only engine-confirmed operands: direct storage IDs are distinct from VarGet's
       // literal-or-variable values. In particular, setvar/addvar/compare values and
       // specialvar's function ID must never become extra variable references.
-      private static IEnumerable<(int Offset, bool ValueOrVariable)> VariableOperands(byte command) {
+      internal static IEnumerable<(int Offset, bool ValueOrVariable)> VariableOperands(byte command) {
          switch (command) {
             case 0x16: case 0x17: case 0x21: case 0x26: case 0xB3:
                yield return (1, false);
@@ -491,7 +491,17 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          return GetAllScriptSpots(model, parser, initialAddresses, true, filter);
       }
 
-      public static IEnumerable<ScriptSpot> GetAllScriptSpots(IDataModel model, ScriptParser parser, IEnumerable<int> initialAddresses, bool includeMacros, params byte[] filter) {
+      public static IEnumerable<ScriptSpot> GetAllScriptSpots(IDataModel model, ScriptParser parser, IEnumerable<int> initialAddresses, bool includeMacros, params byte[] filter) =>
+         GetScriptSpots(model, parser, initialAddresses, includeMacros, null, filter);
+
+      // Each formatted entry is scanned independently. Following another known entry from
+      // every caller repeats shared tails; leave those entries to their own bounded scan.
+      internal static IEnumerable<ScriptSpot> GetKnownScriptSpots(IDataModel model, ScriptParser parser, IEnumerable<int> starts, params byte[] filter) {
+         var entries = starts.ToHashSet();
+         return GetScriptSpots(model, parser, entries, false, entries, filter);
+      }
+
+      private static IEnumerable<ScriptSpot> GetScriptSpots(IDataModel model, ScriptParser parser, IEnumerable<int> initialAddresses, bool includeMacros, ISet<int> separateEntries, byte[] filter) {
          foreach (var scriptStart in initialAddresses) {
             if (scriptStart < 0 || scriptStart >= model.Count) continue;
             var scriptsToCheck = new List<int> { scriptStart };
@@ -499,6 +509,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
                var address = scriptsToCheck[i];
                int currentScriptLength = 0;
                while (currentScriptLength < ScriptLengthLimit) {
+                  if (address != scriptStart && separateEntries?.Contains(address) == true) break;
                   IScriptLine line = includeMacros ? parser.GetMacro(model, address) : null;
                   if (line == null) line = parser.GetLine(model, address);
                   if (line == null) break;
@@ -509,7 +520,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
                   foreach (var arg in line.Args) {
                      if (arg.PointerType == ExpectedPointerType.Script) {
                         var destination = model.ReadPointer(address + commandOffset);
-                        if (destination >= 0 && destination < model.Count && !scriptsToCheck.Contains(destination) && scriptsToCheck.Count < ScriptCountLimit) scriptsToCheck.Add(destination);
+                        if (destination >= 0 && destination < model.Count && !scriptsToCheck.Contains(destination) && scriptsToCheck.Count < ScriptCountLimit && separateEntries?.Contains(destination) != true) scriptsToCheck.Add(destination);
                      }
                      commandOffset += arg.Length(model, -1);
                   }

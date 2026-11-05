@@ -21,6 +21,9 @@ fitted window overlay and source/input lifecycle.
 [MacPackaging](MacPackaging/README.md) covers build-script failure preservation.
 The [helper-readiness investigation](FIRST_LAUNCH_READINESS_REVIEW.md) separates reproduced defects,
 real published-loader checks and native distribution checks still awaiting helpers.
+The [ID suggestion lifetime review](ID_SUGGESTION_LIFECYCLE_REVIEW.md) and
+[IdSuggestionLifecycle](IdSuggestionLifecycle/README.md) cover live usage, deletion/reuse,
+scoped reservations and retained pending/rejected source.
 The [maintenance review](MAINTENANCE_REVIEW.md) records reproduced variable-analysis omissions,
 deterministic animation testing, helper archive verification and the isolated runtime trial.
 The 2026-11-04 [Mac input/history audit](MAC_INPUT_HISTORY_AUDIT.md) records confirmed fixes,

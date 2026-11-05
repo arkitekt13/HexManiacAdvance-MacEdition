@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/HexManiac.Avalonia/HexManiac.Avalonia.csproj" />
+    <Compile Include="../../tests/MapRendering/SyntheticMapFixture.cs" Link="SyntheticMapFixture.cs" />
+    <Content Include="../../src/HexManiac.Core/Models/Code/*" Link="resources/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+      <Compile Include="../../tools/FlagVariableReview/UsageDetectionFixture.cs" Link="UsageDetectionFixture.cs" />
+</ItemGroup>
+</Project>

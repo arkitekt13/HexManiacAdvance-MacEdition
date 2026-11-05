@@ -23,34 +23,22 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       int FindNextUnusedVariable();
    }
 
-   public class EventTemplate : ViewModelCore, IDataInvestigator {
+   public class EventTemplate : ViewModelCore, IScopedDataInvestigator {
       private readonly Random rnd = new();
       private readonly IDataModel model;
       private readonly ScriptParser parser;
       private readonly Task initializationWorkload;
-      private ISet<int> usedFlags, usedTrainerFlags, usedVariables;
+      private ISet<int> usedTrainerFlags;
+      private readonly IdSuggestionState idSuggestions;
       private IReadOnlyDictionary<int, TrainerPreference> trainerPreferences;
       private IReadOnlyDictionary<int, int> minLevel;
 
-      private ISet<int> UsedFlags {
-         get {
-            initializationWorkload.Wait();
-            return usedFlags;
-         }
-      }
       private ISet<int> UsedTrainerFlags {
          get {
             initializationWorkload.Wait();
             return usedTrainerFlags;
          }
       }
-      private ISet<int> UsedVariables {
-         get {
-            initializationWorkload.Wait();
-            return usedVariables;
-         }
-      }
-
       public void UseTrainerFlag(int flag) => UsedTrainerFlags.Add(flag);
       public bool IsTrainerFlagInUse(int flag) => UsedTrainerFlags.Contains(flag);
 
@@ -74,6 +62,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       public EventTemplate(IWorkDispatcher dispatcher, IDataModel model, ScriptParser parser, IReadOnlyList<IPixelViewModel> owGraphics) {
          (this.model, this.parser) = (model, parser);
+         idSuggestions = new IdSuggestionState(model, parser);
          RefreshLists(owGraphics);
          if (model.IsFRLG()) UseNationalDex = true;
 
@@ -90,9 +79,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          });
 
          initializationWorkload = dispatcher.RunBackgroundWork(() => {
-            usedFlags = Flags.GetUsedItemFlags(model, parser);
+            idSuggestions.Initialize();
             usedTrainerFlags = Flags.GetUsedTrainerFlags(model, parser);
-            usedVariables = Flags.GetUsedVariables(model, parser);
          });
       }
 
@@ -162,18 +150,17 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       public ObservableCollection<TemplateType> AvailableTemplateTypes { get; } = new();
 
+      public IDisposable BeginIdAllocation() => idSuggestions.BeginAllocation();
+      public void SetPendingScripts(object owner, IEnumerable<(ScriptParser Parser, string Source)> sources) => idSuggestions.SetPendingScripts(owner, sources);
+
       public int FindNextUnusedFlag() {
-         var flag = 0x21;
-         while (UsedFlags.Contains(flag)) flag++;
-         UsedFlags.Add(flag);
-         return flag;
+         initializationWorkload.Wait();
+         return idSuggestions.Find(variable: false);
       }
 
       public int FindNextUnusedVariable() {
-         var variable = 0x4034;
-         while (UsedVariables.Contains(variable)) variable++;
-         UsedVariables.Add(variable);
-         return variable;
+         initializationWorkload.Wait();
+         return idSuggestions.Find(variable: true);
       }
 
       public void ApplyTemplate(ObjectEventViewModel objectEventModel, ModelDelta token) {
@@ -464,6 +451,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       public int ItemID { get => itemID; set => Set(ref itemID, value); }
 
       public void CreateItem(ObjectEventViewModel objectEventModel, ModelDelta token) {
+         using var allocation = BeginIdAllocation();
          //   copyvarifnotzero 0x8000 item:
          //   copyvarifnotzero 0x8001 1
          //   callstd 1
@@ -628,6 +616,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       #region Tutor
 
       public void CreateTutor(ObjectEventViewModel objectEventViewModel, ModelDelta token) {
+         using var allocation = BeginIdAllocation();
          /* pseudo code:
           *    if flag: goto end
           *    print "forward text" -> yes/no
@@ -783,6 +772,7 @@ failed:
       #region Trade
 
       public void CreateTrade(ObjectEventViewModel objectEventViewModel, ModelDelta token) {
+         using var allocation = BeginIdAllocation();
          var tradeFlag = FindNextUnusedFlag();
 
          int tradeId = 0;
@@ -919,6 +909,7 @@ wrongspecies:
       #region Legendary Encounter
 
       public void CreateLegendary(ObjectEventViewModel objectEventModel, ModelDelta token) {
+         using var allocation = BeginIdAllocation();
          var legendFlag = FindNextUnusedFlag();
          var catchFlag = FindNextUnusedFlag();
 

@@ -835,6 +835,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       public bool CanGenerateNewFlag => Flag == 0;
 
       public void GenerateNewFlag() {
+         using var allocation = eventTemplate.BeginIdAllocation();
          Flag = eventTemplate.FindNextUnusedFlag();
          NotifyPropertiesChanged(nameof(FlagText), nameof(CanGenerateNewFlag));
       }
@@ -1748,6 +1749,7 @@ show:
 
       public bool CanGenerateNewTrigger => Trigger == 0;
       public void GenerateNewTrigger() {
+         using var allocation = eventTemplate.BeginIdAllocation();
          Trigger = eventTemplate.FindNextUnusedVariable();
          triggerHex = null;
          NotifyPropertiesChanged(nameof(TriggerHex), nameof(CanGenerateNewTrigger));

@@ -2063,3 +2063,11 @@ Validation: GitHub visibly confirms the approved repository rename and `git ls-r
 Behavior: The bottom-right map status area shows the selected map's width and height in tiles, excluding border tiles; hovering shows native pixels at 16x16 per tile, independent of zoom. Minus/plus use the existing view-center zoom path, levels and border compensation, disabling at 1/16x and 10x. Map navigation and width/height resizing, including Undo/Redo, update the bound readout and tooltip. Status contents wrap within available map width rather than using fixed Canvas offsets. No zoom-step, border-rendering, ROM-format or game-engine algorithm is changed.
 
 Validation: Fresh targeted builds and runs pass MapZoom (1,276), MapRendering (93), MapImageExport (33), MapHistoryRefresh (23) and MapSelection (394): five groups / 1,819 assertions, zero failures. MapZoom uses three fresh synthetic sessions, 360 routed wheel events plus real status-button clicks, exact byte/metadata/history checks, actual width/height resize sliders and Undo/Redo. Visually inspected a rendered synthetic map tab with the new status bar. Existing Core and unavailable NuGet vulnerability-feed warnings remain; builds have zero errors. No user ROM or settings changed. The full Mac suite was not repeated for this change; native trackpad usability and tooltip appearance remain manual checks.
+
+## 121 — Polish map status labels and zoom symbols
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 1188 | Label the cursor readout X,Y and center larger bold minus/plus symbols within their existing buttons. |
+
+Validation: MapZoom freshly builds and passes all 1,276 assertions, including real button clicks, endpoint disabling, wheel zoom, dimension tooltips and resize Undo/Redo. Visually inspected the rendered synthetic map tab to confirm centered bold symbols and the coordinate label. Existing Core and unavailable NuGet vulnerability-feed warnings remain; the build has zero errors. No new tests were added for this presentation-only adjustment; native appearance remains a user check.

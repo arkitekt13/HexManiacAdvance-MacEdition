@@ -1185,13 +1185,17 @@
          <WrapPanel VerticalAlignment="Center">
             <TextBlock Name="MapDimensionsText" Text="{Binding PrimaryMap.MapDimensions}"
                        ToolTip.Tip="{Binding PrimaryMap.MapDimensionsTooltip}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-            <TextBlock Text="{Binding HoverPoint}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+            <TextBlock VerticalAlignment="Center" Margin="0,0,16,0">
+               <Run Text="X,Y: "/><Run Text="{Binding HoverPoint}"/>
+            </TextBlock>
             <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                <Button Name="ZoomOutButton" Content="−" Width="28" Height="26" Padding="0"
+                       HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16"
                        IsEnabled="{Binding PrimaryMap.CanZoomOut}" Click="ZoomOutClick"
                        ToolTip.Tip="Zoom out one step" AutomationProperties.Name="Zoom out"/>
                <TextBlock Text="{Binding ZoomLevel}" MinWidth="65" TextAlignment="Center" VerticalAlignment="Center"/>
                <Button Name="ZoomInButton" Content="+" Width="28" Height="26" Padding="0"
+                       HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16"
                        IsEnabled="{Binding PrimaryMap.CanZoomIn}" Click="ZoomInClick"
                        ToolTip.Tip="Zoom in one step" AutomationProperties.Name="Zoom in"/>
             </StackPanel>

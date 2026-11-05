@@ -1,0 +1,262 @@
+{
+  "baseline": "842bb385",
+  "investigation_commit": "c469a704",
+  "implementation_committed_with_record": true,
+  "command": "scripts/verify-mac.sh --no-restore",
+  "sdk": "8.0.300",
+  "groups": [
+    {
+      "group": "AutocompleteDismissal",
+      "assertions": 85
+    },
+    {
+      "group": "AutocompleteMapping",
+      "assertions": 294
+    },
+    {
+      "group": "BlockBagFill",
+      "assertions": 2081
+    },
+    {
+      "group": "BlocksetPreviews",
+      "assertions": 160
+    },
+    {
+      "group": "BlocksetSelection",
+      "assertions": 199
+    },
+    {
+      "group": "BorderBounds",
+      "assertions": 195
+    },
+    {
+      "group": "ClipboardRouting",
+      "assertions": 78
+    },
+    {
+      "group": "ColorEditorInput",
+      "assertions": 93
+    },
+    {
+      "group": "CommentHighlighting",
+      "assertions": 4652
+    },
+    {
+      "group": "CrashReporting",
+      "assertions": 29
+    },
+    {
+      "group": "DialogueDiagnostics",
+      "assertions": 27
+    },
+    {
+      "group": "DialogueScaffolding",
+      "assertions": 384
+    },
+    {
+      "group": "ExternalEmulatorLaunch",
+      "assertions": 31
+    },
+    {
+      "group": "ExternalFileChanges",
+      "assertions": 38
+    },
+    {
+      "group": "FileDrop",
+      "assertions": 24
+    },
+    {
+      "group": "FirstLaunch",
+      "assertions": 47
+    },
+    {
+      "group": "FlagUsageSafety",
+      "assertions": 1098
+    },
+    {
+      "group": "FocusAnimation",
+      "assertions": 25
+    },
+    {
+      "group": "IdSuggestionLifecycle",
+      "assertions": 81
+    },
+    {
+      "group": "ImageEditorInput",
+      "assertions": 38
+    },
+    {
+      "group": "ImageHoverPreviews",
+      "assertions": 56
+    },
+    {
+      "group": "ItemTablePresentation",
+      "assertions": 48
+    },
+    {
+      "group": "MacPackaging",
+      "assertions": 43
+    },
+    {
+      "group": "MacSecondaryActions",
+      "assertions": 43
+    },
+    {
+      "group": "MapArrowIcons",
+      "assertions": 98
+    },
+    {
+      "group": "MapEventEditing",
+      "assertions": 63
+    },
+    {
+      "group": "MapEventMenus",
+      "assertions": 68
+    },
+    {
+      "group": "MapGestureLifecycle",
+      "assertions": 1343
+    },
+    {
+      "group": "MapHistoryRefresh",
+      "assertions": 23
+    },
+    {
+      "group": "MapHoverLookup",
+      "assertions": 50
+    },
+    {
+      "group": "MapHoverPreview",
+      "assertions": 134
+    },
+    {
+      "group": "MapImageExport",
+      "assertions": 33
+    },
+    {
+      "group": "MapRendering",
+      "assertions": 93
+    },
+    {
+      "group": "MapSelection",
+      "assertions": 394
+    },
+    {
+      "group": "MapSpriteSelection",
+      "assertions": 180
+    },
+    {
+      "group": "MapThreadSafety",
+      "assertions": 22
+    },
+    {
+      "group": "MapUsageSearch",
+      "assertions": 106
+    },
+    {
+      "group": "MapZoom",
+      "assertions": 1276
+    },
+    {
+      "group": "NpcTemplate",
+      "assertions": 44
+    },
+    {
+      "group": "PaletteClipboard",
+      "assertions": 40
+    },
+    {
+      "group": "PaletteHistory",
+      "assertions": 36
+    },
+    {
+      "group": "PatchSafety",
+      "assertions": 357
+    },
+    {
+      "group": "PortraitFreshness",
+      "assertions": 68
+    },
+    {
+      "group": "ProjectExportSafety",
+      "assertions": 13
+    },
+    {
+      "group": "ProjectImport",
+      "assertions": 30
+    },
+    {
+      "group": "SaveSafety",
+      "assertions": 17
+    },
+    {
+      "group": "ScriptArgumentSafety",
+      "assertions": 1560
+    },
+    {
+      "group": "ScriptAssistance",
+      "assertions": 258
+    },
+    {
+      "group": "ScriptEditorLayout",
+      "assertions": 102
+    },
+    {
+      "group": "ScriptWidthUpdates",
+      "assertions": 448
+    },
+    {
+      "group": "ScriptWorkflowSafety",
+      "assertions": 598
+    },
+    {
+      "group": "ShortFieldTabSelection",
+      "assertions": 21
+    },
+    {
+      "group": "StartupUpdates",
+      "assertions": 42
+    },
+    {
+      "group": "StreamTemplates",
+      "assertions": 123
+    },
+    {
+      "group": "TabMenus",
+      "assertions": 33
+    },
+    {
+      "group": "TextSelection",
+      "assertions": 63
+    },
+    {
+      "group": "TutorialLayout",
+      "assertions": 332
+    },
+    {
+      "group": "UpstreamVerificationRunner",
+      "assertions": 29
+    },
+    {
+      "group": "VerificationRunner",
+      "assertions": 9
+    },
+    {
+      "group": "WelcomeScreen",
+      "assertions": 34
+    },
+    {
+      "group": "WildEncounterEditing",
+      "assertions": 128
+    }
+  ],
+  "total_groups": 61,
+  "total_assertions": 18117,
+  "failures": 0,
+  "skipped_groups": 0,
+  "source_warnings": 0,
+  "other_diagnostic": "Existing MapImageExport NU1900 package-vulnerability-feed retrieval diagnostic; successful security-data refresh is not claimed.",
+  "native_ui_or_gameplay_verified": false,
+  "upstream_xunit_suites_rerun": false,
+  "user_rom_or_preferences_used": false
+}

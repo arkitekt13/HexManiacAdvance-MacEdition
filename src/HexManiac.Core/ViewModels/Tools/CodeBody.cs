@@ -95,6 +95,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       }
 
       public void InsertFlag() {
+         using var allocation = (investigator as IScopedDataInvestigator)?.BeginIdAllocation();
          var content = new StringBuilder(Content.Substring(0, CaretPosition));
          var afterContent = Content.Substring(CaretPosition);
          var flag = investigator.FindNextUnusedFlag();
@@ -117,6 +118,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       }
 
       public void InsertVar() {
+         using var allocation = (investigator as IScopedDataInvestigator)?.BeginIdAllocation();
          var content = new StringBuilder(Content.Substring(0, CaretPosition));
          var afterContent = Content.Substring(CaretPosition);
          var variable = investigator.FindNextUnusedVariable();

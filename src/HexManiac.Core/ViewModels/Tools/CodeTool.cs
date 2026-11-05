@@ -42,7 +42,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          scriptCompileGeneration++;
          recompileTimer.Reset();
          action?.Invoke();
-         if (action != null) ScriptStateChanged?.Invoke(this, EventArgs.Empty);
+         if (action != null) NotifyScriptStateChanged();
          return scriptDrafts.Count == 0;
       }
 
@@ -50,7 +50,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          var active = Contents.Where(scriptDrafts.Contains).ToArray();
          if (active.Length == 0) return false;
          foreach (var body in active) scriptDrafts.Remove(body);
-         ScriptStateChanged?.Invoke(this, EventArgs.Empty);
+         NotifyScriptStateChanged();
          UpdateContent();
          return true;
       }
@@ -62,7 +62,23 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       public bool UseSingleContent => !UseMultiContent;
       public bool UseMultiContent => Mode.IsAny(CodeMode.Script, CodeMode.BattleScript, CodeMode.AnimationScript, CodeMode.TrainerAiScript);
 
-      public IDataInvestigator Investigator { get; set; }
+      private IDataInvestigator investigator;
+      public IDataInvestigator Investigator {
+         get => investigator;
+         set {
+            (investigator as IScopedDataInvestigator)?.SetPendingScripts(this, Array.Empty<(ScriptParser, string)>());
+            investigator = value;
+            UpdateIdReservations();
+         }
+      }
+
+      private void UpdateIdReservations() => (investigator as IScopedDataInvestigator)?.SetPendingScripts(this,
+         scriptDrafts.Where(body => body.Parser == script).Select(body => (body.Parser, body.Content)));
+
+      private void NotifyScriptStateChanged() {
+         UpdateIdReservations();
+         ScriptStateChanged?.Invoke(this, EventArgs.Empty);
+      }
 
       private bool isSelected;
       public bool IsSelected { get => isSelected; set => Set(ref isSelected, value, old => UpdateContent()); }
@@ -418,7 +434,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          recompileTimer.DelayCall(TimeSpan.FromSeconds(.5), () => {
             if (generation == scriptCompileGeneration) FlushPendingScriptChanges();
          });
-         ScriptStateChanged?.Invoke(this, EventArgs.Empty);
+         NotifyScriptStateChanged();
          //*/
       }
 

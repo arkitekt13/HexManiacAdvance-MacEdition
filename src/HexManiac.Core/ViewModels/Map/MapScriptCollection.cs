@@ -389,6 +389,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
 
       public bool CanGenerateNewVar => variable == 0;
       public void GenerateNewVar() {
+         using var allocation = eventTemplate.BeginIdAllocation();
          variable = eventTemplate.FindNextUnusedVariable();
          Variable = variable.ToString("X4");
       }

@@ -2374,3 +2374,25 @@ Validation: The real oversized hex hover and compiled Go To image-token cases fa
 | tests/id-suggestion-lifecycle/before.json | 1 | Preserve the confirmed flag and script-event variable add/delete/reallocate results against the merged baseline. |
 
 Validation: Fabricated maps exercise actual event creation, ID generation and deletion; fresh scans show 0021/4034 are unused after deletion while replacement suggestions incorrectly advance to 0022/4035. Focused regressions fail against the baseline for both cases. No user ROM/preferences were used; implementation and final validation are separate changes.
+
+## 145 — Refresh unused-ID suggestions and release owned reservations safely
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/IdSuggestionState.cs | 11 | Separate live usage, scoped tool reservations, conservative unowned requests and retained pending source with byte/metadata invalidation. |
+| src/HexManiac.Core/ViewModels/Map/IdSuggestionState.cs | 125 | Read pending operands through compiler conversion and researched roles without writing scripts/resources or interpreting dialogue as code. |
+| src/HexManiac.Core/ViewModels/Map/EventTemplate.cs | 153 | Delegate suggestions to the lifecycle state and scope immediate multi-ID template actions. |
+| src/HexManiac.Core/ViewModels/Map/IEventViewModel.cs | 838 | Scope immediate object-flag and script-trigger allocation so deleted final references can become reusable. |
+| src/HexManiac.Core/ViewModels/Map/MapScriptCollection.cs | 392 | Scope conditional map-script variable generation while retaining its existing ROM write. |
+| src/HexManiac.Core/ViewModels/Map/Flags.cs | 132 | Share the existing operand-role classifier with read-only pending-source and known-script analysis. |
+| src/HexManiac.Core/ViewModels/Tools/CodeBody.cs | 98 | Scope assisted flag/variable insertion until CodeTool registers the pending source. |
+| src/HexManiac.Core/ViewModels/Tools/CodeTool.cs | 66 | Synchronize pending/rejected overworld source reservations with existing compile, discard and state notifications. |
+| tests/IdSuggestionLifecycle/Program.cs | 23 | Reproduce event reuse failures and protect 81 reference, draft, numeric, metadata, scope and history invariants. |
+| tests/IdSuggestionLifecycle/IdSuggestionLifecycle.csproj | 1 | Link the real synthetic map/scanner/workflow fixtures for isolated lifecycle checks. |
+| tests/IdSuggestionLifecycle/README.md | 1 | Describe focused coverage, original failures and conservative analysis boundaries. |
+| tests/ID_SUGGESTION_LIFECYCLE_REVIEW.md | 53 | Explain the implemented ownership model and focused validation without claiming exhaustive unused-ID safety. |
+| tests/id-suggestion-lifecycle/mac-verification.json | 1 | Preserve all 61 fresh regression-group counts and explicit native/security-audit limits. |
+| tests/README.md | 24 | Link the lifetime review and focused group from the regression index. |
+| FutureDevelopment.md | 106 | Mark freshness/owned reservation repair complete while retaining range, native/custom-engine and incomplete-scan work. |
+
+Validation: The actual flag and variable deletion/replacement regressions fail before the repair; the focused group now passes 81 assertions across nine synthetic scenarios. No compiler, numeric grammar, candidate range, trainer policy, game-engine data, pointer relocation or history algorithm changed. Known formatted scripts and retained drafts remain protected; bare unowned investigator calls retain conservative reservations. The final serial Mac suite passes 61 groups / 18,117 assertions with zero failures and zero skipped groups. Source builds emit no compiler warnings; the existing MapImageExport NU1900 vulnerability-feed diagnostic is separate. Exact group counts are recorded in tests/id-suggestion-lifecycle/mac-verification.json; native gameplay/UI and separate upstream xUnit suites were not rerun. No user ROM/preferences used.

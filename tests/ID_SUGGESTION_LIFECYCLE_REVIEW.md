@@ -18,7 +18,7 @@ Replacing this set with a fresh scan alone would lose protection for source not 
 ## Bounded implementation design
 
 - Separate live ROM usage from temporary allocation reservations and pending source.
-- Reuse scanned usage only while the existing ModelCacheScope identity remains unchanged;
+- Reuse scanned usage only while ModelCacheScope and formatted-run identities remain unchanged;
   normal byte writes, import writes, Undo/Redo and cache refresh invalidate that identity.
 - Keep known formatted XSERun scripts protected even after event roots disappear; deleting an
   event does not establish that its associated script's flag/variable is gone.
@@ -54,3 +54,31 @@ This is not exhaustive native-code/custom-engine analysis, a new legal-range/exh
 or a promise to discover arbitrary unformatted/disconnected code. It does not reclaim trainer
 records. The separate upstream suites and real-gameplay/native UI checks remain outside the
 focused reproduction. Final implementation/test results follow separately.
+
+## Implemented lifecycle and focused validation
+
+The repaired focused group passes 81 assertions across nine isolated synthetic scenarios.
+Live usage is cached against both ModelCacheScope identity and a reference-identity snapshot of
+formatted runs, including metadata-only script discovery. Run snapshots use the existing model
+run lock. Native reservations and previous candidate-range/trainer policies remain intact.
+
+Immediate tool/template actions share disposable scopes for multi-ID requests. Overworld CodeTool
+state notifications register its pending and retained rejected source, clear it after successful
+compilation/discard, and preserve independent owners. Standalone unowned requests retain the old
+conservative distinct-ID behavior. Source analysis uses line compilation into temporary byte
+arrays and compiler argument conversion for unfinished lines, with the same researched variable
+operand roles and literal distinctions. It does not invoke resource-writing script compilation.
+
+The first complete suite passed 61 groups / 18,115 assertions. Review then added the two
+metadata-only invalidation checks and synchronized metadata snapshots; final full validation is
+recorded below when complete. No gameplay/native UI or upstream xUnit certification is inferred.
+
+## Final verification
+
+The final serial Mac suite passes **61 groups / 18,117 assertions / zero failures / zero skipped
+groups**, including the new 81-check group and all earlier script workflow, assistance, history,
+map, clipboard and preview groups. Exact per-group counts and limits are in
+[mac-verification.json](id-suggestion-lifecycle/mac-verification.json). Source builds emit no
+compiler warnings; the existing MapImageExport NU1900 vulnerability-feed diagnostic remains
+separate. No user ROM or preferences changed. Native gameplay/UI and separate upstream xUnit
+suites were not run, and exhaustive native/custom-engine unused-ID safety is not claimed.

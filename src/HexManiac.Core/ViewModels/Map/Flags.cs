@@ -129,7 +129,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       // Only engine-confirmed operands: direct storage IDs are distinct from VarGet's
       // literal-or-variable values. In particular, setvar/addvar/compare values and
       // specialvar's function ID must never become extra variable references.
-      private static IEnumerable<(int Offset, bool ValueOrVariable)> VariableOperands(byte command) {
+      internal static IEnumerable<(int Offset, bool ValueOrVariable)> VariableOperands(byte command) {
          switch (command) {
             case 0x16: case 0x17: case 0x21: case 0x26: case 0xB3:
                yield return (1, false);

@@ -105,7 +105,8 @@ numeric interpretation and shared-Core compilation are unchanged.
 ## HMA-005 — Harden unused-ID usage detection after evidence review
 
 **Status:** The bounded command-operand and conditional-header repair is implemented in changelog
-entry 137, with 1,098 focused assertions. Broader freshness/reservation/range analysis remains deferred.
+entry 137, with 1,098 focused assertions. Live usage and owned reservation lifetimes are repaired
+in entry 145, with 81 additional lifecycle assertions; range/native-engine analysis remains deferred.
 
 **Evidence:** [FLAG_USAGE_INVESTIGATION.md](tests/FLAG_USAGE_INVESTIGATION.md) cross-checks twelve
 command handlers and byte mappings against FireRed/Emerald/Ruby engine references. Synthetic
@@ -126,8 +127,13 @@ scanning also sees operands inside presentation macros. Literal/function-ID role
 reservations and allocation ranges remain intact; before/after evidence is in
 [MAINTENANCE_REVIEW.md](tests/MAINTENANCE_REVIEW.md).
 
-**Remaining scope:** Freshness after arbitrary manual edits, reservations, native-reserve audits,
-legal ranges, custom engines and incomplete-scan reporting require separately reviewed work.
+**Lifecycle follow-up:** Usage snapshots now track byte/cache and formatted-run metadata changes;
+operation scopes release immediate tool reservations, and retained pending/rejected source keeps
+its IDs protected until committed or discarded. Known orphaned formatted scripts also stay protected.
+See [ID_SUGGESTION_LIFECYCLE_REVIEW.md](tests/ID_SUGGESTION_LIFECYCLE_REVIEW.md).
+
+**Remaining scope:** Native-reserve audits, legal ranges/exhaustion, custom engines, arbitrary
+unformatted disconnected code and incomplete-scan reporting require separately reviewed work.
 The bounded repair is not a claim that every suggested ID is safe in every modified engine.
 
 ## HMA-006 — Prevent deferred script work from applying to a changed context

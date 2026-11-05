@@ -2142,3 +2142,11 @@ Evidence: The original panel checked the case-sensitive string `NPC` against enu
 Behavior: Choose the NPC sprite before placement; the toolbar icon and subsequent NPCs use it. Switching templates, closing/reopening settings and navigating maps in the same open ROM retain the choice. Trainer/Legendary keep their existing setting. Large sprites fit bounded previews and the toolbar box. Removing a selected sprite from refreshed options falls back to ID 0. The preference is not persisted across application relaunch. The generated NPC script, dialogue bytes, movement, elevation, range, trainer fields and flag defaults retain their existing behavior.
 
 Validation: NpcTemplate passes 44 assertions. The fresh complete serial `scripts/verify-mac.sh --no-restore` run passes 57 regression groups / 17,244 assertions, zero failures and zero skipped groups. Existing sprite selection, map gesture/cancellation, script compilation/relocation, source editing and history protections pass. Builds succeed with existing Core/NuGet warnings; the separate upstream suites were not rerun. No user ROM, settings or sidecar changed; Save/reload uses memory. Native macOS appearance and dragging the chosen sprite onto the user's map remain manual checks.
+
+## 126 — Publish the updated Mac Edition accomplishments sheet
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | N/A | Publish a four-page summary with 65 accomplishment bullets, updated map/NPC features and the latest verified Mac regression totals. |
+
+Validation: Rendered and visually reviewed all four pages, checked page numbering and extracted text, and confirmed the 57-group / 17,244-assertion totals against the last completed Mac run at code checkpoint 03c69932. Benchmark figures retain workload-specific scope, and planned tutorial/guide work is distinguished from implemented features. This commit adds documentation only; no code, user ROM or settings changes, and no additional test-suite run.

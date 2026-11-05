@@ -76,4 +76,38 @@ var first = delayed.LaunchAsync(f.View, f.FileSystem, Save, errors.Add);
 await delayed.LaunchAsync(f.View, f.FileSystem, Save, errors.Add);
 paused.SetResult(null); await first;
 Check(starts == 3, "Repeated clicks during selection do not create duplicate launches.");
+// Additional first-use/recovery checks use separate fake preferences and no native launch.
+var blockedPreference=Path.Combine(f.Folder,"preference-is-directory");Directory.CreateDirectory(blockedPreference);
+int isolatedStarts=0;
+Task<string> IsolatedStart(ProcessStartInfo _) {isolatedStarts++;return Task.FromResult<string>(null);}
+var blocked=new ExternalEmulatorLauncher(blockedPreference,()=>Task.FromResult(app),IsolatedStart);
+await blocked.LaunchAsync(f.View,f.FileSystem,Save,errors.Add);
+Check(isolatedStarts==0&&Directory.Exists(blockedPreference)&&errors.Last().Contains("Could not launch"),"Preference publication failure preserves existing paths and produces an actionable error without launching.");
+var selectionGate=new TaskCompletionSource<string>();
+var movedPreference=Path.Combine(f.Folder,"moved-during-picker.txt");
+var moved=new ExternalEmulatorLauncher(movedPreference,()=>selectionGate.Task,IsolatedStart);
+var movedTask=moved.LaunchAsync(f.View,f.FileSystem,Save,errors.Add);
+Directory.Move(app,app+".moved");selectionGate.SetResult(app);await movedTask;
+Check(isolatedStarts==0&&!File.Exists(movedPreference)&&errors.Last().Contains("Select an emulator"),"An application removed during selection cannot be remembered or launched.");
+Directory.Move(app+".moved",app);
+int attempts=0;
+var retry=new ExternalEmulatorLauncher(preference,Pick,_=>{attempts++;if(attempts==1)throw new IOException("synthetic process error");return Task.FromResult<string>(null);});
+await retry.LaunchAsync(f.View,f.FileSystem,Save,errors.Add);
+Check(attempts==1&&errors.Last().Contains("synthetic process error"),"Launch exceptions are reported.");
+await retry.LaunchAsync(f.View,f.FileSystem,Save,errors.Add);
+Check(attempts==2,"A failed launch releases the reentrancy guard for correction/retry.");
+if(!OperatingSystem.IsWindows()) {
+ File.SetUnixFileMode(preference,UnixFileMode.None);
+ try {
+  int reads=0;var denied=new ExternalEmulatorLauncher(preference,()=>{reads++;return Task.FromResult(app);},IsolatedStart);
+  await denied.LaunchAsync(f.View,f.FileSystem,Save,errors.Add);
+  Check(isolatedStarts==0&&reads==0&&errors.Last().Contains("Could not launch"),"Unreadable emulator preferences are preserved and reported without replacing them.");
+ } finally {File.SetUnixFileMode(preference,UnixFileMode.UserRead|UnixFileMode.UserWrite);}
+ Check(File.ReadAllText(preference).Trim()==app,"Failed preference reads leave the selected application unchanged.");
+}
+var closedGate=new TaskCompletionSource<string>();
+var closed=new ExternalEmulatorLauncher(Path.Combine(f.Folder,"closed-while-picking.txt"),()=>closedGate.Task,IsolatedStart);
+var closeTask=closed.LaunchAsync(f.View,f.FileSystem,Save,errors.Add);
+f.View.Close.Execute(f.FileSystem);closedGate.SetResult(app);await closeTask;
+Check(f.Model.ReferenceCount==0&&isolatedStarts==0,"Closing the selected ROM during the picker cannot save or launch a closed document.");
 Console.WriteLine($"CHECKS_PASSED:{checks}");

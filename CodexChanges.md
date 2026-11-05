@@ -2188,3 +2188,12 @@ Validation: FirstLaunch passes 33 assertions, including actual dispatched addres
 | tests/FirstLaunch/README.md | 1 | Document the expanded settings and metadata coverage. |
 
 Validation: FirstLaunch passes 47 assertions with zero failures. Fourteen additional checks exercise the real Mac filesystem with disposable profiles, including chmod-denied reads and read-only writes; unread settings and sidecars remain byte-for-byte unchanged. Existing settings paths and ROM metadata locations remain compatible; only tests inject another directory. No personal preferences or user ROMs changed. Settings-read protection lasts for the session so a later permission change cannot silently replace previously unread preferences with defaults. The complete Mac run follows the remaining readiness work.
+
+## 130 — Verify external emulator setup and recovery for helper testing
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ExternalEmulatorLaunch/Program.cs | 95 | Cover failed preference publication/read, application removal during selection, retry after a launch exception and closing the ROM while the chooser is pending. |
+| tests/ExternalEmulatorLaunch/README.md | 1 | Record 31 macOS assertions and correct the obsolete built-in F6 availability note. |
+
+Validation: ExternalEmulatorLaunch passes 31 assertions using temporary fake applications/preferences and injected process starters. Existing first-use cancellation, remembered path, Browse output, Save and Launch, rejected source and failed-save checks still pass. The seven added checks confirm the existing launcher already handles the investigated recovery cases; no launcher implementation or personal preferences changed, and no real emulator was started.

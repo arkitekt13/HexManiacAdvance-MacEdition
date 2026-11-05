@@ -2175,3 +2175,16 @@ Validation: Unchanged application builds; six existing groups pass 752 assertion
 | tools/FirstLaunchReview/Program.cs | 1 | Await the explicit startup operation when rerunning the investigation probe. |
 
 Validation: FirstLaunch passes 33 assertions, including actual dispatched address navigation and cancellation after switching/closing tabs. FileDrop 24, SaveSafety 17 and ScriptWorkflowSafety 598 also pass (672 assertions across four groups). The original probe reproduced filename truncation and a startup out-of-range exception before this fix. No user ROM/settings changed; ordinary command/picker opening remains available, and numeric parsing changes are limited to startup address syntax and rejecting malformed sidecar fields, not script operands. The complete suite follows the remaining readiness changes.
+
+## 129 — Keep settings access failures from aborting first launch or replacing unread preferences
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 45 | Allow an isolated app-support path for tests and expose nonfatal settings warnings without overriding the user's profile. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 80 | Load defaults after settings I/O failure, prohibit overwriting unread preferences and use staged writes that preserve earlier settings on failure. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 340 | Convert denied ROM-sidecar reads into an explicit open failure rather than treating unread metadata as absent. |
+| src/HexManiac.Avalonia/App.axaml.cs | 309 | Show settings-read failure as an ordinary nonmodal welcome-screen error. |
+| tests/FirstLaunch/Program.cs | 90 | Check isolated fresh profiles, restart, invalid directories, real permission failures, byte preservation and denied ROM-sidecar opening. |
+| tests/FirstLaunch/README.md | 1 | Document the expanded settings and metadata coverage. |
+
+Validation: FirstLaunch passes 47 assertions with zero failures. Fourteen additional checks exercise the real Mac filesystem with disposable profiles, including chmod-denied reads and read-only writes; unread settings and sidecars remain byte-for-byte unchanged. Existing settings paths and ROM metadata locations remain compatible; only tests inject another directory. No personal preferences or user ROMs changed. Settings-read protection lasts for the session so a later permission change cannot silently replace previously unread preferences with defaults. The complete Mac run follows the remaining readiness work.

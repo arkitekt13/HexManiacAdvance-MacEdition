@@ -308,6 +308,7 @@ public partial class App : Application {
       if (fileName != string.Empty) fileName = Path.GetFullPath(fileName);
       SetInitialWorkingDirectory();
       var editor = new EditorViewModel(fileSystem, fileSystem, allowLoadingMetadata: useMetadata) { ShowDeveloperMenu = showDevMenu };
+      if (fileSystem.AppMetadataWarning != null) editor.ErrorMessage = fileSystem.AppMetadataWarning;
       DebugLog(editor, "------");
       DebugLog(editor, fileName);
       // Persisted flags from older builds referred to upstream Windows releases.

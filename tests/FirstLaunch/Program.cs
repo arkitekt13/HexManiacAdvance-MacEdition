@@ -88,6 +88,50 @@ try {
  }
  var stale=new EditorViewModel(new StubFileSystem{MetadataFor=_=>new[]{"RecentFiles = [\"/missing/helper.gba\"]"},Exists=_=>false},InstantDispatch.Instance);
  Check(stale.Count==0&&stale.RecentFiles.Count==0,"Stale recent paths do not open tabs or prevent startup.");
+ var profile=Path.Combine(root,"fresh profile");
+ using(var freshFs=new MacFileSystem(()=>null,appSupportDirectory:profile)) {
+  Check(freshFs.MetadataFor(EditorViewModel.ApplicationName)==null,"A fresh isolated profile has no saved preferences.");
+  var cleanEditor=new EditorViewModel(freshFs,InstantDispatch.Instance);
+  Check(cleanEditor.Count==0&&cleanEditor.RecentFiles.Count==0&&freshFs.AppMetadataWarning==null,"Fresh settings create a clean welcome state without a warning.");
+  cleanEditor.InsertAutoActive=true;CoreSeam.SaveAppSettings(cleanEditor);
+  Check(File.Exists(Path.Combine(profile,EditorViewModel.ApplicationName+".toml")),"Preferences save to the injected profile, not the bundle or working directory.");
+ }
+ using(var reloadFs=new MacFileSystem(()=>null,appSupportDirectory:profile)) {
+  var reloadedEditor=new EditorViewModel(reloadFs,InstantDispatch.Instance);
+  Check(reloadedEditor.InsertAutoActive&&reloadedEditor.Count==0,"Settings survive restart without reopening a ROM automatically.");
+ }
+ var blockedProfile=Path.Combine(root,"not a directory");File.WriteAllText(blockedProfile,"preserve me");
+ using(var blockedFs=new MacFileSystem(()=>null,appSupportDirectory:blockedProfile)) {
+  Check(blockedFs.MetadataFor(EditorViewModel.ApplicationName)==null&&blockedFs.AppMetadataWarning!=null,"Inaccessible settings fall back without a startup exception.");
+  Check(!blockedFs.SaveMetadata(EditorViewModel.ApplicationName,new[]{"replacement"})&&File.ReadAllText(blockedProfile)=="preserve me","Unread settings cannot be overwritten when closing.");
+  var state=(EditorViewModel)typeof(App).GetMethod("GetViewModel",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,new object[]{"",-1,blockedFs,new[]{true,false}})!;
+  Check(state.Count==0&&state.ErrorMessage.Contains("Using defaults"),"Startup exposes a nonmodal settings warning on the welcome screen.");
+ }
+ var prefs=Path.Combine(profile,EditorViewModel.ApplicationName+".toml");
+ var originalPrefs=File.ReadAllBytes(prefs);
+ if(!OperatingSystem.IsWindows()) {
+  File.SetUnixFileMode(prefs,UnixFileMode.None);
+  try {
+   using var deniedFs=new MacFileSystem(()=>null,appSupportDirectory:profile);
+   Check(deniedFs.MetadataFor(EditorViewModel.ApplicationName)==null&&deniedFs.AppMetadataWarning!=null,"Actual file read denial uses defaults.");
+   File.SetUnixFileMode(prefs,UnixFileMode.UserRead|UnixFileMode.UserWrite);
+   Check(!deniedFs.SaveMetadata(EditorViewModel.ApplicationName,new[]{"replacement"})&&originalPrefs.SequenceEqual(File.ReadAllBytes(prefs)),"Unread original preferences stay protected even if permissions change later in the session.");
+  } finally {File.SetUnixFileMode(prefs,UnixFileMode.UserRead|UnixFileMode.UserWrite);}
+  File.SetUnixFileMode(prefs,UnixFileMode.UserRead);
+  try {
+   using var readOnlyFs=new MacFileSystem(()=>null,appSupportDirectory:profile);
+   Check(readOnlyFs.MetadataFor(EditorViewModel.ApplicationName)!=null,"Read-only settings still load.");
+   Check(!readOnlyFs.SaveMetadata(EditorViewModel.ApplicationName,new[]{"replacement"})&&originalPrefs.SequenceEqual(File.ReadAllBytes(prefs)),"Settings write denial is nonfatal and preserves original bytes.");
+  } finally {File.SetUnixFileMode(prefs,UnixFileMode.UserRead|UnixFileMode.UserWrite);}
+  var sidecar=Path.ChangeExtension(pathToOpen,".toml");File.WriteAllText(sidecar,"original sidecar");File.SetUnixFileMode(sidecar,UnixFileMode.None);
+  try {
+   using var romFs=new MacFileSystem(()=>null,appSupportDirectory:profile);
+   var romEditor=new EditorViewModel(romFs,InstantDispatch.Instance);
+   Check(Result(romEditor.OpenFileAsync(new LoadedFile(pathToOpen,new byte[512])))==null&&romEditor.Count==0&&romEditor.ErrorMessage.Contains("metadata"),"Unread ROM sidecars reject opening instead of being treated as absent.");
+  } finally {File.SetUnixFileMode(sidecar,UnixFileMode.UserRead|UnixFileMode.UserWrite);}
+  Check(File.ReadAllText(sidecar)=="original sidecar","Failed metadata reads never rewrite the ROM sidecar.");
+ }
+ Check(originalPrefs.SequenceEqual(File.ReadAllBytes(prefs)),"All failure cases preserve the original preferences.");
 } finally {Directory.Delete(root,true);}
 Console.WriteLine($"CHECKS_PASSED:{checks}");
 

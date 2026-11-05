@@ -54,7 +54,7 @@ namespace HavenSoft.HexManiac.Core.Models
         
         public Action<string, string> LaunchProcess { get; set; }
         
-        void IFileSystem.LaunchProcess(string file, string arguments = null)
+        void IFileSystem.LaunchProcess(string file, string arguments)
         {
             if (this.LaunchProcess != null)
             {
@@ -168,7 +168,7 @@ namespace HavenSoft.HexManiac.Core.Models
         
         public Action<System.Int16[], int, string> SaveImage { get; set; }
         
-        void IFileSystem.SaveImage(System.Int16[] image, int width, string fileName = null)
+        void IFileSystem.SaveImage(System.Int16[] image, int width, string fileName)
         {
             if (this.SaveImage != null)
             {

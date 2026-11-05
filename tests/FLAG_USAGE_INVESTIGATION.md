@@ -1,3 +1,7 @@
+> Historical pre-implementation investigation. The bounded command/header reference repair is
+> now implemented and protected by 1,098 assertions; see [MAINTENANCE_REVIEW.md](MAINTENANCE_REVIEW.md)
+> for before/after evidence and remaining freshness/native/custom-engine limitations.
+
 # Flag/variable usage detection: investigation before implementation
 
 Date: 2026-11-03. Application checkpoint: `29eae327`; investigation branch:

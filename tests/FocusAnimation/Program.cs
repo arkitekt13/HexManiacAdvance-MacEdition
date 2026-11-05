@@ -26,32 +26,38 @@ var reproduced = false;
 try { oldAnimation.RunAsync(new TranslateTransform()).GetAwaiter().GetResult(); }
 catch (InvalidCastException) { reproduced = true; }
 Check(reproduced, "Expected the reported Transform-to-Visual cast failure.");
-// No native window means no compositor ticks; drive Avalonia 11.2.3's real clock explicitly.
-// Reflection is confined to this check because MediaContext and IClock are internal APIs.
+// The control owns an independent clock: dispatcher wall-clock pulses cannot finish
+// the animation between our explicit ticks. Reflection stays in this pinned test adapter.
 const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-var contextType = typeof(Animation).Assembly.GetType("Avalonia.Media.MediaContext")!;
-var context = contextType.GetProperty("Instance", flags)!.GetValue(null);
-var clock = contextType.GetProperty("Clock", flags)!.GetValue(context)!;
-var pulse = clock.GetType().GetMethod("Pulse", flags)!;
-var pulseNew = clock.GetType().GetMethod("PulseNewSubscriptions", flags)!;
-for (int repeat = 0; repeat < 3; repeat++) {
-   pulse.Invoke(clock, new object[] { TimeSpan.FromMilliseconds(repeat * 200) });
-   var outline = new Border();
-   var task = FocusOutlineAnimation.RunAsync(outline, new Size(800, 600),
-      new Rect(500, 200, 100, 80), TimeSpan.FromMilliseconds(100));
-   Check(outline.IsVisible && outline.RenderTransform is TranslateTransform, "Outline should begin visible with a transform.");
-   var sawMovement = false;
-   pulseNew.Invoke(clock, null);
-   for (int tick = 0; tick <= 8; tick++) {
-      pulse.Invoke(clock, new object[] { TimeSpan.FromMilliseconds(repeat * 200 + tick * 25) });
-      Dispatcher.UIThread.RunJobs();
-      if (outline.RenderTransform is TranslateTransform transform && transform.X != 0 && outline.Width > 0)
-         sawMovement = true;
+var clockType = typeof(Animation).Assembly.GetType("Avalonia.Animation.ClockBase")!;
+var pulse = clockType.GetMethod("Pulse", flags)!;
+var clockProperty = (AvaloniaProperty)typeof(Animatable).GetField("ClockProperty", flags)!.GetValue(null)!;
+foreach (int delay in new[] { 0, 35 }) {
+   for (int repeat = 0; repeat < 3; repeat++) {
+      var clock = Activator.CreateInstance(clockType, nonPublic: true)!;
+      pulse.Invoke(clock, new object[] { TimeSpan.Zero });
+      var outline = new Border();
+      outline.SetValue(clockProperty, clock);
+      var task = FocusOutlineAnimation.RunAsync(outline, new Size(800, 600),
+         new Rect(500, 200, 100, 80), TimeSpan.FromMilliseconds(100));
+      Check(outline.IsVisible && outline.RenderTransform is TranslateTransform, "Outline should begin visible with a transform.");
+      var sawMovement = false;
+      double? firstX = null, firstWidth = null;
+      for (int tick = 0; tick <= 8; tick++) {
+         pulse.Invoke(clock, new object[] { TimeSpan.FromMilliseconds(tick * 25) });
+         if (delay != 0) Thread.Sleep(delay); // stress dispatcher timing, not animation time
+         Dispatcher.UIThread.RunJobs();
+         if (outline.RenderTransform is TranslateTransform transform && outline.Width > 0) {
+            firstX ??= transform.X;
+            firstWidth ??= outline.Width;
+            if (transform.X != firstX && outline.Width != firstWidth) sawMovement = true;
+         }
+      }
+      Check(task.IsCompleted, "Focus animation did not complete.");
+      task.GetAwaiter().GetResult();
+      Check(sawMovement, "Focus animation must actually change position and size.");
+      Check(!outline.IsVisible && outline.RenderTransform == null, "Outline must be hidden and its transform cleared on completion.");
    }
-   Check(task.IsCompleted, "Focus animation did not complete.");
-   task.GetAwaiter().GetResult();
-   Check(sawMovement, "Focus animation must actually change position and size.");
-   Check(!outline.IsVisible && outline.RenderTransform == null, "Outline must be hidden and its transform cleared on completion.");
 }
-Console.WriteLine("PASS: reproduced the reported crash; three real focus animations moved, resized, completed, and cleaned up without a cast failure.");
+Console.WriteLine("PASS: reproduced the reported crash; six real animations moved, resized, completed and cleaned up under normal and deliberately delayed dispatcher timing.");
 Console.WriteLine($"CHECKS_PASSED:{checks}");

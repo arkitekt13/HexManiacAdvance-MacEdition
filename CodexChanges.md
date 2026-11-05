@@ -2248,3 +2248,120 @@ Validation: New relative documentation links and the existing README#on-macos in
 | tests/FIRST_LAUNCH_READINESS_REVIEW.md | 89 | Summarize final validation, live GitHub changes and remaining native/runtime/distribution limits. |
 
 Validation: The complete serial Mac runner passes 59 groups / 17,329 assertions, zero failures and zero skipped groups. The first full attempt stopped on the pre-existing unchanged FocusAnimation movement assertion; its unchanged standalone rerun and subsequent full run both pass without weakening any assertion. The final self-contained arm64 bundle builds from /private/tmp, passes strict signature verification and all seven independent published-loader checks with 61 resources and isolated preference roundtrip. Builds retain existing Core warnings; separate upstream suites were not rerun. No user ROM/settings or native app session changed. Runtime upgrade, native/Intel/OS checks, notarization and actual release publication remain explicit follow-up work; this evidence commit adds no application changes.
+
+## 135 — Investigate runtime compatibility, animation timing, variable omissions and helper archives
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MAINTENANCE_REVIEW.md | 1 | Separate confirmed analysis/test defects, promising isolated runtime results and useful archive preparation from speculative work. |
+| tests/maintenance-review/focus-global-delayed.txt | 1 | Preserve the original clock assertion failure under a deliberate dispatcher delay. |
+| tests/maintenance-review/focus-local-delayed.txt | 1 | Record the same real animation passing the original assertions with a local clock under the same delay. |
+| tests/maintenance-review/variable-before-summary.json | 1 | Record freshly reproduced command/header reference omissions across five game identities. |
+| tools/FocusClockReview/Program.cs | 1 | Instrument the production animation with original/global and isolated/local clock adapters for diagnosis only. |
+| tools/FocusClockReview/FocusClockReview.csproj | 1 | Build the independent animation investigation against the Mac app. |
+| tools/FocusClockReview/README.md | 1 | Explain delay stress, original assertions and isolation. |
+
+Validation: A disposable .NET 10 copy builds successfully and passes ScriptWorkflowSafety's 598 assertions using a temporary SDK/runtime; the working app and installed SDK remain unchanged. The 35-ms clock probe reproduces the old assertion failure and passes all 13 original checks with an independent test clock. The read-only variable audit reconfirms 13 missed command references per game plus conditional-header fields. No production source, user ROM or personal settings changed. Implementations and broader compatibility evidence follow separately.
+
+## 136 — Make the focus-animation regression deterministic without changing the animation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/FocusAnimation/Program.cs | 30 | Give each real outline an independent test clock and verify observed position/size changes under normal and deliberately delayed dispatcher timing. |
+| tests/FocusAnimation/README.md | 1 | Explain the global-clock interference, retained requirements and 25 assertions across six animations. |
+
+Validation: The deliberate 35-ms delay reproduces the old test's failure with an already-completed task before its first sample. The independent-clock adapter passes 25 assertions, including the original cast-crash reproduction, actual movement/resizing, completion and cleanup; ten separate processes pass 250 assertions total. The movement check is strengthened to compare sampled values rather than accept a nonzero initial keyframe. Production FocusOutlineAnimation, duration, rendering and native behavior are unchanged. No ROM or settings used.
+
+## 137 — Include confirmed variable operands and map-header comparisons in usage analysis
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/Flags.cs | 109 | Share engine-confirmed variable-reference classification between used-ID discovery and Find Uses, including raw commands inside macros and conditional-header fields. |
+| src/HexManiac.Core/ViewModels/Map/Flags.cs | 190 | Bound conditional rows before reading them while retaining the existing traversal budget and sentinel semantics. |
+| tests/FlagUsageSafety/Program.cs | 30 | Reproduce missing operands before the fix and protect detection/locations, literal exclusions, macro internals, headers, reservations and data/metadata/history immutability. |
+| tests/FlagUsageSafety/README.md | 1 | Record 1,098 assertions and the bounded scope without claiming complete unused-ID safety. |
+| tests/maintenance-review/variable-after-summary.json | 1 | Record zero omissions in the reviewed matrix and unchanged native reserve inventories for five game identities. |
+| tests/FLAG_USAGE_INVESTIGATION.md | 1 | Preserve the original investigation with an explicit implemented follow-up link. |
+| tools/FlagVariableReview/UsageDetectionAudit.cs | 126 | Describe the review as read-only analysis of current helpers rather than assuming no implementation has occurred. |
+| FutureDevelopment.md | 105 | Mark the bounded repair complete while retaining freshness, legal ranges and native/custom-engine work as separate follow-ups. |
+
+Validation: The expanded regression first fails on BPRE/subvar's second operand against unchanged production code, then passes 1,098 assertions across five synthetic game identities. The original copyvar-source case now excludes that used ID from suggestions. Every reviewed operand/header field is detected in the independent role audit, and existing native reserve inventories are identical before/after. ScriptAssistance 258, DialogueScaffolding 384, ScriptWorkflowSafety 598, MapHistoryRefresh 23 and NpcTemplate 44 also pass. Flags, allocation ranges, numeric parsing, script encoding/relocation, native game code and history algorithms are unchanged; analysis/suggestions preserve bytes, metadata and edit history. Snapshot freshness, native-code completeness and custom-engine safety are not claimed. No user ROM/settings changed.
+
+## 138 — Prepare identifiable helper ZIPs with credits, license, instructions and checksums
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| package-mac.sh | 1 | Rebuild the verified architecture-specific app and stage a local helper ZIP with source/build identity, dirty-state labeling, original license, instructions and portable SHA-256. |
+| tests/MacPackaging/Program.cs | 72 | Verify real ZIP contents/checksum, source identity, credits, user-data exclusion, dirty labeling, archive failure cleanup and existing-output preservation using fake build/sign tools. |
+| tests/MacPackaging/README.md | 1 | Record 43 packaging/archive assertions and distinguish the fake toolchain from native artifact verification. |
+| README.md | 95 | Document local helper ZIP preparation and checksum verification without claiming release upload or notarization. |
+| docs/MAC_HELPER_TESTING.md | 44 | Explain archive contents, build identification and keeping checksum files with distributed helpers. |
+
+Validation: MacPackaging passes 43 assertions, including thirteen new helper-archive checks. Tests encode and inspect real ZIPs containing synthetic bundles; existing ZIP/checksum bytes remain intact on repetition and archive-creation failure publishes nothing. Invalid architectures still fail before building; separate arm64/x64 output and prior build protection remain covered. The original project license and thanks to Haven/xavierkeys accompany the app, and no ROM or emulator preference is copied. The script prepares generated local artifacts only, with no GitHub release or native emulator/app launch. A final real arm64 archive and full regression verification follow separately.
+
+## 139 — Keep benchmark-backed test fixtures compatible with the newer C# compiler
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tools/ItemTableBenchmark/ItemFixture.cs | 23 | Escape the existing field lambda identifier inside a property accessor so C# 14 does not interpret it as the new contextual keyword. |
+| tools/TrainerPortraitBenchmark/PortraitFixture.cs | 45 | Apply the same identifier-only compatibility fix to the portrait fixture property. |
+
+Validation: The isolated .NET 10 trial reproduces CS9273 on each property before these changes. The only edits escape the two existing identifier declarations/references; fixture logic, data and public APIs are unchanged. ItemTablePresentation passes 48 assertions and PortraitFreshness passes 68 on the working .NET 8 setup. The complete isolated .NET 10 rerun includes both fixes; results are recorded separately when complete. No application target framework, dependency version, installed SDK, ROM or settings changed.
+
+## 140 — Record final maintenance, compatibility and helper-archive verification
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MAINTENANCE_REVIEW.md | 82 | Record completed bounded repairs, real archive checks, both complete runtime trials and the decision to retain the current application target. |
+| tests/maintenance-review/net8-verification.json | 1 | Preserve all 59 fresh working-runtime group counts and explicit validation limits. |
+| tests/maintenance-review/net10-compatibility.json | 1 | Preserve matching isolated runtime counts, temporary trial changes and earlier compiler/runner stops without claiming migration is complete. |
+| tests/maintenance-review/helper-archive-verification.json | 1 | Record the clean source identity, SHA-256, ZIP integrity, contents and strict extracted-signature checks for the real arm64 helper archive. |
+| tests/README.md | 21 | Link the maintenance investigation and its reproducible evidence from the regression index. |
+
+Validation: Both the working SDK 8.0.300/runtime 8.0.5 and isolated SDK 10.0.403/runtime 10.0.14 pass 59 groups / 17,917 assertions with zero failures and zero skipped groups; exact per-group counts match. The real arm64 helper ZIP from clean implementation commit 52f917a14385 passes SHA-256, complete CRC/content inspection and strict extracted-app signature verification. The installed SDK and working net8.0 app target remain unchanged; no user ROM/preferences changed and no release was published. Separate upstream suites, native launch/emulator/gameplay, Intel, older macOS, Gatekeeper and notarization are not claimed. This entry records evidence only, with no additional application changes.
+
+## 141 — Remove the eight launch-build warnings while preserving execution behavior
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Core/Autos/StubFileSystem.cs | 57 | Remove ineffective optional defaults from explicit implementations while retaining the interface defaults used by callers. |
+| src/HexManiac.Core/Models/CrossTableDataViewPort.cs | 125 | Remove the unused private selectAll field without changing command behavior. |
+| src/HexManiac.Core/Models/Runs/TrainerPokemonTeamRun.cs | 38 | Remove the unused minimumLevels field while retaining the live local minimum-level lookup. |
+| src/HexManiac.Core/Models/Runs/Sprites/BlockmapRun.cs | 340 | Remove the unread palette-count field and constant assignments without changing palette processing. |
+| src/HexManiac.Core/ViewModels/ViewModelCore.cs | 151 | Match XML documentation parameter names to the existing TryUpdate signature. |
+| src/HexManiac.Core/ViewModels/QuickEditItems/ApplyCFRUPatch.cs | 34 | Replace async-without-await with synchronous execution wrapped in completed, faulted or canceled tasks while retaining the patch/save/reopen body. |
+
+Validation: A fresh complete Mac application rebuild passes with zero warnings and zero errors, compared with the eight warnings reproduced before cleanup; no warning suppressions were added. Fresh targeted builds and runs pass BlocksetSelection 199, ScriptWorkflowSafety 598 and ItemTablePresentation 48 assertions, totaling 845 across three groups. A temporary synthetic probe passes five additional checks for completed invalid-tab diagnostics and a faulted missing-resource task with unchanged model bytes; its first setup attempt lacked test resources, then passed after the probe setup was corrected. Two sandbox test builds stalled before output and were terminated, then the serial builds/runs completed outside the sandbox; neither stalled run is counted as a pass. The complete 59-group suite was not rerun for this cleanup. No real CFRU patch, user ROM, personal settings, runtime target, game engine or warning policy changed.
+
+## 142 — Keep the border editor steady while painting and refreshing map data
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs | 636 | Refresh the existing border editor instead of replacing the object that owns live panel visibility. |
+| src/HexManiac.Core/ViewModels/Map/BorderEditor.cs | 111 | Invalidate cached dimensions and rendered border data while retaining visibility and editor subscriptions. |
+| tests/MapGestureLifecycle/Program.cs | 407 | Reproduce the animated hide/show failure and protect stable geometry, capture, complete single/copied strokes, no-ops, cache refresh, history and explicit open/close. |
+| tests/MapGestureLifecycle/README.md | 65 | Explain the new real-animation lifecycle checks and their failing-before reproduction. |
+| tests/BorderBounds/Program.cs | 65 | Verify changed border dimensions and exact Undo/Redo refresh without losing open state. |
+| tests/BorderBounds/README.md | 18 | Record custom-dimension refresh coverage and the updated assertion count. |
+
+Validation: The new animated single-stroke scenario fails against unchanged production code on the first transient hide. After the fix, all 38 MapGestureLifecycle scenarios pass 1,343 assertions, including the two new animated single/copied-border cases; BorderBounds passes 195 assertions. No drawing, pointer relocation, cache-invalidation scope, numeric rules or history algorithm changed, and no user ROM/settings were used. The normal open/close animation remains enabled. Full Mac-suite verification follows the separate image-preview fix; native trackpad confirmation remains useful.
+
+## 143 — Fit hex and Go To image hints without intercepting their source input
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/ImagePreviewLayer.cs | 15 | Present complete image-bearing hints in a bounded input-transparent window layer with explicit source and window lifetimes. |
+| src/HexManiac.Avalonia/Controls/ImageHoverPreview.cs | 10 | Attach image-only hover ownership to Go To tokens with collection, context and detachment cleanup. |
+| src/HexManiac.Avalonia/Controls/HexContent.cs | 496 | Reset stale cell hover state and route image content through the fitted layer while preserving text tips and unformatted-cell caching. |
+| src/HexManiac.Avalonia/Resources/MenuConverters.cs | 218 | Keep native Go To tooltips for nonempty text-only hints and exclude images handled by the overlay. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 564 | Bind token image-hover content and host one input-transparent image layer in the window. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 262 | Dismiss current image hints when Go To visibility changes. |
+| tests/ImageHoverPreviews/Program.cs | 24 | Reproduce hex/compiled-token failures and protect 56 fitting, re-entry, input, text-tip, collection/context, tab and lifetime invariants. |
+| tests/ImageHoverPreviews/ImageHoverPreviews.csproj | 1 | Run real compiled window templates with synthetic sprite data and headless routed input. |
+| tests/ImageHoverPreviews/README.md | 1 | Document reproduction, assertions, intentional popup exclusions and native verification limits. |
+| tests/IMAGE_PREVIEW_LIFECYCLE_REVIEW.md | 1 | Preserve investigation evidence, the bounded repair decisions and explicit coverage limits. |
+| tests/preview-lifecycle/mac-verification.json | 1 | Record every fresh regression-group count, source checkpoints and native/security-audit limits. |
+| tests/README.md | 17 | Link the preview lifecycle findings and focused regression from the suite index. |
+| FutureDevelopment.md | 324 | Close the deferred code audit with confirmed repairs and retain native verification as release work. |
+
+Validation: The real oversized hex hover and compiled Go To image-token cases fail separately against the prior implementation. ImageHoverPreviews now passes 56 assertions with zero build warnings/errors, including full transformed small/tall/wide image bounds, click-through, same-cell re-entry, text tips, keyboard/mouse selection, collection/context recycling, resizing, Go To closure/reopening, detach/reattach, document-tab changes and exact byte/metadata/history preservation. No script compilation, pointer relocation, game-engine data, numeric rules, interactive palette/map-list popups or global tooltip theme changed. The complete serial Mac suite passes 60 groups / 18,036 assertions with zero failures and zero skipped groups; exact counts are recorded in tests/preview-lifecycle/mac-verification.json. Source builds emit no compiler warnings; MapImageExport retains the existing NU1900 package-vulnerability-feed diagnostic, so successful security-data retrieval is not claimed. Native trackpad/compositor confirmation remains useful, and separate upstream suites were not rerun. No user ROM/settings changed.

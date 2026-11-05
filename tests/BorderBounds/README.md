@@ -13,3 +13,6 @@ The first negative-fraction write assertion fails before the fix. Rejected origi
 history token; valid pattern origins clip to the border's intersection without shifting tiles.
 Real pointer/capture routes are covered separately by MapGestureLifecycle's border scenarios.
 No personal ROM, settings or emulator is used.
+
+Custom-dimension resizing also verifies refreshed image dimensions, retained panel visibility
+and exact Undo/Redo after cache refresh with the same live border editor (195 assertions total).

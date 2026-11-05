@@ -1,0 +1,12 @@
+{
+  "archive": "HexManiacAdvance-MacEdition-0.6.1-osx-arm64-52f917a14385.zip",
+  "bytes": 59303771,
+  "sha256": "5b74af5825bd1a734123edc2db3ab4411400244081f47497b89792b3ce2efcb6",
+  "zip_entries": 2101,
+  "build_info": "HexManiacAdvance Mac Edition\nApp version: 0.6.1\nArchitecture: osx-arm64\nSource revision: 52f917a14385354e0beccdfb40028d3830a4421b\nTracked working tree modified: false\nManaged application SHA-256: 208368feaa08348eb605037c0fb744bd45827a7f7d523fc7b5b893f148429e2a\nSigning: ad-hoc; not Developer ID signed or notarized\nRuntime details: HexManiacAdvance.app/Contents/MacOS/HexManiacAdvance.runtimeconfig.json\n",
+  "checksum_verified": true,
+  "crc_verified": true,
+  "no_rom_or_preferences": true,
+  "extracted_signature_verified": true,
+  "native_app_launched": false
+}

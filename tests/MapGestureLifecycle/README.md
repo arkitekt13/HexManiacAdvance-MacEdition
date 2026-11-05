@@ -63,3 +63,9 @@ overrides, while another stroke with the same brush retains the explicit choice.
 byte and metadata is checked, along with Save/reload and exact Undo/Redo boundaries. Separate
 Core checks retain the original int-coordinate overload and validate fallback corners without
 discovery. Negative copied-brush preservation (HMA-016) remains outside these fixes.
+
+Animated border-panel scenarios retain the real 300-ms transition and check that single-tile
+and copied-pattern strokes never remove the shown class, move the image, or lose capture.
+Every intended cell and neighboring byte is checked, as are explicit cache refresh, no-op
+painting, one-step Undo/Redo and normal animated close/reopen. The old implementation fails
+on the first changed tile because refreshing data briefly hides the live panel.

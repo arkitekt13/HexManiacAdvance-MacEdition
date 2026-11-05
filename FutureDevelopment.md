@@ -12,31 +12,33 @@ Review these items when preparing the first public Mac Edition release:
   Treat runtime/Avalonia compatibility as a separate investigation, not a framework bump hidden
   in UI or packaging work. See the [first-launch investigation](tests/FIRST_LAUNCH_READINESS_REVIEW.md).
 
-## HMA-001 — Resolve native `.hma` drag-and-drop import failure
+## HMA-001 — Verify native `.hma` import with the matching ROM revision
 
-**Status:** Deferred; still unresolved after the user's retry of the routing fix.
+**Status:** Unverified; awaiting the user's retry with the correct ROM revision, not a confirmed
+outstanding import defect.
 
-**Reported behavior:** A dropped script once opened as another tab; later attempts appeared to do
-nothing, and the user reports it still does not work after commit `93eb5e13`.
+**User clarification:** The earlier attempt likely used a patch intended for FireRed 1.0 on a
+FireRed 1.1 ROM. This version mismatch may explain the apparent no-op; it has not yet been
+confirmed by retrying the patch against the required revision.
 
-**Completed partial work:** Map-tab drops now route to their owning ROM, local-file copy effects
+**Earlier observations:** A dropped script once opened as another tab; later attempts appeared
+to do nothing after routing commit `93eb5e13`. Preserve these observations as history rather
+than evidence that the current port still fails with a compatible patch and ROM.
+
+**Completed routing work:** Map-tab drops route to their owning ROM, local-file copy effects
 are explicit, handled child events reach the window, invalid/busy targets have messages, and prior
-edits/imports retain undo boundaries. The headless regression passes 24 checks. These checks do
-not reproduce the user's remaining native Finder/script-specific failure.
+edits/imports retain undo boundaries. The headless regression passes 24 checks; it does not verify
+this particular patch against the matching ROM in native Finder use.
 
-**Next investigation:**
+**Next verification:** Retry the actual patch on a disposable copy of the required FireRed
+revision and confirm the intended ROM changes. No implementation change is justified unless a
+compatible-input failure is reproduced. If it still fails, inspect patch guards/assets, native
+Finder delivery, target routing and parser/completion diagnostics before adding a failing
+regression and proposing a fix.
 
-1. Obtain the actual script, expected patch result, and exact ROM revision; inspect its game/version
-   guards and relative asset requirements without applying it to the user's working ROM.
-2. Capture the native Finder payload and target tab, then confirm whether drag-over, drop, file
-   loading, Editor.Open, and ViewPort.TryImport are each reached.
-3. Trace script completion, update-in-progress state, parser errors, and intentional no-op paths
-   on a disposable ROM copy; distinguish native delivery failure from script incompatibility.
-4. Add a regression for the confirmed failure before changing the implementation.
-
-**Completion criteria:** The user's reproduction reliably applies the intended edits or displays
-an actionable error, never silently opens the script as a binary tab, and preserves unrelated
-ROMs, source files, metadata, and existing undo history.
+**Completion criteria:** Record the matching-revision result; if successful, close this item as
+an input-version mismatch. Any reproduced port fix must preserve unrelated ROMs, source files,
+metadata and existing undo history.
 
 ## HMA-002 — Show the copied map brush beneath the cursor
 
@@ -102,7 +104,8 @@ numeric interpretation and shared-Core compilation are unchanged.
 
 ## HMA-005 — Harden unused-ID usage detection after evidence review
 
-**Status:** Investigation and safety baseline completed; production changes await approval.
+**Status:** The bounded command-operand and conditional-header repair is implemented in changelog
+entry 137, with 1,098 focused assertions. Broader freshness/reservation/range analysis remains deferred.
 
 **Evidence:** [FLAG_USAGE_INVESTIGATION.md](tests/FLAG_USAGE_INVESTIGATION.md) cross-checks twelve
 command handlers and byte mappings against FireRed/Emerald/Ruby engine references. Synthetic
@@ -117,9 +120,15 @@ variable distinctions, flag/event/root coverage and read-only analysis. Do not t
 number as a variable or change researched addresses. FlagUsageSafety protects supported behavior;
 the review tool reports omissions without requiring them to persist.
 
-**Possible next scope, requiring approval:** Add only engine-confirmed missing operands/header
-fields with failing-before/passing-after tests. Handle freshness, reservations, native-reserve
-audits, legal ranges, custom engines and incomplete-scan reporting as separately reviewed work.
+**Completed scope:** Engine-confirmed operands from the twelve reviewed opcodes and both
+conditional-header comparison fields now feed used-variable discovery and Find Uses. Raw command
+scanning also sees operands inside presentation macros. Literal/function-ID roles, native/session
+reservations and allocation ranges remain intact; before/after evidence is in
+[MAINTENANCE_REVIEW.md](tests/MAINTENANCE_REVIEW.md).
+
+**Remaining scope:** Freshness after arbitrary manual edits, reservations, native-reserve audits,
+legal ranges, custom engines and incomplete-scan reporting require separately reviewed work.
+The bounded repair is not a claim that every suggested ID is safe in every modified engine.
 
 ## HMA-006 — Prevent deferred script work from applying to a changed context
 
@@ -314,12 +323,15 @@ captured pointer drags, packed data and exact Save/reload/Undo/Redo.
 Coverage: [BorderBounds](tests/BorderBounds/README.md) and MapGestureLifecycle.
 Evidence: [COPIED_BRUSH_REVIEW.md](tests/COPIED_BRUSH_REVIEW.md).
 
-## Deferred image-preview audit
+## Image-preview and border-panel lifecycle review
 
-**Status:** Deferred at the user's request after the map-header blockset preview investigation.
+**Status:** Investigated November 5, 2026; confirmed border-panel and hex/Go To image-hint
+failures have bounded repairs and failing-before regressions, recorded in changelog entries
+142–143 and [IMAGE_PREVIEW_LIFECYCLE_REVIEW.md](tests/IMAGE_PREVIEW_LIFECYCLE_REVIEW.md).
 
-Review large image tooltips in the hex editor (`HexContent` / `HexContentToolTip`) and Go To
-previews, plus unconstrained image selector templates. Check size limits, pointer interception,
-popup placement and dismissal under scrolling, recycling and context changes. These are code-audit
-candidates, not confirmed reproductions of the blockset hover flicker; do not apply a blanket
-change to ordinary text tooltips or intentional interactive popups.
+The border panel retains its visibility through cache refreshes. Hex and Go To image hints now
+fit complete content in an input-transparent window overlay and dismiss/reopen by source context.
+NPC summaries, blockset previews, bounded overworld selectors, inline images, selected-block hover
+and deliberate palette/map-list popups were reviewed; no additional reproduced flicker defect
+justified a blanket change. Native trackpad/compositor and multi-display confirmation remains
+part of normal release testing. Ordinary text tips and editable popups retain their behavior.

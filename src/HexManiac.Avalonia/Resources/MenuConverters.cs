@@ -209,13 +209,14 @@ public class IgnoreEmptySelectionConverter : IValueConverter {
 /// that ran at about 30Hz for as long as the pointer kept moving over the token. That is the
 /// flicker on the "data" / "scripts" buttons.
 ///
-/// Returning null here leaves ToolTip.Tip unset, exactly as WPF's cleared Setter did.
+/// Empty tips leave ToolTip.Tip unset; image-bearing tips use ImageHoverPreview instead.
+/// Ordinary text-only hints retain this tooltip service.
 /// </summary>
 public class GotoHoverTipConverter : IValueConverter {
    public static GotoHoverTipConverter Instance { get; } = new();
 
    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-      if (value is not IEnumerable content) return null;
+      if (value is not IEnumerable content || ImagePreviewLayer.HasImages(value)) return null;
       var enumerator = content.GetEnumerator();
       try {
          if (!enumerator.MoveNext()) return null;

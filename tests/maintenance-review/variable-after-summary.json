@@ -1,0 +1,87 @@
+[
+  {
+    "game": "BPRE",
+    "missed_command_references": 0,
+    "headers": [
+      {
+        "type": 2,
+        "leftDetected": true,
+        "rightDetected": true
+      },
+      {
+        "type": 4,
+        "leftDetected": true,
+        "rightDetected": true
+      }
+    ],
+    "native_reserves_unchanged": true
+  },
+  {
+    "game": "BPGE",
+    "missed_command_references": 0,
+    "headers": [
+      {
+        "type": 2,
+        "leftDetected": true,
+        "rightDetected": true
+      },
+      {
+        "type": 4,
+        "leftDetected": true,
+        "rightDetected": true
+      }
+    ],
+    "native_reserves_unchanged": true
+  },
+  {
+    "game": "BPEE",
+    "missed_command_references": 0,
+    "headers": [
+      {
+        "type": 2,
+        "leftDetected": true,
+        "rightDetected": true
+      },
+      {
+        "type": 4,
+        "leftDetected": true,
+        "rightDetected": true
+      }
+    ],
+    "native_reserves_unchanged": true
+  },
+  {
+    "game": "AXVE",
+    "missed_command_references": 0,
+    "headers": [
+      {
+        "type": 2,
+        "leftDetected": true,
+        "rightDetected": true
+      },
+      {
+        "type": 4,
+        "leftDetected": true,
+        "rightDetected": true
+      }
+    ],
+    "native_reserves_unchanged": true
+  },
+  {
+    "game": "AXPE",
+    "missed_command_references": 0,
+    "headers": [
+      {
+        "type": 2,
+        "leftDetected": true,
+        "rightDetected": true
+      },
+      {
+        "type": 4,
+        "leftDetected": true,
+        "rightDetected": true
+      }
+    ],
+    "native_reserves_unchanged": true
+  }
+]

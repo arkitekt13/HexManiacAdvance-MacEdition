@@ -113,7 +113,7 @@ public static class UsageDetectionAudit {
             limits = "12 opcode roles and conditional-header fields only; shared HMA decoder/roots; no native-code or complete command coverage; absence from this report does not prove unused." };
       }
       Directory.CreateDirectory(Path.GetDirectoryName(output)!);
-      File.WriteAllText(output, JsonSerializer.Serialize(new { scope = "Investigation only; production helpers unchanged.", synthetic, real }, new JsonSerializerOptions { WriteIndented = true }));
+      File.WriteAllText(output, JsonSerializer.Serialize(new { scope = "Read-only review of current production helpers; this tool does not modify application code or ROM data.", synthetic, real }, new JsonSerializerOptions { WriteIndented = true }));
       Console.WriteLine($"Usage-detection review completed: {synthetic.Count} game identities, {UsageContracts.Cases.Length} command cases each; real-ROM phase: {rom != null}.");
       Console.WriteLine(output);
    }

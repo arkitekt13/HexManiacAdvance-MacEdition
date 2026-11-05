@@ -108,6 +108,16 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          HasBorderDimensions = layout.HasField("borderwidth") && layout.HasField("borderheight");
       }
 
+      internal void RefreshFromModel() {
+         width = height = -1;
+         var layout = blockmap.GetLayout();
+         HasBorderDimensions = layout != null && layout.HasField("borderwidth") && layout.HasField("borderheight");
+         // Data and dimensions may have changed through Undo, relocation or another map.
+         // Keep panel visibility and the live editor stable while invalidating rendered data.
+         borderRender = null;
+         NotifyPropertiesChanged(nameof(HasBorderDimensions), nameof(Width), nameof(Height), nameof(BorderRender));
+      }
+
       private bool TryGetCell(double x, double y, out int xx, out int yy) {
          xx = yy = 0;
          // Check pixels before conversion: a small negative value otherwise truncates to cell zero.

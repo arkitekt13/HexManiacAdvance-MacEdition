@@ -19,7 +19,7 @@ using System.Diagnostics;
 
 if (args.Length == 0) {
    var total = 0;
-   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions", "same-cell-history", "reveal-focus", "reveal-tab", "reveal-context", "reveal-navigation", "reveal-normal", "border-single-bounds", "border-multi-bounds", "nine-grid-overrides" }) {
+   foreach (var name in new[] { "paint-capture", "pan-capture", "select-capture", "picker-capture", "background-capture", "tab-stroke", "completed-pan", "completed-select", "rectangle-capture", "bag-capture", "context-stroke", "release-endpoint", "unrelated-release", "event-capture", "pending-template", "navigation-stroke", "pending-wave", "escape-stroke", "escape-rectangle", "escape-event", "escape-picker", "escape-pan", "escape-select", "escape-template", "escape-wave", "cancel-api", "rectangle-permissions", "same-cell-history", "reveal-focus", "reveal-tab", "reveal-context", "reveal-navigation", "reveal-normal", "border-single-bounds", "border-multi-bounds", "border-visible-single", "border-visible-multi", "nine-grid-overrides" }) {
       var start = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true };
       start.ArgumentList.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
       start.ArgumentList.Add(name);
@@ -404,6 +404,44 @@ if(scenario=="paint-capture" || scenario=="pan-capture" || scenario=="select-cap
    window.KeyPressQwerty(modifierKey,modifier);Layout();Check(mapper.HideEvents,"Command/control still hides events.");
    window.KeyReleaseQwerty(modifierKey,RawInputModifiers.None);Layout();Check(!mapper.HideEvents,"Modifier release still restores event visibility.");
    Check(baseline.SequenceEqual(model.RawData),"Reveal and focus cleanup must not write ROM bytes.");
+ } else if(scenario is "border-visible-single" or "border-visible-multi") {
+   bool multiple=scenario=="border-visible-multi";
+   if(multiple) {
+      Down(Cell(2,2),RawInputModifiers.Control);window.MouseMove(Cell(3,3),RawInputModifiers.Control|RawInputModifiers.LeftMouseButton);Up(Cell(3,3));
+      Check(mapper.DrawMultipleTiles,"Use the actual copied brush for the visible border panel.");
+   }
+   var border=view.FindControl<PixelImage>("BorderImage")!;
+   var panel=border.GetVisualAncestors().OfType<Avalonia.Controls.Border>().First(b=>b.Classes.Contains("slidePanel"));
+   Check(panel.Transitions?.Count>0,"The lifecycle regression must retain the real opening animation.");
+   void Settle(){var clock=Stopwatch.StartNew();while(clock.ElapsedMilliseconds<350){Layout();Thread.Sleep(10);}}
+   mapper.PrimaryMap.BorderEditor.ShowBorderPanel=true;Settle();
+   Check(Math.Abs(panel.Bounds.Width-402)<.1,"Wait for normal opening before starting a stroke.");
+   int hides=0;
+   ((System.Collections.Specialized.INotifyCollectionChanged)panel.Classes).CollectionChanged+=(_,e)=>{if(e.OldItems?.Contains("shown")==true)hides++;};
+   Avalonia.Point BorderPoint(double x,double y)=>border.TranslatePoint(new Avalonia.Point(x*3,y*3),window)!.Value;
+   var fixedOrigin=border.TranslatePoint(default,window)!.Value;
+   void Stable(){
+      Check(hides==0&&panel.Classes.Contains("shown"),"Refreshing a painted border must never transiently hide the panel.");
+      Check(Math.Abs(panel.Bounds.Width-402)<.1&&border.TranslatePoint(default,window)==fixedOrigin,"Border image geometry must remain fixed throughout a captured stroke.");
+   }
+   var expected=baseline.ToArray();
+   for(int y=0;y<2;y++)for(int x=0;x<2;x++){
+      var word=multiple?Value(2+x,2+y):1;expected[0x900+(y*2+x)*2]=(byte)word;expected[0x901+(y*2+x)*2]=(byte)(word>>8);
+   }
+   Down(BorderPoint(8,8));Stable();
+   Check((pointer.Captured as Control)?.Name=="BorderImage","Border must retain pointer capture after refreshing its data.");
+   if(!multiple)foreach(var cell in new[]{(24d,8d),(24d,24d),(8d,24d)}){
+      window.MouseMove(BorderPoint(cell.Item1,cell.Item2),RawInputModifiers.LeftMouseButton);Layout();Stable();
+   }
+   Up(BorderPoint(8,multiple?8:24));Stable();
+   Check(expected.SequenceEqual(model.RawData),"The stroke must paint every intended border cell and no neighboring byte.");
+   mapper.PrimaryMap.ClearCaches();Layout();Stable();
+   Check(expected.SequenceEqual(model.RawData),"An explicit cache refresh preserves the border stroke.");
+   mapper.Undo.Execute(null);Layout();Stable();Check(baseline.SequenceEqual(model.RawData),"One Undo restores the exact pre-stroke ROM with the panel open.");
+   mapper.Redo.Execute(null);Layout();Stable();Check(expected.SequenceEqual(model.RawData),"Redo restores exact border bytes without moving the panel.");
+   mapper.DrawBorder(8,8);Layout();Stable();Check(expected.SequenceEqual(model.RawData),"Repeated same-cell border painting preserves the existing result.");
+   mapper.PrimaryMap.BorderEditor.ToggleBorderEditor();Settle();Check(!panel.Classes.Contains("shown")&&panel.Bounds.Width<.1,"Explicit close still animates and closes normally.");
+   mapper.PrimaryMap.BorderEditor.ToggleBorderEditor();Settle();Check(panel.Classes.Contains("shown")&&Math.Abs(panel.Bounds.Width-402)<.1,"Explicit reopen still animates normally.");
  } else if(scenario.StartsWith("border-")) {
    if(scenario=="border-multi-bounds") {
       Down(Cell(2,2),RawInputModifiers.Control);window.MouseMove(Cell(3,3),RawInputModifiers.Control|RawInputModifiers.LeftMouseButton);Up(Cell(3,3));

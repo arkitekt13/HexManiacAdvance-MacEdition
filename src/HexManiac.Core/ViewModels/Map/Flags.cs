@@ -116,34 +116,78 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
             usedVariables.AddRange(RS_ThumbVars);
          }
 
-         foreach (var element in GetAllEvents(model, "scripts")) {
-            if (!element.HasField("trigger")) continue;
-            usedVariables.Add(element.GetValue("trigger"));
-         }
-
-         foreach (var spot in GetAllScriptSpots(model, parser, GetAllTopLevelScripts(model), 0x16, 0x17, 0x18, 0x19, 0x1A, 0x21, 0x22, 0x26)) { // setvar, addvar, subvar, copyvar, setorcopyvar, compare, comparevars, special2
-            usedVariables.Add(model.ReadMultiByteValue(spot.Address + 1, 2));
-         }
-
+         foreach (var reference in GetVariableReferences(model, parser)) usedVariables.Add(reference.Variable);
          return usedVariables;
       }
 
-      public static HashSet<(int, int)> FindVarUsages(IDataModel model, ScriptParser parser, int variable) {
-         var usages = new HashSet<(int, int)>();
+      public static HashSet<(int, int)> FindVarUsages(IDataModel model, ScriptParser parser, int variable) =>
+         new(GetVariableReferences(model, parser).Where(reference => reference.Variable == variable)
+            .Select(reference => (reference.Start, reference.End)));
 
-         foreach (var element in GetAllEvents(model, "scripts")) {
-            if (!element.HasField("trigger")) continue;
-            if (element.GetValue("trigger") == variable) usages.Add((element.Start, element.Start + element.Length - 1));
+      private static readonly byte[] VariableCommands = { 0x16, 0x17, 0x18, 0x19, 0x1A, 0x21, 0x22, 0x26, 0x44, 0x47, 0x8F, 0xB3 };
+
+      // Only engine-confirmed operands: direct storage IDs are distinct from VarGet's
+      // literal-or-variable values. In particular, setvar/addvar/compare values and
+      // specialvar's function ID must never become extra variable references.
+      private static IEnumerable<(int Offset, bool ValueOrVariable)> VariableOperands(byte command) {
+         switch (command) {
+            case 0x16: case 0x17: case 0x21: case 0x26: case 0xB3:
+               yield return (1, false);
+               break;
+            case 0x18: case 0x1A:
+               yield return (1, false);
+               yield return (3, true);
+               break;
+            case 0x19: case 0x22:
+               yield return (1, false);
+               yield return (3, false);
+               break;
+            case 0x44: case 0x47:
+               yield return (1, true);
+               yield return (3, true);
+               break;
+            case 0x8F:
+               yield return (1, true);
+               break;
          }
+      }
 
-         foreach (var spot in GetAllScriptSpots(model, parser, GetAllTopLevelScripts(model), 0x16, 0x17, 0x18, 0x19, 0x1A, 0x21, 0x22, 0x26)) { // setvar, addvar, subvar, copyvar, setorcopyvar, compare, comparevars, special2
-            var address = spot.Address;
-            if (model.ReadMultiByteValue(address + 1, 2) == variable) {
-               usages.Add((address, address + spot.Line.CompiledByteLength(model, address, null) - 1));
+      private static IEnumerable<(int Variable, int Start, int End)> GetVariableReferences(IDataModel model, ScriptParser parser) {
+         foreach (var element in GetAllEvents(model, "scripts")) {
+            if (element.HasField("trigger")) yield return (element.GetValue("trigger"), element.Start, element.Start + element.Length - 1);
+         }
+         // Decode individual commands so a presentation macro cannot hide internal operands.
+         foreach (var spot in GetAllScriptSpots(model, parser, GetAllTopLevelScripts(model), false, VariableCommands)) {
+            var length = spot.Line.CompiledByteLength(model, spot.Address, null);
+            foreach (var operand in VariableOperands(model[spot.Address])) {
+               if (operand.Offset + 2 > length || spot.Address > model.Count - operand.Offset - 2) continue;
+               var variable = model.ReadMultiByteValue(spot.Address + operand.Offset, 2);
+               if (!operand.ValueOrVariable || variable >= 0x4000) yield return (variable, spot.Address, spot.Address + length - 1);
             }
          }
+         foreach (var bank in AllMapsModel.Create(model, default)) {
+            if (bank == null) continue;
+            foreach (var map in bank) {
+               if (map?.MapScripts == null) continue;
+               foreach (var script in map.MapScripts) {
+                  if (script == null || !script.GetValue("type").IsAny(2, 4)) continue;
+                  foreach (var address in ConditionalScriptRows(model, script.GetAddress("pointer"))) {
+                     for (int offset = 0; offset <= 2; offset += 2) {
+                        var variable = model.ReadMultiByteValue(address + offset, 2);
+                        if (variable >= 0x4000) yield return (variable, address, address + 7);
+                     }
+                  }
+               }
+            }
+         }
+      }
 
-         return usages;
+      private static IEnumerable<int> ConditionalScriptRows(IDataModel model, int start) {
+         // Preserve the existing traversal budget while requiring a complete eight-byte row.
+         for (int childCount = 0; childCount <= 100; childCount++, start += 8) {
+            if (start < 0 || start > model.Count - 8 || model.ReadMultiByteValue(start, 2).IsAny(0, 0xFFFF)) yield break;
+            yield return start;
+         }
       }
 
       /// <summary>
@@ -495,15 +539,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
                foreach (var script in scripts) {
                   if (script == null) continue;
                   if (script.GetValue("type").IsAny(2, 4)) {
-                     var start = script.GetAddress("pointer");
-                     int childCount = 0;
-                     if (start >= model.Count || start < 0) continue;
-                     while (!model.ReadMultiByteValue(start, 2).IsAny(0, 0xFFFF)) {
+                     foreach (var start in ConditionalScriptRows(model, script.GetAddress("pointer")))
                         scriptAddresses.Add(model.ReadPointer(start + 4));
-                        start += 8;
-                        childCount += 1;
-                        if (childCount > 100) break; // sanity check
-                     }
                   } else {
                      scriptAddresses.Add(script.GetAddress("pointer"));
                   }

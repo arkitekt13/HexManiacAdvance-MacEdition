@@ -337,7 +337,7 @@ namespace HexManiac.Core.Models.Runs.Sprites {
    public class BlocksetModel {
       private readonly IDataModel model;
       private readonly int address;
-      private readonly int primaryBlocks, primaryTiles, primaryPalettes, attributeOffset;
+      private readonly int primaryBlocks, primaryTiles, attributeOffset;
 
       public int PrimaryBlocks => primaryBlocks;
       public int BytesPerAttribute { get; }
@@ -349,13 +349,11 @@ namespace HexManiac.Core.Models.Runs.Sprites {
          if (model.IsFRLG()) {
             primaryBlocks = 640;
             primaryTiles = 640;
-            primaryPalettes = 7;
             attributeOffset = 20;
             BytesPerAttribute = 4;
          } else {
             primaryBlocks = 512;
             primaryTiles = 512;
-            primaryPalettes = 6;
             attributeOffset = 16;
             BytesPerAttribute = 2;
          }

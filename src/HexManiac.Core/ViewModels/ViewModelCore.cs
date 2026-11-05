@@ -148,8 +148,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       /// If the backing field's value does not match the new value, the backing field is updated and PropertyChanged gets called.
       /// </summary>
       /// <typeparam name="T">The type of the property being updated.</typeparam>
-      /// <param name="backingField">A reference to the backing field of the property being changed.</param>
-      /// <param name="newValue">The new value for the property.</param>
+      /// <param name="field">A reference to the backing field of the property being changed.</param>
+      /// <param name="value">The new value for the property.</param>
       /// <param name="propertyName">The name of the property to notify on. If the property is the caller, the compiler will figure this parameter out automatically.</param>
       /// <returns>false if the data did not need to be updated, true if it did.</returns>
       protected bool TryUpdate<T>(ref T field, T value, [CallerMemberName] string propertyName = null) where T : IEquatable<T> {

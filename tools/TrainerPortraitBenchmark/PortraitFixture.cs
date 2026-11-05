@@ -42,7 +42,7 @@ public sealed class PortraitFixture {
    }
    public void Navigate(int row) => ViewPort.Goto.Execute(Parents + row);
    public ComboBoxArrayElementViewModel Field => ViewPort.Tools.TableTool.Groups.SelectMany(group => group.Members)
-      .OfType<ComboBoxArrayElementViewModel>().Single(field => field.Name == "sprite");
+      .OfType<ComboBoxArrayElementViewModel>().Single(@field => @field.Name == "sprite");
    public ComboBoxArrayElementViewModel Candidate(int row = 0) => new(ViewPort, null, "sprite", Parents + row, 1);
    public ISpriteRun Sprite(int index = 0) => (ISpriteRun)Model.GetNextRun(Model.ReadPointer(Pointers + index * 4));
 }

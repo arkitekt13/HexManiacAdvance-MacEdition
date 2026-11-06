@@ -77,4 +77,22 @@ execution dependency from its dependency manifest and could not discover tests. 
 comparison, its freshly built Core/test/integration assemblies were placed into a copied working
 runner host with the existing identical-version dependency manifest/libraries. That matched-host
 baseline discovers all 2,715 cases and reproduces the exact failure; it is not a claim that the
-fresh runner's dependency packaging passed. Personal ROMs/settings were never supplied.
+fresh runner's dependency packaging passed. Those initial upstream runs picked up an existing
+cached optional FireRed 1.1 fixture in the working runner directory; the fixture-free follow-up
+below explicitly excludes it. Neither ROM nor settings files were edited. The cached ROM's
+SHA-256 still matches the repository's existing sample fixture.
+
+## Separate legacy-test alignment and isolated final result
+
+The original navigation test is renamed and strengthened to require retained rejected source,
+unchanged compiled ROM bytes across navigation, and restoration of compiled source without
+byte changes when the user explicitly invokes Undo. No production code changes accompany it.
+
+Both hosts were rerun with `sampleFiles` explicitly excluded. The baseline at `16904dd7`
+reports **2,715 cases: 1,666 passed, one identical legacy assertion failure, 1,048 skipped,
+zero engine errors**. The final test-aligned tree reports **2,715 cases: 1,667 passed,
+zero failed, 1,048 skipped, zero engine errors**. The skips are absent optional-ROM fixtures;
+they are not gameplay passes. Exact summaries are preserved as `upstream-romfree-*-summary.json`
+beside the group. These controlled hosts reuse the working dependency manifest as described
+above; the fresh runner's dependency omission remains a test-infrastructure follow-up, not an
+app-launch defect. The original fixture-bearing summaries are retained with their distinct totals.

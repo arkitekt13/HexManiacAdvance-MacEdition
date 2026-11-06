@@ -1,0 +1,15 @@
+{
+  "format": "xunit",
+  "discovered_entries": 2715,
+  "total": 2715,
+  "executed": 1667,
+  "passed": 1666,
+  "failed": 1,
+  "notExecuted": 1048,
+  "failures": [
+    {
+      "test": "HavenSoft.HexManiac.Tests.ScriptTests.ErrorInScript_ClickOff_ResetScriptEditor",
+      "message": "Assert.Equal() Failure\\nExpected: String[] [\\\"lock\\\", \\\"end\\\"]\\nActual:   String[] [\\\"lock\\\", \\\"lock\\\", \\\"end\\\"]"
+    }
+  ]
+}

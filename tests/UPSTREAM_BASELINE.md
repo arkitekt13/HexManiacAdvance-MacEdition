@@ -6,6 +6,14 @@ Engine: xUnit 2.4.1; dependency versions retained; targeted assertion improvemen
 Scope: first-project results only; the second project now has its own portable host and
 [separate integration baseline](INTEGRATION_BASELINE.md). Historical checkpoints below retain their original limitations.
 
+2026-11-06 follow-up: the [tour-guide review](TOUR_GUIDE_SCRIPT_REVIEW.md) reproduces one
+outdated navigation assertion on the pre-repair code, then aligns it with HMA-006's retained
+rejected-draft contract and explicit Undo discard. The isolated final first-project run remains
+**2,715 cases: 1,667 passed, zero failed, 1,048 skipped, zero engine errors**. Optional ROMs
+were excluded from that run. The review distinguishes earlier fixture-bearing observations
+and the working dependency host used after a clean archived runner omitted its xUnit runtime
+dependency; clean runner packaging is not certified by this result.
+
 Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
 is an explicit skip. The ROM-free first-project baseline records **2,715 cases: 1,667 passed, 0 failed,
 1,048 skipped, 0 engine errors**; see the follow-up sections below for evidence and coverage limits.

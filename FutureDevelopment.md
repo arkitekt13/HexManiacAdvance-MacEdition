@@ -4,6 +4,9 @@
 
 Review these items when preparing the first public Mac Edition release:
 
+Use the [release checklist](docs/MAC_RELEASE_CHECKLIST.md) for staged helper/public-release
+gates, native test assignments, platform results and optional asset preparation.
+
 - [x] Enable GitHub Issues for `arkitekt13/HexManiacAdvance-MacEdition` (enabled November 4, 2026).
 - [ ] Verify Help, welcome-screen and crash-report issue links through a native helper build.
 - [ ] Complete [helper distribution checks](docs/MAC_HELPER_TESTING.md), including clean-machine,

@@ -38,6 +38,10 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets/**" />
+    <!-- Optional release assets retain their folder structure in build and publish output. -->
+    <Content Include="../../OptionalAssets/**/*.png;../../OptionalAssets/**/*.ups;../../OptionalAssets/**/*.json"
+             Link="resources/Optional/%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

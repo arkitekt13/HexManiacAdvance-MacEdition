@@ -49,6 +49,9 @@ preserve historical port/release notes rather than current setup instructions.
 
 ## Release preparation
 
+A staged [release checklist](MAC_RELEASE_CHECKLIST.md) separates private helper preparation,
+native verification, public-release gates and optional tutorial/background polish.
+
 A supported-runtime upgrade remains a separate pre-public-release task. See
 [FutureDevelopment.md](../FutureDevelopment.md) and the
 [distribution checklist](MAC_HELPER_TESTING.md). Local packaging does not publish a GitHub release.

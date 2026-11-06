@@ -1,0 +1,90 @@
+[
+  {
+    "phase": "actual-tab-lifecycle",
+    "mapView": false,
+    "distinctTabViewsAlive": 12,
+    "detachedTabViewsAlive": 12,
+    "sourceTabHandlers": 24,
+    "cleanedDetachedControls": 23,
+    "afterDetachedCleanupHeap": 240814632,
+    "detachedAfterCleanup": 12,
+    "sourceTabHandlersAfterCleanup": 0,
+    "sourceBytesUnchanged": true,
+    "baselineHeap": 63476360,
+    "afterGcHexHeaps": [
+      63496088,
+      74977384,
+      78124480,
+      87391264,
+      97230136,
+      99866872,
+      110104096,
+      122072344,
+      121674152,
+      132142096,
+      143016648,
+      143521480
+    ],
+    "oldBitmapWrappersAlive": 0,
+    "oldTabViewsAlive": 12,
+    "settledHeaps": [
+      236632040,
+      236632240,
+      236632328
+    ],
+    "burstStartHeap": 143537928,
+    "afterBurstGcHeap": 236648904,
+    "burstAllocated": 212339256,
+    "burstMs": 7024.5098
+  },
+  {
+    "phase": "after-window-close",
+    "mapView": false,
+    "watchedObjects": 27,
+    "objectsStillAlive": 0
+  },
+  {
+    "phase": "actual-tab-lifecycle",
+    "mapView": true,
+    "distinctTabViewsAlive": 12,
+    "detachedTabViewsAlive": 12,
+    "sourceTabHandlers": 24,
+    "cleanedDetachedControls": 23,
+    "afterDetachedCleanupHeap": 227008536,
+    "detachedAfterCleanup": 12,
+    "sourceTabHandlersAfterCleanup": 0,
+    "sourceBytesUnchanged": true,
+    "baselineHeap": 61778256,
+    "afterGcHexHeaps": [
+      66752360,
+      73042568,
+      81346816,
+      97872072,
+      97999536,
+      114933656,
+      114709176,
+      129191648,
+      131282176,
+      142742016,
+      152089216,
+      161146784
+    ],
+    "oldBitmapWrappersAlive": 0,
+    "oldTabViewsAlive": 12,
+    "settledHeaps": [
+      222388712,
+      222388912,
+      222389000
+    ],
+    "burstStartHeap": 200712688,
+    "afterBurstGcHeap": 222388520,
+    "burstAllocated": 651385328,
+    "burstMs": 6672.4167
+  },
+  {
+    "phase": "after-window-close",
+    "mapView": true,
+    "watchedObjects": 27,
+    "objectsStillAlive": 0
+  }
+]

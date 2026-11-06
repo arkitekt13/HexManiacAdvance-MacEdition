@@ -179,3 +179,6 @@ protects currently supported detection and literal distinctions without changing
 [ScriptWorkflowSafety](ScriptWorkflowSafety/README.md) protects settled script correction,
 relocation/history and save/reopen; the separate [workflow investigation](SCRIPT_WORKFLOW_INVESTIGATION.md)
 records pending-context/persistence and late-resource-error findings without changing the editor.
+
+[TabViewLifetime](TabViewLifetime/README.md) protects collection of detached controls while
+documents remain open, hidden-panel observers and subscription restoration without changing drafts/history.

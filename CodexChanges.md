@@ -2658,3 +2658,16 @@ Validation: Release benchmark builds without warnings/errors. Across eight displ
 | tests/dialogue-warning-margin/mac-verification.json | 1 | Record exact counts for nine freshly built diagnostic/layout/script/map/NPC groups. |
 
 Validation: The new 210-pixel dialogue-row assertion fails at the original 214-pixel budget. The updated warning is visible at 210 pixels, clears at 204 pixels and respects an exact 208-pixel proportional-font boundary; it does not become a compile error or rewrite source. Fresh DialogueDiagnostics 40, ScriptWidthUpdates 448, ScriptEditorLayout 102, ScriptWorkflowSafety 598, DialogueScaffolding 384, ScriptMapReference 63, MapEventEditing 63, MapHistoryRefresh 23 and NpcTemplate 44 pass 1,765 assertions across nine groups with zero failures/skips and no build warnings/errors. The complete Mac/upstream suites were not rerun for this bounded advisory change. Existing Enter/scroll/paragraph bytes, compilation, numeric rules, resources/pointers, history, focus and rejection/persistence protections remain covered. No personal ROM/settings or production map-lifecycle fix is included; native in-game font/control behavior and dynamic substitutions still need the user's exact example if the warning remains inaccurate.
+
+## 165 — Isolate open-document tab retention before repairing it
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/TabViewLifetime/Program.cs | 1 | Require detached actual Map/Hex tab controls to collect while documents stay open, with source/history and reattachment protections. |
+| tests/TabViewLifetime/README.md | 1 | Record the first-switch baseline failure and synthetic/native verification limits. |
+| tools/ScriptMapMemoryBenchmark/RetentionTrace.cs | 1 | Trace bounded strong event owners without changing app state or traversing ROM bytes. |
+| tools/ScriptMapMemoryBenchmark/Program.cs | 56 | Add a lifecycle-only comparison mode and optional ownership diagnostics. |
+| tests/tab-lifecycle-memory/before.json | 1 | Preserve pre-repair lifecycle measurements separately from the earlier warmed full corpus. |
+| tests/SCRIPT_MAP_MEMORY_REVIEW.md | 81 | Record the failing collection check and the additional header/filter/image/palette event roots. |
+
+Validation: Before production edits, the new collection assertion fails on the first Hex-only switch with all four watched controls alive. The paired synthetic baseline retains 12 detached watched tabs and 24 stale TabView handlers in both modes. Removing just the general tab/header subscriptions exposes further filter and hidden image/palette observers; detach-only cleanup cannot cover controls that never attached. Evidence and implementation are separate commits. No app rendering/compiler/history algorithm or personal ROM/settings is changed by this evidence commit. Reattachment assertions and after measurements are recorded for the following repair's verification.

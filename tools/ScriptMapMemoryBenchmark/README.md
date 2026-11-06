@@ -30,3 +30,16 @@ activity and is not a real-ROM or native responsiveness claim.
 
 See [the review](../../tests/SCRIPT_MAP_MEMORY_REVIEW.md) for preserved measurements, scope
 and a bounded follow-up plan. The benchmark depends on private field names for diagnostics.
+
+## Lifecycle-only comparison and ownership tracing
+
+Append `--trace-only --no-root-trace` to run just actual Hex/Map tab-switch and window-close
+phases, without the large snapshot/burst warmup. This is the protocol used by
+`tests/tab-lifecycle-memory/before.json` and `after.json`. Before measurements precede any
+production lifecycle repair; reflection tracing occurred after their settled heap samples.
+Do not compare absolute heaps against the warmed full-corpus protocol as identical workloads.
+Omit `--no-root-trace` to request a bounded reflection search from document event owners to a
+watched detached visual/logical child. It ignores weak references/primitive ROM buffers and
+can itself allocate heavily; use it only for diagnosis, never as production code or a timing
+measurement. The baseline cleanup experiment remains in the protocol but has no controls to
+clean once the repair releases them. Source bytes must match in every run.

@@ -53,7 +53,7 @@ WeakReference[] Burst(ViewPort source, int count, out long peakHeap, out long al
    peakHeap = Math.Max(peakHeap, Heap()); allocated = GC.GetTotalAllocatedBytes(true) - start; elapsed = time.Elapsed.TotalMilliseconds;
    return tasks.SelectMany(task => new[] { new WeakReference(task.Result), new WeakReference(task.Result.Image.PixelData) }).ToArray();
 }
-if (!args.Contains("--closing-only"))
+if (!args.Contains("--closing-only") && !args.Contains("--trace-only"))
 foreach (var (width, height, romMiB) in new[] { (80, 52, 16), (128, 128, 32), (256, 256, 32) }) {
    var f = Fixture(width, height, romMiB); var source = f.ViewPort;
    var hash = SHA256.HashData(f.Model.RawData); var metadata = f.Model.ExportMetadata(null, source.Singletons.MetadataInfo).Serialize();
@@ -153,6 +153,10 @@ int ClearDetachedContexts(ViewPort source) {
    Pump(); var cleanupWait=Stopwatch.StartNew();while(cleanupWait.ElapsedMilliseconds<1000){Pump();Thread.Sleep(5);}
    Collect();long afterDetachedCleanupHeap=Heap();
    var remaining=Retention(a.ViewPort,tabs);
+   if(args.Contains("--trace-only") && !args.Contains("--no-root-trace")) {
+      if (tabs[0].Target is TabView oldA) Console.WriteLine("RETAINING_PATH_A: "+RetentionTrace.Find(a.ViewPort,oldA));
+      if (tabs[1].Target is TabView oldB) Console.WriteLine("RETAINING_PATH_B: "+RetentionTrace.Find(b.ViewPort,oldB));
+   }
    bool sourceBytesUnchanged=hashA.SequenceEqual(SHA256.HashData(a.Model.RawData))&&hashB.SequenceEqual(SHA256.HashData(b.Model.RawData));
    if(!sourceBytesUnchanged)throw new Exception("Tab-lifecycle sampling changed ROM bytes.");
    var result = new { phase = "actual-tab-lifecycle", mapView, distinctTabViewsAlive = retained.Distinct,
@@ -198,6 +202,6 @@ object ClosingDocuments() {
       closedDocumentsAlive=watched.Where((_,i)=>i%4==2).Count(r=>r.IsAlive),closedModelsAlive=watched.Where((_,i)=>i%4==3).Count(r=>r.IsAlive),remainingSourceBytesUnchanged=unchanged};
    window.Editor=null;window.Close();Pump();return result;
 }
-Record(ClosingDocuments());
+if(!args.Contains("--trace-only"))Record(ClosingDocuments());
 var output=args.FirstOrDefault(a=>!a.StartsWith("--"));
 if (output!=null) File.WriteAllText(output, JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));

@@ -1,7 +1,7 @@
 # Script Map View memory review — 2026-11-06
 
-Starting checkpoint: `cdf8835b`; branch `codex/map-reference-memory-review`. Production map
-rendering/lifecycle code is unchanged. The companion dialogue-warning change does not affect
+Starting checkpoint: `cdf8835b`; branch `codex/map-reference-memory-review`. The initial investigation left production map
+rendering/lifecycle code unchanged; the follow-up below repairs shared control subscriptions. The companion dialogue-warning change does not affect
 these map fixtures, which contain only an ending script. No user ROM or settings are used.
 
 ## Snapshot ownership is healthy in these measurements
@@ -79,3 +79,39 @@ Baseline JSON predates the explicit cleanup experiment and source-byte check in 
 tool; these are observations, not a paired optimization benchmark. Additional exploratory
 logs are under ignored `artifacts/script-map-memory`. Synthetic graphics/metadata are simpler
 than a real tutorial ROM; Cocoa, Retina, real-ROM complexity and new-Mac behavior are unverified.
+
+## Lifecycle follow-up: failing evidence and isolated owners
+
+Starting production checkpoint: `d5630e1d`. The new TabViewLifetime regression fails on the
+first actual Hex-only tab switch: the detached tab, hex, source-editor and header controls
+are all alive while their documents remain open. This is independent of Map View rendering.
+
+Tracing established multiple strong event owners, requiring more than one unsubscribe:
+
+- Column header items retain anonymous callbacks capturing HorizontalSlantedTextControl;
+  removed/reset rows also leave item subscriptions behind.
+- TableTool.CurrentElementSelector retains AngleComboBox through HandleVMTextChanged.
+- Image panels retain PixelImage and SelectionRender through model notifications, while
+  Colors.Elements retains PaletteControl through PaletteContentsChanged.
+- TabView, HexContent and source TextEditor also need balanced document/model listeners.
+
+Hidden panels can acquire DataContexts without ever attaching visually. They must start with
+manual model observation disabled, refresh from current state on attachment, unsubscribe on
+removal, and restore exactly once on reuse. Clearing old DataContexts or adding app GC is
+neither necessary nor used. The snapshot renderer/compiler/history algorithms are outside
+this repair.
+
+The narrower paired protocol omits large-map warmup and preserves its own evidence in
+[before.json](tab-lifecycle-memory/before.json) and [after.json](tab-lifecycle-memory/after.json).
+Both perform 12 completed and 12 rapid tab switches in each mode, then settle/collect:
+
+| Mode | Before warmed → settled heap | After warmed → settled heap | Detached watched tabs before → after |
+| --- | ---: | ---: | ---: |
+| Hex | 60.5 → 225.7 MiB | 60.5 → 61.2 MiB | 12 → 0 |
+| Map | 58.9 → 212.1 MiB | 58.8 → 62.3 MiB | 12 → 0 |
+
+This avoids about 165 MiB (Hex) / 150 MiB (Map) of retained managed heap in this repeated-switch
+workload. It is not a claim that initial map rendering became faster or native RAM fell by
+the same amount. Stale source TabView handlers drop from 24 to zero; source bytes match and
+all watched objects collect after window teardown. The original full-protocol data above
+remains historical evidence with its different warmup, not an interchangeable baseline.

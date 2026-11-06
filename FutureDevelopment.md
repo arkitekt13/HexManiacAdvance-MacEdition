@@ -1,5 +1,21 @@
 # Future development
 
+## HMA-020 — Release detached tab controls while documents remain open
+
+**Status:** Reproduced in offscreen Map and Hex controls; memory investigation recorded,
+production lifecycle fix not yet implemented. Native confirmation remains outstanding.
+
+**Evidence:** Repeated switches between two still-open synthetic documents retain detached
+TabViews and increase settled managed heap. Map snapshots/pixel arrays/bitmaps are collected;
+closing individual documents releases their watched models/views. General TabView event
+subscriptions retain detached controls, but removing that identified path alone is insufficient.
+
+**Next step:** Follow the [memory review](tests/SCRIPT_MAP_MEMORY_REVIEW.md): isolate remaining
+owners, add a failing detached-view lifetime regression, then implement symmetric detach/reattach
+subscriptions across the responsible controls. Preserve source, caret/scroll/focus, pending and
+rejected drafts, keyboard routing and history. Do not add forced GC or use DataContext clearing
+as an unverified production shortcut.
+
 ## HMA-019 — Diagnose invalid movement instructions consistently
 
 **Status:** Fixed in script source validation, with retained rejected drafts and the existing

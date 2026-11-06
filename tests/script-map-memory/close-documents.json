@@ -1,0 +1,17 @@
+[
+  {
+    "phase": "close-four-documents-window-stays-open",
+    "baselineHeap": 40259808,
+    "afterGcHeaps": [
+      46504824,
+      52367792,
+      58209576,
+      64029904
+    ],
+    "closedTabViewsAlive": 0,
+    "closedBitmapWrappersAlive": 0,
+    "closedDocumentsAlive": 0,
+    "closedModelsAlive": 0,
+    "remainingSourceBytesUnchanged": true
+  }
+]

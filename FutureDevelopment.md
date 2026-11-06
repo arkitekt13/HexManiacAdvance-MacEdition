@@ -1,5 +1,23 @@
 # Future development
 
+## HMA-020 — Release detached tab controls while documents remain open
+
+**Status:** Fixed in shared Avalonia control subscription lifetimes; offscreen actual Map/Hex
+switches now release detached controls while the documents remain open. Native confirmation
+remains outstanding. See [TabViewLifetime](tests/TabViewLifetime/README.md).
+
+**Evidence:** The pre-repair regression fails on the first Hex-only tab switch. Root tracing
+identifies general tab/hex/text/header observers plus filter and hidden image/palette panels;
+never-attached panels must not begin manual model observation. Balanced attach/detach/context
+subscriptions release every watched old tab, preserve pending/rejected source and history,
+and restore listeners once on reuse. The paired lifecycle workload reduces settled managed
+heap from roughly 226 to 61 MiB (Hex) / 212 to 62 MiB (Map), with source hashes unchanged.
+
+**Remaining verification:** Native Cocoa/Retina behavior and real-ROM use on the new Mac.
+The [memory review](tests/SCRIPT_MAP_MEMORY_REVIEW.md) retains original and repaired evidence.
+Map snapshot rendering, read-only interaction, compilation/history algorithms and numeric rules
+are unchanged. No app GC or forced DataContext clearing is used.
+
 ## HMA-019 — Diagnose invalid movement instructions consistently
 
 **Status:** Fixed in script source validation, with retained rejected drafts and the existing

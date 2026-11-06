@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Avalonia.Headless" Version="11.2.3" />
     <ProjectReference Include="../../src/HexManiac.Avalonia/HexManiac.Avalonia.csproj" />
   </ItemGroup>
 </Project>

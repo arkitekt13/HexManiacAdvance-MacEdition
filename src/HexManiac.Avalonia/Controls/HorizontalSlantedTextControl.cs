@@ -1,5 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
@@ -34,32 +36,42 @@ public class HorizontalSlantedTextControl : Control {
    public static readonly StyledProperty<ObservableCollection<ColumnHeaderRow>> HeaderRowsProperty =
       AvaloniaProperty.Register<HorizontalSlantedTextControl, ObservableCollection<ColumnHeaderRow>>(nameof(HeaderRows));
 
+   private ObservableCollection<ColumnHeaderRow> subscribedRows;
+   private readonly HashSet<ColumnHeader> subscribedHeaders = new();
+   private bool headerSubscriptionsAllowed;
+
+   private void UnbindHeaders() {
+      if (subscribedRows != null) subscribedRows.CollectionChanged -= HeaderRowsCollectionChanged;
+      foreach (var header in subscribedHeaders) header.PropertyChanged -= HeaderChanged;
+      subscribedHeaders.Clear(); subscribedRows = null;
+   }
+
+   private void BindHeaders() {
+      UnbindHeaders();
+      if (!headerSubscriptionsAllowed || HeaderRows == null) return;
+      subscribedRows = HeaderRows;
+      subscribedRows.CollectionChanged += HeaderRowsCollectionChanged;
+      ReconcileHeaders();
+   }
+
+   private void ReconcileHeaders() {
+      var current = new HashSet<ColumnHeader>(subscribedRows.SelectMany(row => row.ColumnHeaders));
+      foreach (var header in subscribedHeaders.Except(current).ToArray()) {
+         header.PropertyChanged -= HeaderChanged; subscribedHeaders.Remove(header);
+      }
+      foreach (var header in current) if (subscribedHeaders.Add(header)) header.PropertyChanged += HeaderChanged;
+   }
+
+   private void HeaderChanged(object sender, PropertyChangedEventArgs e) => InvalidateVisual();
+
    private void OnHeaderRowsChanged(AvaloniaPropertyChangedEventArgs e) {
-      var oldCollection = e.OldValue as ObservableCollection<ColumnHeaderRow>;
-      if (oldCollection != null) {
-         oldCollection.CollectionChanged -= HeaderRowsCollectionChanged;
-      }
-      var newCollection = e.NewValue as ObservableCollection<ColumnHeaderRow>;
-      if (newCollection != null) {
-         newCollection.CollectionChanged += HeaderRowsCollectionChanged;
-         foreach (var element in newCollection) {
-            foreach (var header in element.ColumnHeaders) header.PropertyChanged += (s1, e1) => InvalidateVisual();
-         }
-      }
-      UpdateDesiredHeight();
-      InvalidateVisual();
+      BindHeaders();
+      UpdateDesiredHeight(); InvalidateVisual();
    }
 
    private void HeaderRowsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-      UpdateDesiredHeight();
-      InvalidateVisual();
-      if (e.NewItems != null) {
-         foreach (var item in e.NewItems) {
-            if (item is ColumnHeaderRow element) {
-               foreach (var header in element.ColumnHeaders) header.PropertyChanged += (s1, e1) => InvalidateVisual();
-            }
-         }
-      }
+      ReconcileHeaders();
+      UpdateDesiredHeight(); InvalidateVisual();
    }
 
    #endregion
@@ -124,7 +136,11 @@ public class HorizontalSlantedTextControl : Control {
       AffectsRender<HorizontalSlantedTextControl>(ColumnWidthProperty, HorizontalOffsetProperty, SlantAngleProperty);
    }
 
-   public HorizontalSlantedTextControl() => ClipToBounds = true;
+   public HorizontalSlantedTextControl() {
+      ClipToBounds = true;
+      AttachedToVisualTree += (_, _) => { headerSubscriptionsAllowed = true; BindHeaders(); UpdateDesiredHeight(); InvalidateVisual(); };
+      DetachedFromVisualTree += (_, _) => { headerSubscriptionsAllowed = false; UnbindHeaders(); };
+   }
 
    public override void Render(DrawingContext drawingContext) {
       base.Render(drawingContext);

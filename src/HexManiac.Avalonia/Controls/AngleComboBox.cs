@@ -138,6 +138,7 @@ public class AngleComboBox : ComboBox {
    private FilteringComboOptions subscribed;
    private TextBox editableTextBox;
    private int itemsGeneration;
+   private bool filterSubscriptionsAllowed;
 
    // Optional one-way model index, unaffected by transient selection coercion when
    // an event panel swaps option objects. Ordinary/filterable combos keep their bindings.
@@ -152,13 +153,17 @@ public class AngleComboBox : ComboBox {
    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change) {
       base.OnPropertyChanged(change);
       if (change.Property != ItemsSourceProperty && change.Property != BoundSelectionIndexProperty) return;
+      RestoreBoundSelection();
+   }
+
+   private void RestoreBoundSelection() {
       var generation = ++itemsGeneration;
       if (BoundSelectionIndex == null) return;
       // A recycled event panel can replace its option objects after SelectedIndex was
       // evaluated. Selection is then coerced to -1, while the model keeps the same ID.
       // Read the current one-way model index after both bindings settle, never a cached ID.
       Dispatcher.UIThread.Post(() => {
-         if (generation == itemsGeneration && BoundSelectionIndex is int index && index >= 0 && index < ItemCount)
+         if (filterSubscriptionsAllowed && generation == itemsGeneration && BoundSelectionIndex is int index && index >= 0 && index < ItemCount)
             SetCurrentValue(SelectedIndexProperty, index);
       });
    }
@@ -170,16 +175,23 @@ public class AngleComboBox : ComboBox {
    /// </summary>
    public AngleComboBox() {
       DataContextChanged += (sender, e) => UpdateFilterBindings();
+      AttachedToVisualTree += (_, _) => { filterSubscriptionsAllowed = true; BindFilterObserver(); RestoreBoundSelection(); };
+      DetachedFromVisualTree += (_, _) => { filterSubscriptionsAllowed = false; itemsGeneration++; BindFilterObserver(); };
       AddHandler(KeyDownEvent, KeyDownToViewModel, RoutingStrategies.Tunnel);
       PointerEntered += (sender, e) => UpdateOverflow();
    }
 
-   private void UpdateFilterBindings() {
+   private void BindFilterObserver() {
       if (subscribed != null) subscribed.PropertyChanged -= HandleVMTextChanged;
-      subscribed = DataContext as FilteringComboOptions;
-      Classes.Set("editable", subscribed?.CanFilter ?? false);
-      if (subscribed == null) return;
-      subscribed.PropertyChanged += HandleVMTextChanged;
+      var model = DataContext as FilteringComboOptions;
+      subscribed = filterSubscriptionsAllowed ? model : null;
+      Classes.Set("editable", model?.CanFilter ?? false);
+      if (subscribed != null) subscribed.PropertyChanged += HandleVMTextChanged;
+   }
+
+   private void UpdateFilterBindings() {
+      BindFilterObserver();
+      if (DataContext is not FilteringComboOptions) return;
       Bind(ItemsSourceProperty, new Binding(nameof(FilteringComboOptions.FilteredOptions)));
       // Same guard the XAML selection bindings use: when this combo is unloaded its ItemsSource
       // detaches, SelectedIndex is coerced to -1, and a TwoWay binding would push that back.

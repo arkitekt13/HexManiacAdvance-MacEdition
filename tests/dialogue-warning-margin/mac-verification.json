@@ -1,0 +1,48 @@
+{
+  "groups": [
+    {
+      "name": "DialogueDiagnostics",
+      "assertions": 40
+    },
+    {
+      "name": "ScriptWidthUpdates",
+      "assertions": 448
+    },
+    {
+      "name": "ScriptEditorLayout",
+      "assertions": 102
+    },
+    {
+      "name": "ScriptWorkflowSafety",
+      "assertions": 598
+    },
+    {
+      "name": "DialogueScaffolding",
+      "assertions": 384
+    },
+    {
+      "name": "ScriptMapReference",
+      "assertions": 63
+    },
+    {
+      "name": "MapEventEditing",
+      "assertions": 63
+    },
+    {
+      "name": "MapHistoryRefresh",
+      "assertions": 23
+    },
+    {
+      "name": "NpcTemplate",
+      "assertions": 44
+    }
+  ],
+  "totalGroups": 9,
+  "totalAssertions": 1765,
+  "failures": 0,
+  "skippedGroups": 0,
+  "notes": [
+    "Focused fresh-build run, not a new complete Mac/upstream suite.",
+    "Synthetic/offscreen data only; native in-game width remains an estimate."
+  ]
+}

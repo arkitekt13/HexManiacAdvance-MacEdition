@@ -1,0 +1,218 @@
+[
+  {
+    "phase": "display-clear",
+    "width": 80,
+    "height": 52,
+    "romMiB": 16,
+    "cycles": 8,
+    "baselineHeap": 21348360,
+    "afterGcHeap": [
+      21333168,
+      21333488,
+      21333760,
+      21333904,
+      21334112,
+      21334576,
+      21334720,
+      21334864
+    ],
+    "baselineRss": 149176320,
+    "afterRss": 151273472,
+    "allocated": 245109160,
+    "retainedSnapshots": 0,
+    "retainedPixelArrays": 0,
+    "retainedBitmapWrappers": 0,
+    "renderAndUploadMs": [
+      40.7193,
+      42.3284,
+      39.9643,
+      39.7867,
+      37.0727,
+      25.714,
+      25.4743,
+      32.0152
+    ]
+  },
+  {
+    "phase": "four-background-renders",
+    "width": 80,
+    "height": 52,
+    "romMiB": 16,
+    "baselineHeap": 21585344,
+    "peakSampledHeap": 123061784,
+    "afterGcHeap": 21645808,
+    "allocated": 122549560,
+    "elapsedMs": 47.0413,
+    "retainedPayloadObjects": 0
+  },
+  {
+    "phase": "display-clear",
+    "width": 128,
+    "height": 128,
+    "romMiB": 32,
+    "cycles": 8,
+    "baselineHeap": 56741000,
+    "afterGcHeap": [
+      56741536,
+      56741856,
+      56742128,
+      56750496,
+      56742480,
+      56742944,
+      56743088,
+      56743232
+    ],
+    "baselineRss": 208601088,
+    "afterRss": 210075648,
+    "allocated": 479497712,
+    "retainedSnapshots": 0,
+    "retainedPixelArrays": 0,
+    "retainedBitmapWrappers": 0,
+    "renderAndUploadMs": [
+      49.9214,
+      49.6025,
+      49.395,
+      60.952,
+      62.9373,
+      55.6785,
+      57.1987,
+      63.5122
+    ]
+  },
+  {
+    "phase": "four-background-renders",
+    "width": 128,
+    "height": 128,
+    "romMiB": 32,
+    "baselineHeap": 58330560,
+    "peakSampledHeap": 253677176,
+    "afterGcHeap": 56741688,
+    "allocated": 239718736,
+    "elapsedMs": 67.4056,
+    "retainedPayloadObjects": 0
+  },
+  {
+    "phase": "display-clear",
+    "width": 256,
+    "height": 256,
+    "romMiB": 32,
+    "cycles": 8,
+    "baselineHeap": 73510064,
+    "afterGcHeap": [
+      75117136,
+      75117296,
+      75117432,
+      75117504,
+      75117608,
+      75117840,
+      75117912,
+      75117984
+    ],
+    "baselineRss": 314572800,
+    "afterRss": 315752448,
+    "allocated": 882220784,
+    "retainedSnapshots": 0,
+    "retainedPixelArrays": 0,
+    "retainedBitmapWrappers": 0,
+    "renderAndUploadMs": [
+      100.8725,
+      113.531,
+      101.5935,
+      101.1384,
+      101.8001,
+      101.1261,
+      101.0264,
+      96.1248
+    ]
+  },
+  {
+    "phase": "four-background-renders",
+    "width": 256,
+    "height": 256,
+    "romMiB": 32,
+    "baselineHeap": 73511000,
+    "peakSampledHeap": 494082144,
+    "afterGcHeap": 75100032,
+    "allocated": 441036720,
+    "elapsedMs": 80.5733,
+    "retainedPayloadObjects": 0
+  },
+  {
+    "phase": "actual-tab-lifecycle",
+    "mapView": false,
+    "distinctTabViewsAlive": 12,
+    "detachedTabViewsAlive": 12,
+    "sourceTabHandlers": 24,
+    "baselineHeap": 100311456,
+    "afterGcHexHeaps": [
+      100337056,
+      111816976,
+      115002536,
+      124267608,
+      134104920,
+      136854136,
+      147089808,
+      157321992,
+      158630800,
+      169097192,
+      179970104,
+      180504792
+    ],
+    "oldBitmapWrappersAlive": 0,
+    "oldTabViewsAlive": 12,
+    "settledHeaps": [
+      267612704,
+      267612904,
+      267612992
+    ],
+    "burstStartHeap": 180521240,
+    "afterBurstGcHeap": 267629568,
+    "burstAllocated": 153653200,
+    "burstMs": 5624.7843
+  },
+  {
+    "phase": "after-window-close",
+    "mapView": false,
+    "watchedObjects": 27,
+    "objectsStillAlive": 0
+  },
+  {
+    "phase": "actual-tab-lifecycle",
+    "mapView": true,
+    "distinctTabViewsAlive": 12,
+    "detachedTabViewsAlive": 12,
+    "sourceTabHandlers": 24,
+    "baselineHeap": 98379640,
+    "afterGcHexHeaps": [
+      103426432,
+      111998312,
+      124848776,
+      132846520,
+      141462056,
+      149853712,
+      158442760,
+      166831160,
+      175395992,
+      183728048,
+      192450672,
+      193131928
+    ],
+    "oldBitmapWrappersAlive": 1,
+    "oldTabViewsAlive": 12,
+    "settledHeaps": [
+      260967440,
+      260967640,
+      260967728
+    ],
+    "burstStartHeap": 232356896,
+    "afterBurstGcHeap": 260967248,
+    "burstAllocated": 592575488,
+    "burstMs": 5396.9897
+  },
+  {
+    "phase": "after-window-close",
+    "mapView": true,
+    "watchedObjects": 27,
+    "objectsStillAlive": 0
+  }
+]

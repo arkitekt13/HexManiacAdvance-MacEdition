@@ -68,6 +68,7 @@ public partial class TextEditor : UserControl {
    private bool errorDecorationUpdateQueued;
    private bool widthUpdateQueued;
    private bool widthUpdatesAllowed = true;
+   private bool modelSubscriptionsAllowed;
    private int widthUpdateGeneration;
    private int scrollGeometryVersion;
    private int widthRequestScrollVersion;
@@ -137,12 +138,15 @@ public partial class TextEditor : UserControl {
    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e) {
       base.OnAttachedToVisualTree(e);
       widthUpdatesAllowed = true;
-      CancelWidthUpdate();
-      RequestWidthUpdate();
+      modelSubscriptionsAllowed = true;
+      HandleDataContextChanged();
+      if (subscribed != null) HandleViewModelCaretMove(subscribed, EventArgs.Empty);
    }
 
    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e) {
       widthUpdatesAllowed = false;
+      modelSubscriptionsAllowed = false;
+      UnbindModel();
       CancelWidthUpdate();
       base.OnDetachedFromVisualTree(e);
    }
@@ -161,15 +165,20 @@ public partial class TextEditor : UserControl {
       }
    }
 
-   private void HandleDataContextChanged() {
-      CancelWidthUpdate();
+   private void UnbindModel() {
       if (subscribed != null) {
          subscribed.PropertyChanged -= HandleViewModelPropertyChanged;
          subscribed.RequestCaretMove -= HandleViewModelCaretMove;
          subscribed.RequestKeyboardFocus -= HandleViewModelRequestKeyboardFocus;
          subscribed.ErrorLocations.CollectionChanged -= HandleViewModelErrorUpdate;
       }
-      subscribed = ViewModel;
+      subscribed = null;
+   }
+
+   private void HandleDataContextChanged() {
+      CancelWidthUpdate();
+      UnbindModel();
+      subscribed = modelSubscriptionsAllowed ? ViewModel : null;
       if (subscribed != null) {
          subscribed.PropertyChanged += HandleViewModelPropertyChanged;
          subscribed.RequestCaretMove += HandleViewModelCaretMove;

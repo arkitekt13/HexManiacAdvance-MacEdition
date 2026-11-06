@@ -2632,3 +2632,62 @@ Validation: The new disabled-row assertion fails before the fix. The repaired gr
 | tests/README.md | 101 | Link the new validation coverage and distinguish the earlier unimplemented checkpoint. |
 
 Validation: The first unknown-row rejection assertion fails before implementation; 219 valid-input compatibility assertions pass on that baseline. The final expanded MovementValidation group passes 1,981 assertions. Full Mac verification passes 66 groups / 20,676 assertions with zero failures/skipped groups, including AutocompleteMapping 320, ScriptAssistance 364, TourGuideWorkflow 321, ScriptWorkflowSafety 598 and ScriptMapReference 63. The isolated upstream first-project run discovers 2,715 cases: 1,667 passed, zero failed, 1,048 absent optional-ROM skips and zero engine errors; its copied working dependency host explicitly excludes sampleFiles/ROM files. Existing MapImageExport NU1900 and NamedByteTests xUnit1013 warnings are separate from successful builds. No personal ROM/settings, numeric grammar, movement bytes, allocator, table writer or history algorithms changed. Known names, partial/quoted aliases, comments, numeric wrapping and existing terminator handling retain their previous behavior; raw out-of-range compatibility checks are not a gameplay-validity guarantee. Standalone table editing and non-movement resources are not tightened. Native/editor/emulator checks remain user validation. Marker and compiler fixes are separate commits on the unmerged branch.
+
+## 163 — Measure script map snapshots and open-document tab retention
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tools/ScriptMapMemoryBenchmark/Program.cs | 1 | Measure synthetic snapshot/display/clear, concurrent work, actual Map/Hex tab switches, detached-control ownership, window closure and individual document closure using post-GC samples and weak references. |
+| tools/ScriptMapMemoryBenchmark/ScriptMapMemoryBenchmark.csproj | 1 | Reuse the actual renderer/UI and fabricated map fixture in a separate Release benchmark. |
+| tools/ScriptMapMemoryBenchmark/README.md | 1 | Document repeatable commands, private-field diagnostics, cleanup-experiment scope and managed-versus-native memory limits. |
+| tests/SCRIPT_MAP_MEMORY_REVIEW.md | 1 | Distinguish healthy snapshot ownership from reproduced general tab retention and define a bounded lifecycle follow-up. |
+| tests/script-map-memory/baseline.json | 1 | Preserve the initial complete Map/Hex comparison and per-size snapshot measurements. |
+| tests/script-map-memory/cleanup-probe.json | 1 | Preserve repeated measurements, source-byte checks and the insufficient controlled cleanup experiment. |
+| tests/script-map-memory/close-documents.json | 1 | Record zero retained watched views/bitmaps/documents/models after closing four documents while another remains open. |
+| FutureDevelopment.md | 3 | Track HMA-020 as reproduced offscreen open-document retention, with production lifecycle changes explicitly pending. |
+
+Validation: Release benchmark builds without warnings/errors. Across eight display/clear cycles at 80×52, 128×128 and 256×256 tiles, no watched snapshots, pixel arrays or bitmap wrappers survive collection; final settled heap is within 0.02 MiB of the warmed baseline. Four concurrent renders at the largest supported preview size transiently add about 400 MiB of sampled managed heap, then release all watched payloads. Repeated actual switches retain 12 watched distinct detached TabViews and grow settled managed heap similarly in Hex and Map modes (about 96 to 255 MiB versus 94 to 249 MiB). A document event exposes stale TabView handlers, but clearing that path does not release every control: remaining owners are not yet isolated and no partial production fix is claimed. Individual document close and complete-window teardown release all watched closed objects. Source bytes remain unchanged; detached render phases also preserve serialized metadata/saved/history state. No production map code or personal ROM/preferences changed; offscreen synthetic managed-memory observations do not certify native RAM, real-ROM timing or new-Mac behavior.
+
+## 164 — Warn slightly earlier near the in-game dialogue edge
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Tools/CodeBody.cs | 15 | Lower the shared advisory dialogue-width budget from 214 to 208 pixels, leaving a six-pixel cushion without changing encoding or wrapping. |
+| tests/DialogueDiagnostics/Program.cs | 81 | Protect earlier rendered warnings, clearing below the margin, exact proportional-font boundaries, advisory status and unchanged source/ROM/metadata across LF/CRLF; the group now passes 40 assertions. |
+| tests/DialogueDiagnostics/README.md | 23 | Describe the conservative pixel budget, estimator limits and focused verification scope. |
+| tests/dialogue-warning-margin/mac-verification.json | 1 | Record exact counts for nine freshly built diagnostic/layout/script/map/NPC groups. |
+
+Validation: The new 210-pixel dialogue-row assertion fails at the original 214-pixel budget. The updated warning is visible at 210 pixels, clears at 204 pixels and respects an exact 208-pixel proportional-font boundary; it does not become a compile error or rewrite source. Fresh DialogueDiagnostics 40, ScriptWidthUpdates 448, ScriptEditorLayout 102, ScriptWorkflowSafety 598, DialogueScaffolding 384, ScriptMapReference 63, MapEventEditing 63, MapHistoryRefresh 23 and NpcTemplate 44 pass 1,765 assertions across nine groups with zero failures/skips and no build warnings/errors. The complete Mac/upstream suites were not rerun for this bounded advisory change. Existing Enter/scroll/paragraph bytes, compilation, numeric rules, resources/pointers, history, focus and rejection/persistence protections remain covered. No personal ROM/settings or production map-lifecycle fix is included; native in-game font/control behavior and dynamic substitutions still need the user's exact example if the warning remains inaccurate.
+
+## 165 — Isolate open-document tab retention before repairing it
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/TabViewLifetime/Program.cs | 1 | Require detached actual Map/Hex tab controls to collect while documents stay open, with source/history and reattachment protections. |
+| tests/TabViewLifetime/README.md | 1 | Record the first-switch baseline failure and synthetic/native verification limits. |
+| tools/ScriptMapMemoryBenchmark/RetentionTrace.cs | 1 | Trace bounded strong event owners without changing app state or traversing ROM bytes. |
+| tools/ScriptMapMemoryBenchmark/Program.cs | 56 | Add a lifecycle-only comparison mode and optional ownership diagnostics. |
+| tests/tab-lifecycle-memory/before.json | 1 | Preserve pre-repair lifecycle measurements separately from the earlier warmed full corpus. |
+| tests/SCRIPT_MAP_MEMORY_REVIEW.md | 81 | Record the failing collection check and the additional header/filter/image/palette event roots. |
+
+Validation: Before production edits, the new collection assertion fails on the first Hex-only switch with all four watched controls alive. The paired synthetic baseline retains 12 detached watched tabs and 24 stale TabView handlers in both modes. Removing just the general tab/header subscriptions exposes further filter and hidden image/palette observers; detach-only cleanup cannot cover controls that never attached. Evidence and implementation are separate commits. No app rendering/compiler/history algorithm or personal ROM/settings is changed by this evidence commit. Reattachment assertions and after measurements are recorded for the following repair's verification.
+
+## 166 — Release old tab controls without changing Map View rendering
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/TabView.axaml.cs | 78 | Balance document observers and cursor timer on attachment/removal while retaining source and stored scroll state. |
+| src/HexManiac.Avalonia/Controls/HexContent.cs | 61 | Track and release exact document/header/request-menu subscriptions and restore them on reuse. |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs | 138 | Balance model, diagnostic, caret and focus observers without settling or clearing script drafts. |
+| src/HexManiac.Avalonia/Controls/HorizontalSlantedTextControl.cs | 39 | Replace anonymous header-item callbacks with removable listeners covering deleted/reset/replaced rows. |
+| src/HexManiac.Avalonia/Controls/AngleComboBox.cs | 178 | Observe filter models only while attached and invalidate detached selection-restoration callbacks. |
+| src/HexManiac.Avalonia/Controls/TileImage.cs | 255 | Restore pixel observers from current data when attached and release them when detached. |
+| src/HexManiac.Avalonia/Controls/SelectionRender.cs | 26 | Balance image-selection model subscriptions across attachment and context changes. |
+| src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs | 65 | Avoid collection observers in never-attached hidden palettes and restore them exactly once on reuse. |
+| tests/MapRendering/Program.cs | 15 | Attach live map/sprite controls to headless windows while preserving all 93 rendering assertions. |
+| tests/ScriptEditorLayout/Program.cs | 15 | Exercise live diagnostic coalescing on attached editors while preserving all 102 layout assertions. |
+| tests/tab-lifecycle-memory/after.json | 1 | Preserve the repaired lifecycle-only benchmark with zero old watched tabs and unchanged source bytes. |
+| tests/tab-lifecycle-memory/full-after.json | 1 | Preserve the complete snapshot/burst/switch/close corpus with zero watched retained payloads/documents. |
+| FutureDevelopment.md | 3 | Mark HMA-020 repaired in offscreen verification and retain native/real-ROM validation limits. |
+
+Validation: The new lifetime group passes 41 assertions, including actual Map/Hex detached-control collection, never-attached hidden panels, repeated listener restoration, selection/caret/focus, pending callbacks, retained rejected source/diagnostics and exact Undo/Redo states. The first full run stopped at MapRendering's never-attached live-zoom fixture; MapRendering and ScriptEditorLayout now attach their subjects to headless windows without removing assertions (93 and 102 respectively). A fresh complete `scripts/verify-mac.sh --no-restore` passes **67 groups / 20,727 assertions / zero failures / zero skipped groups**; per-group counts are in `tests/tab-lifecycle-memory/mac-verification.json`. The existing MapImageExport NU1900 vulnerability-index warning remains; the Release benchmark build has zero warnings/errors. Both paired lifecycle modes go from 12 retained old watched tabs and 24 stale tab handlers to zero. Settled managed heap is about 226→61 MiB in Hex and 212→62 MiB in Map for the same lifecycle-only workload. The full snapshot/burst/close corpus also releases every watched payload, old view and closed document/model. This is a retained managed-memory repair, not a rendering-speed/native-RAM claim. No forced app GC, DataContext clearing, source rewriting, map rendering/read-only handler changes, compiler/numeric/history algorithms or personal ROM/settings changes. Full Mac coverage includes the earlier six-pixel advisory dialogue margin. Upstream xUnit was not rerun for this Avalonia-only repair; native Cocoa/Retina/real-ROM and new-Mac behavior remain user verification. Branch remains unmerged.

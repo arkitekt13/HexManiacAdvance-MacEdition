@@ -58,22 +58,35 @@ public class HexContent : Control {
    public static readonly StyledProperty<IViewPort> ViewPortProperty =
       AvaloniaProperty.Register<HexContent, IViewPort>(nameof(ViewPort));
 
+   private IViewPort subscribedViewPort;
+   private INotifyCollectionChanged subscribedHeaders;
+   private bool viewPortSubscriptionsAllowed;
+
+   private void UnbindViewPort() {
+      if (subscribedViewPort != null) {
+         subscribedViewPort.CollectionChanged -= OnViewPortContentChanged;
+         subscribedViewPort.PropertyChanged -= OnViewPortPropertyChanged;
+         subscribedViewPort.RequestMenuClose -= OnViewPortRequestMenuClose;
+      }
+      if (subscribedHeaders != null) subscribedHeaders.CollectionChanged -= OnViewPortContentChanged;
+      subscribedViewPort = null; subscribedHeaders = null;
+   }
+
+   private void BindViewPort() {
+      UnbindViewPort();
+      if (!viewPortSubscriptionsAllowed || ViewPort == null) return;
+      subscribedViewPort = ViewPort;
+      subscribedViewPort.CollectionChanged += OnViewPortContentChanged;
+      subscribedViewPort.PropertyChanged += OnViewPortPropertyChanged;
+      subscribedViewPort.RequestMenuClose += OnViewPortRequestMenuClose;
+      subscribedHeaders = subscribedViewPort.Headers;
+      subscribedHeaders.CollectionChanged += OnViewPortContentChanged;
+      UpdateViewPortSize();
+   }
+
    private void OnViewPortChanged(AvaloniaPropertyChangedEventArgs e) {
       ClearTooltip();
-      if (e.OldValue is IViewPort oldViewPort) {
-         oldViewPort.CollectionChanged -= OnViewPortContentChanged;
-         oldViewPort.PropertyChanged -= OnViewPortPropertyChanged;
-         oldViewPort.RequestMenuClose -= OnViewPortRequestMenuClose;
-         oldViewPort.Headers.CollectionChanged -= OnViewPortContentChanged;
-      }
-
-      if (e.NewValue is IViewPort newViewPort) {
-         newViewPort.CollectionChanged += OnViewPortContentChanged;
-         newViewPort.PropertyChanged += OnViewPortPropertyChanged;
-         newViewPort.RequestMenuClose += OnViewPortRequestMenuClose;
-         newViewPort.Headers.CollectionChanged += OnViewPortContentChanged;
-         UpdateViewPortSize();
-      }
+      BindViewPort();
 
       InvalidateVisual();
       CursorNeedsUpdate?.Invoke(this, EventArgs.Empty);
@@ -356,7 +369,8 @@ public class HexContent : Control {
       AddConsoleKeyCommand(Key.Tab, ConsoleKey.Tab);
 
       ToolTip.SetServiceEnabled(this, false); // Cell hover is driven explicitly below.
-      DetachedFromVisualTree += (_, _) => ClearTooltip();
+      AttachedToVisualTree += (_, _) => { viewPortSubscriptionsAllowed = true; BindViewPort(); };
+      DetachedFromVisualTree += (_, _) => { viewPortSubscriptionsAllowed = false; ClearTooltip(); UnbindViewPort(); };
       DataContextChanged += (sender, e) => ClearTooltip();
       SizeChanged += (sender, e) => {
          UpdateViewPortSize();

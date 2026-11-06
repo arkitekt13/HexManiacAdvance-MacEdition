@@ -1,5 +1,6 @@
 using System.Globalization;
 using Avalonia;
+using Avalonia.Headless;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
@@ -7,9 +8,9 @@ using Avalonia.Threading;
 using HavenSoft.HexManiac.AvaloniaUI.Controls;
 using HavenSoft.HexManiac.Core.ViewModels;
 
-// Exercise the real Skia text renderer without starting a window or loading a ROM.
+// Exercise the real Skia text renderer in a headless window without loading a ROM.
 AppBuilder.Configure<Application>().UseStandardRuntimePlatformSubsystem()
-   .UseWindowingSubsystem(() => { }, "offscreen").UseSkia().SetupWithoutStarting();
+   .UseSkia().UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).SetupWithoutStarting();
 
 var font = new Typeface("Menlo, Consolas, monospace");
 double Width(string text) => new FormattedText(text, CultureInfo.InvariantCulture,
@@ -32,6 +33,8 @@ foreach (var keyword in new[] { "lock", "compare", "if1", "release", "end" }) vm
 vm.Constants.Add("section3");
 vm.Content = content;
 var editor = new TextEditor { FontSize = 12, DataContext = vm };
+var panel = new StackPanel { Children = { editor } };
+var host = new Window { Content = panel, Width = 1200, Height = 800 }; host.Show();
 Dispatcher.UIThread.RunJobs();
 
 var layers = new Dictionary<string, string> {
@@ -61,6 +64,7 @@ Check(vm.Content == content && editor.EditBox.Text == content, "The editable scr
 var diagnosticVm = new TextEditorViewModel { LineCommentHeader = "#" };
 diagnosticVm.Content = string.Join("\n", Enumerable.Range(0, 32).Select(i => "# warning " + i));
 var diagnosticEditor = new TextEditor { FontSize = 12, DataContext = diagnosticVm };
+panel.Children.Add(diagnosticEditor);
 Dispatcher.UIThread.RunJobs();
 var commentLayer = diagnosticEditor.FindControl<TextBlock>("CommentLayer");
 var decorationRebuilds = 0;
@@ -105,5 +109,6 @@ diagnosticVm.ErrorLocations.Clear();
 Dispatcher.UIThread.RunJobs();
 Check(decorationRebuilds == 0, "The old script must be unsubscribed after switching models.");
 
+host.Content = null; host.Close();
 Console.WriteLine("PASS: checked script layout, diagnostic coalescing, complete underlines, unchanged content, and context switching.");
 Console.WriteLine($"CHECKS_PASSED:{checks}");

@@ -60,6 +60,7 @@ public partial class PaletteControl : UserControl {
    private bool controlContextGesture;
    private bool swatchEditInProgress;
    private PaletteCollection subscribedPalette;
+   private bool paletteObserversAllowed;
    private StubCommand paletteCopy, palettePaste;
 
    private StubCommand ClipboardCommand(Func<PaletteCollection, ICommand> select, bool needsText = false) => new() {
@@ -86,7 +87,7 @@ public partial class PaletteControl : UserControl {
 
    private void WatchPalette() {
       if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged -= PaletteContentsChanged;
-      subscribedPalette = ViewModel;
+      subscribedPalette = paletteObserversAllowed ? ViewModel : null;
       if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged += PaletteContentsChanged;
       ClosePopup();
    }
@@ -171,8 +172,9 @@ public partial class PaletteControl : UserControl {
       };
       LoseKeyboardFocusCausesLoseMultiSelect = true;
       DataContextChanged += (_, _) => WatchPalette();
-      AttachedToVisualTree += (_, _) => WatchPalette();
+      AttachedToVisualTree += (_, _) => { paletteObserversAllowed = true; WatchPalette(); };
       DetachedFromVisualTree += (sender, e) => {
+         paletteObserversAllowed = false;
          EndScreenGrab(); ClosePopup();
          if (subscribedPalette != null) subscribedPalette.Elements.CollectionChanged -= PaletteContentsChanged;
          subscribedPalette = null;

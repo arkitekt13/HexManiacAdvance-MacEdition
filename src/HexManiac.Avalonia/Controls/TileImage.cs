@@ -1,3 +1,4 @@
+using Avalonia.VisualTree;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -254,10 +255,10 @@ public class PixelImage : Image {
 
    public PixelImage() {
       DataContextChanged += (sender, e) => UpdateDataContext();
-      DetachedFromVisualTree += (_, _) => { detached = true; updateGeneration++; };
+      DetachedFromVisualTree += (_, _) => { detached = true; updateGeneration++; BindPixelObserver(); };
       AttachedToVisualTree += (_, _) => {
-         if (!detached) return;
          detached = false;
+         BindPixelObserver();
          UpdateSource();
       };
       UseLayoutRounding = true; // WPF: SnapsToDevicePixels
@@ -270,10 +271,14 @@ public class PixelImage : Image {
 
    #region DataContext Changed
 
-   private void UpdateDataContext() {
+   private void BindPixelObserver() {
       if (subscribed != null) subscribed.PropertyChanged -= HandleDataContextPropertyChanged;
-      subscribed = DataContext as INotifyPropertyChanged;
+      subscribed = !detached && this.GetVisualRoot() != null ? DataContext as INotifyPropertyChanged : null;
       if (subscribed != null) subscribed.PropertyChanged += HandleDataContextPropertyChanged;
+   }
+
+   private void UpdateDataContext() {
+      BindPixelObserver();
       UpdateSource();
    }
 

@@ -79,6 +79,29 @@ foreach (var separator in new[] { "\n", "\r\n" }) {
    Check(Colored(Pixels(), true).Count == 0, "Manual Enter breaks resolve overflow without a popup or automatic rewriting.");
 }
 
+// Warn slightly before the previous game-text boundary, without wrapping or compiling source.
+foreach (var separator in new[] { "\n", "\r\n" }) {
+   var marginBody = new HavenSoft.HexManiac.Core.ViewModels.Tools.CodeBody(f.Model, f.Tool.ScriptParser, null);
+   var nearEdge = new string('A', 35); // 210 pixels with this fixture's six-pixel fallback font.
+   var source = string.Join(separator, "msgbox.npc <auto>", "{", nearEdge, "}", "end");
+   var state = f.State(); marginBody.Content = source; marginBody.EvaluateTextLength();
+   Check(marginBody.Editor.ErrorLocations.Any(e => e.Type == SegmentType.Warning),
+      "A 210-pixel dialogue row warns before reaching the old 214-pixel boundary.");
+   editor.DataContext = marginBody.Editor; Pump();
+   Check(Colored(Pixels(), true).Count > 10 && !marginBody.HasError, "The earlier warning is visible and remains advisory.");
+   marginBody.Content = source.Replace(nearEdge, new string('A', 34)); marginBody.ClearErrors(); marginBody.EvaluateTextLength(); Pump();
+   Check(!marginBody.Editor.ErrorLocations.Any(e => e.Type == SegmentType.Warning) && Colored(Pixels(), true).Count == 0,
+      "A 204-pixel row remains below the safety margin and clears its underline.");
+   Check(state.EqualsModel(f) && marginBody.Content.Contains(new string('A', 34)), "The earlier warning never wraps source or changes ROM/metadata.");
+}
+var widths = Enumerable.Repeat(6, 256).ToArray(); widths[0xD1] = 10; widths[0xDD] = 2; // W and i.
+var macros = new Dictionary<string, byte[]>();
+Check(PCSString.GetOverflow(macros, widths, new string('i', 104), HavenSoft.HexManiac.Core.ViewModels.Tools.CodeBody.MaxEventTextWidth).Count == 0 &&
+   PCSString.GetOverflow(macros, widths, new string('i', 105), HavenSoft.HexManiac.Core.ViewModels.Tools.CodeBody.MaxEventTextWidth).Count > 0,
+   "The margin still follows proportional glyph pixels, including its exact boundary.");
+Check(PCSString.GetOverflow(macros, widths, new string('W', 21), HavenSoft.HexManiac.Core.ViewModels.Tools.CodeBody.MaxEventTextWidth).Count > 0,
+   "Wider glyphs warn earlier than the same count of narrow glyphs.");
+
 // A whitespace-only line, overlapping/unsorted diagnostics and stale ranges cannot hide or
 // crash the painter; errors share the same glyph-independent rendering path.
 var vm = new TextEditorViewModel { Content = "lock\r\n          \nend" };

@@ -11,7 +11,8 @@ using System.Windows.Input;
 
 namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
    public class CodeBody : ViewModelCore {
-      public const int MaxEventTextWidth = 214;
+      // Leave a small safety margin for the in-game dialogue box's right edge.
+      public const int MaxEventTextWidth = 208;
 
       private readonly IDataModel model;
       private readonly ScriptParser parser;

@@ -1,6 +1,6 @@
 # Synthetic map presentation regression
 
-Uses actual Core map rendering, edit history, and Avalonia/Skia offscreen PixelImage controls.
+Uses actual Core map rendering, edit history, and Avalonia/Skia headless-window PixelImage controls.
 No ROM, native window, mouse input, or network service is needed. Fabricated binary tables,
 uncompressed tiles, palettes, and two checkerboard blocks are shared with the benchmark.
 
@@ -19,3 +19,7 @@ The standalone fixture explicitly clears map caches after undo/redo; native map-
 is not exercised. Event pointer slots are present but no NPC payload is supplied.
 
 See tests/MAP_PERFORMANCE.md for benchmark evidence and remaining native/ROM coverage limits.
+
+Controls attach to a headless window before live zoom/pixel notifications are tested.
+Never-attached controls intentionally do not subscribe to model changes;
+TabViewLifetime protects that contract and restoration on reattachment.

@@ -53,6 +53,8 @@ reproduction steps; do not mark an untested path as passing because a headless t
   test Save and Launch on a disposable edit.
 - [ ] Exercise script Command-C/V, completion by typing and selecting suggestions, `<auto>` blocks,
   dialogue overflow indicators, correction/retry and Undo/Redo through a successful script edit.
+- [ ] Open a script from a map and try Map View: verify map identity, trackpad/drag panning,
+  view switching, retained script focus and safe Save/Undo/Redo on the native candidate.
 - [ ] Edit wild encounters and short fields with keyboard and mouse suggestions; check focus,
   Tab selection and Delete inside a script-address field.
 - [ ] Use trackpad Option-drag panning and zoom controls; check warp context menus, NPC sprite

@@ -40,6 +40,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
       public ICommand Undo => undo;
       public ICommand Redo => redo;
+      /// <summary>Read-only observers can refresh after a completed Undo/Redo without opening a token.</summary>
+      public event EventHandler Reverted;
       public T CurrentChange {
          get {
             VerifyRevertNotInProgress();
@@ -183,6 +185,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          hasDataChangeCache = HasDataChange;
          if (previouslyHadDataChanged != hasDataChangeCache) NotifyPropertyChanged(nameof(HasDataChange));
          Debug.Assert(redoStack.Count > 0, "Redo should always be available directly after an Undo!");
+         Reverted?.Invoke(this, EventArgs.Empty);
       }
 
       private void RedoExecuted() {
@@ -202,6 +205,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          if (previouslyWasSaved != IsSaved) NotifyPropertyChanged(nameof(IsSaved));
          hasDataChangeCache = HasDataChange;
          if (previouslyHadDataChanged != hasDataChangeCache) NotifyPropertyChanged(nameof(HasDataChange));
+         Reverted?.Invoke(this, EventArgs.Empty);
       }
 
       private void VerifyRevertNotInProgress([CallerMemberName] string caller = null) {

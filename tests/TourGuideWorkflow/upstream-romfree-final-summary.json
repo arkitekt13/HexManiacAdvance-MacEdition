@@ -1,0 +1,10 @@
+{
+  "format": "xunit",
+  "discovered_entries": 2715,
+  "total": 2715,
+  "executed": 1667,
+  "passed": 1667,
+  "failed": 0,
+  "notExecuted": 1048,
+  "failures": []
+}

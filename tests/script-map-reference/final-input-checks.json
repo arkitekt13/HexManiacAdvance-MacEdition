@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "name": "GotoFocus",
+      "assertions": 12
+    },
+    {
+      "name": "ClipboardRouting",
+      "assertions": 78
+    },
+    {
+      "name": "AutocompleteDismissal",
+      "assertions": 85
+    },
+    {
+      "name": "ImageHoverPreviews",
+      "assertions": 56
+    },
+    {
+      "name": "TabMenus",
+      "assertions": 34
+    },
+    {
+      "name": "FirstLaunch",
+      "assertions": 47
+    },
+    {
+      "name": "MacSecondaryActions",
+      "assertions": 43
+    },
+    {
+      "name": "ScriptMapReference",
+      "assertions": 49
+    }
+  ],
+  "totalAssertions": 404,
+  "failures": 0,
+  "skippedGroups": 0
+}

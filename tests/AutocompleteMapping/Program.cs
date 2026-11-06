@@ -166,6 +166,51 @@ foreach(var ending in new[]{"\n","\r\n"}) {
    Check(m.RawData.SequenceEqual(completed),"Redo must restore the exact compiled completion.");
    overlay.Target=null;window.Content=null;Layout();
 }
+// Movement acceptance must stay dismissed when a queued TextChanged arrives after Click.
+model.SetList(new NoDataChangeDeltaModel(), "movementtypes", "walk_down", "walk_up", "walk_left", "walk_right");
+body = new CodeBody(model, parser, null) { StreamTypes = new[] { ExpectedPointerType.Movement } }; parser.AddKeywords(model, body);
+control = new TextEditor { DataContext = body.Editor, FontSize = 14 };
+overlay = new AutocompleteOverlay { DataContext = body };
+window.Content = new Grid { Children = { control, overlay } }; Layout();
+foreach (var ending in new[] { "\n", "\r\n" }) foreach (var movement in new[] { "walk_right", "walk_down" }) {
+   var prefix = movement[..^1];
+   var source = "move.player <auto>" + ending + "{" + ending + prefix + ending + "}" + ending + "end";
+   Prepare(source, source.IndexOf(prefix, StringComparison.Ordinal) + prefix.Length); Offer();
+   Check(Items().Any(i => i.CompletionText.Contains(movement)), "Movement stream offers the intended instruction.");
+   var button = overlay.FindControl<ItemsControl>("AutocompleteItems").GetVisualDescendants().OfType<Button>()
+      .First(b => b.DataContext is AutoCompleteSelectionItem i && i.CompletionText.Contains(movement));
+   var popupRoot = TopLevel.GetTopLevel(button);
+   var point = button.TranslatePoint(new Avalonia.Point(button.Bounds.Width / 2, button.Bounds.Height / 2), popupRoot).Value;
+   popupRoot.MouseMove(point); popupRoot.MouseDown(point, MouseButton.Left); popupRoot.MouseUp(point, MouseButton.Left); Layout();
+   Check(control.EditBox.Text.Contains(movement) && !overlay.IsVisible, "Click accepts the movement instruction and closes suggestions.");
+   Offer();
+   Check(!overlay.IsVisible && Items().Length == 0, "Queued text notifications for accepted movement cannot reopen suggestions.");
+   control.EditBox.CaretIndex = control.EditBox.Text.IndexOf(movement, StringComparison.Ordinal) + movement.Length;
+   window.KeyTextInput("x"); Layout();
+   control.EditBox.Text = source; control.EditBox.CaretIndex = source.IndexOf(prefix, StringComparison.Ordinal) + prefix.Length; Offer();
+   Check(Items().Length > 0, "A genuinely changed query can offer fresh suggestions after acceptance.");
+}
+// The truncation marker is information, never a completion to insert into source.
+var realMovements = BaseModel.GetDefaultMetadatas("BPRE").SelectMany(md => md.Lists).Single(list => list.Name == "movementtypes");
+model.SetList(new NoDataChangeDeltaModel(), realMovements.Name, realMovements.Contents.ToArray());
+model.ClearCacheScope();
+foreach (var ending in new[] { "\n", "\r\n" }) {
+   var source = "move.player <auto>" + ending + "{" + ending + "walk" + ending + "}" + ending + "end";
+   Prepare(source, source.IndexOf("walk", StringComparison.Ordinal) + 4); Offer();
+   var marker = overlay.FindControl<ItemsControl>("AutocompleteItems").GetVisualDescendants().OfType<Button>()
+      .Single(button => button.DataContext is AutoCompleteSelectionItem item && item.CompletionText == "...");
+   Check(!marker.IsEnabled, "The visible truncation marker cannot be clicked as a movement instruction.");
+   marker.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent)); Layout();
+   Check(control.EditBox.Text == source, "Even a programmatically raised marker Click cannot alter source.");
+   Offer(); Press(Key.Up);
+   Check(Items().Single(item => item.IsSelected).CompletionText != "...", "Up wraps past the disabled marker to a real movement.");
+   Press(Key.Down);
+   Check(Items()[0].IsSelected, "Down wraps past the marker back to the first real movement.");
+   Press(Key.Up); var chosen = Items().Single(item => item.IsSelected).CompletionText;
+   Press(Key.Enter);
+   Check(control.EditBox.Text.Contains(chosen) && !control.EditBox.Text.Contains("...") && !overlay.IsVisible,
+      "Keyboard acceptance inserts a real movement and dismisses suggestions.");
+}
 window.Close();
 Console.WriteLine("PASS: LF/CRLF/mixed line mapping, exact offerings/acceptance, suffixes, blank/boundary carets, quotes, real text input, caller pointers, and undo/redo.");
 Console.WriteLine($"CHECKS_PASSED:{checks}");

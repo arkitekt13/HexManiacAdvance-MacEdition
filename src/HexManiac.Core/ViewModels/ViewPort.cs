@@ -877,6 +877,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       IEditableViewPort IEditableViewPort.CreateDuplicate() => CreateDuplicate();
       public ViewPort CreateDuplicate() {
          var child = new ViewPort(FileName, Model, dispatcher, Singletons, mapper?.Tutorials, mapper?.FileSystem, PythonTool, history, mapper?.Templates);
+         child.ScriptReferenceMapID = ScriptReferenceMapID;
          child.selection.GotoAddress(scroll.DataIndex);
          return child;
       }
@@ -1473,6 +1474,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          Tools?.CodeTool.ClearConstantCache();
          Tools?.CodeTool.DataForCurrentRunChanged();
          UpdateAnchorText(ConvertViewPointToAddress(SelectionStart));
+         ReferenceMapRefreshRequested?.Invoke(this, EventArgs.Empty);
       }
 
       public void Cut(IFileSystem filesystem) {
@@ -2514,7 +2516,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          RefreshBackingData();
          Model.InitializationWorkload.ContinueWith(task => {
             CascadeScripts();
-            dispatcher.DispatchWork(RefreshBackingData);
+            dispatcher.DispatchWork(() => {
+               RefreshBackingData();
+               ReferenceMapRefreshRequested?.Invoke(this, EventArgs.Empty);
+            });
          }, TaskContinuationOptions.ExecuteSynchronously);
 
          // if the new file is shorter, selection might need to be updated
@@ -2594,6 +2599,13 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       }
 
       private List<ViewPort> RecentDuplicates = new();
+      private int? scriptReferenceMapID;
+      /// <summary>The map used as a script reference, not inferred ownership of the script.</summary>
+      public int? ScriptReferenceMapID {
+         get => scriptReferenceMapID;
+         set { if (scriptReferenceMapID != value) { scriptReferenceMapID = value; NotifyPropertyChanged(); } }
+      }
+      public event EventHandler ReferenceMapRefreshRequested;
       public void GotoScript(int address) {
          tools.LogTool.LogMessages.Add("Goto Script: " + address.ToAddress());
          if (RecentDuplicates.Count == 0) RecentDuplicates.Add(this);
@@ -2603,6 +2615,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
             // if we're already looking at a script, open this in a new tab instead
             start = tab.ConvertViewPointToAddress(tab.SelectionStart);
             if (start == address) {
+               tab.ScriptReferenceMapID = ScriptReferenceMapID;
                // just switch to this tab
                var args = new TabChangeRequestedEventArgs(tab);
                RequestTabChange?.Invoke(mapper, args);

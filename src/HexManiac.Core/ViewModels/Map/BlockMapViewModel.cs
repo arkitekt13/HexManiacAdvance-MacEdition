@@ -2672,7 +2672,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          model.ObserveRunWritten(token, NoInfoRun.FromPointer(model, source));
       }
 
-      private void GotoAddress(int address) => GotoAddress(viewPort, address);
+      private void GotoAddress(int address) {
+         if (viewPort is ViewPort source) source.ScriptReferenceMapID = MapID;
+         GotoAddress(viewPort, address);
+      }
       private void GotoBankMap(int bank, int map) => viewPort.MapEditor.NavigateTo(bank, map, int.MinValue, int.MinValue);
 
       /// <summary>

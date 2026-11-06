@@ -25,11 +25,16 @@
          <TextBlock Name="CommentLayer" Foreground="{DynamicResource Secondary}" Margin="2"/>
       </Canvas>
       <TextBox Name="TransparentLayer" Background="Transparent" CaretBrush="{DynamicResource Primary}" Foreground="Transparent"
+               SelectionForegroundBrush="Transparent"
                ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                UndoLimit="0" AcceptsReturn="True" AcceptsTab="True"
                Tag="{Binding $parent[local:TextEditor].Tag}"
                ContextMenu="{Binding $parent[local:TextEditor].ContextMenuOverride}"
-               Text="{Binding Content, Mode=TwoWay}" />
+               Text="{Binding Content, Mode=TwoWay}">
+         <TextBox.SelectionBrush>
+            <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.28"/>
+         </TextBox.SelectionBrush>
+      </TextBox>
       <local:DiagnosticUnderlineLayer Name="DiagnosticLayer" IsHitTestVisible="False" />
       <Rectangle Name="CornerCover" HorizontalAlignment="Right" VerticalAlignment="Bottom" Fill="{DynamicResource Background}" Margin="1" UseLayoutRounding="True" />
    </Grid>

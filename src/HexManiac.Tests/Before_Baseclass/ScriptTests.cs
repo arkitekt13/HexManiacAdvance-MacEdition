@@ -443,13 +443,14 @@ Script:
       }
 
       [Fact]
-      public void ErrorInScript_ClickOff_ResetScriptEditor() {
+      public void ErrorInScript_ClickOff_RetainsRejectedDraftUntilUndo() {
          SetFullModel(0xFF);
          ViewPort.Tools.CodeToolCommand.Execute();
          ViewPort.Tools.CodeTool.Mode = CodeMode.Script;
          ViewPort.Tools.CodeTool.Contents[0].Content = Script("lock", "end", "lock");
          ViewPort.SelectionStart = new Point(0, 1);
          ViewPort.SelectionStart = new Point(0, 0);
+         var compiledBytes = Model.RawData.ToArray();
          ViewPort.Tools.CodeTool.Contents[0].Content = Script("lock", "lock", "end");
 
          ViewPort.SelectionStart = new Point(0, 1);
@@ -457,7 +458,18 @@ Script:
 
          var script = ViewPort.Tools.CodeTool.Contents[0].Content.SplitLines()
             .Select(line => line.Trim()).Where(line => line.Length > 0).ToArray();
+         Assert.Equal(new[] { "lock", "lock", "end" }, script);
+         Assert.True(ViewPort.Tools.CodeTool.HasUncompiledScriptChanges);
+         Assert.Equal(compiledBytes, Model.RawData);
+
+         // HMA-006 deliberately retains rejected source across navigation. Discard
+         // requires an explicit action, and must not undo the last compiled model.
+         ViewPort.Undo.Execute(null);
+         script = ViewPort.Tools.CodeTool.Contents[0].Content.SplitLines()
+            .Select(line => line.Trim()).Where(line => line.Length > 0).ToArray();
          Assert.Equal(new[] { "lock", "end" }, script);
+         Assert.False(ViewPort.Tools.CodeTool.HasUncompiledScriptChanges);
+         Assert.Equal(compiledBytes, Model.RawData);
          Assert.False(ViewPort.Tools.CodeTool.ShowErrorText);
       }
 

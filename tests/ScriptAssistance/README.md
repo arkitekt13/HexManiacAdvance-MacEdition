@@ -19,4 +19,4 @@ Manual check after relaunch: type a supported command and a space, inspect the p
 then try the unused-ID button and Cmd+U in a map-backed script. Spartan mode, the auto-insert
 setting and availability of an investigator retain their existing eligibility rules.
 
-Command-list regressions cover nine commands through typed Space, keyboard acceptance and an actual suggestion click (258 assertions). Accepting a command publishes its intended caret with the source before script assistance runs; suffix/line-ending mapping remains covered by AutocompleteMapping.
+Command-list regressions cover eleven commands through typed Space, keyboard acceptance and an actual suggestion click (364 assertions), including typing an actor operand after accepting move.npc/applymovement and exact resource Undo/Redo. The movement fixtures load the actual FireRed catalog and verify walk_up's byte 0x11 plus FE termination. Accepting a command publishes its intended caret with the source before script assistance runs; suffix/line-ending mapping remains covered by AutocompleteMapping.

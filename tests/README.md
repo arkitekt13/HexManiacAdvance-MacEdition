@@ -35,6 +35,8 @@ coverage, preservation checks and deliberately unclaimed native/legacy paths.
 The [NPC hover performance investigation](MAP_HOVER_PERFORMANCE.md) measures event construction
 and script summaries; [MapHoverLookup](MapHoverLookup/README.md) protects coordinate-first hover
 lookup without constructing unrelated NPC editors.
+[ScriptMapReference](ScriptMapReference/README.md) covers the script-side map pane, explicit
+map context, detached rendering and keyboard/draft/history preservation.
 The [script editor follow-up](SCRIPT_EDITOR_REVIEW.md) records fresh responsiveness measurements
 and reproduced stale-suggestion lifecycle gaps; [AutocompleteDismissal](AutocompleteDismissal/README.md)
 protects the subsequent focus/context/lifetime fix.
@@ -98,6 +100,12 @@ Actual script typing, automatic pointer insertion and unused flag/variable UI ro
 by [ScriptAssistance](ScriptAssistance/README.md).
 Complete dialogue/movement scaffolds, caret placement and replacement of legacy missing-brace completion
 are covered by [DialogueScaffolding](DialogueScaffolding/README.md).
+[TourGuideWorkflow](TourGuideWorkflow/README.md) combines six dialogue/movement resources,
+forced relocation, late-error rollback, correction, navigation, history and save/reopen;
+the [review](TOUR_GUIDE_SCRIPT_REVIEW.md) separates the formatting repair from the outstanding
+permissive invalid-movement behavior at that checkpoint. The implemented follow-up is covered
+by [MovementValidation](MovementValidation/README.md), including precise diagnostics, atomic
+failure, retained drafts and unchanged valid movement matching/bytes.
 Stable simple/complex NPC hover overlays, click-through input and viewport fitting are covered by
 [MapHoverPreview](MapHoverPreview/README.md).
 Cold NPC text discovery during map rendering, UI-thread notifications and canceled render work are

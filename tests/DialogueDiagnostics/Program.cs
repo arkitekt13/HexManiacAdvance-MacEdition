@@ -94,6 +94,22 @@ vm.ErrorLocations.Clear(); Pump();
 Check(Colored(Pixels(), true).Count == 0 && Colored(Pixels(), false).Count == 0, "Clearing diagnostics removes every old underline.");
 Check(vm.Content == before && editor.EditBox.IsFocused, "Updating underlines preserves text and keyboard focus.");
 
+// Syntax is painted below the native selection, so selected dialogue must remain visible.
+f.Edit(WorkflowFixture.Source(1, 1, "Readable selected dialogue."));
+editor.DataContext = f.Body.Editor; window.Width = 900; window.Height = 300; Pump();
+var selectionState = f.State(); var selectedSource = f.Body.Content;
+editor.EditBox.Focus(); editor.EditBox.SelectAll(); Pump();
+var selectedPixels = Pixels();
+int orangePixels = Enumerable.Range(0, selectedPixels.Length / 4).Count(i => {
+   int b = selectedPixels[i * 4], g = selectedPixels[i * 4 + 1], r = selectedPixels[i * 4 + 2];
+   return r > g + 20 && g > b + 20 && r > 100;
+});
+Check(orangePixels > 100, "Selected dialogue must retain readable syntax-coloured glyphs beneath the selection.");
+Check(editor.EditBox.SelectionBrush.Opacity < .5 && editor.EditBox.SelectionBrush.Opacity > .1,
+   "The selection is visible but translucent.");
+Check(selectionState.EqualsModel(f) && f.Body.Content == selectedSource && editor.EditBox.SelectedText == selectedSource,
+   "Visual selection changes preserve source, actual selection and ROM/metadata.");
+
 // Characterization of existing PCS encoding: no changes to the game's line/page controls.
 var single = PCSString.Convert("First\nSecond");
 var scrolling = PCSString.Convert("First\nSecond\nThird");

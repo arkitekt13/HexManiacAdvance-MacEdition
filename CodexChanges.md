@@ -2475,3 +2475,160 @@ Validation: The focused tutorial group passes 36 assertions; the complete fresh 
 | FutureDevelopment.md | 7 | Point release reminders to the candidate gates and platform-results checklist. |
 
 Validation: Local Markdown destinations and whitespace checks pass. Verification totals reference the existing 62-group / 18,164-assertion record; native/clean-machine, Intel, signing, runtime and final-asset work stays explicitly unchecked. This is documentation only; no app code, ROM/settings, dependencies or GitHub release changed, and no regression rerun was required.
+
+## 152 — Focus the Go To text box immediately after Command-G
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 641 | Wait for lazy Go To text-box attachment and schedule focus before queued input while cancelling closed/replaced-editor requests. |
+| tests/GotoFocus/Program.cs | 1 | Exercise delayed presentation, immediate typing, query replacement, Escape, cancelled requests and unchanged ROM/history with 12 headless checks. |
+| tests/GotoFocus/GotoFocus.csproj | 1 | Add an isolated real-window input regression group using fabricated ROM bytes. |
+| tests/GotoFocus/README.md | 1 | Record the simulated pre-fix focus failure and the native event-ordering verification limit. |
+| tests/GotoFocus/mac-verification.json | 1 | Preserve exact counts for all seven relevant focus/input regression groups. |
+
+Validation: The old code passes ordinary headless opening but fails to focus when text-box attachment is explicitly delayed beyond the queued request; the repair passes all 12 Go To checks. Fresh GotoFocus, ClipboardRouting, AutocompleteDismissal, ImageHoverPreviews, TabMenus, FirstLaunch and MacSecondaryActions builds/checks pass 355 assertions across seven groups, with zero failures/skips and zero build warnings/errors. The full Mac suite was not rerun for this bounded focus change. Native Cocoa timing awaits user confirmation; compiler, Go To matching/navigation, shared field controls, ROM bytes/history and personal settings are unchanged.
+
+## 153 — Investigate a read-only map reference beside script source
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/SCRIPT_MAP_REFERENCE_REVIEW.md | 1 | Record source-map ambiguity, live renderer/history side effects, input-routing risks and bounded implementation acceptance checks before production changes. |
+| tools/ScriptMapReferenceReview/Program.cs | 1 | Reproduce live-render history effects on fabricated 80 × 50 maps without personal ROMs or preferences. |
+| tools/ScriptMapReferenceReview/ScriptMapReferenceReview.csproj | 1 | Link the existing synthetic map fixture and actual renderer for reproducible investigation. |
+| tests/script-map-reference/probe-before.jsonl | 1 | Preserve observed cold/cached rendering and unchanged bytes/metadata alongside the NPC dirty/history transition. |
+
+Validation: The completed synthetic probe draws both maps; the NPC case enables Undo and marks the model unsaved while bytes and serialized metadata remain unchanged. Initial draw is about 12–15 ms in this limited single run, and cached access reuses pixels. This is not a real-ROM performance claim or proof of the user's native event timing. GitHub checkpoint checkpoint/pre-script-map-preview-2026-11-05 preserves 68ed0f91 before implementation.
+
+## 154 — Add a map reference beside overworld script source
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/ViewPort.cs | 2601 | Retain explicit source-map context through script-tab reuse/duplication and expose refresh notifications without changing compilation. |
+| src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs | 305 | Capture the current map for event double-click and new-script-tab routes. |
+| src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs | 2675 | Carry map identity when following an event's script-address link. |
+| src/HexManiac.Core/ViewModels/Map/MapScriptCollection.cs | 312 | Preserve originating map context for map-header script navigation. |
+| src/HexManiac.Core/ViewModels/ChangeHistory.cs | 43 | Notify read-only observers after completed Undo/Redo without requesting history tokens. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 29 | Persist the Map/Hex preference in app settings while keeping Hex as the default. |
+| src/HexManiac.Avalonia/Project/ScriptMapSnapshot.cs | 14 | Capture live data once and render a bounded detached model/history into immutable reference pixels off-thread. |
+| src/HexManiac.Avalonia/Controls/ScriptMapReferenceView.cs | 20 | Display the named map with drag/scroll panning and no tile, event, tooltip or context-menu editing. |
+| src/HexManiac.Avalonia/Controls/TabView.ScriptMap.cs | 20 | Manage lazy snapshots, source focus, per-tab/map pan offsets, invalidation, resource release and stale-result rejection. |
+| src/HexManiac.Avalonia/Controls/TabView.axaml | 816 | Add compact Hex View/Map View controls and replace the complete right-hand hex section when selected. |
+| src/HexManiac.Avalonia/Controls/TabView.axaml.cs | 75 | Connect map-reference lifecycle handling when the actual tab control is created. |
+| src/HexManiac.Avalonia/Windows/MainWindow.Editing.cs | 14 | Restore script focus and prevent clipboard/delete or palette shortcuts from reaching hidden hex controls. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 92 | End reference panning on Escape and restore source focus instead of hidden hex focus. |
+| tests/ScriptMapReference/Program.cs | 1 | Exercise read-only rendering, real map routes/buttons, pending/rejected source, panning, settings, stale frames, keyboard isolation and history with 49 focused assertions. |
+| tests/ScriptMapReference/ScriptMapReference.csproj | 1 | Reuse fabricated map/workflow data and offscreen controls without personal ROMs or preferences. |
+| tests/ScriptMapReference/README.md | 1 | Explain coverage, synthetic inputs and remaining native/real-ROM verification. |
+| tests/script-map-reference/mac-verification.json | 1 | Preserve the complete 64-group run and distinguish its 48 map assertions from the final focused follow-up. |
+| tests/script-map-reference/final-input-checks.json | 1 | Record all eight final input/focus groups and 404 assertions after the last Command-G guard. |
+| tests/SCRIPT_MAP_REFERENCE_REVIEW.md | 88 | Add the implemented boundaries and verification links to the separately committed investigation. |
+| README.md | 65 | List the map-reference scripting feature in Mac Edition's feature summary. |
+| docs/MAC_SETUP.md | 24 | Explain how to open a source map, switch views and pan without implying movement simulation. |
+| docs/MAC_RELEASE_CHECKLIST.md | 59 | Add a native candidate check for the new reference pane and editing/history workflow. |
+| tests/README.md | 38 | Link the new regression group from the Mac test index. |
+
+Validation: The complete serial Mac suite passes 64 groups / 18,224 assertions with zero failures and zero skipped groups, including 48 map-reference assertions. A final Command-G/palette-routing guard adds one more map assertion; that 49-check group plus seven freshly rebuilt related groups pass 404 assertions across eight groups, with zero failures/skips. These overlapping totals are recorded separately, not added together. Offscreen layout was rendered and inspected; app/focused builds emit zero compiler warnings/errors, with the existing MapImageExport NU1900 feed diagnostic separate. Synthetic snapshot preparation takes about 32–36 ms in these observations, not a real-ROM/native performance claim. Compiler, numeric grammar, pointer relocation and history algorithms are unchanged; only read-only history/refresh notifications are added. No personal ROM, metadata, settings or runtime migration was used. Native tutorial-map appearance and trackpad feel await user testing; the pre-feature build remains available on GitHub at checkpoint/pre-script-map-preview-2026-11-05 (68ed0f91).
+
+## 155 — Add a light tile grid to the script-side map reference
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/ScriptMapReferenceView.cs | 25 | Add a Grid checkbox and input-transparent translucent 16-pixel overlay in the image's scrolling coordinate space without modifying map pixels. |
+| src/HexManiac.Avalonia/Controls/TabView.ScriptMap.cs | 41 | Synchronize the grid preference without regenerating a snapshot or changing source focus. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 31 | Persist the optional grid in app settings with an off default. |
+| tests/ScriptMapReference/Program.cs | 140 | Cover the real checkbox, geometry/input isolation, unchanged bitmap/model state, rendered line spacing/alpha and preference reload. |
+| tests/ScriptMapReference/README.md | 15 | Describe grid rendering and settings preservation checks. |
+| tests/script-map-reference/grid-verification.json | 1 | Record 57 map-reference and 47 isolated startup checks with native/full-suite limits. |
+| docs/MAC_SETUP.md | 30 | Explain the Grid checkbox and remembered display-only behavior. |
+
+Validation: Fresh app/test builds emit zero warnings/errors; ScriptMapReference passes 57 assertions and FirstLaunch passes 47, totaling 104 assertions across two groups with zero failures/skips. Offscreen layout was rendered and inspected; actual pixel checks distinguish 16-pixel map boundaries from 8-pixel graphics boundaries and verify translucent lines. Toggling reuses the same bitmap, preserves script focus and never invokes map snapshot preparation or changes live ROM/metadata. The full Mac suite was not rerun for this bounded visual/settings addition; native appearance awaits user confirmation. No personal ROM/settings, compiler, history or numeric behavior changed.
+
+## 156 — Keep syntax-coloured source readable while selected
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml | 28 | Replace the opaque native selection with a theme-accent brush at 28% opacity and transparent native selection foreground so syntax layers remain visible. |
+| tests/DialogueDiagnostics/Program.cs | 96 | Check selected dialogue pixels, translucent highlighting and unchanged source/selection/model state alongside existing diagnostic rendering checks. |
+
+Validation: The baseline fails the translucency regression; the updated DialogueDiagnostics group passes 30 assertions with zero build warnings/errors. Rendered selected dialogue retains coloured glyphs, and actual selected text, source, ROM bytes and metadata remain unchanged. This affects the shared layered editor only; ordinary short-field selection, compilation, numeric parsing and history algorithms are unchanged. Native appearance still benefits from user confirmation.
+
+## 157 — Keep accepted movement suggestions dismissed
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs | 31 | Suppress reentrant and queued text notifications for the accepted target/context/result while allowing genuinely changed queries and clearing markers when context detaches or changes. |
+| tests/AutocompleteMapping/Program.cs | 169 | Reproduce mouse-accepted walk_right/walk_down popups reopening and protect dismissal, fresh queries and LF/CRLF movement source. |
+| tests/AutocompleteMapping/README.md | 6 | Record 310 checks and movement acceptance coverage. |
+| tests/script-editor-polish/mac-verification.json | 1 | Preserve exact results for nine rebuilt shared-editor, drafting, clipboard, encounter and map-reference groups. |
+
+Validation: Before the repair, a real mouse click accepting a movement instruction reopens its popup during layout; after the repair all 310 mapping assertions pass, including explicit queued notification and fresh-query controls. The focused final run passes nine groups / 1,928 assertions with zero failures or skips: DialogueDiagnostics 30, AutocompleteMapping 310, AutocompleteDismissal 85, DialogueScaffolding 384, ScriptAssistance 258, ClipboardRouting 78, WildEncounterEditing 128, ScriptMapReference 57 and ScriptWorkflowSafety 598. Fresh builds report zero warnings/errors. Full Mac/upstream suites were not rerun for these bounded overlay/visual changes. No personal ROM/settings or compiler, matching, numeric, relocation or history rules changed; native confirmation remains useful.
+
+## 158 — Investigate combined tour-guide scripting workflows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/TOUR_GUIDE_SCRIPT_REVIEW.md | 1 | Record mixed-resource coverage gaps, a reproduced inline-resource formatting failure and a separately scoped permissive movement-input finding before production changes. |
+| tests/TourGuideWorkflow/Program.cs | 1 | Add a synthetic six-resource tour regression and optional minimal formatting/invalid-movement observation probes. |
+| tests/TourGuideWorkflow/TourGuideWorkflow.csproj | 1 | Reuse the controlled script workflow fixture without user ROMs or preferences. |
+
+Validation: Fresh build succeeds without compiler warnings/errors. The pre-fix mixed-tour run fails because correctly encoded dialogue has NoInfoRun formatting after successful compilation; the smaller single-message probe reproduces it and a second formatting pass restores PCS. The invalid movement probe separately observes silent omission for auto streams and zero substitution for existing streams. This evidence commit intentionally precedes the formatting repair; neither finding is attributed to recent map-reference work or counted as a passing regression. Numeric/resource grammar is unchanged.
+
+## 159 — Preserve inline resource formatting in compiled script spans
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/Code/ScriptParser.cs | 294 | Skip exact known resource spans while formatting a minimum compiled span, preserving inline dialogue/movement formats without treating data bytes as opcodes. |
+| tests/TourGuideWorkflow/Program.cs | 1 | Protect six-resource allocation/growth, named relocation, failure/correction, navigation/callbacks, history/save and reachable following sections with 321 synthetic assertions. |
+| tests/TourGuideWorkflow/README.md | 1 | Explain canonical complete-anchor comparison, reproducible commands and native/gameplay limits. |
+| tests/ScriptAssistance/Program.cs | 21 | Extend real typing/Enter/click coverage to move.npc/applymovement actor operands and resource Undo/Redo, totaling 352 assertions. |
+| tests/ScriptMapReference/Program.cs | 250 | Check movement-suggestion acceptance and pending-edit panning, pixel reuse, compilation and Undo in the actual map pane, totaling 63 assertions. |
+| tests/TourGuideWorkflow/mac-verification.json | 1 | Record all 65 freshly built Mac groups and exact assertion totals. |
+| tests/TourGuideWorkflow/upstream-baseline-summary.json | 1 | Preserve the pre-repair matched-host upstream baseline and its one outdated rejected-source assertion. |
+| tests/TourGuideWorkflow/upstream-repair-summary.json | 1 | Preserve identical upstream totals/failure after the formatting repair. |
+| tests/TOUR_GUIDE_SCRIPT_REVIEW.md | 59 | Record the repair, verified scope, upstream comparison and fresh-runner dependency limitation. |
+| FutureDevelopment.md | 3 | Track the independently reproduced permissive invalid-movement behavior as HMA-019, without changing enum/numeric grammar here. |
+| tests/README.md | 98 | Link the combined workflow group and its review; update related group READMEs. |
+
+Validation: Full Mac suite passes 65 groups / 18,673 assertions with zero failures/skipped groups. Builds succeed; the pre-existing MapImageExport NU1900 feed warning remains separate. The upstream first-project run and a matched-host pre-repair baseline each report 2,715 cases: 1,779 passed, one identical failure, 935 skipped, zero engine errors. The sole failing legacy assertion expects navigation to discard rejected source, contrary to HMA-006; its contract is aligned separately next. The baseline comparison reused a working identical-version runner dependency manifest after fresh-archive discovery failed on the omitted xUnit runtime dependency. No ROM/settings files, allocation rules, numeric parsing, compiler opcodes or history algorithms were changed. The initial upstream comparison picked up an existing cached optional FireRed fixture; the isolated fixture-free follow-up is recorded below. Native/emulator checks and HMA-019 remain explicit limitations.
+
+## 160 — Align the legacy navigation test with retained script drafts
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Tests/Before_Baseclass/ScriptTests.cs | 446 | Require navigation to retain rejected source without changing compiled bytes, then require explicit Undo to discard the draft without undoing the compiled model. |
+| tests/TourGuideWorkflow/upstream-romfree-baseline-summary.json | 1 | Record the same outdated assertion failing on pre-repair code with all optional ROM fixtures excluded. |
+| tests/TourGuideWorkflow/upstream-romfree-final-summary.json | 1 | Record the complete isolated first-project upstream pass with explicit absent-fixture skips. |
+| tests/TOUR_GUIDE_SCRIPT_REVIEW.md | 88 | Distinguish fixture-bearing initial results, fixture-free final runs and runner-dependency limits. |
+| tests/UPSTREAM_BASELINE.md | 9 | Link the new test-contract alignment and exact isolated upstream results. |
+
+Validation: With sampleFiles excluded, the pre-repair matched host reports 2,715 cases: 1,666 passed, one legacy failure, 1,048 skipped and zero engine errors. After this test-only alignment, the isolated final run reports 2,715 cases: 1,667 passed, zero failed, 1,048 skipped and zero engine errors. The skips require absent optional ROMs. Initial upstream runs had picked up an existing cached FireRed fixture and therefore had different pass/skip totals; those summaries remain preserved and are not called ROM-free. The cached fixture still hashes identically to the repository's existing sample; no ROM/settings files were edited. The known fresh-runner xUnit dependency omission is documented, and the existing xUnit1013 analyzer warning remains separate. The production tree is unchanged from entry 159's full 65-group / 18,673-assertion Mac pass; a redundant full Mac rerun was not required for this upstream-test-only edit. Evidence, production repair and legacy-test alignment remain separate commits on the unmerged branch.
+
+## 161 — Keep suggestion truncation markers out of source
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/AutoCompleteSelectionItem.cs | 10 | Expose whether a completion is a real value rather than the list's ellipsis marker. |
+| src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml | 45 | Display truncation indicators as disabled rows instead of clickable completions. |
+| src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs | 279 | Skip disabled markers during keyboard wrapping and reject marker acceptance even when a Click is raised programmatically. |
+| tests/AutocompleteMapping/Program.cs | 193 | Cover the real FireRed movement list's disabled marker, guarded Click, Up/Down wrapping and Enter acceptance across LF/CRLF. |
+| tests/AutocompleteMapping/README.md | 6 | Record the expanded 320-assertion group and indicator behavior. |
+
+Validation: The new disabled-row assertion fails before the fix. The repaired group passes 320 assertions with zero build warnings/errors, including existing mouse acceptance, caret mapping, queued-notification dismissal and history checks. No ROM fixtures/preferences or movement compiler/matching/numeric rules changed. The full shared-control regression run follows the separately scoped movement-validation change.
+
+## 162 — Reject unrecognized movement rows without partial compilation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/Code/ScriptParser.cs | 611 | Validate movement rows using the existing deferred-enum or existing-table syntax and report the exact unrecognized source span inside the existing atomic compilation transaction. |
+| tests/MovementValidation/Program.cs | 1 | Exercise 1,981 assertions for real FireRed names, four commands, two resource paths, three newline styles, precise diagnostics, rollback, persistence/navigation, relocation, correction, Undo/Redo and numeric compatibility. |
+| tests/MovementValidation/MovementValidation.csproj | 1 | Reuse the controlled fabricated-ROM fixture and actual metadata resources in an automatically discovered Mac regression group. |
+| tests/MovementValidation/README.md | 1 | Explain reproduction, scope, legacy parsing differences and native/gameplay limits. |
+| tests/MovementValidation/mac-verification.json | 1 | Preserve all 66 full-suite group counts and the tested parser hash. |
+| tests/MovementValidation/upstream-verification.json | 1 | Preserve the complete isolated first-project upstream results with absent optional-ROM skips. |
+| tests/ScriptAssistance/Program.cs | 23 | Load actual FireRed movement metadata and verify the compiled walk_up byte/terminator after typing, keyboard and mouse assistance, totaling 364 assertions. |
+| tests/ScriptAssistance/README.md | 22 | Record the strengthened real-catalog assistance coverage. |
+| FutureDevelopment.md | 5 | Mark HMA-019 fixed for script source while retaining the original investigation evidence and standalone-table scope limit. |
+| tests/TOUR_GUIDE_SCRIPT_REVIEW.md | 31 | Link the implemented movement-validation and disabled-marker follow-ups without rewriting the original findings. |
+| tests/README.md | 101 | Link the new validation coverage and distinguish the earlier unimplemented checkpoint. |
+
+Validation: The first unknown-row rejection assertion fails before implementation; 219 valid-input compatibility assertions pass on that baseline. The final expanded MovementValidation group passes 1,981 assertions. Full Mac verification passes 66 groups / 20,676 assertions with zero failures/skipped groups, including AutocompleteMapping 320, ScriptAssistance 364, TourGuideWorkflow 321, ScriptWorkflowSafety 598 and ScriptMapReference 63. The isolated upstream first-project run discovers 2,715 cases: 1,667 passed, zero failed, 1,048 absent optional-ROM skips and zero engine errors; its copied working dependency host explicitly excludes sampleFiles/ROM files. Existing MapImageExport NU1900 and NamedByteTests xUnit1013 warnings are separate from successful builds. No personal ROM/settings, numeric grammar, movement bytes, allocator, table writer or history algorithms changed. Known names, partial/quoted aliases, comments, numeric wrapping and existing terminator handling retain their previous behavior; raw out-of-range compatibility checks are not a gameplay-validity guarantee. Standalone table editing and non-movement resources are not tightened. Native/editor/emulator checks remain user validation. Marker and compiler fixes are separate commits on the unmerged branch.

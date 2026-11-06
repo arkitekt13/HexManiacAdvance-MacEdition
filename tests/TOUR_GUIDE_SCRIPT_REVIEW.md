@@ -28,6 +28,10 @@ stop at the first ending opcode, because valid following script sections still n
 
 ## Separate compatibility finding
 
+Follow-up: the [movement-validation repair](MovementValidation/README.md) now rejects unknown
+rows atomically, and autocomplete's ellipsis indicator cannot be accepted. The original
+observations below describe the investigation checkpoint, not the repaired behavior.
+
 `TourGuideWorkflow --probe-invalid-movement` reports that `NoSuchMovementInstruction`
 does not reject compilation. With a fresh `<auto>` movement block it is omitted (`01 03 FE`);
 with an existing movement stream the shared table writer substitutes zero (`01 00 03 FE`).

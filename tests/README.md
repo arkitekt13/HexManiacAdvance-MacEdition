@@ -103,7 +103,9 @@ are covered by [DialogueScaffolding](DialogueScaffolding/README.md).
 [TourGuideWorkflow](TourGuideWorkflow/README.md) combines six dialogue/movement resources,
 forced relocation, late-error rollback, correction, navigation, history and save/reopen;
 the [review](TOUR_GUIDE_SCRIPT_REVIEW.md) separates the formatting repair from the outstanding
-permissive invalid-movement behavior.
+permissive invalid-movement behavior at that checkpoint. The implemented follow-up is covered
+by [MovementValidation](MovementValidation/README.md), including precise diagnostics, atomic
+failure, retained drafts and unchanged valid movement matching/bytes.
 Stable simple/complex NPC hover overlays, click-through input and viewport fitting are covered by
 [MapHoverPreview](MapHoverPreview/README.md).
 Cold NPC text discovery during map rendering, UI-thread notifications and canceled render work are

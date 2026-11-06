@@ -2614,3 +2614,21 @@ Validation: With sampleFiles excluded, the pre-repair matched host reports 2,715
 | tests/AutocompleteMapping/README.md | 6 | Record the expanded 320-assertion group and indicator behavior. |
 
 Validation: The new disabled-row assertion fails before the fix. The repaired group passes 320 assertions with zero build warnings/errors, including existing mouse acceptance, caret mapping, queued-notification dismissal and history checks. No ROM fixtures/preferences or movement compiler/matching/numeric rules changed. The full shared-control regression run follows the separately scoped movement-validation change.
+
+## 162 — Reject unrecognized movement rows without partial compilation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/Code/ScriptParser.cs | 611 | Validate movement rows using the existing deferred-enum or existing-table syntax and report the exact unrecognized source span inside the existing atomic compilation transaction. |
+| tests/MovementValidation/Program.cs | 1 | Exercise 1,981 assertions for real FireRed names, four commands, two resource paths, three newline styles, precise diagnostics, rollback, persistence/navigation, relocation, correction, Undo/Redo and numeric compatibility. |
+| tests/MovementValidation/MovementValidation.csproj | 1 | Reuse the controlled fabricated-ROM fixture and actual metadata resources in an automatically discovered Mac regression group. |
+| tests/MovementValidation/README.md | 1 | Explain reproduction, scope, legacy parsing differences and native/gameplay limits. |
+| tests/MovementValidation/mac-verification.json | 1 | Preserve all 66 full-suite group counts and the tested parser hash. |
+| tests/MovementValidation/upstream-verification.json | 1 | Preserve the complete isolated first-project upstream results with absent optional-ROM skips. |
+| tests/ScriptAssistance/Program.cs | 23 | Load actual FireRed movement metadata and verify the compiled walk_up byte/terminator after typing, keyboard and mouse assistance, totaling 364 assertions. |
+| tests/ScriptAssistance/README.md | 22 | Record the strengthened real-catalog assistance coverage. |
+| FutureDevelopment.md | 5 | Mark HMA-019 fixed for script source while retaining the original investigation evidence and standalone-table scope limit. |
+| tests/TOUR_GUIDE_SCRIPT_REVIEW.md | 31 | Link the implemented movement-validation and disabled-marker follow-ups without rewriting the original findings. |
+| tests/README.md | 101 | Link the new validation coverage and distinguish the earlier unimplemented checkpoint. |
+
+Validation: The first unknown-row rejection assertion fails before implementation; 219 valid-input compatibility assertions pass on that baseline. The final expanded MovementValidation group passes 1,981 assertions. Full Mac verification passes 66 groups / 20,676 assertions with zero failures/skipped groups, including AutocompleteMapping 320, ScriptAssistance 364, TourGuideWorkflow 321, ScriptWorkflowSafety 598 and ScriptMapReference 63. The isolated upstream first-project run discovers 2,715 cases: 1,667 passed, zero failed, 1,048 absent optional-ROM skips and zero engine errors; its copied working dependency host explicitly excludes sampleFiles/ROM files. Existing MapImageExport NU1900 and NamedByteTests xUnit1013 warnings are separate from successful builds. No personal ROM/settings, numeric grammar, movement bytes, allocator, table writer or history algorithms changed. Known names, partial/quoted aliases, comments, numeric wrapping and existing terminator handling retain their previous behavior; raw out-of-range compatibility checks are not a gameplay-validity guarantee. Standalone table editing and non-movement resources are not tightened. Native/editor/emulator checks remain user validation. Marker and compiler fixes are separate commits on the unmerged branch.

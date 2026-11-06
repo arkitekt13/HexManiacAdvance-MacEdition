@@ -20,6 +20,8 @@ void Check(bool value, string message) { checks++; if (!value) throw new Invalid
 foreach (var acceptance in new[] { "typed", "enter", "click" })
 foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.player", "move.camera", "move.npc", "applymovement", "setflag", "checkflag", "setvar", "addvar" }) {
    using var f = new WorkflowFixture();
+   f.Model.LoadMetadata(new StoredMetadata(lists: BaseModel.GetDefaultMetadatas("BPRE").SelectMany(md => md.Lists)
+      .Where(list => list.Name == "movementtypes").ToArray()));
    f.Dispatch.DispatchOverride = action => {
       var completion = new TaskCompletionSource();
       Dispatcher.UIThread.Post(() => { action(); completion.SetResult(); }); return completion.Task;
@@ -74,6 +76,11 @@ foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.play
       window.KeyTextInput(content); Pump();
       Check(body.Content.Contains("{\n" + content + "\n}"), "Typing immediately after assistance enters the resource body.");
       f.Dispatch.Flush(); f.View.ChangeHistory.ChangeCompleted(); Pump(); Check(!body.HasError, "The existing auto-pointer form still compiles.");
+      if (content == "walk_up") {
+         int movement = f.Model.ReadPointer(body.Address + 3);
+         Check(f.Model.RawData.Skip(movement).Take(2).SequenceEqual(new byte[] { 0x11, 0xFE }),
+            "Assisted movement uses the actual FireRed walk_up byte and terminator, not an empty stream.");
+      }
       var compiled = f.State(); f.View.Undo.Execute(null); f.Dispatch.Flush(); Pump();
       Check(baseline.EqualsModel(f), "Undo restores the complete pre-assistance resource state.");
       f.View.Redo.Execute(null); f.Dispatch.Flush(); Pump(); Check(compiled.EqualsModel(f), "Redo restores the complete assisted resource edit.");

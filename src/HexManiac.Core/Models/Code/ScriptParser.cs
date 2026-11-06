@@ -7,6 +7,7 @@ using Microsoft.Scripting.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -607,6 +608,17 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
                // Let the stream run handle updating itself based on the stream content.
                if (streamInfo.Count > 0) {
                   var info = streamInfo[0];
+                  if (info.PointerType == ExpectedPointerType.Movement) {
+                     bool deferred = info.Destination == DeferredStreamToken.AutoSentinel + Pointer.NULL;
+                     for (int row = 0; row < streamLines.Count; row++) {
+                        var movement = streamLines[row];
+                        if (string.IsNullOrWhiteSpace(movement) || IsValidMovementRow(model, movement, deferred)) continue;
+                        var trimmed = movement.Trim();
+                        CompileError.Raise(this, new($"Unknown movement instruction '{trimmed}'.",
+                           new(streamStart + row, movement.Length - movement.TrimStart().Length, trimmed.Length, SegmentType.Error)));
+                        return null;
+                     }
+                  }
                   streamTypes.Add(info.PointerType);
                   if (info.Destination == DeferredStreamToken.AutoSentinel + Pointer.NULL) {
                      var deferred = deferredContent[deferredContent.Count - streamInfo.Count];
@@ -736,6 +748,26 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
 
          if (updateBody != null) updateBody.StreamTypes = streamTypes;
          return result.ToArray();
+      }
+
+      private static bool IsValidMovementRow(IDataModel model, string row, bool deferred) {
+         var text = deferred ? row.Trim() : row;
+         if (!deferred) {
+            // Match the existing one-column table stream's token/parenthesis handling.
+            // Deferred streams use the enum parser directly, without this normalization.
+            text = string.Join(" ", TableStreamRun.Tokenize(text));
+            if (text.StartsWith("(") && text.EndsWith(")")) text = text.Substring(1, text.Length - 2);
+         }
+         if (ArrayRunEnumSegment.TryParse("movementtypes", model, text, out _)) return true;
+         if (deferred) return false;
+
+         // ArrayRunEnumSegment.Write falls back to the existing integer writer. Keep
+         // its numeric grammar, including lowercase 0x and the current culture.
+         if (text.StartsWith("(") && text.EndsWith(")")) text = text.Substring(1, text.Length - 2);
+         text = TableStreamRun.Tokenize(text).FirstOrDefault() ?? string.Empty;
+         return text.StartsWith("0x")
+            ? int.TryParse(text.Substring(2), NumberStyles.HexNumber, CultureInfo.CurrentCulture, out _)
+            : int.TryParse(text, out _);
       }
 
       public IScriptLine FirstMatch(string line) {

@@ -1,0 +1,279 @@
+{
+  "command": "scripts/verify-mac.sh --no-restore",
+  "groups": [
+    {
+      "name": "AutocompleteDismissal",
+      "assertions": 85
+    },
+    {
+      "name": "AutocompleteMapping",
+      "assertions": 320
+    },
+    {
+      "name": "BlockBagFill",
+      "assertions": 2081
+    },
+    {
+      "name": "BlocksetPreviews",
+      "assertions": 160
+    },
+    {
+      "name": "BlocksetSelection",
+      "assertions": 199
+    },
+    {
+      "name": "BorderBounds",
+      "assertions": 195
+    },
+    {
+      "name": "ClipboardRouting",
+      "assertions": 78
+    },
+    {
+      "name": "ColorEditorInput",
+      "assertions": 93
+    },
+    {
+      "name": "CommentHighlighting",
+      "assertions": 4652
+    },
+    {
+      "name": "CrashReporting",
+      "assertions": 29
+    },
+    {
+      "name": "DialogueDiagnostics",
+      "assertions": 30
+    },
+    {
+      "name": "DialogueScaffolding",
+      "assertions": 384
+    },
+    {
+      "name": "ExternalEmulatorLaunch",
+      "assertions": 31
+    },
+    {
+      "name": "ExternalFileChanges",
+      "assertions": 38
+    },
+    {
+      "name": "FileDrop",
+      "assertions": 24
+    },
+    {
+      "name": "FirstLaunch",
+      "assertions": 47
+    },
+    {
+      "name": "FlagUsageSafety",
+      "assertions": 1098
+    },
+    {
+      "name": "FocusAnimation",
+      "assertions": 25
+    },
+    {
+      "name": "GotoFocus",
+      "assertions": 12
+    },
+    {
+      "name": "IdSuggestionLifecycle",
+      "assertions": 87
+    },
+    {
+      "name": "ImageEditorInput",
+      "assertions": 38
+    },
+    {
+      "name": "ImageHoverPreviews",
+      "assertions": 56
+    },
+    {
+      "name": "ItemTablePresentation",
+      "assertions": 48
+    },
+    {
+      "name": "MacPackaging",
+      "assertions": 43
+    },
+    {
+      "name": "MacSecondaryActions",
+      "assertions": 43
+    },
+    {
+      "name": "MapArrowIcons",
+      "assertions": 98
+    },
+    {
+      "name": "MapEventEditing",
+      "assertions": 63
+    },
+    {
+      "name": "MapEventMenus",
+      "assertions": 68
+    },
+    {
+      "name": "MapGestureLifecycle",
+      "assertions": 1343
+    },
+    {
+      "name": "MapHistoryRefresh",
+      "assertions": 23
+    },
+    {
+      "name": "MapHoverLookup",
+      "assertions": 50
+    },
+    {
+      "name": "MapHoverPreview",
+      "assertions": 134
+    },
+    {
+      "name": "MapImageExport",
+      "assertions": 33
+    },
+    {
+      "name": "MapRendering",
+      "assertions": 93
+    },
+    {
+      "name": "MapSelection",
+      "assertions": 394
+    },
+    {
+      "name": "MapSpriteSelection",
+      "assertions": 180
+    },
+    {
+      "name": "MapThreadSafety",
+      "assertions": 22
+    },
+    {
+      "name": "MapUsageSearch",
+      "assertions": 106
+    },
+    {
+      "name": "MapZoom",
+      "assertions": 1276
+    },
+    {
+      "name": "MovementValidation",
+      "assertions": 1981
+    },
+    {
+      "name": "NpcTemplate",
+      "assertions": 44
+    },
+    {
+      "name": "PaletteClipboard",
+      "assertions": 40
+    },
+    {
+      "name": "PaletteHistory",
+      "assertions": 36
+    },
+    {
+      "name": "PatchSafety",
+      "assertions": 357
+    },
+    {
+      "name": "PortraitFreshness",
+      "assertions": 68
+    },
+    {
+      "name": "ProjectExportSafety",
+      "assertions": 13
+    },
+    {
+      "name": "ProjectImport",
+      "assertions": 30
+    },
+    {
+      "name": "SaveSafety",
+      "assertions": 17
+    },
+    {
+      "name": "ScriptArgumentSafety",
+      "assertions": 1560
+    },
+    {
+      "name": "ScriptAssistance",
+      "assertions": 364
+    },
+    {
+      "name": "ScriptEditorLayout",
+      "assertions": 102
+    },
+    {
+      "name": "ScriptMapReference",
+      "assertions": 63
+    },
+    {
+      "name": "ScriptWidthUpdates",
+      "assertions": 448
+    },
+    {
+      "name": "ScriptWorkflowSafety",
+      "assertions": 598
+    },
+    {
+      "name": "ShortFieldTabSelection",
+      "assertions": 21
+    },
+    {
+      "name": "StartupUpdates",
+      "assertions": 42
+    },
+    {
+      "name": "StreamTemplates",
+      "assertions": 123
+    },
+    {
+      "name": "TabMenus",
+      "assertions": 34
+    },
+    {
+      "name": "TextSelection",
+      "assertions": 63
+    },
+    {
+      "name": "TourGuideWorkflow",
+      "assertions": 321
+    },
+    {
+      "name": "TutorialLayout",
+      "assertions": 332
+    },
+    {
+      "name": "TutorialPatch",
+      "assertions": 36
+    },
+    {
+      "name": "UpstreamVerificationRunner",
+      "assertions": 29
+    },
+    {
+      "name": "VerificationRunner",
+      "assertions": 9
+    },
+    {
+      "name": "WelcomeScreen",
+      "assertions": 38
+    },
+    {
+      "name": "WildEncounterEditing",
+      "assertions": 128
+    }
+  ],
+  "totalGroups": 66,
+  "totalAssertions": 20676,
+  "failures": 0,
+  "skippedGroups": 0,
+  "notes": [
+    "Synthetic/offscreen inputs only; no native editor or emulator gameplay.",
+    "Existing MapImageExport NU1900 feed warning remains separate; builds succeed.",
+    "Upstream first-project cases are recorded separately."
+  ],
+  "scriptParserSha256": "e32962e3db4826ff2c8a1d96e700fbb016f6ddc5509204acf95eca3cf1835680"
+}

@@ -2,19 +2,21 @@
 
 ## HMA-019 — Diagnose invalid movement instructions consistently
 
-**Status:** Confirmed inherited behavior; implementation deferred from the bounded
-tour-guide formatting repair.
+**Status:** Fixed in script source validation, with retained rejected drafts and the existing
+failure-atomic compilation transaction. See [MovementValidation](tests/MovementValidation/README.md).
 
 **Evidence:** A movement block containing `walk_up`, `NoSuchMovementInstruction`, `walk_right`
 compiles without an error. A new `<auto>` stream omits the unknown row; an existing stream's
 table writer substitutes zero. This can change the intended movement sequence silently.
 See [the tour-guide review](tests/TOUR_GUIDE_SCRIPT_REVIEW.md) and its optional isolated probe.
 
-**Next step:** Add failure-before-fix tests for both paths, define diagnostics for unknown rows
-using the existing enum/numeric grammar, and retain rejected source without committing any
-script/resource/pointer/metadata/history changes. Preserve valid numeric, alias/partial-name,
-comment and terminator behavior, successful correction/retry, Undo/Redo and HMA-006/007/008.
-Do not globally tighten shared table parsing as a shortcut.
+**Implemented:** Reject unrecognized nonblank movement rows with a precise source diagnostic
+before that resource is written. Earlier resource edits roll back through the existing
+transaction. New and existing streams keep their original enum/table-writer syntax, supported
+numeric and alias/partial-name rules, comments and terminator behavior. The autocomplete `...`
+indicator is visible but disabled and skipped by keyboard selection. Regressions cover normal
+compilation, correction/retry, Undo/Redo and HMA-006/007/008. Shared standalone table editing
+and non-movement resource validation were not tightened.
 
 ## Release preparation reminders
 

@@ -2528,3 +2528,17 @@ Validation: The completed synthetic probe draws both maps; the NPC case enables 
 | tests/README.md | 38 | Link the new regression group from the Mac test index. |
 
 Validation: The complete serial Mac suite passes 64 groups / 18,224 assertions with zero failures and zero skipped groups, including 48 map-reference assertions. A final Command-G/palette-routing guard adds one more map assertion; that 49-check group plus seven freshly rebuilt related groups pass 404 assertions across eight groups, with zero failures/skips. These overlapping totals are recorded separately, not added together. Offscreen layout was rendered and inspected; app/focused builds emit zero compiler warnings/errors, with the existing MapImageExport NU1900 feed diagnostic separate. Synthetic snapshot preparation takes about 32–36 ms in these observations, not a real-ROM/native performance claim. Compiler, numeric grammar, pointer relocation and history algorithms are unchanged; only read-only history/refresh notifications are added. No personal ROM, metadata, settings or runtime migration was used. Native tutorial-map appearance and trackpad feel await user testing; the pre-feature build remains available on GitHub at checkpoint/pre-script-map-preview-2026-11-05 (68ed0f91).
+
+## 155 — Add a light tile grid to the script-side map reference
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/ScriptMapReferenceView.cs | 25 | Add a Grid checkbox and input-transparent translucent 16-pixel overlay in the image's scrolling coordinate space without modifying map pixels. |
+| src/HexManiac.Avalonia/Controls/TabView.ScriptMap.cs | 41 | Synchronize the grid preference without regenerating a snapshot or changing source focus. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 31 | Persist the optional grid in app settings with an off default. |
+| tests/ScriptMapReference/Program.cs | 140 | Cover the real checkbox, geometry/input isolation, unchanged bitmap/model state, rendered line spacing/alpha and preference reload. |
+| tests/ScriptMapReference/README.md | 15 | Describe grid rendering and settings preservation checks. |
+| tests/script-map-reference/grid-verification.json | 1 | Record 57 map-reference and 47 isolated startup checks with native/full-suite limits. |
+| docs/MAC_SETUP.md | 30 | Explain the Grid checkbox and remembered display-only behavior. |
+
+Validation: Fresh app/test builds emit zero warnings/errors; ScriptMapReference passes 57 assertions and FirstLaunch passes 47, totaling 104 assertions across two groups with zero failures/skips. Offscreen layout was rendered and inspected; actual pixel checks distinguish 16-pixel map boundaries from 8-pixel graphics boundaries and verify translucent lines. Toggling reuses the same bitmap, preserves script focus and never invokes map snapshot preparation or changes live ROM/metadata. The full Mac suite was not rerun for this bounded visual/settings addition; native appearance awaits user confirmation. No personal ROM/settings, compiler, history or numeric behavior changed.

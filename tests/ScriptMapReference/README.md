@@ -12,6 +12,8 @@ Coverage includes:
 - Actual Hex View/Map View button clicks, preserved selection/pan and app preference
   serialization. No-context and invalid/removed-map placeholders do not guess a map.
 - Dragging, Escape, immutable image reuse during panning and no redraw while typing.
+- A real Grid checkbox click, remembered preference, unchanged bitmap/model state and
+  matching overlay geometry; rendered pixel checks verify translucent 16-pixel boundaries.
 - Exact pending callback retention across real toggle clicks; rejected source and
   diagnostics survive rendering. Paste after non-text focus goes into script source,
   and Delete cannot write the hidden ROM selection. Correction/retry still works.

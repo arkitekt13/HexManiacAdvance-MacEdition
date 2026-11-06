@@ -27,6 +27,8 @@ Open an NPC, script event or map script from the Map Editor, then click **Map Vi
 beside the **Code Type** dropdown. The right pane shows that source map and its name/ID;
 drag or use two-finger scrolling to pan. **Hex View** returns to the ROM bytes.
 The app remembers the view preference, and map pan positions last for the current session.
+Check **Grid** beside the reference map's caption to show light 16 × 16 pixel tile
+boundaries. It scrolls with the image and remembers its on/off setting between launches.
 
 This is a static reference: NPCs appear at their stored map positions, and movement
 commands are not simulated. It has no tile/event editing or map context menus.

@@ -38,6 +38,9 @@ public partial class TabView {
          if (e.Source is TextBox box && box.GetVisualAncestors().Contains(CodeToolPanel)) lastScriptInput = box;
       });
       ScriptMapPane.InteractionStarted += (_, _) => FocusScriptInput();
+      ScriptMapPane.GridPreferenceChanged += (_, _) => {
+         if (referenceEditor != null) referenceEditor.ShowScriptReferenceGrid = ScriptMapPane.ShowGrid;
+      };
    }
 
    public TextBox FocusScriptInput() {
@@ -98,6 +101,10 @@ public partial class TabView {
       Dispatcher.UIThread.Post(RefreshScriptReference, DispatcherPriority.Background);
    }
    private void ReferenceStateChanged(object sender, PropertyChangedEventArgs e) {
+      if (e.PropertyName == nameof(EditorViewModel.ShowScriptReferenceGrid)) {
+         ScriptMapPane.ShowGrid = referenceEditor?.ShowScriptReferenceGrid == true;
+         return;
+      }
       if (e.PropertyName == nameof(ViewPort.UpdateInProgress) && referenceSource?.UpdateInProgress == false) {
          ReferenceInvalidated(sender, EventArgs.Empty);
          return;
@@ -117,6 +124,7 @@ public partial class TabView {
    }
 
    private async void RefreshScriptReference() {
+      ScriptMapPane.ShowGrid = referenceEditor?.ShowScriptReferenceGrid == true;
       bool script = referenceSource?.Tools.SelectedTool is CodeTool { Mode: CodeMode.Script };
       bool show = script && referenceEditor?.PreferScriptMapView == true;
       ScriptHexViewButton.IsVisible = ScriptMapViewButton.IsVisible = script;

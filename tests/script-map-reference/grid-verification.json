@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-05",
+  "groups": [
+    {
+      "name": "ScriptMapReference",
+      "assertions": 57
+    },
+    {
+      "name": "FirstLaunch",
+      "assertions": 47
+    }
+  ],
+  "totalGroups": 2,
+  "totalAssertions": 104,
+  "failures": 0,
+  "skippedGroups": 0,
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "checks": [
+    "Real Grid checkbox preserves script focus and cannot start panning.",
+    "Grid shares immutable image geometry/scroll coordinates and never changes the source bitmap or render count.",
+    "Rendered pixels verify 16-pixel boundaries and translucent lines.",
+    "Grid preference survives app-settings serialization/reload.",
+    "Existing map-reference pending/rejected source, keyboard and history checks remain passing."
+  ],
+  "limits": [
+    "Full Mac suite not rerun for the bounded visual/settings addition.",
+    "Offscreen preview inspected; native appearance awaits user confirmation.",
+    "No personal ROM/settings used."
+  ]
+}

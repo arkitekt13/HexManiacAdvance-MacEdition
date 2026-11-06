@@ -135,6 +135,35 @@ Check(!tab.FindControl<DockPanel>("HexPane").IsEnabled, "Hidden hex controls can
 Check(source.SelectionStart == address && field.CaretIndex == caret && (field.SelectionStart, field.SelectionEnd) == selection,
    "View switching preserves script/hex selection.");
 var mapPane = tab.FindControl<ScriptMapReferenceView>("ScriptMapPane");
+var gridCheck = mapPane.GetVisualDescendants().OfType<CheckBox>().Single(c => c.Name == "ReferenceGridCheckBox");
+var artworkImage = mapPane.GetVisualDescendants().OfType<Image>().Single();
+var artworkSource = artworkImage.Source;
+var gridOverlay = mapPane.GetVisualDescendants().OfType<ReferenceTileGrid>().Single();
+Check(!mapPane.ShowGrid && !gridOverlay.IsVisible, "Tile grid defaults off.");
+var gridPoint = gridCheck.TranslatePoint(new Point(gridCheck.Bounds.Width / 2, gridCheck.Bounds.Height / 2), window).Value;
+window.MouseMove(gridPoint); window.MouseDown(gridPoint, MouseButton.Left); window.MouseUp(gridPoint, MouseButton.Left); Pump();
+Check(mapPane.ShowGrid && editor.ShowScriptReferenceGrid && gridOverlay.IsVisible, "A real checkbox click enables the remembered grid without starting a pan.");
+Check(!mapPane.IsPanning && field.IsFocused && ReferenceEquals(artworkSource, artworkImage.Source) && tab.ReferenceRenderCount == 1,
+   "Grid toggling preserves script focus and reuses map pixels without rendering a new snapshot.");
+Check(gridOverlay.Bounds.Size == artworkImage.Bounds.Size && ReferenceEquals(gridOverlay.Parent, artworkImage.Parent) && !gridOverlay.IsHitTestVisible,
+   "The tile grid shares the image's exact geometry/scrolling space without capturing input.");
+Check(ReferenceTileGrid.TileSize == 16 && bytes.SequenceEqual(fixture.Model.RawData) && metadata.SequenceEqual(Metadata()),
+   "Grid spacing follows 16-pixel map tiles and leaves live ROM/metadata untouched.");
+// Verify actual rendered boundaries, not just the declared tile-size constant.
+var sampleGrid = new ReferenceTileGrid { Width = 48, Height = 48 };
+sampleGrid.Measure(new Size(48, 48)); sampleGrid.Arrange(new Rect(0, 0, 48, 48));
+using (var sampleBitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(48, 48))) {
+   sampleBitmap.Render(sampleGrid);
+   var memory = System.Runtime.InteropServices.Marshal.AllocHGlobal(48 * 48 * 4);
+   try {
+      sampleBitmap.CopyPixels(new PixelRect(0, 0, 48, 48), memory, 48 * 48 * 4, 48 * 4);
+      byte Alpha(int x, int y) => System.Runtime.InteropServices.Marshal.ReadByte(memory, (y * 48 + x) * 4 + 3);
+      Check(Alpha(16, 5) > 0 && Alpha(32, 5) > 0 && Alpha(8, 5) == 0 && Alpha(24, 5) == 0,
+         "Grid draws at 16-pixel vertical tile boundaries rather than 8-pixel graphics boundaries.");
+      Check(Alpha(5, 16) > 0 && Alpha(5, 32) > 0 && Alpha(5, 8) == 0 && Alpha(5, 24) == 0 && Alpha(16, 5) < 128,
+         "Horizontal grid lines have matching spacing and remain lightly translucent.");
+   } finally { System.Runtime.InteropServices.Marshal.FreeHGlobal(memory); }
+}
 mapPane.Offset = new Vector(50, 40); Pump();
 Check(tab.ReferenceRenderCount == 1, "Panning never redraws the map.");
 var point = mapPane.TranslatePoint(new Point(100, 100), window).Value;
@@ -240,10 +269,11 @@ Check(!ReferenceEquals(editor.SelectedTab, delayed), "Tab changes can proceed wh
 Check(unrelated.ScriptReferenceMapID == null && unrelated.Model.RawData.All(b => b == 0), "A stale render cannot change or assign context to another ROM.");
 editor.PreferScriptMapView = true;
 string[] settings = null; var settingsFs = new StubFileSystem { MetadataFor = _ => Array.Empty<string>(), SaveMetadata = (_, lines) => { settings = lines; return true; } };
-var settingsEditor = new EditorViewModel(settingsFs, InstantDispatch.Instance) { PreferScriptMapView = true };
+var settingsEditor = new EditorViewModel(settingsFs, InstantDispatch.Instance) { PreferScriptMapView = true, ShowScriptReferenceGrid = true };
 settingsEditor.WriteAppLevelMetadata();
 settingsFs.MetadataFor = _ => settings;
 Check(new EditorViewModel(settingsFs, InstantDispatch.Instance).PreferScriptMapView, "Map preference survives app-settings serialization/reload.");
+Check(new EditorViewModel(settingsFs, InstantDispatch.Instance).ShowScriptReferenceGrid, "Grid preference survives app-settings serialization/reload.");
 Check(new EditorViewModel(new StubFileSystem { MetadataFor = _ => new[] { "PreferScriptMapView = invalid" } }, InstantDispatch.Instance).PreferScriptMapView == false,
    "Invalid settings retain the safe Hex default.");
 window.Editor = null; window.Close(); dispatch.Clear();

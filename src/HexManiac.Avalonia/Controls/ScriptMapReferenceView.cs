@@ -19,11 +19,15 @@ public sealed class ScriptMapReferenceView : Grid {
    private readonly TextBlock caption;
    private readonly Image image;
    private readonly ScrollViewer scroll;
+   private readonly CheckBox gridCheckBox;
+   private readonly ReferenceTileGrid tileGrid;
    private WriteableBitmap bitmap;
    private IPointer pointer;
    private Point start;
    private Vector startOffset;
    public event EventHandler InteractionStarted;
+   public event EventHandler GridPreferenceChanged;
+   public bool ShowGrid { get => gridCheckBox.IsChecked == true; set => gridCheckBox.IsChecked = value; }
    public Vector Offset { get => scroll.Offset; set => scroll.Offset = value; }
    public bool IsPanning => pointer != null;
 
@@ -35,9 +39,20 @@ public sealed class ScriptMapReferenceView : Grid {
       image = new Image { Stretch = Stretch.None, HorizontalAlignment = HorizontalAlignment.Left,
          VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = false, Focusable = false };
       RenderOptions.SetBitmapInterpolationMode(image, BitmapInterpolationMode.None);
-      scroll = new ScrollViewer { Content = image, Focusable = false, Background = Brushes.Transparent,
+      tileGrid = new ReferenceTileGrid { IsVisible = false, IsHitTestVisible = false, Focusable = false };
+      var artwork = new Grid { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+      artwork.Children.Add(image); artwork.Children.Add(tileGrid);
+      gridCheckBox = new CheckBox { Name = "ReferenceGridCheckBox", Content = "Grid", Focusable = false, Margin = new Thickness(8, 0) };
+      gridCheckBox.PropertyChanged += (_, e) => {
+         if (e.Property != ToggleButton.IsCheckedProperty) return;
+         tileGrid.IsVisible = ShowGrid;
+         GridPreferenceChanged?.Invoke(this, EventArgs.Empty);
+      };
+      var header = new DockPanel();
+      DockPanel.SetDock(gridCheckBox, Dock.Right); header.Children.Add(gridCheckBox); header.Children.Add(caption);
+      scroll = new ScrollViewer { Content = artwork, Focusable = false, Background = Brushes.Transparent,
          HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
-      Children.Add(caption); Children.Add(scroll); SetRow(scroll, 1);
+      Children.Add(header); Children.Add(scroll); SetRow(scroll, 1);
       AddHandler(PointerPressedEvent, BeginPan, RoutingStrategies.Tunnel);
       AddHandler(PointerMovedEvent, Pan, RoutingStrategies.Tunnel);
       AddHandler(PointerReleasedEvent, (_, e) => { if (pointer == e.Pointer) { CancelPan(); e.Handled = true; } }, RoutingStrategies.Tunnel);
@@ -54,17 +69,21 @@ public sealed class ScriptMapReferenceView : Grid {
       var next = PixelBuffer.EnsureSize(null, snapshot.Image.PixelWidth, snapshot.Image.PixelHeight);
       PixelBuffer.Write555(next, snapshot.Image.PixelData, snapshot.Image.PixelWidth, snapshot.Image.PixelHeight);
       image.Width = snapshot.Image.PixelWidth; image.Height = snapshot.Image.PixelHeight;
+      tileGrid.Width = image.Width; tileGrid.Height = image.Height;
       image.Source = next;
       bitmap?.Dispose(); bitmap = next;
+      gridCheckBox.IsEnabled = true;
       caption.Text = snapshot.Caption + " — drag or scroll to pan";
    }
 
    public void Clear(string message = "") {
       CancelPan(); image.Source = null; bitmap?.Dispose(); bitmap = null;
+      tileGrid.Width = tileGrid.Height = 0; gridCheckBox.IsEnabled = false;
       caption.Text = message;
    }
 
    private void BeginPan(object sender, PointerPressedEventArgs e) {
+      if (e.GetPosition(this).Y < scroll.Bounds.Y) return;
       // Scrollbar thumbs keep their normal behavior; clicking artwork only starts a pan.
       if (e.Source is Visual visual && (visual is ScrollBar || visual.GetVisualAncestors().OfType<ScrollBar>().Any())) return;
       if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
@@ -84,5 +103,18 @@ public sealed class ScriptMapReferenceView : Grid {
    public void CancelPan() {
       var old = pointer; pointer = null;
       if (old?.Captured == this) old.Capture(null);
+   }
+}
+
+/// <summary>Visual overlay in the image's coordinate space; scrolling moves both together.</summary>
+public sealed class ReferenceTileGrid : Control {
+   public const int TileSize = 16;
+   private static readonly Pen line = new(new SolidColorBrush(Color.FromArgb(64, 255, 255, 255)), 1);
+   public override void Render(DrawingContext context) {
+      base.Render(context);
+      for (int x = TileSize; x < Bounds.Width; x += TileSize)
+         context.DrawLine(line, new Point(x + .5, 0), new Point(x + .5, Bounds.Height));
+      for (int y = TileSize; y < Bounds.Height; y += TileSize)
+         context.DrawLine(line, new Point(0, y + .5), new Point(Bounds.Width, y + .5));
    }
 }

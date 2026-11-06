@@ -21,4 +21,12 @@ non-interactive layer now draws paths using the actual TextBox layout and viewpo
 Manual check after relaunch: enter the screenshot's long NPC dialogue, confirm the warning
 underline, use Enter to shorten the rows, and confirm it clears while typing/selection and
 scrolling work normally. Pixel tests use a synthetic fallback-font ROM, not a real-ROM font
-or an in-game emulator preview; the existing width estimator and its limits are unchanged.
+or an in-game emulator preview. The estimator still uses available font widths and its
+existing fallback/placeholder estimates; the warning budget is now 208 pixels (previously
+214), leaving a six-pixel cushion. This is not a change to the game engine or encoded text.
+
+The 40-assertion group includes visible warnings for a 210-pixel fallback-font row, clearing
+at 204 pixels, proportional narrow/wide glyphs and the exact 208-pixel boundary across LF/CRLF.
+The focused nine-group run passes 1,765 assertions with zero failures/skips; see
+[the verification record](../dialogue-warning-margin/mac-verification.json). The complete Mac
+and upstream suites were not rerun for this bounded advisory-threshold change.

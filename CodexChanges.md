@@ -2551,3 +2551,14 @@ Validation: Fresh app/test builds emit zero warnings/errors; ScriptMapReference 
 | tests/DialogueDiagnostics/Program.cs | 96 | Check selected dialogue pixels, translucent highlighting and unchanged source/selection/model state alongside existing diagnostic rendering checks. |
 
 Validation: The baseline fails the translucency regression; the updated DialogueDiagnostics group passes 30 assertions with zero build warnings/errors. Rendered selected dialogue retains coloured glyphs, and actual selected text, source, ROM bytes and metadata remain unchanged. This affects the shared layered editor only; ordinary short-field selection, compilation, numeric parsing and history algorithms are unchanged. Native appearance still benefits from user confirmation.
+
+## 157 — Keep accepted movement suggestions dismissed
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs | 31 | Suppress reentrant and queued text notifications for the accepted target/context/result while allowing genuinely changed queries and clearing markers when context detaches or changes. |
+| tests/AutocompleteMapping/Program.cs | 169 | Reproduce mouse-accepted walk_right/walk_down popups reopening and protect dismissal, fresh queries and LF/CRLF movement source. |
+| tests/AutocompleteMapping/README.md | 6 | Record 310 checks and movement acceptance coverage. |
+| tests/script-editor-polish/mac-verification.json | 1 | Preserve exact results for nine rebuilt shared-editor, drafting, clipboard, encounter and map-reference groups. |
+
+Validation: Before the repair, a real mouse click accepting a movement instruction reopens its popup during layout; after the repair all 310 mapping assertions pass, including explicit queued notification and fresh-query controls. The focused final run passes nine groups / 1,928 assertions with zero failures or skips: DialogueDiagnostics 30, AutocompleteMapping 310, AutocompleteDismissal 85, DialogueScaffolding 384, ScriptAssistance 258, ClipboardRouting 78, WildEncounterEditing 128, ScriptMapReference 57 and ScriptWorkflowSafety 598. Fresh builds report zero warnings/errors. Full Mac/upstream suites were not rerun for these bounded overlay/visual changes. No personal ROM/settings or compiler, matching, numeric, relocation or history rules changed; native confirmation remains useful.

@@ -1,0 +1,44 @@
+{
+  "groups": [
+    {
+      "name": "DialogueDiagnostics",
+      "assertions": 30
+    },
+    {
+      "name": "AutocompleteMapping",
+      "assertions": 310
+    },
+    {
+      "name": "AutocompleteDismissal",
+      "assertions": 85
+    },
+    {
+      "name": "DialogueScaffolding",
+      "assertions": 384
+    },
+    {
+      "name": "ScriptAssistance",
+      "assertions": 258
+    },
+    {
+      "name": "ClipboardRouting",
+      "assertions": 78
+    },
+    {
+      "name": "WildEncounterEditing",
+      "assertions": 128
+    },
+    {
+      "name": "ScriptMapReference",
+      "assertions": 57
+    },
+    {
+      "name": "ScriptWorkflowSafety",
+      "assertions": 598
+    }
+  ],
+  "totalGroups": 9,
+  "totalAssertions": 1928,
+  "failures": 0,
+  "skippedGroups": 0
+}

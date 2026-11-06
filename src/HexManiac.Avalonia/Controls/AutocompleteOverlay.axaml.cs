@@ -27,6 +27,13 @@ namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
 /// is derived from the line height and caret line instead of the scroll extent.
 /// </summary>
 public partial class AutocompleteOverlay : UserControl {
+   private bool acceptingCompletion;
+   private string acceptedText;
+   private TextBox acceptedTarget;
+   private object acceptedContext;
+   private void ResetAcceptedText() {
+      acceptedText = null; acceptedTarget = null; acceptedContext = null;
+   }
    #region Target
 
    public static readonly StyledProperty<Control> TargetProperty =
@@ -42,6 +49,7 @@ public partial class AutocompleteOverlay : UserControl {
    }
 
    protected virtual void OnTargetChanged(AvaloniaPropertyChangedEventArgs e) {
+      ResetAcceptedText();
       ClearAutocompleteOptions();
       UnsubscribeTarget();
       SubscribeTarget();
@@ -85,6 +93,7 @@ public partial class AutocompleteOverlay : UserControl {
    }
 
    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e) {
+      ResetAcceptedText();
       ClearAutocompleteOptions();
       UnsubscribeTarget();
       StopWatchingLifetime();
@@ -158,7 +167,7 @@ public partial class AutocompleteOverlay : UserControl {
    public AutocompleteOverlay() {
       InitializeComponent();
       RenderTransform = autocompleteTransform;
-      DataContextChanged += (_, _) => ClearAutocompleteOptions();
+      DataContextChanged += (_, _) => { ResetAcceptedText(); ClearAutocompleteOptions(); };
    }
 
    public void ClearAutocompleteOptions() {
@@ -192,6 +201,14 @@ public partial class AutocompleteOverlay : UserControl {
          ClearAutocompleteOptions();
          return;
       }
+      // TextChanged is queued by Avalonia. Notifications from applying a completion
+      // can arrive after Click/Enter has already closed the popup, especially for
+      // movement enums which still match their complete instruction name.
+      if (acceptingCompletion || (ReferenceEquals(box, acceptedTarget) && ReferenceEquals(DataContext, acceptedContext) && box.Text == acceptedText)) {
+         ClearAutocompleteOptions();
+         return;
+      }
+      ResetAcceptedText();
       if (box.CaretIndex == 0) {
          ClearAutocompleteOptions();
          return;
@@ -329,22 +346,30 @@ public partial class AutocompleteOverlay : UserControl {
    private bool AutocompleteOptionChosen(AutoCompleteSelectionItem item, bool synchronizeScriptCaret = true) {
       var box = TargetTextBox;
       if (!CanOffer()) { ClearAutocompleteOptions(); return false; }
-      var text = box.Text ?? string.Empty;
-      var line = LineAt(text, box.CaretIndex);
-      var needChanges = text.Substring(line.Start, line.Length) != item.CompletionText.TrimEnd();
-      if (needChanges) {
-         var replacement = text[..line.Start] + item.CompletionText + text[(line.Start + line.Length)..];
-         var caret = line.Start + Math.Clamp(line.Column + item.CompletionText.Length - line.Length, 0, item.CompletionText.Length);
-         if (synchronizeScriptCaret && DataContext is CodeBody body && Target is TextEditor editor && ReferenceEquals(editor.ViewModel, body.Editor)) {
-            // ScriptChanged must see the completed operand position, just as it does for typing.
-            body.ApplyCompletion(replacement, caret);
-         } else {
-            box.Text = replacement;
-            box.CaretIndex = caret;
+      acceptingCompletion = true;
+      try {
+         var text = box.Text ?? string.Empty;
+         var line = LineAt(text, box.CaretIndex);
+         var needChanges = text.Substring(line.Start, line.Length) != item.CompletionText.TrimEnd();
+         if (needChanges) {
+            var replacement = text[..line.Start] + item.CompletionText + text[(line.Start + line.Length)..];
+            var caret = line.Start + Math.Clamp(line.Column + item.CompletionText.Length - line.Length, 0, item.CompletionText.Length);
+            if (synchronizeScriptCaret && DataContext is CodeBody body && Target is TextEditor editor && ReferenceEquals(editor.ViewModel, body.Editor)) {
+               // ScriptChanged must see the completed operand position, just as it does for typing.
+               body.ApplyCompletion(replacement, caret);
+            } else {
+               box.Text = replacement;
+               box.CaretIndex = caret;
+            }
          }
-      }
 
-      ClearAutocompleteOptions();
-      return needChanges;
+         acceptedTarget = box;
+         acceptedContext = DataContext;
+         acceptedText = box.Text;
+         ClearAutocompleteOptions();
+         return needChanges;
+      } finally {
+         acceptingCompletion = false;
+      }
    }
 }

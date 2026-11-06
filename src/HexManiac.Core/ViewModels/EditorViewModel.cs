@@ -26,6 +26,8 @@ using static HavenSoft.HexManiac.Core.ICommandExtensions;
 namespace HavenSoft.HexManiac.Core.ViewModels {
    public class EditorViewModel : ViewModelCore, IEnumerable<ITabContent>, INotifyCollectionChanged {
       public const string ApplicationName = "HexManiacAdvance";
+      private bool preferScriptMapView;
+      public bool PreferScriptMapView { get => preferScriptMapView; set => Set(ref preferScriptMapView, value); }
 
       private readonly IFileSystem fileSystem;
       private readonly IWorkDispatcher workDispatcher;
@@ -586,6 +588,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          AllowSingleTableMode = !metadata.Contains("AllowSingleTableMode = False");
          SpartanMode = metadata.Contains("SpartanMode = True");
          InsertAutoActive = !metadata.Contains("InsertAutoActive = False");
+         PreferScriptMapView = metadata.Contains("PreferScriptMapView = True");
          ShowMatrix = !metadata.Contains("ShowMatrixGrid = False");
          FocusOnGotoShortcuts = !metadata.Contains("FocusOnGotoShortcuts = False");
          AnimateScroll = !metadata.Contains("AnimateScroll = False");
@@ -627,6 +630,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
             $"UseTableEntryHeaders = {UseTableEntryHeaders}",
             $"AllowSingleTableMode = {AllowSingleTableMode}",
             $"InsertAutoActive = {InsertAutoActive}",
+            $"PreferScriptMapView = {PreferScriptMapView}",
             $"ShowMatrixGrid = {ShowMatrix}",
             $"FocusOnGotoShortcuts = {FocusOnGotoShortcuts}",
             $"ZoomLevel = {ZoomLevel}",

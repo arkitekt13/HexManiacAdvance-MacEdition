@@ -302,6 +302,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       private void OpenScriptInNewTab(int address) {
+         if (viewPort is ViewPort source) source.ScriptReferenceMapID = PrimaryMap.MapID;
          var dup = viewPort.CreateDuplicate();
          dup.RequestTabChange += (sender, e) => viewPort.RaiseRequestTabChange(e.NewTab);
          ViewPort.InitializationWorkload.ContinueWith(t => {
@@ -939,6 +940,8 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       }
 
       public void EventDown(IEventViewModel ev, PrimaryInteractionStart click) {
+         if (click == PrimaryInteractionStart.DoubleClick && ev is not WarpEventViewModel && viewPort is ViewPort source)
+            source.ScriptReferenceMapID = PrimaryMap.MapID;
          SelectedEvent = ev;
          if (SelectedEvent is WarpEventViewModel warp && click == PrimaryInteractionStart.DoubleClick) {
             var banks = AllMapsModel.Create(warp.Element.Model, default);

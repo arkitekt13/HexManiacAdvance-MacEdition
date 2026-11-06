@@ -90,6 +90,7 @@ public partial class MainWindow : Window {
       InitializeComponent();
       InitializeTutorialMenu();
       InitializeEditingCommands();
+      AddHandler(KeyDownEvent, CancelReferencePanOnEscape, RoutingStrategies.Tunnel, handledEventsToo: true);
       AddHandler(KeyDownEvent, HandleTextEditingKeys, RoutingStrategies.Tunnel);
 
       DragDrop.SetAllowDrop(this, true);
@@ -704,6 +705,7 @@ public partial class MainWindow : Window {
    /// Avalonia hands back the realized container for the selected index, so search inside that.
    /// </summary>
    private void FocusPrimaryContent() {
+      if (ScriptReferenceActive) { FocusReferenceScriptInput(); return; }
       if (Tabs.SelectedIndex < 0 || Tabs.SelectedIndex >= Tabs.ItemCount) return;
       if (Tabs.ContainerFromIndex(Tabs.SelectedIndex) is not Control container) return;
       var descendants = container.GetVisualDescendants().OfType<Control>().ToList();

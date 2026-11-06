@@ -2498,3 +2498,33 @@ Validation: The old code passes ordinary headless opening but fails to focus whe
 | tests/script-map-reference/probe-before.jsonl | 1 | Preserve observed cold/cached rendering and unchanged bytes/metadata alongside the NPC dirty/history transition. |
 
 Validation: The completed synthetic probe draws both maps; the NPC case enables Undo and marks the model unsaved while bytes and serialized metadata remain unchanged. Initial draw is about 12–15 ms in this limited single run, and cached access reuses pixels. This is not a real-ROM performance claim or proof of the user's native event timing. GitHub checkpoint checkpoint/pre-script-map-preview-2026-11-05 preserves 68ed0f91 before implementation.
+
+## 154 — Add a map reference beside overworld script source
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/ViewPort.cs | 2601 | Retain explicit source-map context through script-tab reuse/duplication and expose refresh notifications without changing compilation. |
+| src/HexManiac.Core/ViewModels/Map/MapEditorViewModel.cs | 305 | Capture the current map for event double-click and new-script-tab routes. |
+| src/HexManiac.Core/ViewModels/Map/BlockMapViewModel.cs | 2675 | Carry map identity when following an event's script-address link. |
+| src/HexManiac.Core/ViewModels/Map/MapScriptCollection.cs | 312 | Preserve originating map context for map-header script navigation. |
+| src/HexManiac.Core/ViewModels/ChangeHistory.cs | 43 | Notify read-only observers after completed Undo/Redo without requesting history tokens. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 29 | Persist the Map/Hex preference in app settings while keeping Hex as the default. |
+| src/HexManiac.Avalonia/Project/ScriptMapSnapshot.cs | 14 | Capture live data once and render a bounded detached model/history into immutable reference pixels off-thread. |
+| src/HexManiac.Avalonia/Controls/ScriptMapReferenceView.cs | 20 | Display the named map with drag/scroll panning and no tile, event, tooltip or context-menu editing. |
+| src/HexManiac.Avalonia/Controls/TabView.ScriptMap.cs | 20 | Manage lazy snapshots, source focus, per-tab/map pan offsets, invalidation, resource release and stale-result rejection. |
+| src/HexManiac.Avalonia/Controls/TabView.axaml | 816 | Add compact Hex View/Map View controls and replace the complete right-hand hex section when selected. |
+| src/HexManiac.Avalonia/Controls/TabView.axaml.cs | 75 | Connect map-reference lifecycle handling when the actual tab control is created. |
+| src/HexManiac.Avalonia/Windows/MainWindow.Editing.cs | 14 | Restore script focus and prevent clipboard/delete or palette shortcuts from reaching hidden hex controls. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 92 | End reference panning on Escape and restore source focus instead of hidden hex focus. |
+| tests/ScriptMapReference/Program.cs | 1 | Exercise read-only rendering, real map routes/buttons, pending/rejected source, panning, settings, stale frames, keyboard isolation and history with 49 focused assertions. |
+| tests/ScriptMapReference/ScriptMapReference.csproj | 1 | Reuse fabricated map/workflow data and offscreen controls without personal ROMs or preferences. |
+| tests/ScriptMapReference/README.md | 1 | Explain coverage, synthetic inputs and remaining native/real-ROM verification. |
+| tests/script-map-reference/mac-verification.json | 1 | Preserve the complete 64-group run and distinguish its 48 map assertions from the final focused follow-up. |
+| tests/script-map-reference/final-input-checks.json | 1 | Record all eight final input/focus groups and 404 assertions after the last Command-G guard. |
+| tests/SCRIPT_MAP_REFERENCE_REVIEW.md | 88 | Add the implemented boundaries and verification links to the separately committed investigation. |
+| README.md | 65 | List the map-reference scripting feature in Mac Edition's feature summary. |
+| docs/MAC_SETUP.md | 24 | Explain how to open a source map, switch views and pan without implying movement simulation. |
+| docs/MAC_RELEASE_CHECKLIST.md | 59 | Add a native candidate check for the new reference pane and editing/history workflow. |
+| tests/README.md | 38 | Link the new regression group from the Mac test index. |
+
+Validation: The complete serial Mac suite passes 64 groups / 18,224 assertions with zero failures and zero skipped groups, including 48 map-reference assertions. A final Command-G/palette-routing guard adds one more map assertion; that 49-check group plus seven freshly rebuilt related groups pass 404 assertions across eight groups, with zero failures/skips. These overlapping totals are recorded separately, not added together. Offscreen layout was rendered and inspected; app/focused builds emit zero compiler warnings/errors, with the existing MapImageExport NU1900 feed diagnostic separate. Synthetic snapshot preparation takes about 32–36 ms in these observations, not a real-ROM/native performance claim. Compiler, numeric grammar, pointer relocation and history algorithms are unchanged; only read-only history/refresh notifications are added. No personal ROM, metadata, settings or runtime migration was used. Native tutorial-map appearance and trackpad feel await user testing; the pre-feature build remains available on GitHub at checkpoint/pre-script-map-preview-2026-11-05 (68ed0f91).

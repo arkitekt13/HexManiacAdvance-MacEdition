@@ -88,3 +88,27 @@ used as product failure evidence. Successful raw observations are in results.jso
 
 Assessment: feasible and worthwhile as a bounded reference pane. The panel swap is small;
 correct map context, read-only rendering and keyboard isolation are the substantive work.
+
+## Implementation outcome
+
+The trial branch adds explicit per-script map IDs, copied into duplicate tabs and updated
+on shared-script reuse through event and map-script routes. Rendering captures live bytes
+and metadata on the UI thread, then uses an independent model/history off-thread; only
+immutable pixels reach the pane. It does not embed MapTab or call live repair/render paths.
+
+Hex/Map controls apply only to the overworld Script tool. The app remembers the preference;
+weakly keyed per-tab map offsets survive view recreation within the session. The complete
+hex pane is hidden and disabled while Map View is active. Source focus is retained/restored,
+and clipboard/delete routing cannot fall back to hidden hex editing. Escape, capture loss,
+tab changes, detachment and window deactivation end panning.
+
+Only the active pane holds an image; queued results are guarded against replaced/closed
+contexts. Map edits refresh on returning to the script tab, with additional Undo/Redo,
+reload and loading-completion notifications. Script typing and panning reuse the displayed
+snapshot; there is no polling or per-keystroke map rendering. Pending source is not flushed
+by toggles or preview preparation. Native trackpad feel, real-ROM cost and Retina appearance
+remain user verification, separate from the synthetic checks.
+
+The implementation's focused coverage and final full-suite counts are recorded in
+[ScriptMapReference](ScriptMapReference/README.md) and
+[mac-verification.json](script-map-reference/mac-verification.json).

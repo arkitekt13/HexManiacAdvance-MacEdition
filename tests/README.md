@@ -35,6 +35,8 @@ coverage, preservation checks and deliberately unclaimed native/legacy paths.
 The [NPC hover performance investigation](MAP_HOVER_PERFORMANCE.md) measures event construction
 and script summaries; [MapHoverLookup](MapHoverLookup/README.md) protects coordinate-first hover
 lookup without constructing unrelated NPC editors.
+[ScriptMapReference](ScriptMapReference/README.md) covers the script-side map pane, explicit
+map context, detached rendering and keyboard/draft/history preservation.
 The [script editor follow-up](SCRIPT_EDITOR_REVIEW.md) records fresh responsiveness measurements
 and reproduced stale-suggestion lifecycle gaps; [AutocompleteDismissal](AutocompleteDismissal/README.md)
 protects the subsequent focus/context/lifetime fix.

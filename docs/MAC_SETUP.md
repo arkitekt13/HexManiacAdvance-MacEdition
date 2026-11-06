@@ -21,6 +21,24 @@ external emulator use; RetroArch cores and assistant subscriptions are not setup
 
 ## Mac controls
 
+### Keep a map beside script source
+
+Open an NPC, script event or map script from the Map Editor, then click **Map View**
+beside the **Code Type** dropdown. The right pane shows that source map and its name/ID;
+drag or use two-finger scrolling to pan. **Hex View** returns to the ROM bytes.
+The app remembers the view preference, and map pan positions last for the current session.
+
+This is a static reference: NPCs appear at their stored map positions, and movement
+commands are not simulated. It has no tile/event editing or map context menus.
+Opening a script directly by address without a known map displays an explanation;
+open it from a map to establish the reference. Other code types and tools retain Hex.
+
+Preview preparation uses a detached copy, leaving live script drafts, diagnostics,
+metadata and history alone. Map edits made in the editor appear when returning to
+the script tab; Undo/Redo and external reload also refresh the reference.
+
+### Keyboard and trackpad shortcuts
+
 | Action | Mac control |
 | --- | --- |
 | Open / Save / Save As | Command-O / Command-S / Command-Shift-S |

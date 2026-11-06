@@ -813,9 +813,11 @@
 
             <!-- Code Tool -->
             <DockPanel Name="CodeToolPanel" IsVisible="{Binding SelectedIndex, Converter={StaticResource Equality}, ConverterParameter=3, Mode=OneWay}">
-               <Grid HorizontalAlignment="Stretch" Margin="2" DockPanel.Dock="Top" ColumnDefinitions="Auto,*">
+               <Grid HorizontalAlignment="Stretch" Margin="2" DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto">
                   <TextBlock Text="Code Type" Margin="5,0" Grid.Column="0" VerticalAlignment="Center"/>
                   <hsg3hv:AngleComboBox Height="22" Direction="Out" Grid.Column="1" x:Name="CodeModeSelector" SelectedItem="{Binding CodeTool.Mode, Mode=TwoWay, Converter={x:Static hsv:IgnoreEmptySelectionConverter.Instance}}"/>
+                  <Button Name="ScriptHexViewButton" Grid.Column="2" Content="Hex View" Classes="toolHeader" FontSize="12" Focusable="False" Click="ShowScriptHexClick"/>
+                  <Button Name="ScriptMapViewButton" Grid.Column="3" Content="Map View" Classes="toolHeader" FontSize="12" Focusable="False" Click="ShowScriptMapClick"/>
                </Grid>
                <Grid Name="CodeToolBody" DataContext="{Binding CodeTool}" TextElement.FontSize="{Binding FontSize}">
                   <DockPanel IsVisible="{Binding UseSingleContent}">
@@ -938,7 +940,8 @@
                        DoubleTapped="ResetLeftToolsPane"/>
 
          <!-- Center Panel: the hex editor -->
-         <DockPanel Grid.Column="2">
+         <Grid Grid.Column="2">
+         <DockPanel Name="HexPane">
             <!-- Anchor Editor -->
             <Border DockPanel.Dock="Top" Height="19" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource Backlight}">
                <Grid>
@@ -1010,6 +1013,8 @@
                           Name="BlinkyCursor" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             </Grid>
          </DockPanel>
+         <hsg3hv:ScriptMapReferenceView Name="ScriptMapPane" IsVisible="False"/>
+         </Grid>
       </Grid>
    </DockPanel>
 </UserControl>

@@ -78,6 +78,7 @@ public partial class TabView : UserControl {
 
    public TabView() {
       InitializeComponent();
+      InitializeScriptMapReference();
 
       CodeModeSelector.ItemsSource = Enum.GetValues(typeof(CodeMode)).Cast<CodeMode>().ToList();
       timer = new DispatcherTimer(TimeSpan.FromSeconds(.6), DispatcherPriority.ApplicationIdle, BlinkCursor);

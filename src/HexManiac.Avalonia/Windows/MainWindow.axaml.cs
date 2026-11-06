@@ -46,6 +46,7 @@ public partial class MainWindow : Window {
    public EditorViewModel Editor {
       get => editor;
       set {
+         CancelGotoFocus();
          if (editor != null) {
             editor.PropertyChanged -= ViewModelPropertyChanged;
             editor.GotoViewModel.PropertyChanged -= GotoViewModelPropertyChanged;
@@ -108,6 +109,7 @@ public partial class MainWindow : Window {
       Activated += (sender, e) => {
          if (editor?.GotoViewModel?.ControlVisible == true) FocusGotoBox();
       };
+      Closed += (_, _) => CancelGotoFocus();
    }
 
    /// <summary>Port of the Window.InputBindings block; Ctrl becomes Cmd on macOS.</summary>
@@ -266,6 +268,7 @@ public partial class MainWindow : Window {
          BlurTabs();
          FocusGotoBox();
       } else {
+         CancelGotoFocus();
          UnblurTabs();
          editor.GotoViewModel.ShowAutoCompleteOptions = false;
          ResetFocus();
@@ -634,20 +637,46 @@ public partial class MainWindow : Window {
 
    #region Focus
 
+   private long gotoFocusRequest;
+   private Action cancelPendingGotoAttachment;
+
+   private void CancelGotoFocus() {
+      gotoFocusRequest++;
+      cancelPendingGotoAttachment?.Invoke();
+      cancelPendingGotoAttachment = null;
+   }
+
    /// <summary>
    /// Port of MainWindow.xaml.cs FocusGotoBox / FocusTextBox. The goto box is an AngleTextBox,
    /// which only swaps in a real TextBox when it is hovered or focused, so ask it for one first.
-   /// The focus call is deferred: GotoViewModel raises this the moment ControlVisible flips, and
-   /// the panel is still collapsed (and therefore unfocusable) at that point.
+   /// Visibility and lazy TextBox attachment can finish in separate dispatcher passes.
+   /// Wait for attachment before focusing, and discard requests belonging to a closed panel.
    /// </summary>
    private void FocusGotoBox(object sender = default, EventArgs e = default) {
+      CancelGotoFocus();
+      var request = gotoFocusRequest;
+      var target = editor?.GotoViewModel;
       Dispatcher.UIThread.Post(() => {
-         if (editor?.GotoViewModel?.ControlVisible != true) return;
+         bool IsCurrent() => request == gotoFocusRequest && ReferenceEquals(target, editor?.GotoViewModel) && target?.ControlVisible == true;
+         if (!IsCurrent()) return;
          var textBox = GotoBox.GetTextBox();
          if (textBox == null || textBox.IsFocused) return;
-         textBox.SelectAll();
-         textBox.Focus();
-      }, DispatcherPriority.Background);
+         void FocusText() {
+            if (IsCurrent() && !textBox.IsFocused && textBox.Focus()) textBox.SelectAll();
+         }
+         if (textBox.GetVisualRoot() != null) {
+            FocusText();
+         } else {
+            EventHandler<VisualTreeAttachmentEventArgs> attached = null;
+            attached = (_, _) => {
+               textBox.AttachedToVisualTree -= attached;
+               cancelPendingGotoAttachment = null;
+               Dispatcher.UIThread.Post(FocusText, DispatcherPriority.Loaded);
+            };
+            cancelPendingGotoAttachment = () => textBox.AttachedToVisualTree -= attached;
+            textBox.AttachedToVisualTree += attached;
+         }
+      }, DispatcherPriority.Loaded);
    }
 
    private void FocusFindBox(object sender, EventArgs e) => FocusOverlayBox(FindBox);

@@ -2475,3 +2475,15 @@ Validation: The focused tutorial group passes 36 assertions; the complete fresh 
 | FutureDevelopment.md | 7 | Point release reminders to the candidate gates and platform-results checklist. |
 
 Validation: Local Markdown destinations and whitespace checks pass. Verification totals reference the existing 62-group / 18,164-assertion record; native/clean-machine, Intel, signing, runtime and final-asset work stays explicitly unchecked. This is documentation only; no app code, ROM/settings, dependencies or GitHub release changed, and no regression rerun was required.
+
+## 152 — Focus the Go To text box immediately after Command-G
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 641 | Wait for lazy Go To text-box attachment and schedule focus before queued input while cancelling closed/replaced-editor requests. |
+| tests/GotoFocus/Program.cs | 1 | Exercise delayed presentation, immediate typing, query replacement, Escape, cancelled requests and unchanged ROM/history with 12 headless checks. |
+| tests/GotoFocus/GotoFocus.csproj | 1 | Add an isolated real-window input regression group using fabricated ROM bytes. |
+| tests/GotoFocus/README.md | 1 | Record the simulated pre-fix focus failure and the native event-ordering verification limit. |
+| tests/GotoFocus/mac-verification.json | 1 | Preserve exact counts for all seven relevant focus/input regression groups. |
+
+Validation: The old code passes ordinary headless opening but fails to focus when text-box attachment is explicitly delayed beyond the queued request; the repair passes all 12 Go To checks. Fresh GotoFocus, ClipboardRouting, AutocompleteDismissal, ImageHoverPreviews, TabMenus, FirstLaunch and MacSecondaryActions builds/checks pass 355 assertions across seven groups, with zero failures/skips and zero build warnings/errors. The full Mac suite was not rerun for this bounded focus change. Native Cocoa timing awaits user confirmation; compiler, Go To matching/navigation, shared field controls, ROM bytes/history and personal settings are unchanged.

@@ -115,3 +115,24 @@ workload. It is not a claim that initial map rendering became faster or native R
 the same amount. Stale source TabView handlers drop from 24 to zero; source bytes match and
 all watched objects collect after window teardown. The original full-protocol data above
 remains historical evidence with its different warmup, not an interchangeable baseline.
+
+The [complete post-repair corpus](tab-lifecycle-memory/full-after.json) also reports zero
+retained snapshots, pixel arrays and bitmap wrappers at all three sizes, zero detached watched
+tabs in both modes, zero watched objects after window close, and zero closed documents/models
+while another document remains open. Its warmed settled managed heaps are about 96.4 MiB
+(Hex) / 97.5 MiB (Map), versus 255.2 / 248.9 MiB in the original full-corpus baseline.
+Transient overlapping snapshot work still exists; no renderer optimization is claimed.
+
+The first full regression run stopped at MapRendering: its live-zoom checks used never-attached
+PixelImage controls. Production uses these controls in attached XAML views. MapRendering and
+ScriptEditorLayout now attach their subjects to real headless windows while retaining every
+pixel/layout/diagnostic assertion. This tests the repaired subscription lifecycle rather than
+restoring the hidden-control ownership defect. The initial timeout log is preserved in ignored
+artifacts; fresh complete verification is required after fixture alignment.
+
+Final verification: **67 groups / 20,727 assertions, zero failures and zero skipped groups**
+using `scripts/verify-mac.sh --no-restore`; [exact group counts](tab-lifecycle-memory/mac-verification.json).
+TabViewLifetime contributes 41 assertions. Existing MapImageExport NU1900 reports the unavailable
+package-vulnerability index; no build errors occurred. The benchmark Release build has zero
+warnings/errors. Upstream xUnit was not rerun for the Avalonia-only repair. Native Cocoa/Retina,
+real-ROM use and new-Mac behavior remain manual checks.

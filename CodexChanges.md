@@ -2671,3 +2671,23 @@ Validation: The new 210-pixel dialogue-row assertion fails at the original 214-p
 | tests/SCRIPT_MAP_MEMORY_REVIEW.md | 81 | Record the failing collection check and the additional header/filter/image/palette event roots. |
 
 Validation: Before production edits, the new collection assertion fails on the first Hex-only switch with all four watched controls alive. The paired synthetic baseline retains 12 detached watched tabs and 24 stale TabView handlers in both modes. Removing just the general tab/header subscriptions exposes further filter and hidden image/palette observers; detach-only cleanup cannot cover controls that never attached. Evidence and implementation are separate commits. No app rendering/compiler/history algorithm or personal ROM/settings is changed by this evidence commit. Reattachment assertions and after measurements are recorded for the following repair's verification.
+
+## 166 — Release old tab controls without changing Map View rendering
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/TabView.axaml.cs | 78 | Balance document observers and cursor timer on attachment/removal while retaining source and stored scroll state. |
+| src/HexManiac.Avalonia/Controls/HexContent.cs | 61 | Track and release exact document/header/request-menu subscriptions and restore them on reuse. |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs | 138 | Balance model, diagnostic, caret and focus observers without settling or clearing script drafts. |
+| src/HexManiac.Avalonia/Controls/HorizontalSlantedTextControl.cs | 39 | Replace anonymous header-item callbacks with removable listeners covering deleted/reset/replaced rows. |
+| src/HexManiac.Avalonia/Controls/AngleComboBox.cs | 178 | Observe filter models only while attached and invalidate detached selection-restoration callbacks. |
+| src/HexManiac.Avalonia/Controls/TileImage.cs | 255 | Restore pixel observers from current data when attached and release them when detached. |
+| src/HexManiac.Avalonia/Controls/SelectionRender.cs | 26 | Balance image-selection model subscriptions across attachment and context changes. |
+| src/HexManiac.Avalonia/Controls/PaletteControl.axaml.cs | 65 | Avoid collection observers in never-attached hidden palettes and restore them exactly once on reuse. |
+| tests/MapRendering/Program.cs | 15 | Attach live map/sprite controls to headless windows while preserving all 93 rendering assertions. |
+| tests/ScriptEditorLayout/Program.cs | 15 | Exercise live diagnostic coalescing on attached editors while preserving all 102 layout assertions. |
+| tests/tab-lifecycle-memory/after.json | 1 | Preserve the repaired lifecycle-only benchmark with zero old watched tabs and unchanged source bytes. |
+| tests/tab-lifecycle-memory/full-after.json | 1 | Preserve the complete snapshot/burst/switch/close corpus with zero watched retained payloads/documents. |
+| FutureDevelopment.md | 3 | Mark HMA-020 repaired in offscreen verification and retain native/real-ROM validation limits. |
+
+Validation: The new lifetime group passes 41 assertions, including actual Map/Hex detached-control collection, never-attached hidden panels, repeated listener restoration, selection/caret/focus, pending callbacks, retained rejected source/diagnostics and exact Undo/Redo states. The first full run stopped at MapRendering's never-attached live-zoom fixture; MapRendering and ScriptEditorLayout now attach their subjects to headless windows without removing assertions (93 and 102 respectively). A fresh complete `scripts/verify-mac.sh --no-restore` passes **67 groups / 20,727 assertions / zero failures / zero skipped groups**; per-group counts are in `tests/tab-lifecycle-memory/mac-verification.json`. The existing MapImageExport NU1900 vulnerability-index warning remains; the Release benchmark build has zero warnings/errors. Both paired lifecycle modes go from 12 retained old watched tabs and 24 stale tab handlers to zero. Settled managed heap is about 226→61 MiB in Hex and 212→62 MiB in Map for the same lifecycle-only workload. The full snapshot/burst/close corpus also releases every watched payload, old view and closed document/model. This is a retained managed-memory repair, not a rendering-speed/native-RAM claim. No forced app GC, DataContext clearing, source rewriting, map rendering/read-only handler changes, compiler/numeric/history algorithms or personal ROM/settings changes. Full Mac coverage includes the earlier six-pixel advisory dialogue margin. Upstream xUnit was not rerun for this Avalonia-only repair; native Cocoa/Retina/real-ROM and new-Mac behavior remain user verification. Branch remains unmerged.

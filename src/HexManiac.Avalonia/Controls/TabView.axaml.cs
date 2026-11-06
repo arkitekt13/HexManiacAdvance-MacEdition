@@ -75,6 +75,7 @@ public partial class TabView : UserControl {
    private readonly DispatcherTimer timer;
    private IViewPort subscribedViewPort;
    private ViewPort subscribedFullViewPort;
+   private bool documentSubscriptionsAllowed;
 
    public TabView() {
       InitializeComponent();
@@ -85,6 +86,12 @@ public partial class TabView : UserControl {
       timer.Stop();
 
       DataContextChanged += (sender, e) => HandleDataContextChanged();
+      AttachedToVisualTree += (_, _) => { documentSubscriptionsAllowed = true; HandleDataContextChanged(); };
+      DetachedFromVisualTree += (_, _) => {
+         documentSubscriptionsAllowed = false;
+         UnbindDocument();
+         timer.Stop(); BlinkyCursor.Fill = Brushes.Transparent;
+      };
 
       // WPF used PreviewKeyDown on the table panel; Avalonia spells that as a tunnelling handler.
       TableToolPanel.AddHandler(KeyDownEvent, TableKeyDown, RoutingStrategies.Tunnel);
@@ -115,7 +122,7 @@ public partial class TabView : UserControl {
 
    #region DataContext plumbing
 
-   private void HandleDataContextChanged() {
+   private void UnbindDocument() {
       if (subscribedViewPort != null) {
          subscribedViewPort.PropertyChanged -= HandleViewPortScrollChanged;
          SetViewModelScrollLocations(subscribedViewPort);
@@ -126,7 +133,13 @@ public partial class TabView : UserControl {
          subscribedFullViewPort.Tools.CodeTool.AttentionNewContent -= FocusNewCodeContent;
          subscribedFullViewPort.PropertyChanged -= HandleViewportPropertyChanged;
       }
+      subscribedViewPort = null;
+      subscribedFullViewPort = null;
+   }
 
+   private void HandleDataContextChanged() {
+      UnbindDocument();
+      if (!documentSubscriptionsAllowed) return;
       subscribedViewPort = DataContext as IViewPort;
       subscribedFullViewPort = DataContext as ViewPort;
 
@@ -246,6 +259,7 @@ public partial class TabView : UserControl {
    }
 
    private void StringToolContentSelectionChanged() {
+      if (!documentSubscriptionsAllowed) return;
       if (updatingStringToolSelection) return;
       if (StringToolTextBox.DataContext is not ToolTray tools || tools.StringTool == null) return;
       var tool = tools.StringTool;
@@ -338,7 +352,7 @@ public partial class TabView : UserControl {
 
    /// When a change comes in from the UI.
    private void AnchorSelectionChanged() {
-      if (updatingAnchorSelection) return;
+      if (!documentSubscriptionsAllowed || updatingAnchorSelection) return;
       if (DataContext is not ViewPort viewPort) return;
       viewPort.PropertyChanged -= HandleViewportPropertyChanged;
       viewPort.AnchorTextSelectionStart = AnchorTextBox.SelectionStart;

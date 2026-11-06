@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Avalonia;
+using Avalonia.VisualTree;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -24,18 +25,25 @@ public class SelectionRender : Image {
 
    public SelectionRender() {
       DataContextChanged += (sender, e) => UpdateDataContext();
+      AttachedToVisualTree += (_, _) => UpdateDataContext();
+      DetachedFromVisualTree += (_, _) => UnbindModel();
       Stretch = Stretch.None;
       RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.None);
    }
 
    /// WPF got old/new from DependencyPropertyChangedEventArgs; Avalonia's DataContextChanged
    /// carries no values, so the previous view model is tracked here.
-   private void UpdateDataContext() {
+   private void UnbindModel() {
       if (subscribed != null) {
          subscribed.PropertyChanged -= HandleDataContextPropertyChanged;
          subscribed.RefreshSelection -= HandleRefreshSelection;
       }
-      subscribed = ViewModel;
+      subscribed = null;
+   }
+
+   private void UpdateDataContext() {
+      UnbindModel();
+      subscribed = this.GetVisualRoot() != null ? ViewModel : null;
       if (subscribed != null) {
          subscribed.PropertyChanged += HandleDataContextPropertyChanged;
          subscribed.RefreshSelection += HandleRefreshSelection;

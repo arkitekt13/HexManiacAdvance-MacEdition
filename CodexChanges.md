@@ -2542,3 +2542,12 @@ Validation: The complete serial Mac suite passes 64 groups / 18,224 assertions w
 | docs/MAC_SETUP.md | 30 | Explain the Grid checkbox and remembered display-only behavior. |
 
 Validation: Fresh app/test builds emit zero warnings/errors; ScriptMapReference passes 57 assertions and FirstLaunch passes 47, totaling 104 assertions across two groups with zero failures/skips. Offscreen layout was rendered and inspected; actual pixel checks distinguish 16-pixel map boundaries from 8-pixel graphics boundaries and verify translucent lines. Toggling reuses the same bitmap, preserves script focus and never invokes map snapshot preparation or changes live ROM/metadata. The full Mac suite was not rerun for this bounded visual/settings addition; native appearance awaits user confirmation. No personal ROM/settings, compiler, history or numeric behavior changed.
+
+## 156 — Keep syntax-coloured source readable while selected
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml | 28 | Replace the opaque native selection with a theme-accent brush at 28% opacity and transparent native selection foreground so syntax layers remain visible. |
+| tests/DialogueDiagnostics/Program.cs | 96 | Check selected dialogue pixels, translucent highlighting and unchanged source/selection/model state alongside existing diagnostic rendering checks. |
+
+Validation: The baseline fails the translucency regression; the updated DialogueDiagnostics group passes 30 assertions with zero build warnings/errors. Rendered selected dialogue retains coloured glyphs, and actual selected text, source, ROM bytes and metadata remain unchanged. This affects the shared layered editor only; ordinary short-field selection, compilation, numeric parsing and history algorithms are unchanged. Native appearance still benefits from user confirmation.

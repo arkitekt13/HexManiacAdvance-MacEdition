@@ -291,7 +291,17 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
             int length = 0;
             int desiredLength = minLength;
             minLength = 0;
+            var streamDestinations = new HashSet<int>();
             while (true) {
+               // The requested span may include <auto> resources after an ending command.
+               // Their bytes are data, even when they happen to match script opcodes.
+               if (length < desiredLength && streamDestinations.Contains(address + length) &&
+                  model.GetNextRun(address + length) is IStreamRun stream && stream.Start == address + length &&
+                  stream.Length <= desiredLength - length) {
+                  length += stream.Length;
+                  if (length >= desiredLength) break;
+                  continue;
+               }
                var line = engine.GetMatchingLine(gameHash, model, address + length);
                if (line == null) break;
                // there may've previously been a pointer here: the code has changed!
@@ -338,6 +348,8 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
                            } else if (arg.PointerType == ExpectedPointerType.SpriteTemplate) {
                               WriteSpriteTemplateStream(model, token, destination, address + length);
                            }
+                           if (arg.PointerType != ExpectedPointerType.Unknown && arg.PointerType != ExpectedPointerType.Script)
+                              streamDestinations.Add(destination);
                         }
                      }
                   }

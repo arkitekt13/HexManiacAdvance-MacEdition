@@ -18,7 +18,7 @@ SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationCont
 int checks = 0;
 void Check(bool value, string message) { checks++; if (!value) throw new InvalidOperationException(message); }
 foreach (var acceptance in new[] { "typed", "enter", "click" })
-foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.player", "move.camera", "setflag", "checkflag", "setvar", "addvar" }) {
+foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.player", "move.camera", "move.npc", "applymovement", "setflag", "checkflag", "setvar", "addvar" }) {
    using var f = new WorkflowFixture();
    f.Dispatch.DispatchOverride = action => {
       var completion = new TaskCompletionSource();
@@ -59,17 +59,24 @@ foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.play
          root.MouseDown(point, MouseButton.Left); root.MouseUp(point, MouseButton.Left); Pump();
       }
    }
+   if (command is "move.npc" or "applymovement") {
+      window.KeyTextInput("8"); Pump();
+      window.KeyPressQwerty(PhysicalKey.Space, RawInputModifiers.None); window.KeyTextInput(" "); window.KeyReleaseQwerty(PhysicalKey.Space, RawInputModifiers.None); Pump();
+   }
    Check(body.CaretPosition == box.CaretIndex && box.CaretIndex > insertion, "Actual typing must synchronize script and UI caret positions.");
    Check(box.IsFocused && baseline.EqualsModel(f), "Typing assistance preserves focus and does not bypass delayed compilation.");
-   if (command.StartsWith("msgbox") || command.StartsWith("move.") || command == "preparemsg") {
+   if (command.StartsWith("msgbox") || command.StartsWith("move.") || command is "preparemsg" or "applymovement") {
       Check(body.Content.Contains("<auto>"), "A space at a supported text-pointer operand inserts <auto>.");
       Check(box.Text![..box.CaretIndex].EndsWith("{\n"), $"The caret lands inside the empty dialogue body ({acceptance}/{command}, caret {box.CaretIndex}/{body.CaretPosition}, source {body.Content.Replace("\n", "|")}).");
       Check(body.Content.Count(c => c == '{') == 1 && body.Content.Count(c => c == '}') == 1,
          "The enhanced assistance creates exactly one complete dialogue scaffold.");
-      var content = command.StartsWith("move.") ? "walk_up" : "Hello!";
+      var content = command.StartsWith("move.") || command == "applymovement" ? "walk_up" : "Hello!";
       window.KeyTextInput(content); Pump();
       Check(body.Content.Contains("{\n" + content + "\n}"), "Typing immediately after assistance enters the resource body.");
-      f.Dispatch.Flush(); Pump(); Check(!body.HasError, "The existing auto-pointer form still compiles.");
+      f.Dispatch.Flush(); f.View.ChangeHistory.ChangeCompleted(); Pump(); Check(!body.HasError, "The existing auto-pointer form still compiles.");
+      var compiled = f.State(); f.View.Undo.Execute(null); f.Dispatch.Flush(); Pump();
+      Check(baseline.EqualsModel(f), "Undo restores the complete pre-assistance resource state.");
+      f.View.Redo.Execute(null); f.Dispatch.Flush(); Pump(); Check(compiled.EqualsModel(f), "Redo restores the complete assisted resource edit.");
    } else {
       bool flag = command.Contains("flag");
       Check(body.CanInsertFlag == flag && body.CanInsertVar != flag, "Eligibility follows the current flag/variable operand.");

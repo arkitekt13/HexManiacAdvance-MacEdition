@@ -52,3 +52,29 @@ dotnet tests/TourGuideWorkflow/bin/Debug/net8.0/TourGuideWorkflow.dll --probe-in
 The optional probes print observations and are not assertion-bearing regression runs.
 Native Cocoa input, real tutorial ROMs, camera setup/teardown, collision/pathing and game timing
 remain emulator/manual checks. This harness is not a movement simulator.
+
+## Formatting repair verification
+
+The bounded FormatScript repair passes 321 mixed-tour assertions. Named-anchor comparisons
+canonicalize complete records because rollback reinsertion can alter dictionary order; no
+production serialization or history logic was changed. A reachable following script section
+and idempotent repeated formatting are also protected. Actual UI coverage now includes eleven
+commands/352 assistance assertions and a mixed movement-suggestion/pan/Undo case among the
+63 map-reference assertions.
+
+The full Mac run passes **65 groups / 18,673 assertions / zero failures or skipped groups**;
+see [the exact group record](TourGuideWorkflow/mac-verification.json). MapImageExport emits the
+existing NU1900 vulnerability-feed warning; builds still succeed.
+
+The first upstream run reports 2,715 cases: 1,779 passed, one failed, 935 skipped and zero
+engine errors. The sole failure, `ErrorInScript_ClickOff_ResetScriptEditor`, expects rejected
+source to disappear on navigation, contrary to the deliberate HMA-006 retained-draft contract.
+The pre-repair commit `16904dd7` produces the identical failure and totals; summaries are
+preserved beside the new group. The test contract will be aligned in a separate commit.
+
+Baseline execution detail: the fresh archive's runner build omitted its transitive xUnit
+execution dependency from its dependency manifest and could not discover tests. For a controlled
+comparison, its freshly built Core/test/integration assemblies were placed into a copied working
+runner host with the existing identical-version dependency manifest/libraries. That matched-host
+baseline discovers all 2,715 cases and reproduces the exact failure; it is not a claim that the
+fresh runner's dependency packaging passed. Personal ROMs/settings were never supplied.

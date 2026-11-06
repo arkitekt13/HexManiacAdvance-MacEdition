@@ -2572,3 +2572,21 @@ Validation: Before the repair, a real mouse click accepting a movement instructi
 | tests/TourGuideWorkflow/TourGuideWorkflow.csproj | 1 | Reuse the controlled script workflow fixture without user ROMs or preferences. |
 
 Validation: Fresh build succeeds without compiler warnings/errors. The pre-fix mixed-tour run fails because correctly encoded dialogue has NoInfoRun formatting after successful compilation; the smaller single-message probe reproduces it and a second formatting pass restores PCS. The invalid movement probe separately observes silent omission for auto streams and zero substitution for existing streams. This evidence commit intentionally precedes the formatting repair; neither finding is attributed to recent map-reference work or counted as a passing regression. Numeric/resource grammar is unchanged.
+
+## 159 — Preserve inline resource formatting in compiled script spans
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/Code/ScriptParser.cs | 294 | Skip exact known resource spans while formatting a minimum compiled span, preserving inline dialogue/movement formats without treating data bytes as opcodes. |
+| tests/TourGuideWorkflow/Program.cs | 1 | Protect six-resource allocation/growth, named relocation, failure/correction, navigation/callbacks, history/save and reachable following sections with 321 synthetic assertions. |
+| tests/TourGuideWorkflow/README.md | 1 | Explain canonical complete-anchor comparison, reproducible commands and native/gameplay limits. |
+| tests/ScriptAssistance/Program.cs | 21 | Extend real typing/Enter/click coverage to move.npc/applymovement actor operands and resource Undo/Redo, totaling 352 assertions. |
+| tests/ScriptMapReference/Program.cs | 250 | Check movement-suggestion acceptance and pending-edit panning, pixel reuse, compilation and Undo in the actual map pane, totaling 63 assertions. |
+| tests/TourGuideWorkflow/mac-verification.json | 1 | Record all 65 freshly built Mac groups and exact assertion totals. |
+| tests/TourGuideWorkflow/upstream-baseline-summary.json | 1 | Preserve the pre-repair matched-host upstream baseline and its one outdated rejected-source assertion. |
+| tests/TourGuideWorkflow/upstream-repair-summary.json | 1 | Preserve identical upstream totals/failure after the formatting repair. |
+| tests/TOUR_GUIDE_SCRIPT_REVIEW.md | 59 | Record the repair, verified scope, upstream comparison and fresh-runner dependency limitation. |
+| FutureDevelopment.md | 3 | Track the independently reproduced permissive invalid-movement behavior as HMA-019, without changing enum/numeric grammar here. |
+| tests/README.md | 98 | Link the combined workflow group and its review; update related group READMEs. |
+
+Validation: Full Mac suite passes 65 groups / 18,673 assertions with zero failures/skipped groups. Builds succeed; the pre-existing MapImageExport NU1900 feed warning remains separate. The upstream first-project run and a matched-host pre-repair baseline each report 2,715 cases: 1,779 passed, one identical failure, 935 skipped, zero engine errors. The sole failing legacy assertion expects navigation to discard rejected source, contrary to HMA-006; its contract is aligned separately next. The baseline comparison reused a working identical-version runner dependency manifest after fresh-archive discovery failed on the omitted xUnit runtime dependency. No personal ROM/preferences, allocation rules, numeric parsing, compiler opcodes or history algorithms changed; native/emulator checks and HMA-019 remain explicit limitations.

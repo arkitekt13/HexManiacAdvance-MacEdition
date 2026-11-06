@@ -100,6 +100,10 @@ Actual script typing, automatic pointer insertion and unused flag/variable UI ro
 by [ScriptAssistance](ScriptAssistance/README.md).
 Complete dialogue/movement scaffolds, caret placement and replacement of legacy missing-brace completion
 are covered by [DialogueScaffolding](DialogueScaffolding/README.md).
+[TourGuideWorkflow](TourGuideWorkflow/README.md) combines six dialogue/movement resources,
+forced relocation, late-error rollback, correction, navigation, history and save/reopen;
+the [review](TOUR_GUIDE_SCRIPT_REVIEW.md) separates the formatting repair from the outstanding
+permissive invalid-movement behavior.
 Stable simple/complex NPC hover overlays, click-through input and viewport fitting are covered by
 [MapHoverPreview](MapHoverPreview/README.md).
 Cold NPC text discovery during map rendering, UI-thread notifications and canceled render work are

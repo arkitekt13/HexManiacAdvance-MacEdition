@@ -247,6 +247,44 @@ Check(rejectedBytes.SequenceEqual(source.Model.RawData), "Delete in Map View can
 delayedBody.Editor.Content = delayedOriginal; dispatch.Flush(); Pump();
 Check(!delayed.Tools.CodeTool.HasUncompiledScriptChanges, "Correction/retry still clears the rejected draft.");
 
+// Accept a movement instruction in a mixed tour while the reference map is visible.
+source.Model.SetList(new NoDataChangeDeltaModel(), "movementtypes", "walk_down", "walk_up", "walk_left", "walk_right");
+source.Model.ClearCacheScope();
+delayedBody.Editor.Content = "lockall\nmsgbox.default <auto>\n{\nWelcome!\n}\nmove.npc 8 <auto>\n{\nwalk_right\n}\nmove.player <auto>\n{\nwalk_down\n}\nmove.camera <auto>\n{\nwalk_left\n}\nreleaseall\nend";
+dispatch.Flush(); delayed.ChangeHistory.ChangeCompleted(); Pump();
+Check(!delayedBody.HasError, "A mixed tour compiles before editing one of its movement blocks beside the map.");
+var beforeTourBytes = source.Model.RawData.ToArray(); var beforeTourMetadata = Metadata();
+var tourRenderCount = delayedTab.ReferenceRenderCount;
+var tourImage = delayedPane.GetVisualDescendants().OfType<Image>().Single().Source;
+delayedBody.Editor.Content = delayedBody.Content.Replace("walk_right", "walk_do");
+Pump(); delayedField.Focus();
+delayedField.CaretIndex = delayedField.Text.IndexOf("walk_do") + "walk_do".Length;
+delayedField.SelectionStart = delayedField.SelectionEnd = delayedField.CaretIndex;
+window.KeyTextInput("w"); Pump();
+var tourOverlay = delayedTab.GetVisualDescendants().OfType<AutocompleteOverlay>().Single(o => ReferenceEquals(o.Target?.DataContext, delayedBody.Editor));
+var tourOptions = tourOverlay.FindControl<ItemsControl>("AutocompleteItems");
+var tourChoice = tourOptions.GetVisualDescendants().OfType<Button>().Single(b => b.DataContext is AutoCompleteSelectionItem item && item.CompletionText.Trim() == "walk_down");
+var tourPopup = TopLevel.GetTopLevel(tourChoice);
+var tourChoicePoint = tourChoice.TranslatePoint(new Point(tourChoice.Bounds.Width / 2, tourChoice.Bounds.Height / 2), tourPopup).Value;
+tourPopup.MouseMove(tourChoicePoint); tourPopup.MouseDown(tourChoicePoint, MouseButton.Left); tourPopup.MouseUp(tourChoicePoint, MouseButton.Left); Pump();
+Check(!delayedField.Text.Contains("walk_right") && delayedField.Text.Contains("walk_down") && !tourOverlay.IsVisible && delayedField.IsFocused,
+   "Movement suggestions accept by click, dismiss and retain script focus beside the map.");
+var tourCallbacks = dispatch.CapturePendingCallbacks();
+var tourPoint = delayedPane.TranslatePoint(new Point(150, 150), window).Value;
+window.MouseDown(tourPoint, MouseButton.Left); window.MouseMove(tourPoint + new Vector(-30, -20)); window.MouseUp(tourPoint + new Vector(-30, -20), MouseButton.Left); Pump();
+Check(delayed.Tools.CodeTool.HasPendingScriptChanges && tourCallbacks.SequenceEqual(dispatch.CapturePendingCallbacks()) && delayedField.IsFocused,
+   "Panning during a mixed tour retains its exact pending compilation and source focus.");
+Check(beforeTourBytes.SequenceEqual(source.Model.RawData) && beforeTourMetadata.SequenceEqual(Metadata()) &&
+   ReferenceEquals(tourImage, delayedPane.GetVisualDescendants().OfType<Image>().Single().Source) && delayedTab.ReferenceRenderCount == tourRenderCount,
+   "Movement acceptance and reference panning neither write hidden ROM data nor rebuild map pixels.");
+dispatch.Flush(); delayed.ChangeHistory.ChangeCompleted(); Pump();
+Check(!delayed.Tools.CodeTool.HasUncompiledScriptChanges && !delayed.Tools.CodeTool.Contents[0].HasError,
+   "The mixed NPC/player/camera/dialogue source compiles with the map pane visible.");
+delayed.Undo.Execute(null); dispatch.Flush(); Pump();
+Check(beforeTourBytes.SequenceEqual(source.Model.RawData) && beforeTourMetadata.SequenceEqual(Metadata()) && delayed.Redo.CanExecute(null),
+   "One Undo restores the movement edit and all mixed-tour metadata beside the map and preserves Redo.");
+Until(() => delayedTab.ReferenceRenderCount > tourRenderCount);
+
 // Undo/Redo notifications refresh static map pixels without opening a token from the preview.
 var renderBeforeUndo = delayedTab.ReferenceRenderCount;
 var editToken = delayed.ChangeHistory.CurrentChange;

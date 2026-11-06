@@ -19,6 +19,9 @@ Coverage includes:
   and Delete cannot write the hidden ROM selection. Correction/retry still works.
 - Undo/Redo refresh through a read-only history notification, preserved Redo and stale
   render rejection when another ROM becomes active.
+- Mouse-accepted movement completion inside a mixed NPC/player/camera/dialogue script;
+  panning retains the exact queued compilation, focus, map pixels and live bytes/metadata,
+  then the settled edit compiles and Undo restores it (63 total group assertions).
 
 Build this project and run its DLL, or use `scripts/verify-mac.sh`.
 Passing an absolute PNG path to the DLL saves an optional offscreen UI preview.

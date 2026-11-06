@@ -36,7 +36,20 @@ if (args.Contains("--probe-invalid-movement")) {
 foreach (var newline in new[] { "\n", "\r\n", "\r" }) {
    using var f = new WorkflowFixture();
    f.Model.SetList(new NoDataChangeDeltaModel(), "movementtypes", "walk_down", "walk_up", "walk_left", "walk_right");
-   var original = f.State();
+   string[] Metadata(PokemonModel model) {
+      var stored = model.ExportMetadata(null, f.Services.MetadataInfo);
+      // Rollback may reinsert named anchors in a different dictionary order. Compare
+      // complete anchor records canonically, never individual sorted TOML lines.
+      return new StoredMetadata(anchors: stored.NamedAnchors.OrderBy(anchor => anchor.Name).ToArray(),
+         unmappedPointers: stored.UnmappedPointers, matchedWords: stored.MatchedWords,
+         offsetPointers: stored.OffsetPointers, lists: stored.Lists, unmappedConstants: stored.UnmappedConstants,
+         gotoShortcuts: stored.GotoShortcuts, tableGroups: stored.TableGroups, generalInfo: f.Services.MetadataInfo,
+         fields: new StoredMetadataFields { FreeSpaceBuffer = stored.FreeSpaceBuffer, NextExportID = stored.NextExportID,
+            ShowRawIVByteForTrainer = stored.ShowRawIVByteForTrainer }).Serialize();
+   }
+   WorkflowState State() => new(f.Model.RawData.ToArray(), Metadata(f.Model));
+   bool Matches(WorkflowState state) => state.Bytes.SequenceEqual(f.Model.RawData) && state.Metadata.SequenceEqual(Metadata(f.Model));
+   var original = State();
    string Join(params string[] lines) => string.Join(newline, lines);
    string Source(IReadOnlyList<int> targets = null, int repeats = 1, bool grow = false, bool lateError = false) {
       string At(int i) => targets == null ? "auto" : targets[i].ToString("X6");
@@ -87,10 +100,13 @@ foreach (var newline in new[] { "\n", "\r\n", "\r" }) {
             "Tour compilation preserves the original neighboring sentinels.");
    }
    f.Edit(Source()); Integrity(1, false);
+   var formatted = State();
+   f.Tool.ScriptParser.FormatScript<XSERun>(new ModelDelta(), f.Model, Root(), f.Body.CompiledLength);
+   Check(Matches(formatted), "Formatting the complete mixed span again preserves all bytes and canonical metadata.");
    Check(Root() != WorkflowFixture.Root, "The initial tour actually exercises script relocation.");
-   var first = f.State();
-   f.View.Undo.Execute(null); f.Dispatch.Flush(); Check(original.EqualsModel(f), "One Undo removes all six new resources and script relocation.");
-   f.View.Redo.Execute(null); f.Dispatch.Flush(); Check(first.EqualsModel(f), "One Redo restores the complete initial tour.");
+   var first = State();
+   f.View.Undo.Execute(null); f.Dispatch.Flush(); Check(Matches(original), "One Undo removes all six new resources and script relocation.");
+   f.View.Redo.Execute(null); f.Dispatch.Flush(); Check(Matches(first), "One Redo restores the complete initial tour.");
    f.View.Goto.Execute(Root()); f.Dispatch.Flush();
    var oldTargets = Targets();
    // Named resources must survive relocation, including those which later blocks still reference.
@@ -101,16 +117,16 @@ foreach (var newline in new[] { "\n", "\r\n", "\r" }) {
    token.ChangeData(f.Model, afterResources, WorkflowFixture.Sentinel);
    f.Model.ObserveAnchorWritten(token, "tour.blocker", new NoInfoRun(afterResources));
    f.View.ChangeHistory.ClearHistory(false); f.View.ChangeHistory.TagAsSaved();
-   var beforeGrowth = f.State();
+   var beforeGrowth = State();
    f.Edit(Source(oldTargets, 32, grow: true, lateError: true));
-   Check(beforeGrowth.EqualsModel(f) && f.Body.HasError, "A late error after six resource edits restores every byte and metadata entry.");
+   Check(Matches(beforeGrowth) && f.Body.HasError, "A late error after six resource edits restores every byte and metadata entry.");
    Check(f.Body.Editor.ErrorLocations.Count > 0 && f.Body.Content.Contains("not_a_command"), "Rejected mixed source retains its diagnostics and text.");
    Check(!f.View.ChangeHistory.Undo.CanExecute(null), "Failed mixed compilation adds no model history.");
    f.View.Save.Execute(f.FileSystem); f.View.SaveAs.Execute(f.FileSystem);
    Check(f.Saves == 0, "Both save routes protect the rejected mixed draft.");
    var rejected = f.Body.Content;
    f.View.Goto.Execute(WorkflowFixture.Other); f.View.Goto.Execute(Root()); f.Dispatch.Flush();
-   Check(f.Body.Content == rejected && f.Body.HasError && beforeGrowth.EqualsModel(f), "Navigation retains the mixed rejected draft without applying it elsewhere.");
+   Check(f.Body.Content == rejected && f.Body.HasError && Matches(beforeGrowth), "Navigation retains the mixed rejected draft without applying it elsewhere.");
    f.Edit(Source(oldTargets, 32, grow: true)); Integrity(32, true);
    var grownTargets = Targets();
    Check(oldTargets.Zip(grownTargets).All(pair => pair.First != pair.Second), "All six blocked resources really relocate during growth.");
@@ -118,28 +134,44 @@ foreach (var newline in new[] { "\n", "\r\n", "\r" }) {
       Check(f.Model.GetAddressFromAnchor(new NoDataChangeDeltaModel(), -1, "tour.resource" + i) == grownTargets[i],
          "Each named resource anchor follows its own relocation.");
    Check(f.Model.RawData.Skip(afterResources).Take(WorkflowFixture.Sentinel.Length).SequenceEqual(WorkflowFixture.Sentinel), "Growth preserves the final resource blocker.");
-   var grown = f.State();
-   f.View.Undo.Execute(null); f.Dispatch.Flush(); Check(beforeGrowth.EqualsModel(f), "One Undo restores all six resources, pointers, anchors and bytes before correction.");
-   f.View.Redo.Execute(null); f.Dispatch.Flush(); Check(grown.EqualsModel(f), "One Redo restores all mixed growth changes.");
+   var grown = State();
+   f.View.Undo.Execute(null); f.Dispatch.Flush(); Check(Matches(beforeGrowth), "One Undo restores all six resources, pointers, anchors and bytes before correction.");
+   f.View.Redo.Execute(null); f.Dispatch.Flush(); Check(Matches(grown), "One Redo restores all mixed growth changes.");
    f.View.Goto.Execute(Root()); f.Dispatch.Flush();
    f.Edit(Source(grownTargets), settle: false);
    var callbacks = f.Dispatch.CapturePendingCallbacks();
    f.View.Goto.Execute(WorkflowFixture.Other); f.Dispatch.Flush();
-   var shrunk = f.State();
+   var shrunk = State();
    foreach (var callback in callbacks) callback();
-   Check(shrunk.EqualsModel(f), "Callbacks captured before mixed-script navigation cannot reapply edits.");
+   Check(Matches(shrunk), "Callbacks captured before mixed-script navigation cannot reapply edits.");
    f.View.Goto.Execute(Root()); f.Dispatch.Flush(); Integrity(1, false);
    f.View.Undo.Execute(null); f.Dispatch.Flush();
    foreach (var callback in callbacks) callback();
-   Check(grown.EqualsModel(f) && f.View.Redo.CanExecute(null), "Undo after settling navigation restores growth and stale callbacks preserve Redo.");
-   f.View.Redo.Execute(null); f.Dispatch.Flush(); Check(shrunk.EqualsModel(f), "Redo restores the settled shortened tour.");
+   Check(Matches(grown) && f.View.Redo.CanExecute(null), "Undo after settling navigation restores growth and stale callbacks preserve Redo.");
+   f.View.Redo.Execute(null); f.Dispatch.Flush(); Check(Matches(shrunk), "Redo restores the settled shortened tour.");
    f.View.Goto.Execute(Root()); f.Dispatch.Flush();
    f.View.Save.Execute(f.FileSystem);
    Check(f.Saves == 1 && f.View.ChangeHistory.IsSaved, "A corrected mixed tour saves normally.");
    var reopened = f.Reopen();
    Check(reopened.RawData.SequenceEqual(f.Model.RawData), "Save/reopen retains every mixed-script and resource byte.");
-   Check(reopened.ExportMetadata(null, f.Services.MetadataInfo).Serialize().Where(line => !line.StartsWith("FreeSpaceSearch = ")).SequenceEqual(f.Metadata()),
+   Check(Metadata(reopened).SequenceEqual(Metadata(f.Model)),
       "Save/reopen retains all mixed-script metadata apart from the existing free-space search preference.");
    Console.WriteLine($"PASS: {newline.Length switch { 2 => "CRLF", _ => newline == "\r" ? "CR" : "LF" }} mixed tour allocation, growth, failure, navigation, history and save.");
+}
+// Skipping inline data must not skip reachable script sections following an end opcode.
+foreach (var newline in new[] { "\n", "\r\n", "\r" }) using (var f = new WorkflowFixture()) {
+   var before = f.State();
+   f.Edit(string.Join(newline, "call <section1>", "end", "section1:", "msgbox.default <auto>", "{", "Another section.", "}", "return"));
+   int root = f.Model.GetAddressFromAnchor(new NoDataChangeDeltaModel(), -1, "workflow.root");
+   int child = f.Model.ReadPointer(root + 1);
+   int text = f.Model.ReadPointer(child + 2);
+   Check(!f.Tool.HasUncompiledScriptChanges && child == root + 6 && f.Model.GetNextRun(child) is XSERun,
+      "A reachable section after the main end retains its own script format and address.");
+   Check(f.Model[child + 8] == 3 && f.Model.GetNextRun(text) is PCSRun &&
+      PCSString.Convert("\"Another section.\"").SequenceEqual(f.Model.RawData.Skip(text).Take(17)),
+      "The following section retains its return opcode and inline dialogue bytes/format.");
+   var compiled = f.State();
+   f.View.Undo.Execute(null); f.Dispatch.Flush(); Check(before.EqualsModel(f), "Undo restores the complete multi-section edit.");
+   f.View.Redo.Execute(null); f.Dispatch.Flush(); Check(compiled.EqualsModel(f), "Redo restores every section and resource.");
 }
 Console.WriteLine($"CHECKS_PASSED:{checks}");

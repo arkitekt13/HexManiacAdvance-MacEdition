@@ -2487,3 +2487,14 @@ Validation: Local Markdown destinations and whitespace checks pass. Verification
 | tests/GotoFocus/mac-verification.json | 1 | Preserve exact counts for all seven relevant focus/input regression groups. |
 
 Validation: The old code passes ordinary headless opening but fails to focus when text-box attachment is explicitly delayed beyond the queued request; the repair passes all 12 Go To checks. Fresh GotoFocus, ClipboardRouting, AutocompleteDismissal, ImageHoverPreviews, TabMenus, FirstLaunch and MacSecondaryActions builds/checks pass 355 assertions across seven groups, with zero failures/skips and zero build warnings/errors. The full Mac suite was not rerun for this bounded focus change. Native Cocoa timing awaits user confirmation; compiler, Go To matching/navigation, shared field controls, ROM bytes/history and personal settings are unchanged.
+
+## 153 — Investigate a read-only map reference beside script source
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/SCRIPT_MAP_REFERENCE_REVIEW.md | 1 | Record source-map ambiguity, live renderer/history side effects, input-routing risks and bounded implementation acceptance checks before production changes. |
+| tools/ScriptMapReferenceReview/Program.cs | 1 | Reproduce live-render history effects on fabricated 80 × 50 maps without personal ROMs or preferences. |
+| tools/ScriptMapReferenceReview/ScriptMapReferenceReview.csproj | 1 | Link the existing synthetic map fixture and actual renderer for reproducible investigation. |
+| tests/script-map-reference/probe-before.jsonl | 1 | Preserve observed cold/cached rendering and unchanged bytes/metadata alongside the NPC dirty/history transition. |
+
+Validation: The completed synthetic probe draws both maps; the NPC case enables Undo and marks the model unsaved while bytes and serialized metadata remain unchanged. Initial draw is about 12–15 ms in this limited single run, and cached access reuses pixels. This is not a real-ROM performance claim or proof of the user's native event timing. GitHub checkpoint checkpoint/pre-script-map-preview-2026-11-05 preserves 68ed0f91 before implementation.

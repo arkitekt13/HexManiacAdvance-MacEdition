@@ -2562,3 +2562,13 @@ Validation: The baseline fails the translucency regression; the updated Dialogue
 | tests/script-editor-polish/mac-verification.json | 1 | Preserve exact results for nine rebuilt shared-editor, drafting, clipboard, encounter and map-reference groups. |
 
 Validation: Before the repair, a real mouse click accepting a movement instruction reopens its popup during layout; after the repair all 310 mapping assertions pass, including explicit queued notification and fresh-query controls. The focused final run passes nine groups / 1,928 assertions with zero failures or skips: DialogueDiagnostics 30, AutocompleteMapping 310, AutocompleteDismissal 85, DialogueScaffolding 384, ScriptAssistance 258, ClipboardRouting 78, WildEncounterEditing 128, ScriptMapReference 57 and ScriptWorkflowSafety 598. Fresh builds report zero warnings/errors. Full Mac/upstream suites were not rerun for these bounded overlay/visual changes. No personal ROM/settings or compiler, matching, numeric, relocation or history rules changed; native confirmation remains useful.
+
+## 158 — Investigate combined tour-guide scripting workflows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/TOUR_GUIDE_SCRIPT_REVIEW.md | 1 | Record mixed-resource coverage gaps, a reproduced inline-resource formatting failure and a separately scoped permissive movement-input finding before production changes. |
+| tests/TourGuideWorkflow/Program.cs | 1 | Add a synthetic six-resource tour regression and optional minimal formatting/invalid-movement observation probes. |
+| tests/TourGuideWorkflow/TourGuideWorkflow.csproj | 1 | Reuse the controlled script workflow fixture without user ROMs or preferences. |
+
+Validation: Fresh build succeeds without compiler warnings/errors. The pre-fix mixed-tour run fails because correctly encoded dialogue has NoInfoRun formatting after successful compilation; the smaller single-message probe reproduces it and a second formatting pass restores PCS. The invalid movement probe separately observes silent omission for auto streams and zero substitution for existing streams. This evidence commit intentionally precedes the formatting repair; neither finding is attributed to recent map-reference work or counted as a passing regression. Numeric/resource grammar is unchanged.

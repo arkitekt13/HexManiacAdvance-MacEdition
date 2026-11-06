@@ -34,7 +34,7 @@
                   <ItemsControl.ItemTemplate>
                      <DataTemplate>
                         <Button Classes="completion" Classes.selected="{Binding IsSelected}"
-                                Content="{Binding DisplayText}" Click="AutocompleteOptionChosen"/>
+                                Content="{Binding DisplayText}" IsEnabled="{Binding CanComplete}" Click="AutocompleteOptionChosen"/>
                      </DataTemplate>
                   </ItemsControl.ItemTemplate>
                </ItemsControl>

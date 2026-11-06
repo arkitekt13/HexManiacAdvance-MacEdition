@@ -277,6 +277,7 @@ public partial class AutocompleteOverlay : UserControl {
       if (!CanOffer()) { ClearAutocompleteOptions(); return; }
       if (AutocompleteItems.ItemsSource is not IReadOnlyList<AutoCompleteSelectionItem> items) return;
       if (items.Count == 0) return;
+      if (!items.Any(item => item.CanComplete)) { ClearAutocompleteOptions(); return; }
       var selected = items.FirstOrDefault(item => item.IsSelected);
       if (selected == null) return;
       var index = items.IndexOf(selected);
@@ -305,11 +306,9 @@ public partial class AutocompleteOverlay : UserControl {
       }
 
       if (e.Key == Key.Up) {
-         index -= 1;
-         if (index == -1) index = items.Count - 1;
+         do { index = (index + items.Count - 1) % items.Count; } while (!items[index].CanComplete);
       } else if (e.Key == Key.Down) {
-         index += 1;
-         if (index == items.Count) index = 0;
+         do { index = (index + 1) % items.Count; } while (!items[index].CanComplete);
       } else {
          return;
       }
@@ -345,7 +344,7 @@ public partial class AutocompleteOverlay : UserControl {
 
    private bool AutocompleteOptionChosen(AutoCompleteSelectionItem item, bool synchronizeScriptCaret = true) {
       var box = TargetTextBox;
-      if (!CanOffer()) { ClearAutocompleteOptions(); return false; }
+      if (!item.CanComplete || !CanOffer()) { ClearAutocompleteOptions(); return false; }
       acceptingCompletion = true;
       try {
          var text = box.Text ?? string.Empty;

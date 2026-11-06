@@ -7,6 +7,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
    public class AutoCompleteSelectionItem : IEquatable<AutoCompleteSelectionItem>, INotifyPropertyChanged {
       public string DisplayText { get; }
       public string CompletionText { get; }
+      public bool CanComplete => CompletionText != "...";
       public bool IsSelected { get; }
       public bool IsFormatComplete { get; set; } = true;
 

@@ -2602,3 +2602,15 @@ Validation: Full Mac suite passes 65 groups / 18,673 assertions with zero failur
 | tests/UPSTREAM_BASELINE.md | 9 | Link the new test-contract alignment and exact isolated upstream results. |
 
 Validation: With sampleFiles excluded, the pre-repair matched host reports 2,715 cases: 1,666 passed, one legacy failure, 1,048 skipped and zero engine errors. After this test-only alignment, the isolated final run reports 2,715 cases: 1,667 passed, zero failed, 1,048 skipped and zero engine errors. The skips require absent optional ROMs. Initial upstream runs had picked up an existing cached FireRed fixture and therefore had different pass/skip totals; those summaries remain preserved and are not called ROM-free. The cached fixture still hashes identically to the repository's existing sample; no ROM/settings files were edited. The known fresh-runner xUnit dependency omission is documented, and the existing xUnit1013 analyzer warning remains separate. The production tree is unchanged from entry 159's full 65-group / 18,673-assertion Mac pass; a redundant full Mac rerun was not required for this upstream-test-only edit. Evidence, production repair and legacy-test alignment remain separate commits on the unmerged branch.
+
+## 161 — Keep suggestion truncation markers out of source
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/AutoCompleteSelectionItem.cs | 10 | Expose whether a completion is a real value rather than the list's ellipsis marker. |
+| src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml | 45 | Display truncation indicators as disabled rows instead of clickable completions. |
+| src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs | 279 | Skip disabled markers during keyboard wrapping and reject marker acceptance even when a Click is raised programmatically. |
+| tests/AutocompleteMapping/Program.cs | 193 | Cover the real FireRed movement list's disabled marker, guarded Click, Up/Down wrapping and Enter acceptance across LF/CRLF. |
+| tests/AutocompleteMapping/README.md | 6 | Record the expanded 320-assertion group and indicator behavior. |
+
+Validation: The new disabled-row assertion fails before the fix. The repaired group passes 320 assertions with zero build warnings/errors, including existing mouse acceptance, caret mapping, queued-notification dismissal and history checks. No ROM fixtures/preferences or movement compiler/matching/numeric rules changed. The full shared-control regression run follows the separately scoped movement-validation change.

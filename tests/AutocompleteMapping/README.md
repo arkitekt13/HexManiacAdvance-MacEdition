@@ -3,7 +3,7 @@
 Uses the production TextEditor/AutocompleteOverlay in a headless Skia window and fabricated
 BPRE-tagged models. No supplied ROM, network or native desktop session is needed. The
 original handler fails the exact Core/overlay suggestion comparison on a later line
-(`/tmp/hma-autocomplete-original.log`); the expanded group passes **310 checks**.
+(`/tmp/hma-autocomplete-original.log`); the expanded group passes **320 checks**.
 
 ```sh
 dotnet build tests/AutocompleteMapping/AutocompleteMapping.csproj --no-restore --nologo --disable-build-servers -p:UseSharedCompilation=false -m:1 -nr:false
@@ -49,3 +49,7 @@ compiler/repointing/history algorithms are unchanged.
 These checks validate input routing, options, source edits, caret placement and model/history
 behavior, not native screen appearance or popup geometry under every scroll/font configuration.
 The companion 100–500-line benchmark compares all prepared Core/overlay option arrays separately.
+
+Truncated lists retain their visible `...` indicator, but it is disabled for clicks, guarded
+against programmatic acceptance, and skipped by Up/Down wrapping. LF/CRLF checks verify that
+Enter still accepts a real movement and dismisses the list.

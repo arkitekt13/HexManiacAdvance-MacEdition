@@ -11,11 +11,12 @@ try{
  var data=Enumerable.Repeat((byte)255,512).ToArray();data[0x100]=2;foreach(var path in paths)File.WriteAllBytes(path,data);
  using(var fs=new MacFileSystem(()=>null,appSupportDirectory:profile)){
   var first=new EditorViewModel(fs,InstantDispatch.Instance);Check(first.Count==0&&first.RecentFiles.Count==0&&!first.PreferScriptMapView&&!first.ShowScriptReferenceGrid,"Fresh isolated settings start at welcome with safe defaults.");
-  first.PreferScriptMapView=true;first.ShowScriptReferenceGrid=true;first.InsertAutoActive=false;first.ZoomLevel=2;foreach(var path in paths)first.RecentFiles.Add(path);first.WriteAppLevelMetadata();
+  first.PreferScriptMapView=true;first.ShowScriptReferenceGrid=true;first.InsertAutoActive=false;first.ZoomLevel=2;first.MaximumDiffSegments=17;first.MaximumSearchResults=321;foreach(var path in paths)first.RecentFiles.Add(path);first.WriteAppLevelMetadata();
  }
  string[] saved;
  using(var fs=new MacFileSystem(()=>null,appSupportDirectory:profile)){
   var next=new EditorViewModel(fs,InstantDispatch.Instance);Check(next.Count==0&&next.PreferScriptMapView&&next.ShowScriptReferenceGrid&&!next.InsertAutoActive&&next.ZoomLevel==2,"A fresh editor instance restores map/grid/assistance/zoom preferences without auto-opening a ROM.");
+  Check(next.MaximumDiffSegments==17&&next.MaximumSearchResults==321,"Diff and search-result limits must restore from their own preference keys.");
   Check(paths.SequenceEqual(next.RecentFiles),"Recent paths with spaces, brackets, commas, quotes, apostrophes and Unicode must survive restart exactly.");
   saved=fs.MetadataFor(EditorViewModel.ApplicationName);Check(saved!=null&&fs.AppMetadataWarning==null,"The profile is readable without startup warnings.");
   Application.Current.Resources["FileSystem"]=fs;App.UpdateThemeDictionary(Application.Current.Resources,next.Theme);

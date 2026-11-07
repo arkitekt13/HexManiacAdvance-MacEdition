@@ -2952,3 +2952,11 @@ Validation: On 0a141bdf the new group builds with zero warnings/errors and fails
 | tests/ProfilePersistence/Program.cs | 34 | Verify exact legacy migration, punctuation/Unicode reopening and safe handling of malformed/missing recent entries. |
 
 Validation: ProfilePersistence passes 28 assertions with zero build warnings/errors. Five disposable files with spaces, brackets, commas, embedded quotes, apostrophes and Unicode survive a real injected Mac profile save/reload and reopen through their exact Recent menu commands without changing bytes. Unmarked old profiles keep literal Windows backslashes and single/double-quoted paths; saving them migrates to the marked escaped format without ambiguous escape guessing. Invalid/null/missing recent entries do not prevent startup or discard unrelated settings. Fresh instances retain Map View/grid/assistance/zoom and the injected emulator preference; every launch is intercepted, so no native app starts. No ROM auto-opens on restart. Existing 1200×800 default geometry is verified and unchanged; explicit geometry restoration is not a pre-existing persisted feature. No personal profile/ROM, game metadata format, numeric parsing or engine behavior changed. System.Text.Json is provided by the existing target runtime; no package or runtime upgrade was added.
+
+## 192 — Reproduce crossed diff/search preference values
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ProfilePersistence/Program.cs | 14 | Save distinct diff/search limits and require a new editor to restore each from its own key. |
+
+Validation: On 9b9de924 the isolated-profile regression builds with zero warnings/errors and fails when MaximumDiffSegments=17 and MaximumSearchResults=321 are reloaded. Inspection confirms the search-limit branch checks and parses maxDiffLine instead of maxSearchResultsLine. This is an existing preference-reader mix-up, not a search algorithm or runtime issue. Evidence precedes repair and uses no personal settings.

@@ -19,7 +19,11 @@ than suppressing every BringIntoView request.
 On checkpoint 554b16db, the baseline fails immediately: a click on visible source
 moves the outer scroll offset from 55 to 5. A separate exploratory test reproduces
 long-box focus jumps, including 900/1500-position cases. Disabling only the outer
-viewer's automatic focus reveal stabilizes initial clicks; final repaired results
-are recorded separately once all assertions pass.
+viewer's automatic focus reveal stabilizes initial clicks. The repair disables only that focus behavior; native caret requests
+remain enabled. The final regression passes 195 assertions, including keyboard and
+model-driven moves to both ends of the long source. The exact pasted script also
+passes those 195 assertions through the optional local-file route; its story text
+is not committed. [verification.json](verification.json) records the fresh 13-group /
+3,266-assertion focused run and its validation boundaries.
 
 Native trackpad interaction and real-ROM UI confirmation remain user checks.

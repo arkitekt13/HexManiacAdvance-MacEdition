@@ -1,0 +1,103 @@
+{
+  "procedure": "Rebuild and execute the 13 listed regression DLLs; rerun ScriptScrollStability after adding offscreen model-caret coverage.",
+  "groups": 13,
+  "assertions": 3266,
+  "failures": 0,
+  "skippedGroups": 0,
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "results": [
+    {
+      "group": "ScriptScrollStability",
+      "assertions": 195,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "EditorScrollbars",
+      "assertions": 78,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptMapReference",
+      "assertions": 63,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptMapNavigation",
+      "assertions": 41,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptWidthUpdates",
+      "assertions": 448,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptEditorLayout",
+      "assertions": 102,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptAssistance",
+      "assertions": 364,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptAssistanceEntry",
+      "assertions": 789,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ClipboardRouting",
+      "assertions": 78,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptWorkflowSafety",
+      "assertions": 598,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "TabViewLifetime",
+      "assertions": 41,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "AutocompleteDismissal",
+      "assertions": 85,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "DialogueScaffolding",
+      "assertions": 384,
+      "failures": 0,
+      "skipped": false
+    }
+  ],
+  "additionalInputRun": {
+    "source": "Exact user-pasted script from an ignored local text file",
+    "assertions": 195,
+    "failures": 0,
+    "romOpened": false,
+    "storyTextCommitted": false
+  },
+  "baseline": "554b16db; first visible click moved outer offset from 55 to 5",
+  "implementation": "Disable only CodeToolMultiTextBox.BringIntoViewOnFocusChange; preserve native caret reveal.",
+  "limits": [
+    "Native trackpad and real-ROM UI confirmation remain user checks.",
+    "No personal ROM or settings opened or modified.",
+    "Full Mac suite and upstream xUnit suite not rerun for this one-setting repair; previous complete Mac run was 71 groups / 21686 assertions before this repair."
+  ]
+}

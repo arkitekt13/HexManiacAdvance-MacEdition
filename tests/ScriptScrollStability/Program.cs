@@ -69,22 +69,29 @@ foreach(var crlf in new[]{false,true})foreach(double size in new[]{14d,20d}){
  var top=presenter.TranslatePoint(new Point(caret.X,caret.Y),window).Value;
  var visible=Area(outer.GetVisualDescendants().OfType<ScrollContentPresenter>().First(),window);
  Check(outer.Offset.Y>offset.Y&&top.Y>=visible.Top-1&&top.Y<visible.Bottom,"Arrow-key navigation still scrolls the caret into view.");
+ // Model-requested caret moves (used by assistance) must also reveal only the caret.
+ models[1].PushCaretUpdate(0);Drain(window);
+ var first=presenter.TextLayout.HitTestTextPosition(input.CaretIndex);var firstPoint=presenter.TranslatePoint(new Point(first.X,first.Y),window).Value;
+ Check(input.CaretIndex==0&&firstPoint.Y>=visible.Top-1&&firstPoint.Y<visible.Bottom,"A model caret move reveals the beginning of a long source block.");
+ models[1].PushCaretUpdate(models[1].Content.Length);Drain(window);
+ var last=presenter.TextLayout.HitTestTextPosition(input.CaretIndex);var lastPoint=presenter.TranslatePoint(new Point(last.X,last.Y),window).Value;
+ Check(input.CaretIndex==models[1].Content.Length&&lastPoint.Y>=visible.Top-1&&lastPoint.Y<visible.Bottom,"Programmatic caret assistance still reveals the destination line.");
  window.KeyTextInput("Z");Drain(window);
  Check(models[1].Content.Contains('Z'),"Typing continues in the clicked script field.");
  window.Content=null;window.Close();
 }
 // Actual selected script tab: focus/caret changes must not flush pending source or touch a ROM.
 using(var fixture=new WorkflowFixture()){
- var source=fixture.View;source.Tools.SelectedIndex=3;fixture.Body.Editor.Content=reported;
- var body=fixture.Body;var bytes=fixture.Model.RawData.ToArray();var metadata=fixture.Metadata();var pending=fixture.Dispatch.Pending;
+ var source=fixture.View;source.Tools.SelectedIndex=3;
  var app=new EditorViewModel(fixture.FileSystem,InstantDispatch.Instance);app.Add(source);app.GotoViewModel.ControlVisible=false;
  var window=new MainWindow{Width=1400,Height=650,Editor=app,FileSystem=fixture.FileSystem};window.Resources["FileSystem"]=fixture.FileSystem;window.Show();Drain(window);
+ var body=fixture.Body;body.Editor.Content=reported;Drain(window);var bytes=fixture.Model.RawData.ToArray();var metadata=fixture.Metadata();var pending=fixture.Dispatch.Pending;
  var tab=window.GetVisualDescendants().OfType<TabView>().Single(t=>ReferenceEquals(t.DataContext,source));var outer=tab.FindControl<ScrollViewer>("CodeToolMultiTextBox");
  var field=tab.GetVisualDescendants().OfType<TextEditor>().Single(t=>ReferenceEquals(t.DataContext,body.Editor));
  // A real header field provides the blur without changing documents or source.
  var blur=tab.FindControl<TextBox>("AnchorTextBox");blur.Focus();Drain(window);outer.Offset=new Vector(0,500);Drain(window);
  StableClick(field,outer,window,"Actual script tab");
- Check(body.Content==reported&&ReferenceEquals(fixture.Body,body)&&fixture.Dispatch.Pending==pending,"Click/focus retains the exact pending script and debounce work.");
+ Check(body.Content==reported&&ReferenceEquals(fixture.Body,body)&&fixture.Dispatch.Pending==pending,$"Click/focus retains the exact pending script and debounce work: source={body.Content==reported}, same={ReferenceEquals(fixture.Body,body)}, timers={fixture.Dispatch.Pending}/{pending}.");
  Check(bytes.SequenceEqual(fixture.Model.RawData)&&metadata.SequenceEqual(fixture.Metadata())&&source.ChangeHistory.IsSaved&&!source.ChangeHistory.Undo.CanExecute(null),"Clicking and scrolling cannot change ROM bytes, metadata or history.");
  window.Editor=null;window.Close();
 }

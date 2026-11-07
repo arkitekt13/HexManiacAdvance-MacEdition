@@ -21,3 +21,6 @@ correction/retry. Blocked child growth forces actual relocation with a deferred
 dialogue resource, preserved gap/neighbor bytes and shared pointer updates.
 Exact Undo/Redo compares ROM bytes and structural metadata, excluding the existing
 FreeSpaceSearch cache hint which ordinary history does not rewind.
+
+The [complete Mac regression result](verification.json) records 80 groups and
+22,417 assertions with zero failures and no skipped groups after both repairs.

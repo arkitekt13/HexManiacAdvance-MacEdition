@@ -3083,3 +3083,12 @@ Validation: The regression fails before repair because successful correction ret
 | tests/ScriptDraftWarning/README.md | 16 | Record the added focus check and updated assertion count. |
 
 Validation: ScriptDraftWarning passes 18 assertions with zero build warnings/errors. Actual source controls accept focus before the invalid draft, and successful correction clears the warning while keeping typing focus in the script source. Existing ownership, unrelated-error, multi-ROM and multi-draft tests continue to pass. No further production adjustment was needed for this edge case; full-suite validation remains in progress.
+
+## 205 — Record full verification of the script-gap and warning repairs
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptGapRoundTrip/verification.json | 1 | Record every assertion count from the complete 80-group Mac regression run after both repairs and recovery-focus coverage. |
+| tests/ScriptGapRoundTrip/README.md | 24 | Link the exact full-suite result alongside the targeted synthetic reproduction. |
+
+Validation: The documented Mac procedure passes 80 groups / 22,417 assertions, with zero failures and zero skipped groups. ScriptGapRoundTrip passes 117 and ScriptDraftWarning passes 18; existing pending-source, compilation/resource failure atomicity, navigation, relocation, history and UI groups also pass. Production implementation is 19216eec with focus-coverage tests at 530de08e; no production code changed during this run. The only build-warning category is the existing MapImageExport NU1900 inability to fetch NuGet vulnerability metadata. The full upstream xUnit suite was not rerun. Existing rejected drafts remain protected rather than silently rewritten, and personal ROM/settings were untouched.

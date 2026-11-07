@@ -3073,3 +3073,13 @@ Validation: The new regression fails against 4efc18ba because the decompiler com
 | tests/ScriptDraftWarning/README.md | 1 | Document resolution rules and synthetic warning ownership coverage. |
 
 Validation: The regression fails before repair because successful correction retains the red persistence banner. ScriptDraftWarning now passes 16 assertions with zero build warnings/errors. Correction or explicit draft discard clears only its own still-displayed warning; another rejected edit, unresolved draft, newer unrelated/direct error or another ROM's identical-address warning stays visible. Exact model bytes/structural metadata are preserved in rejection/correction/discard cases. Existing log messages remain available, file/game behavior is unchanged and personal ROM/settings were untouched. Full-suite validation follows separately.
+
+## 204 — Verify warning recovery preserves script typing focus
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptDraftWarning/Program.cs | 46 | Exercise rejected-source warning recovery in the actual headless MainWindow and verify source focus survives resolution in Hex View. |
+| tests/ScriptDraftWarning/ScriptDraftWarning.csproj | 4 | Use the existing Avalonia.Headless test dependency for the real-control recovery check. |
+| tests/ScriptDraftWarning/README.md | 16 | Record the added focus check and updated assertion count. |
+
+Validation: ScriptDraftWarning passes 18 assertions with zero build warnings/errors. Actual source controls accept focus before the invalid draft, and successful correction clears the warning while keeping typing focus in the script source. Existing ownership, unrelated-error, multi-ROM and multi-draft tests continue to pass. No further production adjustment was needed for this edge case; full-suite validation remains in progress.

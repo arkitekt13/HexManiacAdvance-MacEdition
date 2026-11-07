@@ -13,8 +13,9 @@ The shell clears the banner only if that exact warning is still displayed and
 belongs to the same viewport. Subscriptions follow tab listener add/remove.
 Any direct error assignment relinquishes the old warning's ownership.
 
-16 assertions cover correction, explicit Undo draft discard, exact preserved
+18 assertions cover correction, explicit Undo draft discard, exact preserved
 model state, another failed edit, newer unrelated errors, direct error assignment,
 two ROMs with identical warning text/address, and multiple rejected script bodies.
-The warning remains while any draft in its owning ROM is unresolved. Error logs
+A real headless MainWindow in Hex View also verifies that resolving the banner
+keeps typing focus in the script source. The warning remains while any draft in its owning ROM is unresolved. Error logs
 remain available; unrelated banners are not cleared.

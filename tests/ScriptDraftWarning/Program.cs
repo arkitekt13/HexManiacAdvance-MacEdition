@@ -1,6 +1,10 @@
+using Avalonia;using Avalonia.Controls;using Avalonia.Headless;using Avalonia.Threading;using Avalonia.VisualTree;
+using HavenSoft.HexManiac.AvaloniaUI;using HavenSoft.HexManiac.AvaloniaUI.Controls;using HavenSoft.HexManiac.AvaloniaUI.Windows;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.ViewModels;
 using HavenSoft.HexManiac.Review;
+AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia().UseHeadless(new AvaloniaHeadlessPlatformOptions{UseHeadlessDrawing=false}).WithInterFont().SetupWithoutStarting();
+SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationContext());
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 int checks=0;void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
 foreach(bool discard in new[]{false,true}){
@@ -33,5 +37,14 @@ using(var f=new WorkflowFixture()){
  f.Edit(other+"\nnot_a_command");f.View.Save.Execute(f.FileSystem);Check(f.Tool.HasUncompiledScriptChanges&&editor.ShowError,"Multiple rejected script bodies block persistence.");
  f.Edit(other);Check(f.Tool.HasUncompiledScriptChanges&&editor.ShowError,"Fixing only one draft cannot clear the unresolved warning.");
  f.View.Goto.Execute(WorkflowFixture.Root);f.Dispatch.Flush();f.Edit(root);Check(!f.Tool.HasUncompiledScriptChanges&&!editor.ShowError,"Fixing the last draft clears the persistence warning.");
+}
+using(var f=new WorkflowFixture()){
+ Application.Current.Resources["FileSystem"]=f.FileSystem;var editor=new EditorViewModel(f.FileSystem,InstantDispatch.Instance);editor.Add(f.View);App.UpdateThemeDictionary(Application.Current.Resources,editor.Theme);
+ var window=new MainWindow{Width=1200,Height=800,FileSystem=f.FileSystem,Editor=editor};window.Resources["FileSystem"]=f.FileSystem;window.Show();editor.GotoViewModel.ControlVisible=false;
+ void Pump(){Dispatcher.UIThread.RunJobs();window.UpdateLayout();AvaloniaHeadlessPlatform.ForceRenderTimerTick();Dispatcher.UIThread.RunJobs();}
+ Pump();var input=window.GetVisualDescendants().OfType<TextEditor>().Single(t=>ReferenceEquals(t.DataContext,f.Body.Editor)).EditBox;
+ Check(input.Focus(),"Source field must accept focus before warning recovery.");var source=f.Body.Content;f.Edit(source+"\nnot_a_command");f.View.Save.Execute(f.FileSystem);Pump();
+ f.Edit(source);Pump();Check(!editor.ShowError&&input.IsFocused,"Resolving the warning must preserve typing focus in the script editor, including Hex View.");
+ window.Editor=null;window.Close();
 }
 Console.WriteLine($"CHECKS_PASSED:{checks}");

@@ -1,0 +1,9 @@
+{
+  "checkpoint": "ccb765fad5e34112a196e692d035500fc61c8668",
+  "productionChangesAtReproduction": false,
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "result": "Failed first non-overlap assertion",
+  "failure": "Script editor: content viewport must not extend beneath a scrollbar.",
+  "scope": "Headless Avalonia/Skia geometry; no ROM or user settings"
+}

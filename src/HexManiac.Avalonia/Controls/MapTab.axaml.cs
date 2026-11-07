@@ -88,7 +88,7 @@ public partial class MapTab : UserControl {
 
    private void SignpostScriptClick(object sender, RoutedEventArgs e) {
       if (sender is Control { DataContext: SignpostEventViewModel signpost } && signpost.ShowPointer && signpost.CanGotoScript)
-         QueueScriptSourceFocus(signpost.Pointer, selectAll: true);
+         QueueScriptSourceFocus(signpost.Pointer, selectDialogue: true);
    }
 
    private void EventScriptClick(object sender, RoutedEventArgs e) {
@@ -101,7 +101,7 @@ public partial class MapTab : UserControl {
       else if (sender is Control { DataContext: MapSubScriptViewModel child }) QueueScriptSourceFocus(child.ScriptAddress);
    }
 
-   private void QueueScriptSourceFocus(int address, bool selectAll = false) {
+   private void QueueScriptSourceFocus(int address, bool selectDialogue = false) {
       var model = ViewModel?.ViewPort.Model;
       if (model == null || TopLevel.GetTopLevel(this) is not MainWindow window) return;
       // Keep bound commands and their CanExecute behavior. Click captures the host before
@@ -113,10 +113,39 @@ public partial class MapTab : UserControl {
              selected.Tools.SelectedTool is not CodeTool { Mode: CodeMode.Script } || !selected.Tools.CodeTool.Contents.Any(body => body.Address == address)) return;
          var tab = window.GetVisualDescendants().OfType<TabView>()
             .FirstOrDefault(tab => ReferenceEquals(tab.DataContext, selected) && tab.IsEffectivelyVisible);
-         var input = tab?.GetVisualDescendants().OfType<TextEditor>()
-            .FirstOrDefault(field => field.Tag is CodeBody body && body.Address == address && field.IsEffectivelyVisible)?.EditBox;
-         if (input?.Focus() == true && selectAll) input.SelectAll();
+         var field = tab?.GetVisualDescendants().OfType<TextEditor>()
+            .FirstOrDefault(field => field.Tag is CodeBody body && body.Address == address && field.IsEffectivelyVisible);
+         var input = field?.EditBox;
+         if (input?.Focus() != true || !selectDialogue) return;
+         SelectSignpostDialogue(input, (CodeBody)field.Tag);
       }, DispatcherPriority.Background);
+   }
+
+   private static void SelectSignpostDialogue(TextBox input, CodeBody body) {
+      // Decompilation records stream types, including loadpointer's generic pointer.
+      // Select only the first text stream; movement/item braces and commands stay intact.
+      var text = input.Text ?? string.Empty;
+      var offset = 0;
+      var stream = -1;
+      var start = -1;
+      foreach (var line in text.Split('\n')) {
+         var trimmed = line.Trim();
+         if (trimmed == "{") {
+            stream++;
+            if (body.StreamTypes != null && stream < body.StreamTypes.Count &&
+                body.StreamTypes[stream] == HavenSoft.HexManiac.Core.Models.Code.ExpectedPointerType.Text)
+               start = Math.Min(text.Length, offset + line.Length + 1);
+         } else if (trimmed == "}" && start >= 0) {
+            var end = offset;
+            if (end > start && text[end - 1] == '\n') end--;
+            if (end > start && text[end - 1] == '\r') end--;
+            input.SelectionStart = start;
+            input.SelectionEnd = end;
+            return;
+         }
+         offset += line.Length + 1;
+      }
+      input.SelectionStart = input.SelectionEnd = input.CaretIndex;
    }
 
    private void BuildKeyBindings() {

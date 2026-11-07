@@ -29,6 +29,7 @@ void Check(bool ok,string message) { checks++;if(!ok)throw new InvalidOperationE
 var fixture=new SyntheticMapFixture(24,20,withScriptEvent:true,withNpcText:true,withSignpost:true);var model=fixture.Model;
 model.SetList(new NoDataChangeDeltaModel(),"MapAttributeBehaviors","Normal");
 model.SetList(new NoDataChangeDeltaModel(),"FacingOptions","NoMovement");
+model.SetList(new NoDataChangeDeltaModel(),"movementtypes","walk_up");
 var token=new ModelDelta();
 foreach(var at in new[]{0x104,0x108,0x10C})model.WritePointer(token,at,0x110);
 var format=model.GetNextRun(0x100).FormatString;
@@ -66,14 +67,34 @@ Check(editor.SelectedTab is ViewPort,"Signpost arrow opens a script tab.");var s
 var tab=window.GetVisualDescendants().OfType<TabView>().Single(t=>ReferenceEquals(t.DataContext,selected));
 var input=tab.GetVisualDescendants().OfType<TextEditor>().First(e=>ReferenceEquals(e.DataContext,selected.Tools.CodeTool.Contents[0].Editor)).EditBox;
 Check(selected.Tools.CodeTool.Contents[0].Address==0x18000&&input.IsFocused,$"The script address arrow puts typing focus directly into its script source: address={selected.Tools.CodeTool.Contents[0].Address:X}, focused={input.IsFocused}, mode={selected.Tools.CodeTool.Mode}, tool={selected.Tools.SelectedIndex}, goto={editor.GotoViewModel.ControlVisible}.");
-Check(input.SelectedText==input.Text,"First arrow entry selects all source for replacement.");
+Check(input.SelectedText=="Discovered NPC text.","First arrow entry selects only message contents, excluding commands and braces.");
 Check(bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata()),"Opening and focusing sign source cannot edit ROM bytes or metadata.");
 input.CaretIndex=3;input.SelectionStart=2;input.SelectionEnd=3;
 editor.SelectedIndex=Enumerable.Range(0,editor.Count).Single(i=>ReferenceEquals(editor[i],mapper));Layout();view=window.GetVisualDescendants().OfType<MapTab>().Single();mapper.SelectedEvent=mapper.PrimaryMap.EventGroup.Signposts.Single();Layout();sign=(SignpostEventViewModel)mapper.SelectedEvent;
 arrow=view.GetVisualDescendants().OfType<AngleButton>().Single(b=>ReferenceEquals(b.DataContext,sign)&&b.Name=="SignpostScriptArrow");
 Click();tab=window.GetVisualDescendants().OfType<TabView>().Single(t=>ReferenceEquals(t.DataContext,editor.SelectedTab));input=tab.GetVisualDescendants().OfType<TextEditor>().First(e=>ReferenceEquals(e.DataContext,selected.Tools.CodeTool.Contents[0].Editor)).EditBox;
 Check(ReferenceEquals(editor.SelectedTab,selected)&&input.IsFocused,"Opening the same sign again reuses and focuses its existing script tab.");
-Check(input.SelectedText==input.Text,"Entering by the signpost arrow selects all current script source for replacement.");
+Check(input.SelectedText=="Discovered NPC text.","Entering again must select only the dialogue, preserving surrounding script.");
 var point=input.TranslatePoint(new Avalonia.Point(30,12),window).Value;window.MouseMove(point);window.MouseDown(point,MouseButton.Left);window.MouseUp(point,MouseButton.Left);Layout();
 Check(input.IsFocused&&input.SelectionStart==input.SelectionEnd,"Clicking inside the source clears select-all and places the caret normally.");
+// A movement stream before dialogue must never become the replacement selection.
+var body=selected.Tools.CodeTool.Contents[0];
+body.Content=body.Content.Replace("  loadpointer", "  move.player <auto>\n{\nwalk_up\n}\n  loadpointer").Replace("Discovered NPC text.","First dialogue line.\nSecond dialogue line.");
+for(int i=0;i<5;i++)Layout();
+Check(!body.HasError,$"Synthetic movement and multiline dialogue compile: {body.ErrorText}.");
+void Reenter(){
+ editor.SelectedIndex=Enumerable.Range(0,editor.Count).Single(i=>ReferenceEquals(editor[i],mapper));Layout();
+ view=window.GetVisualDescendants().OfType<MapTab>().Single();mapper.SelectedEvent=mapper.PrimaryMap.EventGroup.Signposts.Single();Layout();
+ sign=(SignpostEventViewModel)mapper.SelectedEvent;
+ arrow=view.GetVisualDescendants().OfType<AngleButton>().Single(b=>ReferenceEquals(b.DataContext,sign)&&b.Name=="SignpostScriptArrow");Click();
+ tab=window.GetVisualDescendants().OfType<TabView>().Single(t=>ReferenceEquals(t.DataContext,editor.SelectedTab));
+ input=tab.GetVisualDescendants().OfType<TextEditor>().First(e=>ReferenceEquals(e.DataContext,selected.Tools.CodeTool.Contents[0].Editor)).EditBox;
+}
+bytes=model.RawData.ToArray();metadata=Metadata();Reenter();
+Check(input.IsFocused&&input.SelectedText=="First dialogue line.\nSecond dialogue line.","Only multiline dialogue is selected after a preceding movement block.");
+Check(input.Text.Contains("walk_up")&&bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata()),"Dialogue selection preserves movement, commands, ROM and metadata.");
+window.KeyTextInput("Replacement sign text.");for(int i=0;i<5;i++)Layout();
+Check(input.Text.Contains("Replacement sign text.")&&!input.Text.Contains("First dialogue line.")&&input.Text.Contains("walk_up")&&input.Text.Contains("loadpointer")&&!selected.Tools.CodeTool.Contents[0].HasError,"Immediate typing replaces only dialogue and leaves a compilable surrounding script.");
+body=selected.Tools.CodeTool.Contents[0];body.Content="section0:\n  end\n";for(int i=0;i<5;i++)Layout();Reenter();
+Check(input.IsFocused&&input.SelectionStart==input.SelectionEnd,"A sign script without dialogue is focused without selecting its commands.");
 window.Editor=null;window.Close();Console.WriteLine($"CHECKS_PASSED:{checks}");

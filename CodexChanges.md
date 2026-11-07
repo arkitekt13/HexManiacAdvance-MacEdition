@@ -3030,3 +3030,13 @@ Validation: BlockPanelLayout passes 162 assertions across 256/320/512px widths a
 | tests/GotoFocus/README.md | 20 | Record the reproduced presentation-timing gap and native-confirmation boundary. |
 
 Validation: The attached-but-hidden reproduction fails against the previous handler and passes after repair; GotoFocus now passes 17 assertions with zero build warnings/errors. Existing Command-G input, immediate typing, query replacement, Escape, delayed attachment and stale-request cancellation checks pass alongside the new delayed-visibility case. Pending event subscriptions end on successful focus, close or editor replacement, without timers. ROM/history remain unchanged. Headless timing simulation does not establish the exact Cocoa event sequence; native confirmation of the reported shortcut remains useful.
+
+## 200 — Select signpost dialogue instead of the entire script
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 124 | Use decompiled stream classifications to select only the first text block's contents after a signpost-arrow navigation. |
+| tests/SignpostScriptNavigation/Program.cs | 70 | Verify message-only selection, multiline text after movement, immediate replacement typing, normal click-to-deselect and no selection for scripts without dialogue. |
+| tests/SignpostScriptNavigation/README.md | 1 | Document dialogue-only arrow behavior and its separate navigation safeguards. |
+
+Validation: The message-only assertion fails against the previous explicit SelectAll handler. SignpostScriptNavigation now passes 14 assertions with zero build warnings/errors; actual pointer navigation selects text without commands/braces, typing replaces only the message and leaves the surrounding movement/script compilable, and normal clicking deselects. No-dialogue scripts receive focus without command selection. Pure navigation/selection preserves ROM bytes and metadata. Fresh ScriptArrowFocus (26) and ScriptMapNavigation (76) runs also pass, preserving other-arrow behavior and Map View pending-source/read-only protections; GotoFocus separately passes 17. Only the signpost arrow requests dialogue selection. The complete suite was not rerun for these focused UI corrections; personal ROM/settings were untouched.

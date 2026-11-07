@@ -285,7 +285,7 @@
                         <local:AngleTextBox Grid.Row="8" Grid.Column="1" Margin="0,2,21,2" Direction="Out"
                                             Classes.scriptError="{Binding HasScriptAddressError}" ToolTip.Tip="{Binding ScriptAddressError}"
                                             TextBinding="{Binding ScriptAddressText, Mode=TwoWay}" />
-                        <local:AngleButton Grid.Row="8" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Command="{res:MethodCommand GotoScript}"
+                        <local:AngleButton Grid.Row="8" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Command="{res:MethodCommand GotoScript}" Click="EventScriptClick"
                               Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                            <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
                         </local:AngleButton>
@@ -354,7 +354,7 @@
                                  <StackPanel>
                                     <TextBlock Margin="10,10" TextWrapping="Wrap" FontStyle="Italic" Foreground="{DynamicResource Secondary}"
                                                Text="(Rematch script logic and text must be edited with the script editor.)" />
-                                    <local:AngleButton Command="{res:MethodCommand GotoScript}" Direction="Right" HorizontalAlignment="Right" Margin="0,-20,2,2"
+                                    <local:AngleButton Command="{res:MethodCommand GotoScript}" Click="EventScriptClick" Direction="Right" HorizontalAlignment="Right" Margin="0,-20,2,2"
                                        Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                                        <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
                                     </local:AngleButton>
@@ -520,7 +520,7 @@
                                  <StackPanel>
                                     <TextBlock Margin="30,20,30,0" TextWrapping="Wrap" FontStyle="Italic" Foreground="{DynamicResource Secondary}"
                                                Text="(Elaborate scripts must be edited with the script editor. Only partial editing is available here.)" />
-                                    <local:AngleButton Command="{res:MethodCommand GotoScript}" Direction="Right" HorizontalAlignment="Right" Margin="0,0,2,2"
+                                    <local:AngleButton Command="{res:MethodCommand GotoScript}" Click="EventScriptClick" Direction="Right" HorizontalAlignment="Right" Margin="0,0,2,2"
                                        Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                                        <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
                                     </local:AngleButton>
@@ -607,7 +607,7 @@
                         <local:AngleTextBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Top" Margin="0,2,21,2" Direction="Out"
                                             Classes.scriptError="{Binding HasScriptAddressError}" ToolTip.Tip="{Binding ScriptAddressError}"
                                             TextBinding="{Binding ScriptAddressText, Mode=TwoWay}" />
-                        <local:AngleButton Command="{res:MethodCommand GotoScript}" Direction="Right" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Right"
+                        <local:AngleButton Command="{res:MethodCommand GotoScript}" Click="EventScriptClick" Direction="Right" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Right"
                               Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                            <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
                         </local:AngleButton>
@@ -638,7 +638,7 @@
                         <local:AngleTextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Margin="0,2,24,2" Direction="Out"
                            Classes.scriptError="{Binding HasScriptAddressError}" ToolTip.Tip="{Binding ScriptAddressError}"
                            TextBinding="{Binding PointerText, Mode=TwoWay}" IsVisible="{Binding ShowPointer}" />
-                        <local:AngleButton Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Name="SignpostScriptArrow" Click="SignpostScriptClick" IsEnabled="{Binding CanGotoScript}"
+                        <local:AngleButton Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Name="SignpostScriptArrow" Command="{res:MethodCommand GotoScript}" Click="SignpostScriptClick" IsEnabled="{Binding CanGotoScript}"
                            IsVisible="{Binding ShowPointer}"
                            Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                            <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
@@ -994,7 +994,7 @@
                               <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18" Width="24">
                                  <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="8" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                               </local:AngleButton>
-                              <local:AngleButton Command="{res:MethodCommand Goto}" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
+                              <local:AngleButton Command="{res:MethodCommand Goto}" Click="HeaderScriptClick" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
                                  <Path Fill="{DynamicResource Secondary}" Stretch="Fill" Data="{res:Icon RightAngleArrow}" Width="10" Height="12" />
                               </local:AngleButton>
                               <local:AngleComboBox SelectedIndex="{Binding ScriptTypeIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}" ItemsSource="{Binding ScriptOptions}" Direction="Out" DockPanel.Dock="Left" Width="140" Height="18" />
@@ -1008,7 +1008,7 @@
                                           <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18" Width="24">
                                              <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="8" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                           </local:AngleButton>
-                                          <local:AngleButton Command="{res:MethodCommand Goto}" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
+                                          <local:AngleButton Command="{res:MethodCommand Goto}" Click="HeaderScriptClick" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
                                              <Path Fill="{DynamicResource Secondary}" Stretch="Fill" Data="{res:Icon RightAngleArrow}" Width="10" Height="12" />
                                           </local:AngleButton>
                                           <local:AngleBorder Direction="Left" Content="Address:" Padding="2,0" />

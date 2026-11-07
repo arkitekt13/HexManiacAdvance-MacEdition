@@ -87,22 +87,35 @@ public partial class MapTab : UserControl {
    }
 
    private void SignpostScriptClick(object sender, RoutedEventArgs e) {
-      if (sender is not Control { DataContext: SignpostEventViewModel signpost } || !signpost.ShowPointer ||
-          !signpost.CanGotoScript || ViewModel?.ViewPort is not ViewPort source || TopLevel.GetTopLevel(this) is not MainWindow window) return;
-      int address = signpost.Pointer;
-      signpost.GotoScript();
-      // Capture the host before navigation detaches this map. Select source only after
-      // the destination tab is realized, and never steal focus from another destination.
+      if (sender is Control { DataContext: SignpostEventViewModel signpost } && signpost.ShowPointer && signpost.CanGotoScript)
+         QueueScriptSourceFocus(signpost.Pointer, selectAll: true);
+   }
+
+   private void EventScriptClick(object sender, RoutedEventArgs e) {
+      if (sender is Control { DataContext: ObjectEventViewModel obj }) QueueScriptSourceFocus(obj.ScriptAddress);
+      else if (sender is Control { DataContext: ScriptEventViewModel script }) QueueScriptSourceFocus(script.ScriptAddress);
+   }
+
+   private void HeaderScriptClick(object sender, RoutedEventArgs e) {
+      if (sender is Control { DataContext: MapScriptViewModel script }) QueueScriptSourceFocus(script.ScriptAddress);
+      else if (sender is Control { DataContext: MapSubScriptViewModel child }) QueueScriptSourceFocus(child.ScriptAddress);
+   }
+
+   private void QueueScriptSourceFocus(int address, bool selectAll = false) {
+      var model = ViewModel?.ViewPort.Model;
+      if (model == null || TopLevel.GetTopLevel(this) is not MainWindow window) return;
+      // Keep bound commands and their CanExecute behavior. Click captures the host before
+      // navigation detaches the map; focus only the source actually opened by that command.
       Dispatcher.UIThread.Post(() => {
          var editor = window.Editor;
-         if (editor?.SelectedTab is not ViewPort selected || !ReferenceEquals(selected.Model, source.Model) ||
+         if (editor?.SelectedTab is not ViewPort selected || !ReferenceEquals(selected.Model, model) ||
              editor.GotoViewModel.ControlVisible || editor.FindControlVisible || editor.HexConverterVisible || editor.ShowError ||
-             selected.Tools.CodeTool.Mode != CodeMode.Script || !selected.Tools.CodeTool.Contents.Any(body => body.Address == address)) return;
+             selected.Tools.SelectedTool is not CodeTool { Mode: CodeMode.Script } || !selected.Tools.CodeTool.Contents.Any(body => body.Address == address)) return;
          var tab = window.GetVisualDescendants().OfType<TabView>()
             .FirstOrDefault(tab => ReferenceEquals(tab.DataContext, selected) && tab.IsEffectivelyVisible);
          var input = tab?.GetVisualDescendants().OfType<TextEditor>()
             .FirstOrDefault(field => field.Tag is CodeBody body && body.Address == address && field.IsEffectivelyVisible)?.EditBox;
-         if (input?.Focus() == true) input.SelectAll();
+         if (input?.Focus() == true && selectAll) input.SelectAll();
       }, DispatcherPriority.Background);
    }
 

@@ -10,3 +10,8 @@ and disable/re-enable a green arrow as its address becomes invalid/valid.
 Build the project and run its DLL. Signpost's intentionally different select-all
 arrow behavior remains covered by SignpostScriptNavigation; Map View does not use
 these arrow callbacks. No personal ROM or settings are opened.
+
+The repaired group passes 26 assertions. Commands and CanExecute bindings remain
+unchanged; only a guarded post-command focus request is added. Green events now
+publish CanGotoScript and its dependent notifications. Signpost select-all still
+passes its separate nine-assertion group.

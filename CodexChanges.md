@@ -2923,3 +2923,13 @@ Validation: MapHeaderScripts passes 69 assertions with zero build warnings/error
 | tests/MapRendering/SyntheticMapFixture.cs | 73 | Add optional synthetic regular and conditional header scripts for the navigation audit. |
 
 Validation: On 8c95a0e5 the real-pointer regression builds with zero warnings/errors and fails on the first object-arrow source-focus assertion after opening the intended address. This is the same missing source-focus behavior previously fixed only for signposts; it does not indicate a wrong script address or modified ROM. Further assertions preserve table-parent navigation and check green-event address validity. The synthetic fixture option is off by default. Evidence precedes repair; no personal ROM/settings are used.
+
+## 189 — Focus source consistently after map script arrows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 285 | Queue source focus for object, green-event and map-header arrows while preserving their existing bound commands and CanExecute rules. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 89 | Share guarded post-navigation source lookup, selecting all only for the explicitly requested signpost arrow. |
+| src/HexManiac.Core/ViewModels/Map/IEventViewModel.cs | 1773 | Expose and notify valid-address navigation state for green events and reject invalid direct navigation requests. |
+
+Validation: ScriptArrowFocus passes 26 assertions and SignpostScriptNavigation passes nine, with zero build warnings/errors. Actual pointer input opens the intended object, green, regular-header and conditional-child source and focuses its text box without selecting all; conditional parent arrows continue to open their tables. Signpost arrows retain select-all and ordinary click-to-deselect. Green-event arrows disable/re-enable after null, out-of-ROM and corrected assignments, including programmatic updates. The shared callback checks current model, selected tool/address, realized visible controls and open overlays before focusing. Existing MethodCommand bindings remain in place, including object-arrow enablement behavior. Map View uses its separate navigation path. No personal ROM/settings, parsing, compiler, relocation or history algorithm changed.

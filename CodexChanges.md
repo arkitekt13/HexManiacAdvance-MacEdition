@@ -2885,3 +2885,12 @@ Validation: ScriptMapNavigation passes 76 assertions with zero build warnings/er
 | tests/SignpostScriptGrowth/README.md | 1 | Document the synthetic relocation reproduction and intended history/resource safety coverage. |
 
 Validation: On 7ef1738c the new regression builds with zero warnings/errors and fails at the first signpost pointer assertion. A separate isolated probe shows the formatted root moving from 018800 to 01C000 with zero ordinary pointer sources, while arg remains 018800 and compilation reports success; old script bytes are cleared. The normal template deliberately keeps arg as a raw union, so generic pointer-source relocation does not know that reference exists. No personal ROM/settings are opened. This evidence commit precedes the targeted repair.
+
+## 185 — Keep signposts linked when an XSE script entry relocates
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Tools/CodeTool.cs | 506 | Retarget matching script-kind signpost args inside the existing compile transaction only when an XSE entry actually moves. |
+| tests/SignpostScriptGrowth/Program.cs | 30 | Force a second-pass compiler failure after pointer retargeting and require exact rollback, retained diagnostics and successful correction/retry. |
+
+Validation: SignpostScriptGrowth passes 48 assertions with zero build warnings/errors. All five script signpost kinds follow a moved entry; pointer-shaped hidden-item/base/unsupported payloads remain unchanged, and ordinary shared object pointers retain their existing relocation behavior. Exact one-step Undo/Redo restores bytes, metadata and saved state. An injected second-pass error confirms signpost args have already been updated before failure, then verifies full byte/metadata/allocation rollback, no model-history entry, retained rejected source/diagnostics and successful retry. Separate dialogue growth moves its text resource while keeping the script entry stable and remains exactly undoable. The scan uses read-only map accessors, runs only on an actual XSE entry move, does not convert arg to tracked-pointer metadata, and writes through the existing attempted change. Parsing, numeric rules, resource/relocation allocation and history algorithms are unchanged; this repairs the additional raw-union references those algorithms cannot otherwise see. No personal ROM/settings are used. Complete cross-feature verification follows the remaining audit work.

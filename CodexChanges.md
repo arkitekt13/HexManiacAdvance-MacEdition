@@ -2714,3 +2714,13 @@ Validation: On ccb765fa, the group builds without warnings/errors and fails at t
 | src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs | 257 | Clip syntax paint to the actual text viewport after scroll, viewport and queued width updates without changing source or glyph layout. |
 
 Validation: The new EditorScrollbars group passes 78 assertions, including both scrollbar directions in the real script editor, exact syntax viewport clipping, stable hover/resize geometry, unchanged source/selection and clickable right-edge buttons in seven production panel viewer instances at 220/420 widths. The baseline fails its first non-overlap assertion before the repair. Fresh `scripts/verify-mac.sh --no-restore` on the transferred Apple Silicon Mac passes **68 groups / 20,805 assertions / zero failures / zero skipped groups**; exact counts and any build warnings are preserved in `tests/EditorScrollbars/verification.json`. Existing map selection/tiling/zoom, event editing/navigation, clipboard, autocomplete, diagnostics, script layout/width, lifecycle retention, pending/rejected source, Save and Undo/Redo protections all pass. The patch uses existing template properties and clipping only: no scrollbar input handlers, compilation/numeric/resource/history algorithms, Map View interaction code or personal ROM/settings changed. Native trackpad feel and real-ROM panel appearance await the user's relaunch. Evidence and implementation remain separate commits on the unmerged feature branch.
+
+## 169 — Reproduce the stale disabled object script arrow
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ObjectScriptNavigation/Program.cs | 1 | Exercise the actual object arrow and command through pointer/text changes, correction, script creation, NPC templates and model Undo/Redo. |
+| tests/ObjectScriptNavigation/baseline.json | 1 | Record the existing button remaining disabled after a valid address is assigned on checkpoint 260e078d. |
+| tests/ObjectScriptNavigation/README.md | 1 | Distinguish captured navigation-target checks from complete tab/focus behavior and preserve existing history selection semantics. |
+
+Validation: The regression builds without warnings/errors and fails on the first null-to-valid assignment's actual enabled-state check before production edits. A separate diagnostic probe finds CanExecute=true while the visible arrow remains disabled, pointer clicks deliver no navigation, and reselecting the object restores both enabled state and click delivery. Missing CanGotoScript notifications are in older object setters and are independent of the scrollbar layout repair. No production code or personal ROM/settings changes are included in this evidence commit.

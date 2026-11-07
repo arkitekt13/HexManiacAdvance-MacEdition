@@ -185,3 +185,6 @@ documents remain open, hidden-panel observers and subscription restoration witho
 
 [EditorScrollbars](EditorScrollbars/README.md) checks reserved scrollbar gutters, hover-stable
 layout, right-edge button clicks, script paint clipping, resizing and retained source/selection.
+
+[ObjectScriptNavigation](ObjectScriptNavigation/README.md) protects the actual object script
+arrow after pointer/text assignment, clearing, correction, creation, templates and Undo/Redo.

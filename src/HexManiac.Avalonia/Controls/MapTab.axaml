@@ -105,31 +105,34 @@
             </Button>
          </Grid>
          <Grid Width="{Binding Blocks.ScaledWidth}" MinHeight="100" DockPanel.Dock="Top">
-            <!-- The shorthand "Auto,75" cannot carry MinHeight, and without it row 0 collapses to
-                 the size of the block preview and row 1's bottom-aligned content overlaps it. -->
+            <!-- Keep each setting in its own measured row: font size and panel width vary. -->
             <Grid.RowDefinitions>
                <RowDefinition Height="Auto" MinHeight="112"/>
-               <RowDefinition Height="75"/>
+               <RowDefinition Height="Auto"/>
+               <RowDefinition Height="Auto"/>
+               <RowDefinition Height="Auto"/>
+               <RowDefinition Height="Auto"/>
+               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <CheckBox HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,10,10,35" Grid.Row="1"
-                  Content="Automatic Movement Permission" IsChecked="{Binding AutoUpdateCollision, Mode=TwoWay}"
-                  >
+            <CheckBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="5,4,8,4" Grid.Row="2"
+                  IsChecked="{Binding AutoUpdateCollision, Mode=TwoWay}">
+               <TextBlock Text="Automatic Movement Permission" TextWrapping="Wrap"/>
                <ToolTip.Tip>
                   <TextBlock>Update Movement Permission Selection based on Most Common Permission for selected block.<LineBreak/>For example, if you select a tree, it'll set the movement permission based on other trees.</TextBlock>
                </ToolTip.Tip>
             </CheckBox>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="0,10" Grid.Row="1">
+            <Grid ColumnDefinitions="Auto,*" Margin="4,2,8,4" Grid.Row="3">
                <local:AngleBorder Direction="Left" VerticalAlignment="Stretch">
                   <TextBlock Text="Movement:" Margin="4,0" Height="30"/>
                </local:AngleBorder>
-               <local:AngleComboBox Direction="Out" Width="135" Height="20"
+               <local:AngleComboBox Grid.Column="1" Direction="Out" MinWidth="50" Height="20" VerticalAlignment="Center"
                   ItemsSource="{Binding PrimaryMap.BlockEditor.MovementPermissions}" SelectedIndex="{Binding CollisionIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}" />
+            </Grid>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8,2,8,4" Grid.Row="4" IsVisible="{Binding BlockEditorVisible}">
+               <local:AngleBorder Direction="Out" Content="Block ID" />
+               <TextBlock Text="{Binding DrawBlockIndex}" VerticalAlignment="Center" Margin="8,0,0,0" />
             </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,12" Grid.Row="1" IsVisible="{Binding BlockEditorVisible}">
-               <local:AngleBorder Direction="Out" VerticalAlignment="Stretch" Content="Block ID" />
-               <TextBlock Text="{Binding DrawBlockIndex}" HorizontalAlignment="Center" Margin="0,5,0,0" />
-            </StackPanel>
-            <Decorator Grid.Row="1" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,30,55" IsVisible="{Binding BlockEditorVisible}">
+            <Decorator Grid.Row="1" Height="20" HorizontalAlignment="Right" Margin="8,4" IsVisible="{Binding BlockEditorVisible}">
                <local:AngleButton DataContext="{Binding PrimaryMap.BlockEditor}" Content="Edit Block" x:Name="EditBlockButton"
                    Direction="Right" Padding="2,0" Command="{res:MethodCommand ToggleShowTiles}" />
             </Decorator>
@@ -154,7 +157,7 @@
             <TextBlock IsVisible="{Binding IsSingleBlock}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top">
                <Run Text="Usage Count:" /><Run Text=" " /><Run Text="{Binding BlockUsageCount, Mode=OneWay}" />
             </TextBlock>
-            <CheckBox IsChecked="{Binding Use9Grid, Mode=TwoWay}" Content="Draw 9-Grid" VerticalAlignment="Top" Grid.Row="1" HorizontalAlignment="Center"
+            <CheckBox IsChecked="{Binding Use9Grid, Mode=TwoWay}" Content="Draw 9-Grid" VerticalAlignment="Top" Grid.Row="5" HorizontalAlignment="Center"
                       IsVisible="{Binding IsValid9GridSelection}"
                       ToolTip.Tip="Draw one of the selected 9 blocks based on a grid." />
          </Grid>

@@ -2829,3 +2829,12 @@ Validation: ScriptMapNavigation passes 71 assertions, up from 41; all five scrip
 | tests/ScriptMapNavigation/Program.cs | 153 | Verify Map View signpost navigation does not automatically select all source. |
 
 Validation: SignpostScriptNavigation passes nine assertions with zero build warnings/errors; actual pointer input focuses the script and selects its contents on first and repeated arrow entry, while a normal source click clears the selection for incremental editing. ScriptMapNavigation passes 72 assertions including the separate Map View behavior. The source lookup targets the requested CodeBody rather than the last-focused address field; delayed focus checks the current model, selected address and overlay state. No personal ROM/settings, compiler, pointer relocation or history rules changed. Cross-feature verification follows after the requested visual fixes.
+
+## 179 — Separate block identity and movement-permission controls
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 106 | Replace the shared fixed-height/margin arrangement with measured rows for Edit Block, permission controls, Block ID and optional nine-grid selection. |
+| tests/BlockPanelLayout/Program.cs | 14 | Verify non-overlap, panel-width containment and working checkbox bindings across six width/font combinations. |
+
+Validation: The production controls reproduce the overlap at 256px/14pt: automatic permission occupies (5,139,212,15), crossing Block ID at (191,137,65,18). The repaired layout passes 48 assertions at 256/320/512px and 14/20pt, with zero build warnings/errors. The permission label can wrap and the movement selector uses the available width; existing data bindings and drawing/permission behavior remain unchanged. This regression uses a layout-only model, no ROM. Full cross-feature verification follows after the remaining delete-icon adjustment.

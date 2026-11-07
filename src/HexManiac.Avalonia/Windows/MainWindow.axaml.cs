@@ -661,22 +661,34 @@ public partial class MainWindow : Window {
          bool IsCurrent() => request == gotoFocusRequest && ReferenceEquals(target, editor?.GotoViewModel) && target?.ControlVisible == true;
          if (!IsCurrent()) return;
          var textBox = GotoBox.GetTextBox();
-         if (textBox == null || textBox.IsFocused) return;
+         if (textBox == null) return;
+         void StopWaiting() {
+            LayoutUpdated -= RetryFocus;
+            GotoPanel.PropertyChanged -= VisibilityChanged;
+            textBox.AttachedToVisualTree -= Attached;
+            if (request == gotoFocusRequest) cancelPendingGotoAttachment = null;
+         }
          void FocusText() {
-            if (IsCurrent() && !textBox.IsFocused && textBox.Focus()) textBox.SelectAll();
+            if (!IsCurrent()) { StopWaiting(); return; }
+            if (!textBox.IsEffectivelyVisible || textBox.GetVisualRoot() == null) return;
+            if (textBox.IsFocused || textBox.Focus()) {
+               textBox.SelectAll();
+               StopWaiting();
+            }
          }
-         if (textBox.GetVisualRoot() != null) {
-            FocusText();
-         } else {
-            EventHandler<VisualTreeAttachmentEventArgs> attached = null;
-            attached = (_, _) => {
-               textBox.AttachedToVisualTree -= attached;
-               cancelPendingGotoAttachment = null;
-               Dispatcher.UIThread.Post(FocusText, DispatcherPriority.Loaded);
-            };
-            cancelPendingGotoAttachment = () => textBox.AttachedToVisualTree -= attached;
-            textBox.AttachedToVisualTree += attached;
+         void RetryFocus(object sender, EventArgs args) => FocusText();
+         void VisibilityChanged(object sender, AvaloniaPropertyChangedEventArgs args) {
+            if (args.Property == IsVisibleProperty) Dispatcher.UIThread.Post(FocusText, DispatcherPriority.Loaded);
          }
+         void Attached(object sender, VisualTreeAttachmentEventArgs args) =>
+            Dispatcher.UIThread.Post(FocusText, DispatcherPriority.Loaded);
+         // Attachment alone does not mean the overlay is visible and focusable yet.
+         // Retain a cancellable layout request until focus succeeds; no timer/polling loop.
+         LayoutUpdated += RetryFocus;
+         GotoPanel.PropertyChanged += VisibilityChanged;
+         textBox.AttachedToVisualTree += Attached;
+         cancelPendingGotoAttachment = StopWaiting;
+         FocusText();
       }, DispatcherPriority.Loaded);
    }
 

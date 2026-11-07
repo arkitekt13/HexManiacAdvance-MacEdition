@@ -75,5 +75,20 @@ Check(!field.IsFocused && !editor.GotoViewModel.ControlVisible, "Attaching after
 GoTo();
 Check(field.IsFocused, "Go To remains focusable after a cancelled delayed request.");
 Check(view.Model.RawData.SequenceEqual(original) && !view.Undo.CanExecute(null), "All focus, query and cancellation checks preserve bytes and history.");
+// Attached controls can still be hidden when the native overlay begins opening.
+editor.GotoViewModel.ControlVisible=false;Pump();
+var panel=window.FindControl<ScrollViewer>("GotoPanel");
+editor.GotoViewModel.ShowGoto.Execute(true);
+panel.IsVisible=false;window.FocusManager.ClearFocus();Pump();
+Check(!field.IsFocused&&!field.IsEffectivelyVisible,"Hidden overlay test starts without input focus.");
+panel.IsVisible=true;Pump();
+Check(field.IsFocused,"Go To finishes focusing after an already attached panel becomes visible.");
+window.KeyTextInput("400");Pump();
+Check(editor.GotoViewModel.Text=="400","Typing after delayed visibility reaches the Go To query.");
+editor.GotoViewModel.ControlVisible=false;Pump();
+editor.GotoViewModel.ShowGoto.Execute(true);panel.IsVisible=false;window.FocusManager.ClearFocus();Pump();
+editor.GotoViewModel.ControlVisible=false;panel.IsVisible=true;Pump();
+Check(!field.IsFocused,"A closed Go To panel cancels pending visibility focus.");
+Check(view.Model.RawData.SequenceEqual(original)&&!view.Undo.CanExecute(null),"Delayed visibility and cancellation preserve ROM and history.");
 window.Close();
 Console.WriteLine($"CHECKS_PASSED:{checks}");

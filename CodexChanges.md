@@ -3020,3 +3020,13 @@ Validation: BlockPanelLayout passes 162 assertions across 256/320/512px panel wi
 | tests/BlockPanelLayout/README.md | 29 | Record the final toolbar placement and tested narrow-panel fit. |
 
 Validation: BlockPanelLayout passes 162 assertions across 256/320/512px widths and 14/20pt fonts, with zero build warnings/errors. A rendered preview was inspected using the widest tested ID, 1023, to verify the gap before Edit Block. The full suite was not rerun for this local presentation-only adjustment. No ROM, settings or editing behavior changed.
+
+## 199 — Retain Go To focus until its input is visible
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 665 | Keep a cancellable visibility/layout/attachment focus request until the Go To input can accept typing. |
+| tests/GotoFocus/Program.cs | 78 | Reproduce delayed visibility after attachment through the native menu's bound command and verify focus, replacement typing and cancellation. |
+| tests/GotoFocus/README.md | 20 | Record the reproduced presentation-timing gap and native-confirmation boundary. |
+
+Validation: The attached-but-hidden reproduction fails against the previous handler and passes after repair; GotoFocus now passes 17 assertions with zero build warnings/errors. Existing Command-G input, immediate typing, query replacement, Escape, delayed attachment and stale-request cancellation checks pass alongside the new delayed-visibility case. Pending event subscriptions end on successful focus, close or editor replacement, without timers. ROM/history remain unchanged. Headless timing simulation does not establish the exact Cocoa event sequence; native confirmation of the reported shortcut remains useful.

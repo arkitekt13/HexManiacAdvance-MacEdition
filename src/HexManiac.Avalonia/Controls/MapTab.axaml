@@ -991,8 +991,8 @@
                                     </TextBlock>
                                  </DataTemplate>
                               </DockPanel.DataTemplates>
-                              <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18">
-                                 <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="10" Height="20" />
+                              <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18" Width="24">
+                                 <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="8" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                               </local:AngleButton>
                               <local:AngleButton Command="{res:MethodCommand Goto}" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
                                  <Path Fill="{DynamicResource Secondary}" Stretch="Fill" Data="{res:Icon RightAngleArrow}" Width="10" Height="12" />
@@ -1005,8 +1005,8 @@
                                  <DataTemplate>
                                     <StackPanel Margin="8,2">
                                        <DockPanel>
-                                          <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18">
-                                             <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="10" Height="20" />
+                                          <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18" Width="24">
+                                             <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="8" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                           </local:AngleButton>
                                           <local:AngleButton Command="{res:MethodCommand Goto}" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
                                              <Path Fill="{DynamicResource Secondary}" Stretch="Fill" Data="{res:Icon RightAngleArrow}" Width="10" Height="12" />

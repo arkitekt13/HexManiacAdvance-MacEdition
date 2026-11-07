@@ -2838,3 +2838,11 @@ Validation: SignpostScriptNavigation passes nine assertions with zero build warn
 | tests/BlockPanelLayout/Program.cs | 14 | Verify non-overlap, panel-width containment and working checkbox bindings across six width/font combinations. |
 
 Validation: The production controls reproduce the overlap at 256px/14pt: automatic permission occupies (5,139,212,15), crossing Block ID at (191,137,65,18). The repaired layout passes 48 assertions at 256/320/512px and 14/20pt, with zero build warnings/errors. The permission label can wrap and the movement selector uses the available width; existing data bindings and drawing/permission behavior remain unchanged. This regression uses a layout-only model, no ROM. Full cross-feature verification follows after the remaining delete-icon adjustment.
+
+## 180 — Center map-script delete icons
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 991 | Give both map-script and table-sub-script delete buttons a 24×18 hit area and a centered 8×8 square X. |
+
+Validation: An ignored headless preview instantiates the actual parent/sub-script templates and renders both before and after. Previously each X used a 10×20 control at (5,-1) inside a 20×18 button; the taller-than-button control let its uniformly stretched ink sit too high. Both now use an 8×8 square at (8,5) in a 24×18 button, with zero center offset and no bounds overflow. Before/after images were visually inspected. Build has zero warnings/errors, existing Delete command bindings are unchanged, and no ROM is used. Complete regression results follow in the verification record.

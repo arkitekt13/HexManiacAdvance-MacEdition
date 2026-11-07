@@ -3061,3 +3061,15 @@ Validation: The normal window-before-ROM startup fixture fails against 30e2e552 
 | tests/ScriptGapRoundTrip/README.md | 1 | Document the synthetic reproduction and preserved existing separator behavior. |
 
 Validation: The new regression fails against 4efc18ba because the decompiler combines a one-byte FF gap into source containing an unsupported .raw FF directive. After repair, ScriptGapRoundTrip passes 117 assertions with zero build warnings/errors across one-/two-/three-byte gaps and single/shared callers. Generated bodies compile, comment-only edits preserve bytes/metadata, and growth/forced relocation preserves caller pointers, dialogue resources, named neighbors and gaps through exact Undo/Redo. Rejected drafts retain diagnostics and correct successfully. Adjacent sections and recognized one-byte end/nop separators retain their existing combined behavior. The repair preserves unknown bytes and numeric/opcode/allocation rules; it does not add a raw-byte compiler feature or erase padding. Personal ROM/settings were untouched; full-suite validation follows separately.
+
+## 203 — Clear resolved script-draft warnings without hiding other errors
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/ViewPort.cs | 655 | Retain the emitted persistence warning and notify listeners only when all rejected/pending drafts in that viewport are resolved. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 322 | Track displayed error ownership and clear a resolved warning only when its source and text still match. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 1252 | Attach and detach warning-resolution listeners with existing tab listener lifetimes. |
+| tests/ScriptDraftWarning/Program.cs | 6 | Reproduce the stale banner and verify correction/discard, unrelated-error preservation, multiple drafts and identical warnings from separate ROMs. |
+| tests/ScriptDraftWarning/README.md | 1 | Document resolution rules and synthetic warning ownership coverage. |
+
+Validation: The regression fails before repair because successful correction retains the red persistence banner. ScriptDraftWarning now passes 16 assertions with zero build warnings/errors. Correction or explicit draft discard clears only its own still-displayed warning; another rejected edit, unresolved draft, newer unrelated/direct error or another ROM's identical-address warning stays visible. Exact model bytes/structural metadata are preserved in rejection/correction/discard cases. Existing log messages remain available, file/game behavior is unchanged and personal ROM/settings were untouched. Full-suite validation follows separately.

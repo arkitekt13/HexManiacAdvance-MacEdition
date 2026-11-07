@@ -319,9 +319,11 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       }
 
       private string errorMessage;
+      private object errorSource;
       public string ErrorMessage {
          get => errorMessage;
          set {
+            errorSource = null;
             TryUpdate(ref errorMessage, value);
             ShowError = !string.IsNullOrEmpty(ErrorMessage);
          }
@@ -1247,6 +1249,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       private void AddContentListeners(ITabContent content) {
          content.Closed += RemoveTab;
          content.OnError += AcceptError;
+         if (content is ViewPort scriptView) scriptView.ScriptPersistenceErrorResolved += AcceptScriptPersistenceErrorResolved;
          content.OnMessage += AcceptMessage;
          content.ClearMessage += AcceptMessageClear;
          content.RequestTabChange += TabChangeRequested;
@@ -1270,6 +1273,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       private void RemoveContentListeners(ITabContent content) {
          content.Closed -= RemoveTab;
          content.OnError -= AcceptError;
+         if (content is ViewPort scriptView) scriptView.ScriptPersistenceErrorResolved -= AcceptScriptPersistenceErrorResolved;
          content.OnMessage -= AcceptMessage;
          content.ClearMessage -= AcceptMessageClear;
          content.RequestTabChange -= TabChangeRequested;
@@ -1433,6 +1437,12 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       private void AcceptError(object sender, string message) {
          if (sender is MapEditorViewModel map) map.ViewPort.Tools.LogTool.LogMessages.Add("Error: " + message);
          ErrorMessage = message;
+         errorSource = sender;
+      }
+
+      private void AcceptScriptPersistenceErrorResolved(object sender, string message) {
+         var owner = errorSource is MapEditorViewModel map ? map.ViewPort : errorSource;
+         if (ReferenceEquals(owner, sender) && ErrorMessage == message) ErrorMessage = string.Empty;
       }
 
       private void AcceptMessage(object sender, string message) {

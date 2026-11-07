@@ -4,9 +4,9 @@ Build this project, then run its DLL; `scripts/verify-mac.sh` also discovers it.
 An optional absolute PNG argument saves an offscreen control preview. All inputs
 are synthetic; no personal ROMs or preferences are opened.
 
-The 41 assertions use the actual MainWindow/TabView and headless pointer/keyboard
+The 71 assertions use the actual MainWindow/TabView and headless pointer/keyboard
 input. A combined NPC/script-event map has distinct object ID 9 and sprite ID 7,
-independent scripts, an unformatted target, null/shared pointers and a forced
+a signpost union, independent scripts, an unformatted target, null/shared pointers and a forced
 relocation boundary. Coverage includes:
 
 - Detached hit metadata, current live pointers and same-tab script navigation,
@@ -22,6 +22,8 @@ relocation boundary. Coverage includes:
   written destination, subsequent clicks, exact one-step Undo and Redo restoration.
 - Shared scripts, actual overlapping-event chooser input and cancellation, plus
   stale menu/row/map guards after clearing/replacing the map or moving its object.
+- Script signpost kinds 0–4, hidden-item kinds 5–7, secret-base/unknown kinds,
+  pointer-shaped packed data, stale kind/deleted rows and pending-callback preservation.
 - Command-V routed to script source after navigation, disabled hidden hex input,
   released image and balanced script-state subscriptions when the tab detaches.
 

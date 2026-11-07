@@ -66,6 +66,12 @@ public sealed record ScriptMapSnapshot(string Caption, ReadonlyPixelViewModel Im
             targets.Add(new(mapID, ScriptMapEventKind.Script, i, rows[i].Start, ev.X, ev.Y, null, null,
                new Rect(ev.X * 16, ev.Y * 16, 16, 16)));
          }
+         rows = header.GetSubTable("events")[0].GetSubTable("signposts");
+         for (int i = 0; i < events.Signposts.Count; i++) {
+            var ev = events.Signposts[i];
+            targets.Add(new(mapID, ScriptMapEventKind.Signpost, i, rows[i].Start, ev.X, ev.Y, null, null,
+               new Rect(ev.X * 16, ev.Y * 16, 16, 16), ev.Kind));
+         }
       }
       return new ScriptMapSnapshot($"Reference: {map.FullName} — {width} × {height} tiles",
          new ReadonlyPixelViewModel(map.PixelWidth, map.PixelHeight, pixels.ToArray())) { Events = targets.AsReadOnly() };

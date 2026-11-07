@@ -12,7 +12,7 @@ public sealed class SyntheticMapFixture {
    public PokemonModel Model { get; }
    public ViewPort ViewPort { get; }
    public BlockMapViewModel Map { get; }
-   public SyntheticMapFixture(int width, int height, bool withScriptEvent = false, bool withNpcText = false, bool withWarp = false) {
+   public SyntheticMapFixture(int width, int height, bool withScriptEvent = false, bool withNpcText = false, bool withWarp = false, bool withSignpost = false) {
       var data = new byte[Math.Max(0x20000, Cells + width * height * 2)];
       void Word(int address, int value) => BitConverter.GetBytes(value).CopyTo(data, address);
       void Pointer(int address, int target) => Word(address, 0x08000000 + target);
@@ -55,6 +55,13 @@ public sealed class SyntheticMapFixture {
          Pointer(0x128, 0x160); data[0x161] = 1; Pointer(0x168, 0x16000);
          data[0x16000] = 2; data[0x16002] = 3; data[0x16007] = 3;
          headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<> warps<[x:|z y:|z elevation.11 warpID. map. bank.]/warpCount> scripts<> signposts<>]1> mapscripts<>]1";
+      }
+      if (withSignpost) {
+         Pointer(0x128, 0x160); data[0x163] = 1; Pointer(0x170, 0x1B000);
+         Word(0x1B000, 20); data[0x1B002] = 8; Pointer(0x1B008, 0x18800);
+         const string signposts = "signposts<[x: y: elevation. kind. unused: arg::|h]/signpostCount>";
+         if (headerFormat.Contains("signposts<>")) headerFormat = headerFormat.Replace("signposts<>", signposts);
+         else headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<> warps<> scripts<> {signposts}]1> mapscripts<>]1";
       }
       var bankFormat = $"[map<{headerFormat}>]1";
       var metadata = new StoredMetadata(anchors: new[] {

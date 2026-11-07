@@ -136,6 +136,7 @@ public partial class TabView {
          if (!target.TryResolve(source, out var destination)) {
             ScriptMapPane.ShowEventInfo("This event has changed. Reopen Map View to refresh it.", true); return;
          }
+         if (!destination.IsScript) { ScriptMapPane.ShowEventInfo(destination.Description); return; }
          if (destination.Address < 0 || destination.Address >= source.Model.Count) {
             ScriptMapPane.ShowEventInfo(destination.Description + " — no valid script to open.", true); return;
          }

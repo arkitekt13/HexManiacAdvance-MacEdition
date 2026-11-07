@@ -85,7 +85,7 @@ public sealed class ScriptMapReferenceView : Grid {
       bitmap?.Dispose(); bitmap = next;
       gridCheckBox.IsEnabled = true;
       caption.Text = snapshot.Caption + " — drag or scroll to pan";
-      ShowEventInfo("Click an object or script event to view its code.");
+      ShowEventInfo("Click an object, script event or signpost to view its code.");
    }
 
    public void Clear(string message = "") {

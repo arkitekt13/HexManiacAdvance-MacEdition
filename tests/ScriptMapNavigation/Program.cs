@@ -28,7 +28,7 @@ AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
 SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationContext());
 int checks=0;
 void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
-var fixture=new SyntheticMapFixture(90,60,withNpcText:true,withScriptEvent:true);var model=fixture.Model;var setup=new ModelDelta();
+var fixture=new SyntheticMapFixture(90,60,withNpcText:true,withScriptEvent:true,withSignpost:true);var model=fixture.Model;var setup=new ModelDelta();
 model.SetList(new NoDataChangeDeltaModel(),"FacingOptions","NoMovement");model.SetList(new NoDataChangeDeltaModel(),"MapAttributeBehaviors","Normal");
 model[0x17000]=9;model[0x17001]=7;model.WriteMultiByteValue(0x17004,2,setup,8);model.WriteMultiByteValue(0x17006,2,setup,8);
 model[0x162]=1;model.WritePointer(setup,0x16C,0x16000);model.WriteMultiByteValue(0x16000,2,setup,12);model.WriteMultiByteValue(0x16002,2,setup,8);model.WritePointer(setup,0x1600C,0x18800);
@@ -57,7 +57,7 @@ void ClickAt(double x,double y){var at=At(x,y);window.MouseMove(at);window.Mouse
 void ShowMapAgain(){var count=tab.ReferenceRenderCount;tab.FindControl<Button>("ScriptHexViewButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Pump();tab.FindControl<Button>("ScriptMapViewButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Until(()=>tab.ReferenceRenderCount>count);}
 Until(()=>Image().Source!=null);
 var bytes=model.RawData.ToArray();var metadata=Metadata();var snapshot=ScriptMapSnapshot.Create(source,0);
-Check(snapshot.Events.Count==2,$"Snapshot includes objects and script events only: {string.Join(",",snapshot.Events.Select(e=>e.Kind))}.");
+Check(snapshot.Events.Count==3,$"Snapshot includes objects, script events and signposts: {string.Join(",",snapshot.Events.Select(e=>e.Kind))}.");
 var obj=snapshot.Events.Single(e=>e.Kind==ScriptMapEventKind.Object);var script=snapshot.Events.Single(e=>e.Kind==ScriptMapEventKind.Script);
 Check(obj.ObjectID==9&&obj.SpriteID==7&&obj.X==8&&obj.Y==8,"Snapshot captures distinct object/sprite IDs and coordinates.");
 Check(obj.TryResolve(source,out var initial)&&initial.Address==0x18000,"Object lookup resolves current script.");
@@ -99,6 +99,7 @@ Check(Info().Contains("Fix the errors")&&pane.GetVisualDescendants().OfType<Text
 Check(Box().IsFocused&&selection==(field.CaretIndex,field.SelectionStart,field.SelectionEnd)&&pane.Offset==offset&&ReferenceEquals(image,Image().Source),"Blocked navigation retains caret/selection/focus/pan and pixels.");
 Check(bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata())&&source.ChangeHistory.IsSaved&&!source.ChangeHistory.Undo.CanExecute(null),"Failed resource compilation and map clicks preserve bytes, metadata, saved state and model history.");
 foreach(var callback in pending)callback();Check(body.Content==rejected&&bytes.SequenceEqual(model.RawData),"Canceled pending callbacks cannot later change a rejected source or another script.");
+ClickAt(20*16+8,8*16+8);Check(ReferenceEquals(body,tool.Contents[0])&&body.Content==rejected&&Info().Contains("Fix the errors"),"Signpost navigation shares rejected-draft protection.");
 body.Editor.Content=originalSource;ClickAt(12*16+8,8*16+8);Until(()=>tool.Contents[0].Address==0x18A00);Check(!tool.HasActiveScriptDraft,"Correction and retry permit navigation.");
 // Compile a growing script before resolving the click, including a shared target.
 ClickAt(8*16+8,8*16+8);Until(()=>tool.Contents[0].Address==0x18000);
@@ -141,6 +142,32 @@ source.ScriptReferenceMapID=1000;Check(!obj.TryResolve(source,out _),"Hit record
 ShowMapAgain();ClickAt(8*16+8,8*16+8);menu=(ContextMenu)typeof(ScriptMapReferenceView).GetField("eventMenu",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(pane);
 var beforeDismiss=tool.Contents[0];pane.CancelPan();Pump();
 Check(menu?.IsOpen==false&&ReferenceEquals(beforeDismiss,tool.Contents[0]),"Canceling a chooser leaves the active script unchanged.");
+// Signpost kind determines whether arg contains a script pointer or packed item/base data.
+for(int kind=0;kind<=4;kind++){
+ model[0x1B005]=(byte)kind;model.WritePointer(new ModelDelta(),0x1B008,0x18800);
+ pane.ShowSnapshot(ScriptMapSnapshot.Create(source,0));Pump();bytes=model.RawData.ToArray();metadata=Metadata();
+ ClickAt(20*16+8,8*16+8);Until(()=>tool.Contents[0].Address==0x18800);
+ Check(Info().Contains("Signpost 1")&&editor.Count==1,"Script-bearing signpost kind "+kind+" opens in the same left editor.");
+ Check(bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata()),"Signpost navigation does not lazily format the live ROM.");
+}
+model.WritePointer(new ModelDelta(),0x1B008,0x18A00);ClickAt(20*16+8,8*16+8);Until(()=>tool.Contents[0].Address==0x18A00);
+Check(Info().Contains("018A00"),"Signpost navigation resolves a changed pointer from the live row.");
+var signBody=tool.Contents[0];var signSource=signBody.Content;signBody.Editor.Content=signSource+"\n# pending";Pump();
+foreach(int kind in new[]{5,6,7,8,255}){
+ model[0x1B005]=(byte)kind; // arg intentionally still resembles a valid ROM pointer.
+ pane.ShowSnapshot(ScriptMapSnapshot.Create(source,0));Pump();bytes=model.RawData.ToArray();metadata=Metadata();var callbacks=dispatch.CapturePendingCallbacks();
+ ClickAt(20*16+8,8*16+8);
+ Check(ReferenceEquals(signBody,tool.Contents[0])&&tool.HasPendingScriptChanges&&callbacks.SequenceEqual(dispatch.CapturePendingCallbacks()),"Non-script signpost kind "+kind+" cannot navigate or settle source.");
+ Check(Info().Contains("no script")&&(kind is >=5 and <=7?Info().Contains("Hidden item"):kind==8?Info().Contains("Secret base"):Info().Contains("Unsupported")),"Non-script signposts display their purpose.");
+ Check(bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata()),"Packed signpost data stays unchanged.");
+}
+signBody.Editor.Content=signSource;tool.FlushPendingScriptChanges();
+model[0x1B005]=0;pane.ShowSnapshot(ScriptMapSnapshot.Create(source,0));Pump();
+var signHit=ScriptMapSnapshot.Create(source,0).Events.Single(e=>e.Kind==ScriptMapEventKind.Signpost);
+model[0x1B005]=5;Check(!signHit.TryResolve(source,out _),"A stale script-signpost hit cannot reinterpret a newly changed hidden-item union.");
+model[0x1B005]=0;model.WritePointer(new ModelDelta(),0x1B008,Pointer.NULL);
+ClickAt(20*16+8,8*16+8);Check(Info().Contains("No script")&&ReferenceEquals(signBody,tool.Contents[0]),"A null signpost pointer shows its status without creating a script.");
+model[0x163]=0;Check(!signHit.TryResolve(source,out _),"A deleted signpost cannot be selected from old image metadata.");model[0x163]=1;
 // Clipboard shortcuts following a map click stay in source, never hidden hex.
 model.WriteMultiByteValue(0x16000,2,new ModelDelta(),12);ShowMapAgain();ClickAt(12*16+8,8*16+8);Until(()=>tool.Contents[0].Address==0x18A00);
 field=Box();field.CaretIndex=0;field.SelectionStart=field.SelectionEnd=0;field.Focus();bytes=model.RawData.ToArray();

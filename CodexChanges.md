@@ -2969,3 +2969,14 @@ Validation: On 9b9de924 the isolated-profile regression builds with zero warning
 | tests/ProfilePersistence/Program.cs | 46 | Verify independent limits with both keys, the search key alone and missing/invalid search values. |
 
 Validation: ProfilePersistence passes 32 assertions with zero build warnings/errors. Distinct saved limits restore as 17/321; the search key works without a diff key, while missing or malformed search values retain the existing 400 default independently of diff preferences. Existing numeric parsing, 1–10000 bounds, search/diff algorithms and all other settings remain unchanged. Evidence and one-line repair are separate commits; no personal settings or ROM are used.
+
+## 194 — Record completed script/map follow-up audit and full regression results
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/SCRIPT_MAP_FOLLOWUP_AUDIT.md | 1 | Record reproducible defects, separate evidence/repair commits, rollback checkpoint, safety coverage and unchanged-working audit areas. |
+| tests/SCRIPT_MAP_FOLLOWUP_VERIFICATION.json | 1 | Preserve every group and assertion count from the final complete Mac regression run against a25c0742. |
+| tests/ScriptMapNavigation/README.md | 7 | Update navigation coverage to 76 assertions and describe live variable/flag details with a link to the latest suite proof. |
+| README.md | 65 | Describe the object flag and event variable context available beside script source. |
+
+Validation: The documented full Mac procedure passes 78 groups / 22,148 assertions, with zero failures and zero skipped groups. The only build-warning category is the existing MapImageExport NU1900 failure to fetch NuGet vulnerability metadata. All production changes were committed before this final run; this entry adds documentation only. No personal ROM/profile was opened or modified, and emulator starts were intercepted. Native interaction/real-ROM gameplay and the full upstream xUnit suite are outside this result. The pre-audit state is retained by checkpoint/pre-script-map-audit-2026-11-07; individual evidence and repairs remain separate commits.

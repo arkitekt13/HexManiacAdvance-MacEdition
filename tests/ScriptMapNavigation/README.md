@@ -4,14 +4,15 @@ Build this project, then run its DLL; `scripts/verify-mac.sh` also discovers it.
 An optional absolute PNG argument saves an offscreen control preview. All inputs
 are synthetic; no personal ROMs or preferences are opened.
 
-The 74 assertions use the actual MainWindow/TabView and headless pointer/keyboard
+The 76 assertions use the actual MainWindow/TabView and headless pointer/keyboard
 input. A combined NPC/script-event map has object ID 9 and independently assigned flags,
 a signpost union, independent scripts, an unformatted target, null/shared pointers and a forced
 relocation boundary. Coverage includes:
 
 - Detached hit metadata, current live pointers and same-tab script navigation,
   with exact bytes/serialized metadata/saved/history preservation for pure reads.
-- Read-only Object ID and live Flag (or none), missing scripts and changed flag values.
+- Read-only Object ID and live Flag (or none), plus green-event Variable Number,
+  missing scripts and changed live flag/variable values.
 - Retained image identity, grid and pan; no map render merely for script switching.
 - Real drag versus click-jitter handling, blank tiles, canceled capture and secondary
   clicks; large sprite artwork outside its anchor tile remains clickable.
@@ -35,7 +36,7 @@ pending valid source through the existing compiler; it cannot paint tiles, creat
 an absent script or alter event records. Invalid source blocks script switching.
 
 See [the investigation](../SCRIPT_MAP_EVENT_NAVIGATION_REVIEW.md), [exact suite
-results](verification.json) and [memory measurements](lifetime-memory.json).
+original results](verification.json), [latest follow-up suite](../SCRIPT_MAP_FOLLOWUP_VERIFICATION.json) and [memory measurements](lifetime-memory.json).
 The existing ScriptMapReference group retains its image, context, deferred-source,
 clipboard/Delete and stale-render coverage. Native trackpad/popup behavior and
 real-ROM gameplay remain user checks.

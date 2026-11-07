@@ -62,7 +62,7 @@ If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source
 
 ### Scripting
 
-- **Map beside script source** - Switch between Hex View and a map reference you can pan, then click objects, script events or script signposts to open their code while writing overworld scripts.
+- **Map beside script source** - Switch between Hex View and a map reference you can pan, then click objects, script events or script signposts to open their code while writing overworld scripts, with Object ID/Flag or event Variable Number shown for context.
 - **Ready-to-fill script blocks** - Supported dialogue and movement commands insert `<auto>` and braces, including when chosen from suggestions.
 - **Visible dialogue warnings** - Underlines show text that may overflow the in-game dialogue box.
 - **Better flag and variable suggestions** - Suggestions refresh after edits and allow reuse after the final protected reference is removed.

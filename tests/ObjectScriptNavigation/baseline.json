@@ -1,0 +1,9 @@
+{
+  "checkpoint": "260e078d",
+  "productionChangesAtReproduction": false,
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "failure": "Programmatic assignment without reselecting: actual arrow enabled state.",
+  "cause": "Object script address setters omit a CanGotoScript property-change notification; MethodCommand refreshes enabled state on that named notification.",
+  "scope": "Actual XAML command/button in a headless MainWindow; fabricated map/events only."
+}

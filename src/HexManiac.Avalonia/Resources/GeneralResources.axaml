@@ -169,6 +169,7 @@
             <Border Name="Border" BorderThickness="{TemplateBinding BorderThickness}"
                     Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
                <ScrollViewer Name="PART_ScrollViewer"
+                             AllowAutoHide="{TemplateBinding (ScrollViewer.AllowAutoHide)}"
                              HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
                              VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}">
                   <Panel>

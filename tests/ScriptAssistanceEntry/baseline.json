@@ -1,0 +1,9 @@
+{
+  "checkpoint": "71f4abc7",
+  "productionChangesAtReproduction": false,
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "failure": "Deleting a pointer must not immediately put auto back.",
+  "scope": "Initial real-input regression before production edits; later tab/cancellation/separator cases extend its coverage.",
+  "additionalInvestigation": "Trailing whitespace prevented assistance through typing/Enter/mouse completion, and deleting > from an earlier auto token left InsertAutoActive false."
+}

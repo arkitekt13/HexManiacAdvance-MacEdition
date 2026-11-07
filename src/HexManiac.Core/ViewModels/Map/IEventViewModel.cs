@@ -749,7 +749,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
                nameof(ShowTutorContent), nameof(TutorInfoText), nameof(TutorWhichPokemonText), nameof(TutorFailedText), nameof(TutorSucessText), nameof(TutorNumber),
                nameof(ShowTradeContent), nameof(TradeFailedEditor), nameof(TradeIndex), nameof(TradeInitialEditor), nameof(TradeSuccessEditor), nameof(TradeThanksEditor), nameof(TradeWrongSpeciesEditor),
                nameof(ShowLegendaryContent), nameof(Level), nameof(LegendaryFlagText), nameof(HasCryText), nameof(CryEditor), nameof(SampleLegendClearScript),
-               nameof(ShowBerryContent), nameof(BerryText), nameof(CanCreateScript));
+               nameof(ShowBerryContent), nameof(BerryText), nameof(CanCreateScript), nameof(CanGotoScript));
          }
       }
 
@@ -801,7 +801,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
                nameof(ShowTutorContent), nameof(TutorInfoText), nameof(TutorWhichPokemonText), nameof(TutorFailedText), nameof(TutorSucessText), nameof(TutorNumber),
                nameof(ShowTradeContent), nameof(TradeFailedEditor), nameof(TradeIndex), nameof(TradeInitialEditor), nameof(TradeSuccessEditor), nameof(TradeThanksEditor), nameof(TradeWrongSpeciesEditor),
                nameof(ShowLegendaryContent), nameof(Level), nameof(LegendaryFlagText), nameof(HasCryText), nameof(CryEditor), nameof(SampleLegendClearScript),
-               nameof(ShowBerryContent), nameof(BerryText), nameof(CanCreateScript));
+               nameof(ShowBerryContent), nameof(BerryText), nameof(CanCreateScript), nameof(CanGotoScript));
             UpdateScriptError(ScriptAddress);
          }
       }

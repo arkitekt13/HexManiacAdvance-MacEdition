@@ -158,7 +158,7 @@
                       IsVisible="{Binding IsValid9GridSelection}"
                       ToolTip.Tip="Draw one of the selected 9 blocks based on a grid." />
          </Grid>
-         <ScrollViewer Name="BlockViewer" Margin="0,0,-1,0">
+         <ScrollViewer AllowAutoHide="False" Name="BlockViewer" Margin="0,0,-1,0">
             <Canvas Width="{Binding Blocks.ScaledWidth}" Height="{Binding Blocks.ScaledHeight}">
                <!-- Named so the pointer handlers can hang off the image, not the ScrollViewer:
                     a position taken from the viewport ignores the scroll offset and picks the
@@ -209,7 +209,7 @@
             </ItemsControl.ItemTemplate>
          </ItemsControl>
 
-         <ScrollViewer>
+         <ScrollViewer Name="EventScrollViewer" AllowAutoHide="False">
             <ContentControl DataContext="{Binding SelectedEvent}" Content="{Binding}">
                <ContentControl.DataTemplates>
 
@@ -681,7 +681,7 @@
       </DockPanel>
 
       <!-- Header Panel -->
-      <ScrollViewer Grid.Column="0" Grid.RowSpan="2" Background="{DynamicResource Background}" ZIndex="1" Name="HeaderPanel"
+      <ScrollViewer AllowAutoHide="False" Grid.Column="0" Grid.RowSpan="2" Background="{DynamicResource Background}" ZIndex="1" Name="HeaderPanel"
          Width="{Binding #BlockPanel.Bounds.Width}" IsVisible="{Binding ShowHeaderPanel}">
          <StackPanel>
             <Grid>
@@ -1262,7 +1262,7 @@
                <ComboBox ItemsSource="{Binding Palettes}" VerticalAlignment="Center"
                          SelectedIndex="{Binding PaletteSelection, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}" />
             </StackPanel>
-            <ScrollViewer Name="TileViewer" DataContext="{Binding PrimaryMap.BlockEditor}">
+            <ScrollViewer AllowAutoHide="False" Name="TileViewer" DataContext="{Binding PrimaryMap.BlockEditor}">
                <Grid HorizontalAlignment="Center">
                   <local:PixelImage Name="TileRenderImage" DataContext="{Binding TileRender}" />
                   <!--

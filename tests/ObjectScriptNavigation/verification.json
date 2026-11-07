@@ -1,0 +1,76 @@
+{
+  "procedure": "Fresh build and execution of each named regression project; same build flags as scripts/verify-mac.sh --no-restore",
+  "groups": 11,
+  "assertions": 1861,
+  "failures": 0,
+  "skippedGroups": 0,
+  "results": [
+    {
+      "group": "ObjectScriptNavigation",
+      "assertions": 51,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "NpcTemplate",
+      "assertions": 44,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapEventEditing",
+      "assertions": 63,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapHistoryRefresh",
+      "assertions": 23,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapEventMenus",
+      "assertions": 68,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptWorkflowSafety",
+      "assertions": 598,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "EditorScrollbars",
+      "assertions": 78,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "TabViewLifetime",
+      "assertions": 41,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptMapReference",
+      "assertions": 63,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptWidthUpdates",
+      "assertions": 448,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "DialogueScaffolding",
+      "assertions": 384,
+      "failures": 0,
+      "skipped": false
+    }
+  ],
+  "scope": "Focused map/object/script/scrollbar/lifetime coverage; full Mac and upstream xUnit suites were not rerun for the two notification additions."
+}

@@ -68,7 +68,7 @@ foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.play
    Check(body.CaretPosition == box.CaretIndex && box.CaretIndex > insertion, "Actual typing must synchronize script and UI caret positions.");
    Check(box.IsFocused && baseline.EqualsModel(f), "Typing assistance preserves focus and does not bypass delayed compilation.");
    if (command.StartsWith("msgbox") || command.StartsWith("move.") || command is "preparemsg" or "applymovement") {
-      Check(body.Content.Contains("<auto>"), "A space at a supported text-pointer operand inserts <auto>.");
+      Check(body.Content.Contains("<auto>"), $"{acceptance}/{command}: a supported pointer operand must receive auto. Source: {body.Content}");
       Check(box.Text![..box.CaretIndex].EndsWith("{\n"), $"The caret lands inside the empty dialogue body ({acceptance}/{command}, caret {box.CaretIndex}/{body.CaretPosition}, source {body.Content.Replace("\n", "|")}).");
       Check(body.Content.Count(c => c == '{') == 1 && body.Content.Count(c => c == '}') == 1,
          "The enhanced assistance creates exactly one complete dialogue scaffold.");

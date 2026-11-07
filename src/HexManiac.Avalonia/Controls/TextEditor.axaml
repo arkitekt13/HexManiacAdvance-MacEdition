@@ -16,7 +16,7 @@
       <local:SyntaxLayerTextConverter x:Key="SyntaxLayerTextConverter"/>
    </UserControl.Resources>
    <Grid Name="Body" ClipToBounds="True" Background="Transparent">
-      <Canvas ClipToBounds="False" Width="0" HorizontalAlignment="Left">
+      <Canvas Name="SyntaxLayers" ClipToBounds="False" Width="0" HorizontalAlignment="Left">
          <TextBlock Name="BasicLayer" Foreground="{DynamicResource Primary}" Margin="2" Text="{Binding PlainContent, Converter={StaticResource SyntaxLayerTextConverter}}"/>
          <TextBlock Name="AccentLayer" Foreground="{DynamicResource Accent}" Margin="2" Text="{Binding AccentContent, Converter={StaticResource SyntaxLayerTextConverter}}"/>
          <TextBlock Name="ConstantsLayer" Foreground="{DynamicResource Data1}" Margin="2" Text="{Binding ConstantContent, Converter={StaticResource SyntaxLayerTextConverter}}"/>
@@ -26,7 +26,7 @@
       </Canvas>
       <TextBox Name="TransparentLayer" Background="Transparent" CaretBrush="{DynamicResource Primary}" Foreground="Transparent"
                SelectionForegroundBrush="Transparent"
-               ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+               ScrollViewer.AllowAutoHide="False" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                UndoLimit="0" AcceptsReturn="True" AcceptsTab="True"
                Tag="{Binding $parent[local:TextEditor].Tag}"
                ContextMenu="{Binding $parent[local:TextEditor].ContextMenuOverride}"

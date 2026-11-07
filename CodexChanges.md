@@ -2691,3 +2691,68 @@ Validation: Before production edits, the new collection assertion fails on the f
 | FutureDevelopment.md | 3 | Mark HMA-020 repaired in offscreen verification and retain native/real-ROM validation limits. |
 
 Validation: The new lifetime group passes 41 assertions, including actual Map/Hex detached-control collection, never-attached hidden panels, repeated listener restoration, selection/caret/focus, pending callbacks, retained rejected source/diagnostics and exact Undo/Redo states. The first full run stopped at MapRendering's never-attached live-zoom fixture; MapRendering and ScriptEditorLayout now attach their subjects to headless windows without removing assertions (93 and 102 respectively). A fresh complete `scripts/verify-mac.sh --no-restore` passes **67 groups / 20,727 assertions / zero failures / zero skipped groups**; per-group counts are in `tests/tab-lifecycle-memory/mac-verification.json`. The existing MapImageExport NU1900 vulnerability-index warning remains; the Release benchmark build has zero warnings/errors. Both paired lifecycle modes go from 12 retained old watched tabs and 24 stale tab handlers to zero. Settled managed heap is about 226→61 MiB in Hex and 212→62 MiB in Map for the same lifecycle-only workload. The full snapshot/burst/close corpus also releases every watched payload, old view and closed document/model. This is a retained managed-memory repair, not a rendering-speed/native-RAM claim. No forced app GC, DataContext clearing, source rewriting, map rendering/read-only handler changes, compiler/numeric/history algorithms or personal ROM/settings changes. Full Mac coverage includes the earlier six-pixel advisory dialogue margin. Upstream xUnit was not rerun for this Avalonia-only repair; native Cocoa/Retina/real-ROM and new-Mac behavior remain user verification. Branch remains unmerged.
+
+## 167 — Reproduce editor content hidden by overlay scrollbars
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/EditorScrollbars/Program.cs | 1 | Check actual text/panel scroll templates for non-overlapping gutters, stable hover/resize geometry, right-edge clicks and retained source/selection. |
+| tests/EditorScrollbars/EditorScrollbars.csproj | 1 | Run offscreen Avalonia/Skia layout and input checks independently of personal ROMs/settings. |
+| tests/EditorScrollbars/baseline.json | 1 | Record the first non-overlap assertion failing on merged checkpoint ccb765fa before production edits. |
+| tests/EditorScrollbars/README.md | 1 | Explain the controlled production-viewer hosts and distinguish layout checks from core map/script workflows and native trackpad checks. |
+
+Validation: On ccb765fa, the group builds without warnings/errors and fails at the first script-editor viewport assertion: content extends beneath a scrollbar. The installed Fluent template spans content underneath its scrollbar columns when auto-hide is enabled. The left editors inherit that behavior; the port's custom TextBox template additionally omits forwarding AllowAutoHide to its inner ScrollViewer. Evidence and production repair are separate commits. No personal ROM/settings, compiler/numeric/history behavior or production code changes are included in this evidence commit.
+
+## 168 — Reserve scrollbar space throughout the left editor panels
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 161 | Give block, event, map-header and tile viewers stable scrollbar gutters instead of hover overlays. |
+| src/HexManiac.Avalonia/Controls/TabView.axaml | 231 | Reserve scrollbar space in table, text, image, multi-script and log tools and the associated map-preview list. |
+| src/HexManiac.Avalonia/Resources/GeneralResources.axaml | 172 | Forward the text box's AllowAutoHide setting into its custom inner ScrollViewer. |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml | 19 | Name the syntax-paint canvas and disable overlay scrollbars in the transparent editing text box. |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs | 257 | Clip syntax paint to the actual text viewport after scroll, viewport and queued width updates without changing source or glyph layout. |
+
+Validation: The new EditorScrollbars group passes 78 assertions, including both scrollbar directions in the real script editor, exact syntax viewport clipping, stable hover/resize geometry, unchanged source/selection and clickable right-edge buttons in seven production panel viewer instances at 220/420 widths. The baseline fails its first non-overlap assertion before the repair. Fresh `scripts/verify-mac.sh --no-restore` on the transferred Apple Silicon Mac passes **68 groups / 20,805 assertions / zero failures / zero skipped groups**; exact counts and any build warnings are preserved in `tests/EditorScrollbars/verification.json`. Existing map selection/tiling/zoom, event editing/navigation, clipboard, autocomplete, diagnostics, script layout/width, lifecycle retention, pending/rejected source, Save and Undo/Redo protections all pass. The patch uses existing template properties and clipping only: no scrollbar input handlers, compilation/numeric/resource/history algorithms, Map View interaction code or personal ROM/settings changed. Native trackpad feel and real-ROM panel appearance await the user's relaunch. Evidence and implementation remain separate commits on the unmerged feature branch.
+
+## 169 — Reproduce the stale disabled object script arrow
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ObjectScriptNavigation/Program.cs | 1 | Exercise the actual object arrow and command through pointer/text changes, correction, script creation, NPC templates and model Undo/Redo. |
+| tests/ObjectScriptNavigation/baseline.json | 1 | Record the existing button remaining disabled after a valid address is assigned on checkpoint 260e078d. |
+| tests/ObjectScriptNavigation/README.md | 1 | Distinguish captured navigation-target checks from complete tab/focus behavior and preserve existing history selection semantics. |
+
+Validation: The regression builds without warnings/errors and fails on the first null-to-valid assignment's actual enabled-state check before production edits. A separate diagnostic probe finds CanExecute=true while the visible arrow remains disabled, pointer clicks deliver no navigation, and reselecting the object restores both enabled state and click delivery. Missing CanGotoScript notifications are in older object setters and are independent of the scrollbar layout repair. No production code or personal ROM/settings changes are included in this evidence commit.
+
+## 170 — Refresh object script navigation after address changes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/IEventViewModel.cs | 752 | Notify CanGotoScript after programmatic object ScriptAddress assignment so the existing arrow refreshes without reselection. |
+| src/HexManiac.Core/ViewModels/Map/IEventViewModel.cs | 804 | Publish the same dependent-state notification after ScriptAddressText edits, including clearing and correction. |
+| tests/ObjectScriptNavigation/verification.json | 1 | Record exact fresh results for eleven focused object/map/script/scrollbar/lifetime groups. |
+
+Validation: ObjectScriptNavigation passes 51 assertions; the unchanged same button enables after null-to-valid assignment, routes real pointer clicks to the current navigation target, disables after clearing/out-of-ROM assignment and recovers after correction. Existing Create Script/NPC-template paths refresh immediately; map Undo/Redo restores exact model bytes and assignment metadata, with the object panel reopened after its existing selection-clearing refresh. Fresh ObjectScriptNavigation 51, NpcTemplate 44, MapEventEditing 63, MapHistoryRefresh 23, MapEventMenus 68, ScriptWorkflowSafety 598, EditorScrollbars 78, TabViewLifetime 41, ScriptMapReference 63, ScriptWidthUpdates 448 and DialogueScaffolding 384 pass **11 groups / 1,861 assertions / zero failures / zero skips**, with zero build warnings/errors. The full Mac and upstream xUnit suites were not rerun for these two dependent-property notifications; the preceding scrollbar repair's complete run remains 68 groups / 20,805 assertions. No command implementation, parsing/numeric rules, pointer allocation/relocation, compilation, history algorithm, ROM fixture or personal settings changed. Captured target callbacks do not certify complete native tab/focus behavior; real-ROM relaunch remains user verification. Evidence and repair are separate commits on the unmerged scrollbar feature branch.
+
+## 171 — Reproduce assistance fighting pointer edits and disappearing on later commands
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptAssistanceEntry/Program.cs | 1 | Exercise real multi-section editor input through typing/Enter/mouse completion, whitespace and prior pointer edits, then require exact manual edits and stale-callback cancellation. |
+| tests/ScriptAssistanceEntry/baseline.json | 1 | Preserve the pre-repair failure where deleting an operand immediately reinserts auto. |
+| tests/ScriptAssistanceEntry/README.md | 1 | Document the 72-case source/input matrix, later coverage additions and deferred-source validation boundaries. |
+
+Validation: On checkpoint 71f4abc7 the initial regression builds without warnings/errors and fails at the first pointer deletion: unconditional assistance puts auto back. Prior isolated input probes also reproduce trailing-space rejection through all three entry routes and InsertAutoActive remaining false after deleting > from an earlier auto token. The reported second section and preceding movement blocks work in otherwise normal conditions. Evidence and production repair remain separate commits. Tests use synthetic files only; no app code, user ROM/settings or compiler/numeric/history algorithms change in this evidence commit.
+
+## 172 — Offer initial resource assistance while preserving later pointer edits
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Tools/CodeBody.cs | 286 | Separate assistance planning from application, accept trailing whitespace, and distinguish initial command entry from operand edits/deletion. |
+| src/HexManiac.Core/ViewModels/Tools/CodeTool.cs | 362 | Remove automatic global suppression toggles and plan help using the actual source edit. |
+| src/HexManiac.Core/ViewModels/Tools/CodeTool.cs | 422 | Apply planned source/caret assistance after native input settles, guarded by compile generation, body/address/source/draft identity and explicit assistance preference. |
+| src/HexManiac.Avalonia/Controls/AutocompleteOverlay.axaml.cs | 351 | Let physical Space supply the generated separator for script completion while preserving whitespace already in source. |
+| tests/ScriptAssistance/Program.cs | 71 | Include the exact command/input route in failures without changing the existing assistance assertions. |
+
+Validation: ScriptAssistanceEntry passes 789 assertions across 72 real-input cases and explicit stale-callback/caret-bound checks. LF/CRLF, typed/Enter/mouse completion, msgbox.npc/preparemsg/move.player, trailing spaces/tabs and prior auto-pointer editing all receive initial help. The command name alone waits for its separator; explicit addresses, deletion and later operand whitespace remain exactly as entered, while future commands still receive help. Planned insertion is source-only until native input settles and cannot overwrite a newer source edit, survive Undo/navigation, target another body/address or write ROM directly. The first full run exposed the typed msgbox alias's preinserted separator; the overlay compatibility repair omits only that generated separator and preserves existing whitespace. Legacy ScriptAssistance still passes all 364 assertions. A fresh complete `scripts/verify-mac.sh --no-restore` passes **70 groups / 21,645 assertions / zero failures / zero skipped groups**, including compilation/resource/pointer/relocation, rejected drafts, Save/Close, Undo/Redo, Map View, clipboard, completion dismissal and control lifetime regressions. Exact counts and build warnings are in `tests/ScriptAssistanceEntry/verification.json`; the existing MapImageExport NU1900 vulnerability-index warning remains. No compiler, allocator, numeric grammar, game-engine or history algorithm changed, no personal ROM/settings were opened, and no new timer or preference UI was introduced. Existing explicit opt-outs and Spartan mode remain respected; editing a pointer never flips them. Goto/call gain no auto syntax. Native real-ROM testing remains user validation. Evidence and implementation are separate commits on the unmerged feature branch.

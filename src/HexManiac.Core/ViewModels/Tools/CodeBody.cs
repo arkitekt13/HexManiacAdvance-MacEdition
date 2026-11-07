@@ -283,13 +283,19 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
       public bool TryInsertAuto() => TryInsertAuto(out _);
 
       public bool TryInsertAuto(out int targetCaret) {
+         if (!TryGetAutoInsertion(null, out var content, out targetCaret)) return false;
+         using (Scope(ref ignoreEditorContentUpdates, true, old => ignoreEditorContentUpdates = old)) Editor.Content = content;
+         return true;
+      }
+
+      internal bool TryGetAutoInsertion(string previousContent, out string content, out int targetCaret) {
+         content = null;
          targetCaret = CaretPosition;
          if (model.SpartanMode) return false;
          var context = SplitCurrentLine();
          if (context.ContentBoundaryCount != 0) return false;
          var tokens = ScriptLine.Tokenize(context.Line);
-         if (context.Line.Length > context.Index + 1) return false;
-         if (!context.Line.EndsWith(" ")) return false;
+         if (context.Line.Length == 0 || !char.IsWhiteSpace(context.Line[^1])) return false;
          var line = parser.FirstMatch(context.Line.Trim());
          if (line == null) return false;
          var args = line.Args;
@@ -302,7 +308,12 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          }
          if (token < 0 || token >= args.Count) return false;
          if (args[token].Type == ArgType.Pointer && args[token].PointerType.IsAny(ExpectedPointerType.Mart, ExpectedPointerType.SpriteTemplate, ExpectedPointerType.Text, ExpectedPointerType.Movement, ExpectedPointerType.Decor)) {
-            var insertionIndex = Math.Min(Content.Length, CaretPosition + (context.Index < context.Line.Length ? 1 : 0));
+            var command = context.Line.TrimEnd();
+            // Do not mistake the last typed command character for its following space.
+            // Completion publishes its destination caret before changing the source.
+            if (context.Index < command.Length) return false;
+            if (previousContent != null && !IsInitialAutoEntry(previousContent, command, context.Index)) return false;
+            var insertionIndex = Math.Min(CaretPosition, Content.Length) - context.Index + context.Line.Length;
             var before = Content.Substring(0, insertionIndex);
             var after = Content.Substring(insertionIndex);
             var insertion = "<auto>";
@@ -320,12 +331,34 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                insertion += newline + "{" + newline + newline + "}";
                targetCaret += newline.Length + 1 + newline.Length;
             }
-            using (Scope(ref ignoreEditorContentUpdates, true, old => ignoreEditorContentUpdates = old)) {
-               Editor.Content = before + insertion + after;
-               return true;
-            }
+            content = before + insertion + after;
+            return true;
          }
          return false;
+      }
+
+      private bool IsInitialAutoEntry(string previousContent, string command, int index) {
+         int start = 0;
+         while (start < previousContent.Length && start < Content.Length && previousContent[start] == Content[start]) start++;
+         int oldEnd = previousContent.Length, newEnd = Content.Length;
+         while (oldEnd > start && newEnd > start && previousContent[oldEnd - 1] == Content[newEnd - 1]) { oldEnd--; newEnd--; }
+         if (newEnd == start) return false; // deletion is an edit, not a request for a new operand
+
+         int lineStart = start;
+         while (lineStart > 0 && previousContent[lineStart - 1] != '\r' && previousContent[lineStart - 1] != '\n') lineStart--;
+         int lineEnd = start;
+         while (lineEnd < previousContent.Length && previousContent[lineEnd] != '\r' && previousContent[lineEnd] != '\n') lineEnd++;
+         var oldLine = previousContent.Substring(lineStart, lineEnd - lineStart);
+         var oldCommand = oldLine.TrimEnd();
+         if (oldCommand == command) {
+            // Only the first separator requests help; later whitespace in an operand
+            // deliberately emptied by the user must stay exactly as entered.
+            return (oldLine.Length == oldCommand.Length && start == lineEnd) ||
+               (index == command.Length && Content.Substring(start, newEnd - start).All(char.IsWhiteSpace));
+         }
+         if (oldCommand.StartsWith(command, StringComparison.Ordinal) && oldCommand.Length > command.Length &&
+             char.IsWhiteSpace(oldCommand[command.Length])) return false; // replacing an existing operand
+         return true;
       }
 
       #endregion

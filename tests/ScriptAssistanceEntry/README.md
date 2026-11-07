@@ -17,7 +17,7 @@ help. Backspacing the > in an earlier auto token must never toggle assistance of
 
 Separate queued-work checks require a planned insertion, then supersede it with an explicit
 address, Undo, or navigation. Replaying the captured callback must preserve both editors'
-source/carets and all model state. The group passes 786 assertions.
+source/carets and all model state. The group passes 789 assertions.
 
 The initial regression failed on 71f4abc7 because deleting the operand immediately reinserted
 auto. Earlier read-only probes also reproduced trailing-whitespace rejection and a sticky
@@ -30,3 +30,12 @@ generation. The ordinary editor pipeline replaces the pending compilation; no se
 allocator, history writer or delay timer is introduced. Existing explicit opt-outs/Spartan mode
 remain supported; pointer edits do not toggle them. Goto/call script destinations gain no new
 auto support. Native keyboard/trackpad/real-ROM checks remain user validation.
+
+An excessive stale caret is clamped to current source bounds. Space acceptance for the short
+msgbox alias is also protected by the existing ScriptAssistance group: the physical space supplies
+the separator, without a second synthetic space or deletion of existing source whitespace.
+
+Fresh complete verification: **70 groups / 21,645 assertions**, zero failures or skipped
+groups; [exact counts and warning details](verification.json). The first full attempt caught
+the typed msgbox alias separator regression; the final fresh run includes its repair and
+all 364 existing ScriptAssistance assertions.

@@ -349,10 +349,15 @@ public partial class AutocompleteOverlay : UserControl {
       try {
          var text = box.Text ?? string.Empty;
          var line = LineAt(text, box.CaretIndex);
-         var needChanges = text.Substring(line.Start, line.Length) != item.CompletionText.TrimEnd();
+         var completion = item.CompletionText;
+         // Script Space acceptance still receives the physical text-input space.
+         // Omit only a generated separator; preserve whitespace already in the source.
+         if (!synchronizeScriptCaret && DataContext is CodeBody && line.Column == line.Length && line.Length > 0 &&
+             !char.IsWhiteSpace(text[line.Start + line.Length - 1]) && completion.EndsWith(" ")) completion = completion[..^1];
+         var needChanges = text.Substring(line.Start, line.Length) != completion.TrimEnd();
          if (needChanges) {
-            var replacement = text[..line.Start] + item.CompletionText + text[(line.Start + line.Length)..];
-            var caret = line.Start + Math.Clamp(line.Column + item.CompletionText.Length - line.Length, 0, item.CompletionText.Length);
+            var replacement = text[..line.Start] + completion + text[(line.Start + line.Length)..];
+            var caret = line.Start + Math.Clamp(line.Column + completion.Length - line.Length, 0, completion.Length);
             if (synchronizeScriptCaret && DataContext is CodeBody body && Target is TextEditor editor && ReferenceEquals(editor.ViewModel, body.Editor)) {
                // ScriptChanged must see the completed operand position, just as it does for typing.
                body.ApplyCompletion(replacement, caret);

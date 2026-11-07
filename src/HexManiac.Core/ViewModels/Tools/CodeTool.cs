@@ -359,26 +359,10 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          if (HasPendingScriptChanges && !scriptDrafts.Contains(body)) FlushPendingScriptChanges();
          scriptDrafts.Add(body);
          body.TryCompleteCommandToken();
-         if (InsertAutoActive && body.TryInsertAuto(out var autoCaret)) {
-            var assistedSource = body.Content;
-            var assistedAddress = body.Address;
-            // update the caret later, or weird stuff happens
-            singletons.WorkDispatcher.DispatchWork(() =>
-               singletons.WorkDispatcher.BlockOnUIWork(() => {
-                  if (Contents.Contains(body) && scriptDrafts.Contains(body) && body.Address == assistedAddress && body.Content == assistedSource)
-                     body.Editor.CaretIndex = autoCaret;
-               })
-            );
-         }
-         var delta = body.Content.Length - e.OldValue.Length;
-         var deltaSize = Math.Abs(delta);
-         if (body.CaretPosition >= deltaSize && body.CaretPosition < body.Content.Length - deltaSize) {
-            var start = body.Content[0..(body.CaretPosition + delta)];
-            if (start.EndsWith("<auto>")) InsertAutoActive = true;
-            start = body.Content[0..(body.CaretPosition + delta)];
-            if (start.EndsWith("<auto")) InsertAutoActive = false;
-         }
-
+         string assistedSource = null;
+         int autoCaret = 0;
+         if (InsertAutoActive) body.TryGetAutoInsertion(e.OldValue, out assistedSource, out autoCaret);
+         var assistedAddress = body.Address;
          var codeContent = body.Content;
 
          var run = model.GetNextRun(body.Address);
@@ -435,6 +419,17 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
             if (generation == scriptCompileGeneration) FlushPendingScriptChanges();
          });
          NotifyScriptStateChanged();
+         if (assistedSource != null) {
+            // Let native text input finish before inserting assistance. Applying the
+            // replacement through the normal editor path also replaces the pending compile.
+            singletons.WorkDispatcher.DispatchWork(() =>
+               singletons.WorkDispatcher.BlockOnUIWork(() => {
+                  if (generation == scriptCompileGeneration && Contents.Contains(body) && scriptDrafts.Contains(body) &&
+                      body.Address == assistedAddress && body.Content == codeContent && InsertAutoActive)
+                     body.ApplyCompletion(assistedSource, autoCaret);
+               })
+            );
+         }
          //*/
       }
 

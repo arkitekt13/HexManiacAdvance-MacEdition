@@ -109,4 +109,10 @@ foreach(var action in new[]{"edit","undo","navigate"})using(var f=new WorkflowFi
  foreach(var callback in callbacks.ToArray())callback();
  Check(state.EqualsModel(f)&&body.Content==source&&f.Body.Content==active&&body.CaretPosition==caret&&f.Body.CaretPosition==activeCaret,"A stale assistance callback cannot change newer source, another script, model state or either caret.");
 }
+using(var f=new WorkflowFixture()){
+ var body=new HavenSoft.HexManiac.Core.ViewModels.Tools.CodeBody(f.Model,f.Tool.ScriptParser,null){Content="msgbox.npc "};body.CaretPosition=10000;
+ var state=f.State();Check(body.TryInsertAuto(out var caret),"An excessive stale caret must be safely clamped when planning help.");
+ Check(caret<=body.Content.Length&&body.Content.Contains("<auto>"),"The clamped insertion and returned caret must stay inside source bounds.");
+ Check(state.EqualsModel(f),"Clamping a source caret must not change model state.");
+}
 Console.WriteLine($"CHECKS_PASSED:{checks}");

@@ -2894,3 +2894,12 @@ Validation: On 7ef1738c the new regression builds with zero warnings/errors and 
 | tests/SignpostScriptGrowth/Program.cs | 30 | Force a second-pass compiler failure after pointer retargeting and require exact rollback, retained diagnostics and successful correction/retry. |
 
 Validation: SignpostScriptGrowth passes 48 assertions with zero build warnings/errors. All five script signpost kinds follow a moved entry; pointer-shaped hidden-item/base/unsupported payloads remain unchanged, and ordinary shared object pointers retain their existing relocation behavior. Exact one-step Undo/Redo restores bytes, metadata and saved state. An injected second-pass error confirms signpost args have already been updated before failure, then verifies full byte/metadata/allocation rollback, no model-history entry, retained rejected source/diagnostics and successful retry. Separate dialogue growth moves its text resource while keeping the script entry stable and remains exactly undoable. The scan uses read-only map accessors, runs only on an actual XSE entry move, does not convert arg to tracked-pointer metadata, and writes through the existing attempted change. Parsing, numeric rules, resource/relocation allocation and history algorithms are unchanged; this repairs the additional raw-union references those algorithms cannot otherwise see. No personal ROM/settings are used. Complete cross-feature verification follows the remaining audit work.
+
+## 186 — Reproduce missing map-header condition rows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MapHeaderScripts/Program.cs | 10 | Exercise real header table additions/deletions, shifted row edits, type transitions and exact model-history round trips. |
+| tests/MapHeaderScripts/README.md | 1 | Document the raw-table/UI-count mismatch and the audit regression's scope. |
+
+Validation: On 3fc61c58 the regression builds with zero warnings/errors and fails at the first Add Table Script assertion. The isolated probe confirms one displayed child versus two ROM table rows at the same table address. The non-relocation branch calls LINQ Append without consuming its returned sequence and does not publish a new view model; its attempted row address also points four bytes past the row start. This evidence commit precedes repair. No personal ROM/settings are used.

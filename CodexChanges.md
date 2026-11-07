@@ -2764,3 +2764,22 @@ Validation: ScriptAssistanceEntry passes 789 assertions across 72 real-input cas
 | tests/SCRIPT_MAP_EVENT_NAVIGATION_REVIEW.md | 1 | Preserve the rollback checkpoint, read-only live-pointer probe, navigation/draft/relocation design and the inline-help click interception found during actual-window testing. |
 
 Validation: The synthetic checkpoint probe preserves live bytes, metadata, free-space/history and saved state for object/script-event reads, then resolves an updated pointer rather than a cached address. Checkpoint 7a6c80ec and its pushed annotated pre-feature tag preserve the previously merged build. This evidence commit documents the investigation separately from production implementation; no personal ROM or settings are used. Final implementation and complete regression results follow in the next entry.
+
+## 174 — Open event scripts directly from the script-side map
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/ScriptMapSnapshot.cs | 53 | Copy immutable object/script-event hit bounds and IDs from the detached render without retaining its model or event editors. |
+| src/HexManiac.Avalonia/Project/ScriptMapEvent.cs | 12 | Validate current map/row identity and resolve live pointers and sprite IDs through read-only accessors. |
+| src/HexManiac.Avalonia/Controls/ScriptMapReferenceView.cs | 35 | Add click-versus-pan handling, read-only event details and an overlapping-event chooser with stale-action cancellation. |
+| src/HexManiac.Avalonia/Controls/TabView.ScriptMap.cs | 131 | Settle pending source, block rejected drafts with an inline red notice, reread relocated pointers and navigate in the same script tab while protecting focus and hidden hex input. |
+| src/HexManiac.Avalonia/Controls/TabView.ScriptMap.cs | 35 | Let map gestures pass through inline command help so it cannot consume the first navigation click. |
+| tests/MapRendering/SyntheticMapFixture.cs | 51 | Support combined NPC-text and script-event synthetic fixtures without erasing the latter's table format. |
+| tests/ScriptMapNavigation/Program.cs | 25 | Cover actual pointer/chooser/focus input, readonly state, rejected source, relocation, correction/retry, Undo/Redo, stale records and control cleanup. |
+| tests/ScriptMapNavigation/verification.json | 1 | Preserve every fresh regression group's assertion count, build warning and validation boundary. |
+| tests/ScriptMapNavigation/lifetime-memory.json | 1 | Preserve actual Hex/Map tab-switch and window-close lifetime measurements. |
+| README.md | 65 | Describe event-script navigation beside the existing Map View feature. |
+
+Validation: A fresh complete `bash scripts/verify-mac.sh --no-restore` passes **71 groups / 21,686 assertions / zero failures / zero skipped groups**. New ScriptMapNavigation passes 41 assertions, including clicking while inline help is visible, exact rejected dialogue source/diagnostics/selection retention, stale callback cancellation, a click that settles and rereads its own relocated destination, one-step Undo/Redo restoration, large-sprite hit regions, null/shared pointers, a real overlapping-event menu selection and Command-V routed to source. Existing ScriptMapReference passes 63 assertions; the full run also covers HMA-006/007/008 workflow protections, save/close, source assistance, completion dismissal and control lifetime. Build output has only the existing MapImageExport NU1900 vulnerability-index lookup warning; app and focused builds have zero warnings/errors. The upstream xUnit suite was not rerun.
+
+Release lifecycle measurements retain zero detached TabViews/old bitmap wrappers after actual tab switches in both Hex and Map modes, zero source-tab handlers, and zero of 27 watched controls after each window closes; source bytes remain unchanged. These are headless synthetic measurements, not native responsiveness or in-game claims. The map remains a detached image with navigation-only targets, no live map editing commands or tile selection. Pure navigation preserves bytes/metadata/history; pending valid source deliberately compiles through the existing compiler before navigation. No personal ROM/settings or core compilation, numeric, allocation, relocation, history or game-engine algorithms changed. Investigation and implementation are separate commits on the unmerged feature branch; the pushed pre-feature checkpoint tag remains available. Native real-ROM/trackpad/popup testing remains user verification after restart.

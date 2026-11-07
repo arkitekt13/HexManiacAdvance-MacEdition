@@ -21,6 +21,7 @@ public partial class TabView {
    private ViewPort referenceSource;
    private Window referenceWindow;
    private TextBox lastScriptInput;
+   private ScriptMapEvent referenceEvent;
    private int referenceGeneration;
    private bool referenceActive, referenceDirty = true, referenceRendering, referenceAttached;
    private int? displayedReferenceMap;
@@ -31,13 +32,16 @@ public partial class TabView {
    public void CancelReferencePan() => ScriptMapPane.CancelPan();
 
    private void InitializeScriptMapReference() {
+      // Inline help must not consume the first event click. TabView closes it on press.
+      CodeContentsPopup.OverlayInputPassThroughElement = ScriptMapPane;
       AttachedToVisualTree += (_, _) => { referenceAttached = true; BindScriptReference(); };
       DetachedFromVisualTree += (_, _) => { referenceAttached = false; UnbindScriptReference(); };
       DataContextChanged += (_, _) => { if (referenceAttached) BindScriptReference(); };
       AddHandler(GotFocusEvent, (_, e) => {
          if (e.Source is TextBox box && box.GetVisualAncestors().Contains(CodeToolPanel)) lastScriptInput = box;
       });
-      ScriptMapPane.InteractionStarted += (_, _) => FocusScriptInput();
+      ScriptMapPane.InteractionStarted += (_, _) => { if (referenceActive) FocusScriptInput(); };
+      ScriptMapPane.EventRequested += ReferenceEventRequested;
       ScriptMapPane.GridPreferenceChanged += (_, _) => {
          if (referenceEditor != null) referenceEditor.ShowScriptReferenceGrid = ScriptMapPane.ShowGrid;
       };
@@ -67,6 +71,7 @@ public partial class TabView {
          referenceSource.ChangeHistory.Reverted += ReferenceInvalidated;
          referenceSource.Tools.PropertyChanged += ReferenceStateChanged;
          referenceSource.Tools.CodeTool.PropertyChanged += ReferenceStateChanged;
+         referenceSource.Tools.CodeTool.ScriptStateChanged += ReferenceScriptSettled;
       }
       if (referenceEditor != null) referenceEditor.PropertyChanged += ReferenceStateChanged;
       if (referenceWindow != null) referenceWindow.Deactivated += ReferenceWindowDeactivated;
@@ -87,11 +92,12 @@ public partial class TabView {
          referenceSource.ChangeHistory.Reverted -= ReferenceInvalidated;
          referenceSource.Tools.PropertyChanged -= ReferenceStateChanged;
          referenceSource.Tools.CodeTool.PropertyChanged -= ReferenceStateChanged;
+         referenceSource.Tools.CodeTool.ScriptStateChanged -= ReferenceScriptSettled;
       }
       if (referenceEditor != null) referenceEditor.PropertyChanged -= ReferenceStateChanged;
       if (referenceWindow != null) referenceWindow.Deactivated -= ReferenceWindowDeactivated;
       referenceEditor = null; referenceSource = null; referenceWindow = null;
-      lastScriptInput = null;
+      lastScriptInput = null; referenceEvent = null;
    }
    private void ReferenceWindowDeactivated(object sender, EventArgs e) => ScriptMapPane.CancelPan();
    private void ReferenceInvalidated(object sender, EventArgs e) {
@@ -114,6 +120,56 @@ public partial class TabView {
       }
       if (e.PropertyName is nameof(EditorViewModel.PreferScriptMapView) or nameof(EditorViewModel.SelectedIndex)
           or nameof(EditorViewModel.SelectedTab) or nameof(ViewPort.ScriptReferenceMapID) or nameof(CodeTool.Mode)) RefreshScriptReference();
+   }
+
+   private void ReferenceScriptSettled(object sender, EventArgs e) {
+      if (!referenceActive || referenceEvent == null || referenceSource.Tools.CodeTool.HasUncompiledScriptChanges ||
+          !ScriptMapPane.ContainsEvent(referenceEvent)) return;
+      if (referenceEvent.TryResolve(referenceSource, out var destination)) ScriptMapPane.ShowEventInfo(destination.Description);
+   }
+
+   private void ReferenceEventRequested(object sender, ScriptMapEvent target) {
+      var source = referenceSource;
+      if (!referenceActive || !referenceAttached || source == null || !ReferenceEquals(referenceEditor?.SelectedTab, source) ||
+          !ScriptMapPane.ContainsEvent(target)) return;
+      try {
+         if (!target.TryResolve(source, out var destination)) {
+            ScriptMapPane.ShowEventInfo("This event has changed. Reopen Map View to refresh it.", true); return;
+         }
+         if (destination.Address < 0 || destination.Address >= source.Model.Count) {
+            ScriptMapPane.ShowEventInfo(destination.Description + " — no valid script to open.", true); return;
+         }
+         var tool = source.Tools.CodeTool;
+         // Settling source can relocate either the current or destination script. Never
+         // navigate using an address copied into the displayed image or read before this.
+         tool.FlushPendingScriptChanges();
+         if (tool.HasActiveScriptDraft || tool.Contents.Any(body => body.HasError)) {
+            ScriptMapPane.ShowEventInfo("Fix the errors in the current script before opening another.", true);
+            FocusScriptInput(); return;
+         }
+         if (!target.TryResolve(source, out destination)) {
+            ScriptMapPane.ShowEventInfo("This event has changed. Reopen Map View to refresh it.", true); return;
+         }
+         if (destination.Address < 0 || destination.Address >= source.Model.Count ||
+             tool.ScriptParser.FindLength(source.Model, destination.Address) <= 0 ||
+             tool.ScriptParser.CollectScripts(source.Model, destination.Address).Count == 0) {
+            ScriptMapPane.ShowEventInfo(destination.Description + " — no valid script to open.", true); return;
+         }
+         referenceEvent = target;
+         ScriptMapPane.ShowEventInfo(destination.Description);
+         source.Goto.Execute(destination.Address); // reuse this tab, rather than GotoScript's duplicate-tab policy
+         int generation = referenceGeneration;
+         Dispatcher.UIThread.Post(() => {
+            if (generation == referenceGeneration && referenceActive && ReferenceEquals(referenceSource, source) &&
+                ReferenceEquals(referenceEditor?.SelectedTab, source) && tool.Contents.Any(body => body.Address == destination.Address)) {
+               lastScriptInput = CodeToolPanel.GetVisualDescendants().OfType<TextEditor>()
+                  .FirstOrDefault(editor => editor.Tag is CodeBody body && body.Address == destination.Address)?.EditBox;
+               FocusScriptInput();
+            }
+         }, DispatcherPriority.Loaded);
+      } catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or IndexOutOfRangeException or NotImplementedException) {
+         ScriptMapPane.ShowEventInfo("This event's script is unavailable. Reopen Map View to refresh it.", true);
+      }
    }
 
    private void ShowScriptHexClick(object sender, RoutedEventArgs e) {
@@ -161,6 +217,8 @@ public partial class TabView {
          var snapshot = await ScriptMapSnapshot.CreateAsync(source, mapID);
          if (generation != referenceGeneration || !referenceActive || !ReferenceEquals(source, referenceSource)) return;
          ScriptMapPane.ShowSnapshot(snapshot); ReferenceRenderCount++;
+         if (referenceEvent != null && !ScriptMapPane.ContainsEvent(referenceEvent)) referenceEvent = null;
+         ReferenceScriptSettled(this, EventArgs.Empty);
          displayedReferenceMap = mapID;
          ScriptMapPane.Offset = referenceOffsets.TryGetValue(mapID, out var offset) ? offset : default;
       } catch (Exception ex) when (ex is not OutOfMemoryException) {

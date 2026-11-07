@@ -48,7 +48,8 @@ public sealed class SyntheticMapFixture {
          PCSString.Convert("\"Discovered NPC text.\"").CopyTo(data, 0x19000);
          // Keep script/text pointers unformatted so lazy event discovery must annotate them.
          const string objects = "[id. graphics. unused:1 x:|z y:|z elevation.11 moveType. range:|t|x::|y:: trainerType: trainerRangeOrBerryID: script<> flag:|h padding:]/objectCount";
-         headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<{objects}> warps<> scripts<> signposts<>]1> mapscripts<>]1";
+         var scriptEvents = withScriptEvent ? "[x: y: elevation: trigger:|h index:: script<`xse`>]/scriptCount" : string.Empty;
+         headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<{objects}> warps<> scripts<{scriptEvents}> signposts<>]1> mapscripts<>]1";
       }
       if (withWarp) {
          Pointer(0x128, 0x160); data[0x161] = 1; Pointer(0x168, 0x16000);

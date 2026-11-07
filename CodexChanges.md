@@ -2856,3 +2856,13 @@ Validation: An ignored headless preview instantiates the actual parent/sub-scrip
 | README.md | 65 | Include script signposts in the script-side Map View feature description. |
 
 Validation: Fresh complete `bash scripts/verify-mac.sh --no-restore` passes **74 groups / 21,969 assertions / zero failures / zero skipped groups** on implementation head 48180bb4. This includes ScriptMapNavigation 72, SignpostScriptNavigation 9, BlockPanelLayout 48, ScriptScrollStability 195, ScriptMapReference 63, ScriptWorkflowSafety 598, ScriptAssistanceEntry 789, ClipboardRouting 78 and TabViewLifetime 41, plus every existing map/rendering/history, input, save and packaging regression group. The only build warning is the existing MapImageExport NU1900 vulnerability-index lookup warning; no build errors occur. Actual parent/sub-script delete-icon templates were rendered before and after and visually inspected. The earlier navigation memory measurement remains historical; no fresh memory benchmark or native real-ROM gameplay claim is made. The full upstream xUnit suite was not rerun. No personal ROM/settings were used, and the four requested behavioral/visual changes remain separate commits. Native UI confirmation remains user testing after restart.
+
+## 182 — Show Object ID and assigned flag in Map View
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/ScriptMapEvent.cs | 12 | Replace Sprite ID metadata with live object flags and label Object ID explicitly, showing unassigned flags as none. |
+| src/HexManiac.Avalonia/Project/ScriptMapSnapshot.cs | 62 | Capture only the requested object identity/flag metadata alongside detached hit bounds. |
+| tests/ScriptMapNavigation/Program.cs | 131 | Check assigned/removed flags from the current row without rebuilding the map or exposing Sprite ID. |
+
+Validation: ScriptMapNavigation passes 74 assertions with zero build warnings/errors. Object details use the same four-digit hexadecimal flag notation as the editor, with an explicit 0x prefix; zero is shown as none. Flags are reread on click, while event identity guards and pure-navigation ROM/metadata/history protections remain unchanged. No personal ROM/settings are used.

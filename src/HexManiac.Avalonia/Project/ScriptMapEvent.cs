@@ -10,12 +10,14 @@ public enum ScriptMapEventKind { Object, Script, Signpost }
 
 // Values only: a displayed preview must not retain the detached ROM or live event editors.
 public sealed record ScriptMapEvent(int MapID, ScriptMapEventKind Kind, int Index, int RecordAddress,
-   int X, int Y, int? ObjectID, int? SpriteID, Rect Bounds, int? SignpostKind = null) {
+   int X, int Y, int? ObjectID, int? Flag, Rect Bounds, int? SignpostKind = null) {
    public string Label => Kind switch {
-      ScriptMapEventKind.Object => $"Object {ObjectID} · Sprite {SpriteID}",
+      ScriptMapEventKind.Object => $"Object ID: {ObjectID} · Flag: {FlagText(Flag)}",
       ScriptMapEventKind.Signpost => $"Signpost {Index + 1}",
       _ => $"Script event {Index + 1}",
    };
+
+   private static string FlagText(int? flag) => flag is > 0 ? $"0x{flag:X4}" : "none";
 
    public bool TryResolve(ViewPort source, out ScriptMapDestination destination) {
       destination = null;
@@ -37,23 +39,23 @@ public sealed record ScriptMapEvent(int MapID, ScriptMapEventKind Kind, int Inde
       string pointerField = Kind == ScriptMapEventKind.Signpost ? "arg" : "script";
       if (row.Start != RecordAddress || !row.HasField("x") || !row.HasField("y") || !row.HasField(pointerField) ||
           row.GetValue("x") != X || row.GetValue("y") != Y) return false;
-      if (Kind == ScriptMapEventKind.Object && (!row.HasField("id") || !row.HasField("graphics") || row.GetValue("id") != ObjectID)) return false;
+      if (Kind == ScriptMapEventKind.Object && (!row.HasField("id") || !row.HasField("flag") || row.GetValue("id") != ObjectID)) return false;
       if (Kind == ScriptMapEventKind.Signpost && (!row.HasField("kind") || row.GetValue("kind") != SignpostKind)) return false;
       // Signpost arg is a union. Item/secret-base payloads must never be read as pointers.
       bool script = Kind != ScriptMapEventKind.Signpost || SignpostKind is >= 0 and <= 4;
-      int? sprite = Kind == ScriptMapEventKind.Object ? row.GetValue("graphics") : null;
-      destination = new ScriptMapDestination(Kind, Index, ObjectID, sprite, script ? row.GetAddress(pointerField) : -1, SignpostKind);
+      int? flag = Kind == ScriptMapEventKind.Object ? row.GetValue("flag") : null;
+      destination = new ScriptMapDestination(Kind, Index, ObjectID, flag, script ? row.GetAddress(pointerField) : -1, SignpostKind);
       return true;
    }
 }
 
-public sealed record ScriptMapDestination(ScriptMapEventKind Kind, int Index, int? ObjectID, int? SpriteID, int Address, int? SignpostKind = null) {
+public sealed record ScriptMapDestination(ScriptMapEventKind Kind, int Index, int? ObjectID, int? Flag, int Address, int? SignpostKind = null) {
    public bool IsScript => Kind != ScriptMapEventKind.Signpost || SignpostKind is >= 0 and <= 4;
    public string Description {
       get {
          if (!IsScript) return $"Signpost {Index + 1} · " + (SignpostKind is >= 5 and <= 7 ? "Hidden item" : SignpostKind == 8 ? "Secret base" : "Unsupported kind") + " — no script";
          var label = Kind switch {
-            ScriptMapEventKind.Object => $"Object {ObjectID} · Sprite {SpriteID}",
+            ScriptMapEventKind.Object => $"Object ID: {ObjectID} · Flag: {(Flag is > 0 ? $"0x{Flag:X4}" : "none")}",
             ScriptMapEventKind.Signpost => $"Signpost {Index + 1}",
             _ => $"Script event {Index + 1}",
          };

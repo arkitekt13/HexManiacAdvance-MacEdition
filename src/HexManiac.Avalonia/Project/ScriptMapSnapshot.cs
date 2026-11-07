@@ -58,7 +58,7 @@ public sealed record ScriptMapSnapshot(string Caption, ReadonlyPixelViewModel Im
             var bounds = new Rect(obj.X * 16 + obj.LeftOffset, obj.Y * 16 + obj.TopOffset,
                obj.EventRender?.PixelWidth ?? 16, obj.EventRender?.PixelHeight ?? 16);
             bounds = bounds.Union(new Rect(obj.X * 16, obj.Y * 16, 16, 16));
-            targets.Add(new(mapID, ScriptMapEventKind.Object, i, obj.Start, obj.X, obj.Y, obj.ObjectID, obj.Graphics, bounds));
+            targets.Add(new(mapID, ScriptMapEventKind.Object, i, obj.Start, obj.X, obj.Y, obj.ObjectID, obj.Flag, bounds));
          }
          var rows = header.GetSubTable("events")[0].GetSubTable("scripts");
          for (int i = 0; i < events.Scripts.Count; i++) {

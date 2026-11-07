@@ -4,14 +4,14 @@ Build this project, then run its DLL; `scripts/verify-mac.sh` also discovers it.
 An optional absolute PNG argument saves an offscreen control preview. All inputs
 are synthetic; no personal ROMs or preferences are opened.
 
-The 72 assertions use the actual MainWindow/TabView and headless pointer/keyboard
-input. A combined NPC/script-event map has distinct object ID 9 and sprite ID 7,
+The 74 assertions use the actual MainWindow/TabView and headless pointer/keyboard
+input. A combined NPC/script-event map has object ID 9 and independently assigned flags,
 a signpost union, independent scripts, an unformatted target, null/shared pointers and a forced
 relocation boundary. Coverage includes:
 
 - Detached hit metadata, current live pointers and same-tab script navigation,
   with exact bytes/serialized metadata/saved/history preservation for pure reads.
-- Read-only Object/Sprite IDs, missing scripts and current sprite values.
+- Read-only Object ID and live Flag (or none), missing scripts and changed flag values.
 - Retained image identity, grid and pan; no map render merely for script switching.
 - Real drag versus click-jitter handling, blank tiles, canceled capture and secondary
   clicks; large sprite artwork outside its anchor tile remains clickable.

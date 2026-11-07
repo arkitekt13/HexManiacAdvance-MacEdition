@@ -30,7 +30,7 @@ int checks=0;
 void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
 var fixture=new SyntheticMapFixture(90,60,withNpcText:true,withScriptEvent:true,withSignpost:true);var model=fixture.Model;var setup=new ModelDelta();
 model.SetList(new NoDataChangeDeltaModel(),"FacingOptions","NoMovement");model.SetList(new NoDataChangeDeltaModel(),"MapAttributeBehaviors","Normal");
-model[0x17000]=9;model[0x17001]=7;model.WriteMultiByteValue(0x17004,2,setup,8);model.WriteMultiByteValue(0x17006,2,setup,8);
+model[0x17000]=9;model.WriteMultiByteValue(0x17014,2,new ModelDelta(),0);model.WriteMultiByteValue(0x17004,2,setup,8);model.WriteMultiByteValue(0x17006,2,setup,8);
 model[0x162]=1;model.WritePointer(setup,0x16C,0x16000);model.WriteMultiByteValue(0x16000,2,setup,12);model.WriteMultiByteValue(0x16002,2,setup,8);model.WritePointer(setup,0x1600C,0x18800);
 var parse=ArrayRun.TryParse(model,"[x: y: elevation: trigger:|h index:: script<`xse`>]1",0x16000,SortedSpan.One(0x16C),out var scripts);
 Check(!parse.HasError,"Synthetic script event table parses.");model.ObserveAnchorWritten(setup,"synthetic.script.events",scripts);
@@ -59,11 +59,11 @@ Until(()=>Image().Source!=null);
 var bytes=model.RawData.ToArray();var metadata=Metadata();var snapshot=ScriptMapSnapshot.Create(source,0);
 Check(snapshot.Events.Count==3,$"Snapshot includes objects, script events and signposts: {string.Join(",",snapshot.Events.Select(e=>e.Kind))}.");
 var obj=snapshot.Events.Single(e=>e.Kind==ScriptMapEventKind.Object);var script=snapshot.Events.Single(e=>e.Kind==ScriptMapEventKind.Script);
-Check(obj.ObjectID==9&&obj.SpriteID==7&&obj.X==8&&obj.Y==8,"Snapshot captures distinct object/sprite IDs and coordinates.");
+Check(obj.ObjectID==9&&obj.Flag==0&&obj.X==8&&obj.Y==8,"Snapshot captures object ID and unassigned flag and coordinates.");
 Check(obj.TryResolve(source,out var initial)&&initial.Address==0x18000,"Object lookup resolves current script.");
 Check(bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata())&&source.ChangeHistory.IsSaved&&!source.ChangeHistory.Undo.CanExecute(null),"Snapshot and hit metadata leave all live ROM/metadata/history state untouched.");
 pane.Offset=new Vector(30,20);pane.ShowGrid=true;Pump();var offset=pane.Offset;var image=Image().Source;var renders=tab.ReferenceRenderCount;
-ClickAt(8*16+8,8*16+8);Check(Info().Contains("Object 9")&&Info().Contains("Sprite 7"),"Object click shows read-only object and sprite IDs.");
+ClickAt(8*16+8,8*16+8);Check(Info().Contains("Object ID: 9")&&Info().Contains("Flag: none"),"Object click shows read-only Object ID and Flag.");
 if(args.Length==1){using var preview=new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(1400,900));preview.Render(tab);preview.Save(args[0]);}
 ClickAt(12*16+8,8*16+8);Until(()=>tool.Contents[0].Address==0x18800);
 Check(tool.Contents[0].Content.Contains("7")&&editor.Count==1&&ReferenceEquals(editor.SelectedTab,source),"Script event click loads its code in the same tab.");
@@ -86,7 +86,7 @@ from=At(8*16+8,8*16+8);window.MouseDown(from,MouseButton.Left);pane.CancelPan();
 from=At(8*16+8,8*16+8);window.MouseDown(from,MouseButton.Right);window.MouseUp(from,MouseButton.Right);Pump();Check(requests==1,"Secondary clicks add no map editing commands.");window.KeyPressQwerty(PhysicalKey.Escape,RawInputModifiers.None);window.KeyReleaseQwerty(PhysicalKey.Escape,RawInputModifiers.None);Pump();
 // Missing pointers show IDs and leave the left editor untouched.
 model.WritePointer(new ModelDelta(),0x17010,Pointer.NULL);var unchanged=tool.Contents[0];bytes=model.RawData.ToArray();metadata=Metadata();
-ClickAt(8*16+8,8*16+8);Check(ReferenceEquals(unchanged,tool.Contents[0])&&Info().Contains("No script")&&Info().Contains("Sprite 7"),"An object without a script still shows its IDs without creating or navigating anything.");
+ClickAt(8*16+8,8*16+8);Check(ReferenceEquals(unchanged,tool.Contents[0])&&Info().Contains("No script")&&Info().Contains("Flag: none"),"An object without a script still shows its IDs without creating or navigating anything.");
 Check(bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata()),"Missing-script clicks perform no writes.");model.WritePointer(new ModelDelta(),0x17010,0x18000);
 // Incomplete/rejected source blocks navigation and preserves the precise draft/diagnostics.
 ClickAt(8*16+8,8*16+8);Until(()=>tool.Contents[0].Address==0x18000);
@@ -131,12 +131,14 @@ ShowMapAgain();
 var large = snapshot with { Events = new[] { obj with { Bounds = new Rect(124,112,32,32) } } };
 pane.ShowSnapshot(large);Pump();bytes=model.RawData.ToArray();metadata=Metadata();
 ClickAt(150,116);Until(()=>tool.Contents[0].Address==moved);
-Check(Info().Contains("Object 9")&&bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata()),"A large sprite can be clicked outside its tile without editing the map.");
+Check(Info().Contains("Object ID: 9")&&bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata()),"A large sprite can be clicked outside its tile without editing the map.");
 // Old hit records cannot silently resolve another row after deletion, movement or map changes.
 model.WriteMultiByteValue(0x17004,2,new ModelDelta(),9);
 Check(!obj.TryResolve(source,out _),"A moved/replaced object rejects its stale snapshot hit record.");
-model.WriteMultiByteValue(0x17004,2,new ModelDelta(),8);model[0x17001]=11;
-Check(obj.TryResolve(source,out var changedSprite)&&changedSprite.SpriteID==11,"Object details read the current sprite ID rather than a cached value.");model[0x17001]=7;
+model.WriteMultiByteValue(0x17004,2,new ModelDelta(),8);model.WriteMultiByteValue(0x17014,2,new ModelDelta(),0x2AB);
+Check(obj.TryResolve(source,out var changedFlag)&&changedFlag.Flag==0x2AB,"Object details read the current flag rather than a cached value.");model.WriteMultiByteValue(0x17014,2,new ModelDelta(),0);
+model.WriteMultiByteValue(0x17014,2,new ModelDelta(),0x2AB);ClickAt(8*16+8,8*16+8);Check(Info().Contains("Flag: 0x02AB")&&!Info().Contains("Sprite"),"Object click displays the assigned flag in hex instead of Sprite ID.");
+model.WriteMultiByteValue(0x17014,2,new ModelDelta(),0);ClickAt(8*16+8,8*16+8);Check(Info().Contains("Flag: none"),"Removing the flag displays none on the next click without a render.");
 source.ScriptReferenceMapID=1000;Check(!obj.TryResolve(source,out _),"Hit records cannot cross to another map context.");source.ScriptReferenceMapID=0;Pump();Until(()=>Image().Source!=null);
 // Dismissing an overlapping-event chooser must not navigate.
 ShowMapAgain();ClickAt(8*16+8,8*16+8);menu=(ContextMenu)typeof(ScriptMapReferenceView).GetField("eventMenu",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(pane);

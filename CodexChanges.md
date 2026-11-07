@@ -3050,3 +3050,14 @@ Validation: The message-only assertion fails against the previous explicit Selec
 | tests/GotoFocus/README.md | 28 | Explain the missed startup sequence, confirmed subscription defect and expanded 27-assertion coverage. |
 
 Validation: The normal window-before-ROM startup fixture fails against 30e2e552 at the first focus assertion, reproducing a gap the earlier ROM-before-window fixture missed. After subscription repair, GotoFocus passes 27 assertions, including immediate typing after first open, a second ROM tab, returning through the native menu's bound command, old-model isolation, delayed-attachment replacement and window-close cleanup. Fresh ScriptArrowFocus (26), ScriptMapNavigation (76), TabViewLifetime (41) and SignpostScriptNavigation (14) also pass: 184 assertions across five groups, zero build warnings/errors. Both synthetic ROMs and histories remain unchanged. Native computer inspection reached a welcome-screen app rather than the user's pictured session; no personal ROM/profile was opened for testing, and this result does not claim the user's native shortcut was directly observed working. The full suite was not rerun for this subscription correction.
+
+## 202 — Keep script sections separate across unknown padding
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/Code/ScriptParser.cs | 110 | Combine a script destination across a one-byte gap only when that byte is a complete recognized command. |
+| src/HexManiac.Core/Models/Code/ScriptParser.cs | 197 | Align script-length consolidation with supported section boundaries so unknown padding remains outside generated source. |
+| tests/ScriptGapRoundTrip/Program.cs | 11 | Reproduce FF-gap source failures and verify preserved layout, compilation, shared targets, relocation/resources, rejected drafts and Undo/Redo. |
+| tests/ScriptGapRoundTrip/README.md | 1 | Document the synthetic reproduction and preserved existing separator behavior. |
+
+Validation: The new regression fails against 4efc18ba because the decompiler combines a one-byte FF gap into source containing an unsupported .raw FF directive. After repair, ScriptGapRoundTrip passes 117 assertions with zero build warnings/errors across one-/two-/three-byte gaps and single/shared callers. Generated bodies compile, comment-only edits preserve bytes/metadata, and growth/forced relocation preserves caller pointers, dialogue resources, named neighbors and gaps through exact Undo/Redo. Rejected drafts retain diagnostics and correct successfully. Adjacent sections and recognized one-byte end/nop separators retain their existing combined behavior. The repair preserves unknown bytes and numeric/opcode/allocation rules; it does not add a raw-byte compiler feature or erase padding. Personal ROM/settings were untouched; full-suite validation follows separately.

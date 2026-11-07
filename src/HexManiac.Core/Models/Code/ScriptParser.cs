@@ -110,6 +110,7 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
 
                   anchor = model.GetNextAnchor(address + length + 1);
                   if (anchor.Start == address + length + 1 && anchor.PointerSources.Count == 1) {
+                     if (anchor is IScriptStartRun && !IsSingleByteCommand(model, address + length)) break;
                      length += childLength + 1;
                      continue;
                   }
@@ -194,6 +195,10 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
                   if (i == 1 && initialAnchor.Start == address + length && initialAnchor.PointerSources.Count > 0) break;
                   var spacedAnchor = model.GetNextAnchor(address + length + i);
                   if (spacedAnchor.Start == address + length + i && spacedAnchor.PointerSources.Count == 1) {
+                     // Unknown padding is not script source. Keep the referenced script as
+                     // a separate body rather than emitting an uncompilable .raw directive.
+                     if (spacedAnchor is IScriptStartRun && i > 0 &&
+                         (i != 1 || !IsSingleByteCommand(model, address + length))) continue;
                      // if the argLength is 1, we may've skipped finding the length to prevent recursion.
                      // Now that we know more lengths, go ahead and try to calculate it.
                      if (argLength == 1 && spacedAnchor is IScriptStartRun childScript) {
@@ -211,6 +216,11 @@ namespace HavenSoft.HexManiac.Core.Models.Code {
          }
 
          return length;
+      }
+
+      private bool IsSingleByteCommand(IDataModel model, int address) {
+         var line = engine.GetMatchingLine(gameHash, model, address);
+         return line != null && line.CompiledByteLength(model, address, new Dictionary<int, int>()) == 1;
       }
 
       public MacroScriptLine GetMacro(IDataModel model, int address) => engine.GetMatchingMacro(gameHash, model, address);

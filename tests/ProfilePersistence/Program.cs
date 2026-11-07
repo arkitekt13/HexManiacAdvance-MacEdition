@@ -33,8 +33,14 @@ try{
  // Existing literal/single-quoted and Windows-path profile entries retain their exact meaning.
  foreach(var legacy in new[]{"RecentFiles = [\"/roms/Village [demo], v1.bin\"]","RecentFiles = ['C:\\roms\\test.bin']","RecentFiles = [\"C:\\roms\\test.bin\"]"}){
   var expected=legacy.Contains("/roms/")?"/roms/Village [demo], v1.bin":"C:\\roms\\test.bin";
-  var vm=new EditorViewModel(new StubFileSystem{MetadataFor=_=>new[]{legacy},Exists=path=>path==expected},InstantDispatch.Instance);
+  string[] upgraded=null;var vm=new EditorViewModel(new StubFileSystem{MetadataFor=_=>new[]{legacy},Exists=path=>path==expected,SaveMetadata=(_,lines)=>{upgraded=lines;return true;}},InstantDispatch.Instance);
   Check(vm.RecentFiles.SequenceEqual(new[]{expected}),"Legacy quoted paths remain exact without interpreting Windows backslashes as escapes.");
+  vm.WriteAppLevelMetadata();var migrated=new EditorViewModel(new StubFileSystem{MetadataFor=_=>upgraded,Exists=path=>path==expected},InstantDispatch.Instance);
+  Check(upgraded.Contains("RecentFilesFormat = Json")&&migrated.RecentFiles.SequenceEqual(new[]{expected}),"Saving a legacy profile migrates its exact path without guessing escape meanings.");
+ }
+ foreach(var bad in new[]{"RecentFiles = [broken]","RecentFiles = [12]","RecentFiles = [null, \"\", \"/missing\"]"}){
+  var vm=new EditorViewModel(new StubFileSystem{MetadataFor=_=>new[]{"RecentFilesFormat = Json",bad,"PreferScriptMapView = True"},Exists=_=>false},InstantDispatch.Instance);
+  Check(vm.Count==0&&vm.RecentFiles.Count==0&&vm.PreferScriptMapView,"Malformed/missing recent entries do not crash startup or discard unrelated preferences.");
  }
  using(var f=new WorkflowFixture()){
   var prefs=Path.Combine(profile,"external-emulator.txt");var application=Path.Combine(root,"Applications with spaces","mGBA.app");Directory.CreateDirectory(Path.Combine(application,"Contents"));File.WriteAllText(Path.Combine(application,"Contents","Info.plist"),"synthetic application");

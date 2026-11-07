@@ -12,3 +12,8 @@ Map View/grid/assistance/zoom and emulator preferences across new instances.
 Window dimensions currently use the safe 1200×800 defaults; explicit window-bound
 persistence is not implemented and is not added by this audit. Native restored-window
 behavior and actual emulator responses remain user/helper checks.
+
+The repair passes 28 assertions. New profiles mark escaped arrays with
+RecentFilesFormat = Json; unmarked profiles retain literal backslashes and quoted
+commas/brackets. Saving an older profile migrates its exact paths. Malformed/null/
+missing recent entries remain safe and leave unrelated preferences intact.

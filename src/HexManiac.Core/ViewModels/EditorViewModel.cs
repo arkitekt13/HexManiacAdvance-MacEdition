@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using static HavenSoft.HexManiac.Core.ICommandExtensions;
@@ -612,7 +613,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
          var recentFilesLine = metadata.FirstOrDefault(line => line.StartsWith("RecentFiles = ["));
          if (recentFilesLine != null) {
-            RecentFiles = ParseRecentFiles(recentFilesLine);
+            RecentFiles = ParseRecentFiles(recentFilesLine, metadata.Contains("RecentFilesFormat = Json"));
          } else {
             RecentFiles = new ObservableCollection<string>();
          }
@@ -651,6 +652,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
             $"Base10Length = {Base10Length}",
             $"SpartanMode = {SpartanMode}",
             MapTutorials.Serialize(),
+            "RecentFilesFormat = Json",
             SerializeRecentFiles(),
             string.Empty
          };
@@ -1440,24 +1442,43 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
       private void AcceptMessageClear(object sender, EventArgs e) => HideSearchControls.Execute();
 
-      private ObservableCollection<string> ParseRecentFiles(string recentFilesLine) {
+      private ObservableCollection<string> ParseRecentFiles(string recentFilesLine, bool jsonFormat) {
          var list = new ObservableCollection<string>();
-         var content = recentFilesLine.Split('[')[1];
-         content = content.Split(']')[0];
-
-         foreach (var segment in content.Split(',')) {
-            var element = segment.Trim(' ', '"', '\'');
-            if (!fileSystem.Exists(element)) continue;
-            list.Add(element);
+         int start = recentFilesLine.IndexOf('['), end = recentFilesLine.LastIndexOf(']');
+         if (start < 0 || end < start) return list;
+         var content = recentFilesLine.Substring(start, end - start + 1);
+         IEnumerable<string> paths;
+         if (jsonFormat) {
+            try { paths = JsonSerializer.Deserialize<string[]>(content) ?? Array.Empty<string>(); }
+            catch (JsonException) { return list; }
+         } else {
+            // Older profiles wrote literal paths without escaping Windows backslashes.
+            // Keep that interpretation; commas/brackets inside quotes are path characters.
+            paths = ParseLegacyRecentFiles(content.Substring(1, content.Length - 2));
          }
-
+         foreach (var path in paths) {
+            if (!string.IsNullOrWhiteSpace(path) && fileSystem.Exists(path)) list.Add(path);
+         }
          return list;
       }
 
-      private string SerializeRecentFiles() {
-         var content = string.Join(", ", RecentFiles.Select(file => $"\"{file}\""));
-         return $"RecentFiles = [{content}]";
+      private static IEnumerable<string> ParseLegacyRecentFiles(string content) {
+         char quote = '\0';
+         int start = 0;
+         for (int i = 0; i <= content.Length; i++) {
+            if (i < content.Length && content[i] is '\'' or '"') {
+               if (quote == '\0') quote = content[i];
+               else if (quote == content[i]) quote = '\0';
+            }
+            if (quote != '\0' || i < content.Length && content[i] != ',') continue;
+            var path = content.Substring(start, i - start).Trim();
+            if (path.Length >= 2 && path[0] == path[^1] && path[0] is '\'' or '"') path = path.Substring(1, path.Length - 2);
+            yield return path;
+            start = i + 1;
+         }
       }
+
+      private string SerializeRecentFiles() => $"RecentFiles = {JsonSerializer.Serialize(RecentFiles)}";
 
       private void UpdateRecentFiles(string filename) {
          var index = RecentFiles.IndexOf(filename);

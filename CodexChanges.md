@@ -2942,3 +2942,13 @@ Validation: ScriptArrowFocus passes 26 assertions and SignpostScriptNavigation p
 | tests/ProfilePersistence/README.md | 1 | Document isolated startup/emulator/profile checks and the existing default-window-size boundary. |
 
 Validation: On 0a141bdf the new group builds with zero warnings/errors and fails on exact recent-path restoration after a successful profile reload. Map View/grid/assistance/zoom settings restore, but ParseRecentFiles splits at the first bracket/comma even inside a quoted filename. No personal profile or ROM is opened. Window geometry is not explicitly persisted in existing code; the audit does not manufacture a new geometry-restoration feature. Evidence precedes the targeted preference-format repair.
+
+## 191 — Preserve exact recent-file paths across profile reloads
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 616 | Read a marked escaped recent-file array while retaining a quote-aware literal reader for older profiles. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 655 | Mark new recent-file values as Json and escape complete paths rather than constructing quoted strings by concatenation. |
+| tests/ProfilePersistence/Program.cs | 34 | Verify exact legacy migration, punctuation/Unicode reopening and safe handling of malformed/missing recent entries. |
+
+Validation: ProfilePersistence passes 28 assertions with zero build warnings/errors. Five disposable files with spaces, brackets, commas, embedded quotes, apostrophes and Unicode survive a real injected Mac profile save/reload and reopen through their exact Recent menu commands without changing bytes. Unmarked old profiles keep literal Windows backslashes and single/double-quoted paths; saving them migrates to the marked escaped format without ambiguous escape guessing. Invalid/null/missing recent entries do not prevent startup or discard unrelated settings. Fresh instances retain Map View/grid/assistance/zoom and the injected emulator preference; every launch is intercepted, so no native app starts. No ROM auto-opens on restart. Existing 1200×800 default geometry is verified and unchanged; explicit geometry restoration is not a pre-existing persisted feature. No personal profile/ROM, game metadata format, numeric parsing or engine behavior changed. System.Text.Json is provided by the existing target runtime; no package or runtime upgrade was added.

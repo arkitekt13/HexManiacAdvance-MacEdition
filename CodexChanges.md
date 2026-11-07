@@ -2914,3 +2914,12 @@ Validation: On 3fc61c58 the regression builds with zero warnings/errors and fail
 | tests/MapHeaderScripts/Program.cs | 10 | Cover added/deleted/shifted/empty/relocated rows, stale callbacks, regular/table type transitions and parent history. |
 
 Validation: MapHeaderScripts passes 69 assertions with zero build warnings/errors. Added rows are immediately visible; deleting the first row rebinds the survivor to its actual ROM start, so editing cannot overwrite a former row or terminator. Deleting every condition and adding one back creates temp0/value-zero rather than an invisible zero-variable terminator, matching existing regular-to-table defaults. A named neighbor forces actual table relocation and checks owner/child pointers. All regular/table type transitions preserve the surviving entry and round-trip through Undo/Redo; parent deletion and shifted edits do likewise. Byte and structural-metadata comparisons exclude only the existing FreeSpaceSearch allocation hint, which ordinary history has never rewound; no allocator/history algorithm was changed to make that hint compare equal. Failed evidence and repair remain separate commits. No personal ROM/settings or numeric/game-engine rules changed.
+
+## 188 — Reproduce inconsistent source focus across map arrows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptArrowFocus/Program.cs | 57 | Navigate through real object/green/header arrow controls and require correct targets, source focus, normal selection and valid-address enablement. |
+| tests/MapRendering/SyntheticMapFixture.cs | 73 | Add optional synthetic regular and conditional header scripts for the navigation audit. |
+
+Validation: On 8c95a0e5 the real-pointer regression builds with zero warnings/errors and fails on the first object-arrow source-focus assertion after opening the intended address. This is the same missing source-focus behavior previously fixed only for signposts; it does not indicate a wrong script address or modified ROM. Further assertions preserve table-parent navigation and check green-event address validity. The synthetic fixture option is off by default. Evidence precedes repair; no personal ROM/settings are used.

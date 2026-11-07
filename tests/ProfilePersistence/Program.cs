@@ -43,6 +43,10 @@ try{
   var vm=new EditorViewModel(new StubFileSystem{MetadataFor=_=>new[]{"RecentFilesFormat = Json",bad,"PreferScriptMapView = True"},Exists=_=>false},InstantDispatch.Instance);
   Check(vm.Count==0&&vm.RecentFiles.Count==0&&vm.PreferScriptMapView,"Malformed/missing recent entries do not crash startup or discard unrelated preferences.");
  }
+ foreach(var setting in new[]{new[]{"MaximumSearchResults = 321"},new[]{"MaximumDiffSegments = 17"},new[]{"MaximumDiffSegments = 17","MaximumSearchResults = invalid"}}){
+  var vm=new EditorViewModel(new StubFileSystem{MetadataFor=_=>setting},InstantDispatch.Instance);
+  Check(vm.MaximumSearchResults==(setting.Length==1&&setting[0].StartsWith("MaximumSearchResults")?321:400),"A missing/invalid search limit uses its own default independently of diff settings.");
+ }
  using(var f=new WorkflowFixture()){
   var prefs=Path.Combine(profile,"external-emulator.txt");var application=Path.Combine(root,"Applications with spaces","mGBA.app");Directory.CreateDirectory(Path.Combine(application,"Contents"));File.WriteAllText(Path.Combine(application,"Contents","Info.plist"),"synthetic application");
   int picks=0,starts=0;var errors=new List<string>();var bytes=f.Model.RawData.ToArray();

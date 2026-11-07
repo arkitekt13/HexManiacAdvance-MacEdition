@@ -609,7 +609,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          var maxDiffLine = metadata.FirstOrDefault(line => line.StartsWith("MaximumDiffSegments = "));
          if (maxDiffLine != null && int.TryParse(maxDiffLine.Split('=').Last().Trim(), out var maxDiffs)) MaximumDiffSegments = maxDiffs;
          var maxSearchResultsLine = metadata.FirstOrDefault(line => line.StartsWith("MaximumSearchResults = "));
-         if (maxDiffLine != null && int.TryParse(maxDiffLine.Split('=').Last().Trim(), out var maxSearchResults)) MaximumSearchResults = maxSearchResults;
+         if (maxSearchResultsLine != null && int.TryParse(maxSearchResultsLine.Split('=').Last().Trim(), out var maxSearchResults)) MaximumSearchResults = maxSearchResults;
 
          var recentFilesLine = metadata.FirstOrDefault(line => line.StartsWith("RecentFiles = ["));
          if (recentFilesLine != null) {

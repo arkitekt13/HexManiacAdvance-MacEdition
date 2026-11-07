@@ -2960,3 +2960,12 @@ Validation: ProfilePersistence passes 28 assertions with zero build warnings/err
 | tests/ProfilePersistence/Program.cs | 14 | Save distinct diff/search limits and require a new editor to restore each from its own key. |
 
 Validation: On 9b9de924 the isolated-profile regression builds with zero warnings/errors and fails when MaximumDiffSegments=17 and MaximumSearchResults=321 are reloaded. Inspection confirms the search-limit branch checks and parses maxDiffLine instead of maxSearchResultsLine. This is an existing preference-reader mix-up, not a search algorithm or runtime issue. Evidence precedes repair and uses no personal settings.
+
+## 193 — Restore the search-result limit from its own setting
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 613 | Check and parse maxSearchResultsLine rather than maxDiffLine when restoring MaximumSearchResults. |
+| tests/ProfilePersistence/Program.cs | 46 | Verify independent limits with both keys, the search key alone and missing/invalid search values. |
+
+Validation: ProfilePersistence passes 32 assertions with zero build warnings/errors. Distinct saved limits restore as 17/321; the search key works without a diff key, while missing or malformed search values retain the existing 400 default independently of diff preferences. Existing numeric parsing, 1–10000 bounds, search/diff algorithms and all other settings remain unchanged. Evidence and one-line repair are separate commits; no personal settings or ROM are used.

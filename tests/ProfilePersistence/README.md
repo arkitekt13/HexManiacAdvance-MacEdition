@@ -17,3 +17,7 @@ The repair passes 28 assertions. New profiles mark escaped arrays with
 RecentFilesFormat = Json; unmarked profiles retain literal backslashes and quoted
 commas/brackets. Saving an older profile migrates its exact paths. Malformed/null/
 missing recent entries remain safe and leave unrelated preferences intact.
+
+The final group passes 32 assertions after adding independent diff/search-limit
+round trips. The existing search-limit reader used the diff key; the repair reads
+its own key and retains the original parsing, bounds and missing/invalid defaults.

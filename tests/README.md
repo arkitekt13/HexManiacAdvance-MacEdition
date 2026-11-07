@@ -188,3 +188,6 @@ layout, right-edge button clicks, script paint clipping, resizing and retained s
 
 [ObjectScriptNavigation](ObjectScriptNavigation/README.md) protects the actual object script
 arrow after pointer/text assignment, clearing, correction, creation, templates and Undo/Redo.
+
+[ScriptAssistanceEntry](ScriptAssistanceEntry/README.md) covers initial command assistance with
+trailing whitespace, exact pointer edits/deletion, later commands and canceled queued insertions.

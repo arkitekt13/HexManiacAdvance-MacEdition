@@ -20,3 +20,7 @@ the test respects that behavior rather than requiring new selection persistence.
 This is actual arrow/command/input coverage; its captured navigation callback does not certify
 full tab creation or native focus. Existing map/script regression groups cover surrounding
 workflows, with native real-ROM use remaining a manual check. Final group: 51 assertions.
+
+[Focused verification](verification.json): 11 freshly built groups / 1,861 assertions,
+zero failures or skips. The complete Mac and upstream suites were not rerun for this
+two-notification repair.

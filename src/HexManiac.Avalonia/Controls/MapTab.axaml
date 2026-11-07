@@ -123,9 +123,9 @@
             </CheckBox>
             <Grid ColumnDefinitions="Auto,*" Margin="4,2,8,4" Grid.Row="3">
                <local:AngleBorder Direction="Left" VerticalAlignment="Stretch">
-                  <TextBlock Text="Movement:" Margin="4,0" Height="30"/>
+                  <TextBlock Text="Movement:" Margin="4,0" VerticalAlignment="Center"/>
                </local:AngleBorder>
-               <local:AngleComboBox Grid.Column="1" Direction="Out" MinWidth="50" Height="20" VerticalAlignment="Center"
+               <local:AngleComboBox Grid.Column="1" Direction="Out" MinWidth="50" VerticalAlignment="Stretch"
                   ItemsSource="{Binding PrimaryMap.BlockEditor.MovementPermissions}" SelectedIndex="{Binding CollisionIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}" />
             </Grid>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8,2,8,4" Grid.Row="4" IsVisible="{Binding BlockEditorVisible}">

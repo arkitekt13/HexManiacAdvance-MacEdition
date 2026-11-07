@@ -21,6 +21,9 @@ foreach(double width in new[]{256d,320d,512d})foreach(double font in new[]{14d,2
  var automatic=header.GetVisualDescendants().OfType<CheckBox>().Single(c=>c.IsVisible&&c.IsChecked==model.AutoUpdateCollision);
  var id=header.GetVisualDescendants().OfType<AngleBorder>().Single(c=>c.Content?.ToString()=="Block ID");
  var movement=header.GetVisualDescendants().OfType<AngleComboBox>().Single();var edit=header.GetVisualDescendants().OfType<AngleButton>().Single(b=>b.Name=="EditBlockButton");
+ var movementLabel=header.GetVisualDescendants().OfType<TextBlock>().Single(t=>t.Text=="Movement:");
+ Check(Math.Abs(Area(movementLabel).Center.Y-Area(movement).Center.Y)<=1,"Movement label and selector must share a vertical center.");
+ Check(Area(movementLabel).Top>=Area(movement).Top-1&&Area(movementLabel).Bottom<=Area(movement).Bottom+1,"Movement label must fit the selector row without protruding above its border.");
  Check(!Area(automatic).Intersects(Area(id)),$"Block ID must not overlap automatic movement permission: width={width}, font={font}, permission={Area(automatic)}, id={Area(id)}.");
  Check(!Area(movement).Intersects(Area(id)),"Block ID must not overlap the movement selector.");
  Check(!Area(edit).Intersects(Area(automatic))&&!Area(edit).Intersects(Area(movement)),"Edit Block must have its own clear hit area.");

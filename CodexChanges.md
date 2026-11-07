@@ -2980,3 +2980,13 @@ Validation: ProfilePersistence passes 32 assertions with zero build warnings/err
 | README.md | 65 | Describe the object flag and event variable context available beside script source. |
 
 Validation: The documented full Mac procedure passes 78 groups / 22,148 assertions, with zero failures and zero skipped groups. The only build-warning category is the existing MapImageExport NU1900 failure to fetch NuGet vulnerability metadata. All production changes were committed before this final run; this entry adds documentation only. No personal ROM/profile was opened or modified, and emulator starts were intercepted. Native interaction/real-ROM gameplay and the full upstream xUnit suite are outside this result. The pre-audit state is retained by checkpoint/pre-script-map-audit-2026-11-07; individual evidence and repairs remain separate commits.
+
+## 195 — Align the block-panel Movement label with its selector
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 126 | Remove conflicting fixed label/selector heights and center the Movement label within their measured row. |
+| tests/BlockPanelLayout/Program.cs | 24 | Check shared vertical centering and label containment at all six existing panel-width/font combinations. |
+| tests/BlockPanelLayout/README.md | 12 | Record the reproduced protruding-label regression and updated layout coverage. |
+
+Validation: The new containment check fails against b548924d, reproducing the reported label protrusion. After the layout-only repair, BlockPanelLayout passes 60 assertions across 256/320/512px widths and 14/20pt fonts; the project builds with zero warnings/errors and its rendered preview was inspected. Existing non-overlap, available-width and real checkbox-binding checks also pass. No ROM, settings, map data or movement-permission behavior changed. The full suite was not rerun for this localized layout adjustment.

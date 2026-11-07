@@ -8,4 +8,7 @@ checkbox clicks also verify that the existing two-way permission binding works.
 
 Build the project and run its DLL. An optional absolute PNG path saves a preview.
 The baseline fails at 256px/14pt: the permission checkbox (5,139,212,15) overlaps
-Block ID (191,137,65,18). Measured rows fix the overlap; 48 assertions pass.
+Block ID (191,137,65,18). Measured rows fix the overlap. The follow-up Movement-row regression also checks
+that its label and selector share a center and that the label fits inside the
+selector height; the previous fixed 30px/20px heights fail that check. Removing
+those conflicting heights fixes the reported protruding label; 60 assertions pass.

@@ -1,0 +1,120 @@
+section0: # 721280
+  lockall
+  setvar 0x403F 1
+  move.player <auto>
+{
+emote_exclamation_mark
+walk_up
+face_right
+}
+  waitmovement 0
+  move.npc 9 <auto>
+{
+walk_down
+walk_left
+walk_left
+walk_left
+walk_left
+walk_left
+walk_left
+walk_left
+}
+  goto <7214C0>
+  end
+
+section1: # 7214C0
+  msgbox.npc <auto>
+{
+AAA AAAAA AAAAAAAAA AAAA AAAAA
+AA AAA AAA AAAAAA
+
+A AAAAAAA AAAA AAA AAAAA A AAAA AAAA
+AA AAAAA AA AAAAAA AA AAAAAAAA
+AAAAAAAA AA AAA AAAAA AAAAA 
+
+AAA AAAA AAA AAA AA AAAA A AAAAAAA
+AAA AAAAA AA AAAA AAA AAA AA AA AAAA
+AAAA
+
+AAA AAAA AAAAAAAA AAAAAAA AAA
+
+AAA AAAA AAAAAA AAA AAAA AA AAAAAAA
+A AAAAA AAA AAAA AAAAAAA AAA AA AA
+AAA AAAAA A AAAAAA AA AAAA AAA A
+AAAAAA AAAA AAAAA AAAAA AAA AAAAAAA
+AAAAAAA AA AAAA AAAAAAAAAA
+
+AAAAAA AAA
+}
+  move.npc 9 <auto>
+{
+walk_right
+walk_right
+walk_right
+face_up
+}
+  move.player <auto>
+{
+walk_right
+walk_right
+walk_right
+}
+  waitmovement 0
+  msgbox.npc <auto>
+{
+AAA AA AAA AAA AAAA AAA AAAA
+}
+  fadescreen ToBlack
+  sound se_door
+  pause 30
+  setmaptile 28 7 8 0
+  special DrawWholeMapView
+  fadescreen FromBlack
+  pause 30
+  msgbox.npc <auto>
+{
+AAAAA AAAA AAA AA AAAAAAA
+}
+  move.npc 9 <auto>
+{
+walk_right
+face_left
+}
+  move.player <auto>
+{
+walk_right
+walk_right
+walk_up
+walk_up
+}
+  waitmovement 0
+  move.npc 9 <auto>
+{
+walk_left
+walk_up
+}
+  waitmovement 0
+  move.player <auto>
+{
+face_down
+}
+  waitmovement 0
+  msgbox.npc <auto>
+{
+AA AA AAAAAAA AA AAAAAA AAA AAAAA
+AAAA A AAA AAAA AAAAAAA AAAAAAAAAAAA
+
+AA AAAAAAAA AAAA AAA AAAAAAAAAA AAAA
+AAAAAAA AAAA AAA AAAA AAA AAAAAA AAA
+AAAA AAAA AAA AAAAAAA AA AAAAAAAAA
+A AAAA AAA AA AAAA AAAA 
+
+AA AA AAA AAAA AAAA AAAAAAAAA
+}
+  move.player <auto>
+{
+face_up
+}
+  waitmovement 0
+  releaseall
+  end

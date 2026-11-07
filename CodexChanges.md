@@ -2903,3 +2903,14 @@ Validation: SignpostScriptGrowth passes 48 assertions with zero build warnings/e
 | tests/MapHeaderScripts/README.md | 1 | Document the raw-table/UI-count mismatch and the audit regression's scope. |
 
 Validation: On 3fc61c58 the regression builds with zero warnings/errors and fails at the first Add Table Script assertion. The isolated probe confirms one displayed child versus two ROM table rows at the same table address. The non-relocation branch calls LINQ Append without consuming its returned sequence and does not publish a new view model; its attempted row address also points four bytes past the row start. This evidence commit precedes repair. No personal ROM/settings are used.
+
+## 187 — Keep map-header condition rows current and independently undoable
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/MapScriptCollection.cs | 185 | Release old child callbacks before rebuilding condition view models from current row addresses. |
+| src/HexManiac.Core/ViewModels/Map/MapScriptCollection.cs | 287 | Initialize an empty table's first condition like existing type conversion, then publish every added row and close its history action. |
+| src/HexManiac.Core/ViewModels/Map/MapScriptCollection.cs | 337 | Reload shifted child rows after deletion and separate that operation from later field edits in Undo history. |
+| tests/MapHeaderScripts/Program.cs | 10 | Cover added/deleted/shifted/empty/relocated rows, stale callbacks, regular/table type transitions and parent history. |
+
+Validation: MapHeaderScripts passes 69 assertions with zero build warnings/errors. Added rows are immediately visible; deleting the first row rebinds the survivor to its actual ROM start, so editing cannot overwrite a former row or terminator. Deleting every condition and adding one back creates temp0/value-zero rather than an invisible zero-variable terminator, matching existing regular-to-table defaults. A named neighbor forces actual table relocation and checks owner/child pointers. All regular/table type transitions preserve the surviving entry and round-trip through Undo/Redo; parent deletion and shifted edits do likewise. Byte and structural-metadata comparisons exclude only the existing FreeSpaceSearch allocation hint, which ordinary history has never rewound; no allocator/history algorithm was changed to make that hint compare equal. Failed evidence and repair remain separate commits. No personal ROM/settings or numeric/game-engine rules changed.

@@ -25,6 +25,22 @@ int checks=0;void Check(bool value,string message){checks++;if(!value)throw new 
  f.View.Undo.Execute(null);f.Reload();Check(before.Matches(f),"Second Undo restores the deleted row and exact metadata.");
  f.View.Redo.Execute(null);f.Reload();Check(deleted.Matches(f),"Redo restores condition deletion exactly.");
 }
+// An empty condition table must be usable again, and stale removed models must not delete a new row.
+{
+ var f=new HeaderFixture();f.Collection.AddScript();var row=f.Collection.Scripts.Single();row.ScriptTypeIndex=1;var stale=row.SubScripts[0];stale.Delete();
+ Check(row.SubScripts.Count==0,"Deleting the final condition leaves a valid empty table.");f.Reset();row=f.Collection.Scripts.Single();var empty=f.State();row.AddSubScript();
+ Check(row.SubScripts.Count==1&&row.SubScripts[0].Variable=="4000","Adding to an empty condition table creates an active temp0 condition, not a zero terminator.");
+ var added=f.State();stale.Delete();Check(added.Matches(f),"A removed child model cannot delete a newly added condition.");
+ f.View.Undo.Execute(null);f.Reload();Check(empty.Matches(f),"Repopulating an empty table is exactly undoable.");f.View.Redo.Execute(null);f.Reload();Check(added.Matches(f),"Repopulating an empty table is exactly redoable.");
+}
+// Force the condition table itself to relocate, not just its generated script.
+{
+ var f=new HeaderFixture();f.Collection.AddScript();var row=f.Collection.Scripts.Single();row.ScriptTypeIndex=1;int table=row.ScriptAddress;
+ f.Model.ObserveAnchorWritten(new ModelDelta(),"synthetic.table.guard",new NoInfoRun(table+10,SortedSpan<int>.None));f.Reset();var before=f.State();row=f.Collection.Scripts.Single();row.AddSubScript();
+ Check(row.ScriptAddress!=table&&f.Model.ReadPointer(f.Collection.Address+1)==row.ScriptAddress,"Growing the table updates its owning header pointer after relocation.");
+ Check(row.SubScripts.Count==2&&row.SubScripts[0].Start==row.ScriptAddress&&row.SubScripts[1].Start==row.ScriptAddress+8,"Relocated child models use current table coordinates.");
+ var after=f.State();f.View.Undo.Execute(null);f.Reload();Check(before.Matches(f),"Table relocation Undo restores every byte and structural metadata record.");f.View.Redo.Execute(null);f.Reload();Check(after.Matches(f),"Table relocation Redo is exact.");
+}
 // Every transition preserves the surviving entry and round-trips through history.
 {
  var f=new HeaderFixture();f.Collection.AddScript();
@@ -54,6 +70,6 @@ class HeaderFixture{
  }
  public void Reset(){Reload();View.ChangeHistory.ClearHistory(false);View.ChangeHistory.TagAsSaved();}
  public void Reload()=>Collection.Load(owner);
- public HeaderState State()=>new(Model.RawData.ToArray(),Model.ExportMetadata(null,View.Singletons.MetadataInfo).Serialize());
+ public HeaderState State()=>new(Model.RawData.ToArray(),Model.ExportMetadata(null,View.Singletons.MetadataInfo).Serialize().Where(line=>!line.StartsWith("FreeSpaceSearch = ",StringComparison.Ordinal)).ToArray());
 }
-record HeaderState(byte[] Bytes,string[] Metadata){public bool Matches(HeaderFixture f){var state=f.State();return Bytes.SequenceEqual(state.Bytes)&&Metadata.SequenceEqual(state.Metadata);}}
+record HeaderState(byte[] Bytes,string[] Metadata){public bool Matches(HeaderFixture f){var state=f.State();bool same=Bytes.SequenceEqual(state.Bytes)&&Metadata.SequenceEqual(state.Metadata);if(!same){Console.WriteLine("BYTE_DIFFS:"+string.Join(",",Enumerable.Range(0,Math.Min(Bytes.Length,state.Bytes.Length)).Where(i=>Bytes[i]!=state.Bytes[i]).Take(16).Select(i=>i.ToString("X"))));Console.WriteLine("META_REMOVED:"+string.Join(" | ",Metadata.Except(state.Metadata)));Console.WriteLine("META_ADDED:"+string.Join(" | ",state.Metadata.Except(Metadata)));}return same;}}

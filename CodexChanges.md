@@ -2866,3 +2866,13 @@ Validation: Fresh complete `bash scripts/verify-mac.sh --no-restore` passes **74
 | tests/ScriptMapNavigation/Program.cs | 131 | Check assigned/removed flags from the current row without rebuilding the map or exposing Sprite ID. |
 
 Validation: ScriptMapNavigation passes 74 assertions with zero build warnings/errors. Object details use the same four-digit hexadecimal flag notation as the editor, with an explicit 0x prefix; zero is shown as none. Flags are reread on click, while event identity guards and pure-navigation ROM/metadata/history protections remain unchanged. No personal ROM/settings are used.
+
+## 183 — Show the event trigger variable in Map View
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/ScriptMapEvent.cs | 13 | Include the live trigger field as Variable Number in script-event details and chooser labels. |
+| src/HexManiac.Avalonia/Project/ScriptMapSnapshot.cs | 68 | Capture the green event's trigger variable without changing its script or trigger semantics. |
+| tests/ScriptMapNavigation/Program.cs | 76 | Verify changed variable numbers are shown on subsequent clicks without rerendering the map. |
+
+Validation: ScriptMapNavigation passes 76 assertions with zero build warnings/errors. Variable Number uses the existing trigger editor's four-digit hexadecimal convention with a 0x prefix, including 0x0000 when that is the stored value. Changing 0x403F to 0x4040 is reflected on click from the live record. No compilation, numeric parsing, trigger comparisons, history or personal ROM/settings changed.

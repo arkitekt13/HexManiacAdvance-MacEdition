@@ -10,11 +10,11 @@ public enum ScriptMapEventKind { Object, Script, Signpost }
 
 // Values only: a displayed preview must not retain the detached ROM or live event editors.
 public sealed record ScriptMapEvent(int MapID, ScriptMapEventKind Kind, int Index, int RecordAddress,
-   int X, int Y, int? ObjectID, int? Flag, Rect Bounds, int? SignpostKind = null) {
+   int X, int Y, int? ObjectID, int? Flag, Rect Bounds, int? SignpostKind = null, int? Variable = null) {
    public string Label => Kind switch {
       ScriptMapEventKind.Object => $"Object ID: {ObjectID} · Flag: {FlagText(Flag)}",
       ScriptMapEventKind.Signpost => $"Signpost {Index + 1}",
-      _ => $"Script event {Index + 1}",
+      _ => $"Script event {Index + 1} · Variable Number: {(Variable is int value ? $"0x{value:X4}" : "none")}",
    };
 
    private static string FlagText(int? flag) => flag is > 0 ? $"0x{flag:X4}" : "none";
@@ -44,12 +44,13 @@ public sealed record ScriptMapEvent(int MapID, ScriptMapEventKind Kind, int Inde
       // Signpost arg is a union. Item/secret-base payloads must never be read as pointers.
       bool script = Kind != ScriptMapEventKind.Signpost || SignpostKind is >= 0 and <= 4;
       int? flag = Kind == ScriptMapEventKind.Object ? row.GetValue("flag") : null;
-      destination = new ScriptMapDestination(Kind, Index, ObjectID, flag, script ? row.GetAddress(pointerField) : -1, SignpostKind);
+      int? variable = Kind == ScriptMapEventKind.Script && row.HasField("trigger") ? row.GetValue("trigger") : null;
+      destination = new ScriptMapDestination(Kind, Index, ObjectID, flag, script ? row.GetAddress(pointerField) : -1, SignpostKind, variable);
       return true;
    }
 }
 
-public sealed record ScriptMapDestination(ScriptMapEventKind Kind, int Index, int? ObjectID, int? Flag, int Address, int? SignpostKind = null) {
+public sealed record ScriptMapDestination(ScriptMapEventKind Kind, int Index, int? ObjectID, int? Flag, int Address, int? SignpostKind = null, int? Variable = null) {
    public bool IsScript => Kind != ScriptMapEventKind.Signpost || SignpostKind is >= 0 and <= 4;
    public string Description {
       get {
@@ -57,7 +58,7 @@ public sealed record ScriptMapDestination(ScriptMapEventKind Kind, int Index, in
          var label = Kind switch {
             ScriptMapEventKind.Object => $"Object ID: {ObjectID} · Flag: {(Flag is > 0 ? $"0x{Flag:X4}" : "none")}",
             ScriptMapEventKind.Signpost => $"Signpost {Index + 1}",
-            _ => $"Script event {Index + 1}",
+            _ => $"Script event {Index + 1} · Variable Number: {(Variable is int value ? $"0x{value:X4}" : "none")}",
          };
          return label + (Address < 0 ? " · No script" : $" · Script {Address:X6}");
       }

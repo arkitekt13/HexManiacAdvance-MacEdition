@@ -70,6 +70,12 @@ Check(tool.Contents[0].Content.Contains("7")&&editor.Count==1&&ReferenceEquals(e
 Check(Box().IsFocused&&tab.IsScriptMapVisible&&!tab.FindControl<DockPanel>("HexPane").IsEnabled,"Navigation focuses source with hidden hex still disabled.");
 Check(pane.Offset==offset&&pane.ShowGrid&&ReferenceEquals(image,Image().Source)&&tab.ReferenceRenderCount==renders,"Script navigation retains pan/grid and the exact map image without rendering again.");
 Check(bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata())&&source.ChangeHistory.IsSaved,"Navigation alone cannot edit bytes, metadata or saved state.");
+// Variable Number uses the event trigger field, with the editor's hexadecimal convention.
+model.WriteMultiByteValue(0x16006,2,new ModelDelta(),0x403F);ClickAt(12*16+8,8*16+8);
+Check(Info().Contains("Variable Number: 0x403F"),"Green event details display their current trigger variable number.");
+model.WriteMultiByteValue(0x16006,2,new ModelDelta(),0x4040);ClickAt(12*16+8,8*16+8);
+Check(Info().Contains("Variable Number: 0x4040"),"Variable details update on a new click without rerendering the map.");
+model.WriteMultiByteValue(0x16006,2,new ModelDelta(),0);
 // Read current pointers rather than an address cached into the image.
 model.WritePointer(new ModelDelta(),0x1600C,0x18A00);bytes=model.RawData.ToArray();metadata=Metadata();
 ClickAt(12*16+8,8*16+8);Until(()=>tool.Contents[0].Address==0x18A00);

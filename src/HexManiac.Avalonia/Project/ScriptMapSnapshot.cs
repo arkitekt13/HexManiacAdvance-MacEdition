@@ -64,7 +64,7 @@ public sealed record ScriptMapSnapshot(string Caption, ReadonlyPixelViewModel Im
          for (int i = 0; i < events.Scripts.Count; i++) {
             var ev = events.Scripts[i];
             targets.Add(new(mapID, ScriptMapEventKind.Script, i, rows[i].Start, ev.X, ev.Y, null, null,
-               new Rect(ev.X * 16, ev.Y * 16, 16, 16)));
+               new Rect(ev.X * 16, ev.Y * 16, 16, 16), Variable: ev.Trigger));
          }
          rows = header.GetSubTable("events")[0].GetSubTable("signposts");
          for (int i = 0; i < events.Signposts.Count; i++) {

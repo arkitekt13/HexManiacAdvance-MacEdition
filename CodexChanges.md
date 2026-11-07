@@ -2876,3 +2876,12 @@ Validation: ScriptMapNavigation passes 74 assertions with zero build warnings/er
 | tests/ScriptMapNavigation/Program.cs | 76 | Verify changed variable numbers are shown on subsequent clicks without rerendering the map. |
 
 Validation: ScriptMapNavigation passes 76 assertions with zero build warnings/errors. Variable Number uses the existing trigger editor's four-digit hexadecimal convention with a 0x prefix, including 0x0000 when that is the stored value. Changing 0x403F to 0x4040 is reflected on click from the live record. No compilation, numeric parsing, trigger comparisons, history or personal ROM/settings changed.
+
+## 184 — Reproduce signpost entries losing relocated scripts
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/SignpostScriptGrowth/Program.cs | 9 | Force script growth behind a named neighbor and require every script-bearing signpost to follow while preserving pointer-shaped item/base payloads. |
+| tests/SignpostScriptGrowth/README.md | 1 | Document the synthetic relocation reproduction and intended history/resource safety coverage. |
+
+Validation: On 7ef1738c the new regression builds with zero warnings/errors and fails at the first signpost pointer assertion. A separate isolated probe shows the formatted root moving from 018800 to 01C000 with zero ordinary pointer sources, while arg remains 018800 and compilation reports success; old script bytes are cleared. The normal template deliberately keeps arg as a raw union, so generic pointer-source relocation does not know that reference exists. No personal ROM/settings are opened. This evidence commit precedes the targeted repair.

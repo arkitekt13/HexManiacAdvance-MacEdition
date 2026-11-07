@@ -7,6 +7,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Presenters;
+using Avalonia.VisualTree;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
@@ -121,6 +123,7 @@ public partial class TextEditor : UserControl {
          // Read the live editor/viewport here, never a source or template captured by an old event.
          if (widthUpdatesAllowed) {
             UpdateDocumentWidth();
+            UpdateSyntaxClip();
             // A ScrollChanged after the last request would have won over the old immediate
             // measurement. Keep that ordering when this calculation is deferred.
             if (scrollViewer != null && widthRequestScrollVersion != scrollGeometryVersion) {
@@ -241,6 +244,7 @@ public partial class TextEditor : UserControl {
 
    private void TextScrollChanged(object sender, ScrollChangedEventArgs e) {
       scrollGeometryVersion++;
+      UpdateSyntaxClip();
       DiagnosticLayer.InvalidateVisual();
       foreach (var layer in Layers) {
          var transform = layerTransforms[layer];
@@ -248,6 +252,16 @@ public partial class TextEditor : UserControl {
          transform.X = -scrollViewer.Offset.X;
          layer.Width = scrollViewer.Extent.Width;
       }
+   }
+
+   // The glyph layers sit behind a transparent TextBox. Match its actual viewport so
+   // painted syntax cannot extend under either reserved scrollbar gutter.
+   private void UpdateSyntaxClip() {
+      var viewport = scrollViewer?.GetVisualDescendants().OfType<ScrollContentPresenter>().FirstOrDefault();
+      if (viewport?.TranslatePoint(default, SyntaxLayers) is not Point origin) return;
+      var bounds = new Rect(origin, viewport.Bounds.Size);
+      if (SyntaxLayers.Clip is not RectangleGeometry clip || clip.Rect != bounds)
+         SyntaxLayers.Clip = new RectangleGeometry(bounds);
    }
 
    private void UpdateErrorDecorations() {

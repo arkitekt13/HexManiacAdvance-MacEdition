@@ -28,3 +28,6 @@ AllowAutoHide setting. The custom TextBox template must forward that setting, an
 must respect the narrower viewport. The final group passes 78 assertions.
 
 Native trackpad feel, Retina rendering and real-ROM panel appearance remain manual checks.
+
+Fresh complete verification on the transferred Mac: **68 groups / 20,805 assertions**,
+zero failures and skipped groups; [exact group counts](verification.json).

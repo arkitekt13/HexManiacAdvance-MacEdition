@@ -2702,3 +2702,15 @@ Validation: The new lifetime group passes 41 assertions, including actual Map/He
 | tests/EditorScrollbars/README.md | 1 | Explain the controlled production-viewer hosts and distinguish layout checks from core map/script workflows and native trackpad checks. |
 
 Validation: On ccb765fa, the group builds without warnings/errors and fails at the first script-editor viewport assertion: content extends beneath a scrollbar. The installed Fluent template spans content underneath its scrollbar columns when auto-hide is enabled. The left editors inherit that behavior; the port's custom TextBox template additionally omits forwarding AllowAutoHide to its inner ScrollViewer. Evidence and production repair are separate commits. No personal ROM/settings, compiler/numeric/history behavior or production code changes are included in this evidence commit.
+
+## 168 — Reserve scrollbar space throughout the left editor panels
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 161 | Give block, event, map-header and tile viewers stable scrollbar gutters instead of hover overlays. |
+| src/HexManiac.Avalonia/Controls/TabView.axaml | 231 | Reserve scrollbar space in table, text, image, multi-script and log tools and the associated map-preview list. |
+| src/HexManiac.Avalonia/Resources/GeneralResources.axaml | 172 | Forward the text box's AllowAutoHide setting into its custom inner ScrollViewer. |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml | 19 | Name the syntax-paint canvas and disable overlay scrollbars in the transparent editing text box. |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs | 257 | Clip syntax paint to the actual text viewport after scroll, viewport and queued width updates without changing source or glyph layout. |
+
+Validation: The new EditorScrollbars group passes 78 assertions, including both scrollbar directions in the real script editor, exact syntax viewport clipping, stable hover/resize geometry, unchanged source/selection and clickable right-edge buttons in seven production panel viewer instances at 220/420 widths. The baseline fails its first non-overlap assertion before the repair. Fresh `scripts/verify-mac.sh --no-restore` on the transferred Apple Silicon Mac passes **68 groups / 20,805 assertions / zero failures / zero skipped groups**; exact counts and any build warnings are preserved in `tests/EditorScrollbars/verification.json`. Existing map selection/tiling/zoom, event editing/navigation, clipboard, autocomplete, diagnostics, script layout/width, lifecycle retention, pending/rejected source, Save and Undo/Redo protections all pass. The patch uses existing template properties and clipping only: no scrollbar input handlers, compilation/numeric/resource/history algorithms, Map View interaction code or personal ROM/settings changed. Native trackpad feel and real-ROM panel appearance await the user's relaunch. Evidence and implementation remain separate commits on the unmerged feature branch.

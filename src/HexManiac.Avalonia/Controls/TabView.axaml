@@ -173,7 +173,7 @@
                                  IsVisible="{Binding Visible}"/>
                         <Popup IsOpen="{Binding ShowPreviews, Mode=TwoWay}" IsLightDismissEnabled="True" PlacementTarget="{Binding #ShowMapsButton}">
                            <Border Background="{DynamicResource Background}" BorderThickness="1" BorderBrush="{DynamicResource Accent}">
-                              <ScrollViewer MaxWidth="600" HorizontalScrollBarVisibility="Hidden">
+                              <ScrollViewer AllowAutoHide="False" MaxWidth="600" HorizontalScrollBarVisibility="Hidden">
                                  <ItemsControl ItemsSource="{Binding MapPreviews}">
                                     <ItemsControl.ItemsPanel>
                                        <ItemsPanelTemplate><WrapPanel MaxWidth="600" /></ItemsPanelTemplate>
@@ -228,7 +228,7 @@
                      </Border>
                   </Popup>
                </StackPanel>
-               <ScrollViewer Name="TableScrollViewer" VerticalScrollBarVisibility="Visible">
+               <ScrollViewer AllowAutoHide="False" Name="TableScrollViewer" VerticalScrollBarVisibility="Visible">
                   <StackPanel>
                      <!-- Filter -->
                      <Grid HorizontalAlignment="Stretch" Margin="2" ColumnDefinitions="Auto,*"
@@ -708,7 +708,7 @@
 
                <Grid Margin="5,5" MinHeight="50">
                   <TextBox Name="StringToolTextBox" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" UndoLimit="0"
+                     ScrollViewer.AllowAutoHide="False" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" UndoLimit="0"
                      LostFocus="ShowManualSelection"
                      GotFocus="HideManualSelection"
                      IsEnabled="{Binding StringTool.Enabled}"
@@ -720,7 +720,7 @@
             </DockPanel>
 
             <!-- Image Tool -->
-            <ScrollViewer Name="ImageToolPanel" VerticalScrollBarVisibility="Visible"
+            <ScrollViewer AllowAutoHide="False" Name="ImageToolPanel" VerticalScrollBarVisibility="Visible"
                           IsVisible="{Binding SelectedIndex, Converter={StaticResource Equality}, ConverterParameter=2, Mode=OneWay}">
                <StackPanel>
                   <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -844,7 +844,7 @@
                   <DockPanel IsVisible="{Binding UseMultiContent}">
                      <TextBlock Foreground="{DynamicResource Error}" DockPanel.Dock="Bottom" TextWrapping="Wrap"
                         Text="{Binding ErrorText}" IsVisible="{Binding ShowErrorText}" />
-                     <ScrollViewer Name="CodeToolMultiTextBox">
+                     <ScrollViewer AllowAutoHide="False" Name="CodeToolMultiTextBox">
                         <StackPanel>
                            <ItemsControl ItemsSource="{Binding Contents}" Name="CodeToolMultiTextBoxItems" VerticalAlignment="Top">
                               <ItemsControl.ItemTemplate>
@@ -931,7 +931,7 @@
             <!-- Log Tool -->
             <Grid Name="LogToolPanel" IsVisible="{Binding SelectedIndex, Converter={StaticResource Equality}, ConverterParameter=4, Mode=OneWay}">
                <TextBox Text="{Binding LogTool.AllLogText, Mode=OneWay}" IsReadOnly="True" Margin="4"
-                        TextWrapping="Wrap" FontFamily="Consolas" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                        TextWrapping="Wrap" FontFamily="Consolas" ScrollViewer.AllowAutoHide="False" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
             </Grid>
          </Grid>
 

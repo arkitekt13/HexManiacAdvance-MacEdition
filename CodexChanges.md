@@ -2933,3 +2933,12 @@ Validation: On 8c95a0e5 the real-pointer regression builds with zero warnings/er
 | src/HexManiac.Core/ViewModels/Map/IEventViewModel.cs | 1773 | Expose and notify valid-address navigation state for green events and reject invalid direct navigation requests. |
 
 Validation: ScriptArrowFocus passes 26 assertions and SignpostScriptNavigation passes nine, with zero build warnings/errors. Actual pointer input opens the intended object, green, regular-header and conditional-child source and focuses its text box without selecting all; conditional parent arrows continue to open their tables. Signpost arrows retain select-all and ordinary click-to-deselect. Green-event arrows disable/re-enable after null, out-of-ROM and corrected assignments, including programmatic updates. The shared callback checks current model, selected tool/address, realized visible controls and open overlays before focusing. Existing MethodCommand bindings remain in place, including object-arrow enablement behavior. Map View uses its separate navigation path. No personal ROM/settings, parsing, compiler, relocation or history algorithm changed.
+
+## 190 — Reproduce recent-file paths disappearing after restart
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ProfilePersistence/Program.cs | 11 | Save and reload a real injected Mac profile with disposable filenames containing spaces, brackets, commas, quotes, apostrophes and Unicode. |
+| tests/ProfilePersistence/README.md | 1 | Document isolated startup/emulator/profile checks and the existing default-window-size boundary. |
+
+Validation: On 0a141bdf the new group builds with zero warnings/errors and fails on exact recent-path restoration after a successful profile reload. Map View/grid/assistance/zoom settings restore, but ParseRecentFiles splits at the first bracket/comma even inside a quoted filename. No personal profile or ROM is opened. Window geometry is not explicitly persisted in existing code; the audit does not manufacture a new geometry-restoration feature. Evidence precedes the targeted preference-format repair.

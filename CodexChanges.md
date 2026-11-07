@@ -2818,3 +2818,14 @@ Fresh **13 groups / 3,266 assertions / zero failures / zero skipped groups**, wi
 | tests/ScriptMapNavigation/Program.cs | 140 | Exercise all script signpost kinds, pointer changes, rejected drafts, null/deleted/stale-kind targets and pointer-shaped non-script data. |
 
 Validation: ScriptMapNavigation passes 71 assertions, up from 41; all five script-bearing signpost kinds open in the same left editor without live formatting writes. Hidden-item kinds 5–7, secret-base kind 8 and unsupported kind 255 retain the exact pending compile callbacks and source while displaying their purpose; their payload is never read as a pointer. Fresh live row counts and kind identity reject deleted/stale targets, and signpost clicks share the existing rejected-source protection. Build has zero warnings/errors. Only synthetic inputs are used; compiler, pointer tracking/relocation, numeric and history algorithms are unchanged. Full cross-feature verification follows after the requested UI changes.
+
+## 178 — Focus and select source when entering through a signpost arrow
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 638 | Give the signpost arrow an explicit enabled navigation handler so its host is captured before the map detaches. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 89 | Focus and select the requested source box after navigation while rejecting stale destinations and open overlays. |
+| tests/SignpostScriptNavigation/Program.cs | 55 | Verify real arrow input, first/reused script tabs, select-all, click-to-deselect and unchanged ROM state. |
+| tests/ScriptMapNavigation/Program.cs | 153 | Verify Map View signpost navigation does not automatically select all source. |
+
+Validation: SignpostScriptNavigation passes nine assertions with zero build warnings/errors; actual pointer input focuses the script and selects its contents on first and repeated arrow entry, while a normal source click clears the selection for incremental editing. ScriptMapNavigation passes 72 assertions including the separate Map View behavior. The source lookup targets the requested CodeBody rather than the last-focused address field; delayed focus checks the current model, selected address and overlay state. No personal ROM/settings, compiler, pointer relocation or history rules changed. Cross-feature verification follows after the requested visual fixes.

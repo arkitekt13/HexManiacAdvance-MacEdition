@@ -147,6 +147,7 @@ for(int kind=0;kind<=4;kind++){
  model[0x1B005]=(byte)kind;model.WritePointer(new ModelDelta(),0x1B008,0x18800);
  pane.ShowSnapshot(ScriptMapSnapshot.Create(source,0));Pump();bytes=model.RawData.ToArray();metadata=Metadata();
  ClickAt(20*16+8,8*16+8);Until(()=>tool.Contents[0].Address==0x18800);
+ if(kind==0)Check(Box().SelectionStart==Box().SelectionEnd,"Map View signpost navigation does not select all source.");
  Check(Info().Contains("Signpost 1")&&editor.Count==1,"Script-bearing signpost kind "+kind+" opens in the same left editor.");
  Check(bytes.SequenceEqual(model.RawData)&&metadata.SequenceEqual(Metadata()),"Signpost navigation does not lazily format the live ROM.");
 }

@@ -635,7 +635,7 @@
                         <local:AngleTextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Margin="0,2,24,2" Direction="Out"
                            Classes.scriptError="{Binding HasScriptAddressError}" ToolTip.Tip="{Binding ScriptAddressError}"
                            TextBinding="{Binding PointerText, Mode=TwoWay}" IsVisible="{Binding ShowPointer}" />
-                        <local:AngleButton Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Command="{res:MethodCommand GotoScript}"
+                        <local:AngleButton Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Name="SignpostScriptArrow" Click="SignpostScriptClick" IsEnabled="{Binding CanGotoScript}"
                            IsVisible="{Binding ShowPointer}"
                            Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                            <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />

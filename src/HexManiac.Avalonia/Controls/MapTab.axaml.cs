@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -12,8 +13,11 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using HavenSoft.HexManiac.Core;
+using HavenSoft.HexManiac.AvaloniaUI.Windows;
 using HavenSoft.HexManiac.Core.ViewModels.Images;
 using HavenSoft.HexManiac.Core.ViewModels.Map;
+using ViewPort = HavenSoft.HexManiac.Core.ViewModels.ViewPort;
+using HavenSoft.HexManiac.Core.ViewModels.Tools;
 using CoreBlockEditor = HavenSoft.HexManiac.Core.ViewModels.Map.BlockEditor;
 
 namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
@@ -80,6 +84,26 @@ public partial class MapTab : UserControl {
       SetUpReveal();
       SetUpSelectionPop();
       WatchBlockEditor();
+   }
+
+   private void SignpostScriptClick(object sender, RoutedEventArgs e) {
+      if (sender is not Control { DataContext: SignpostEventViewModel signpost } || !signpost.ShowPointer ||
+          !signpost.CanGotoScript || ViewModel?.ViewPort is not ViewPort source || TopLevel.GetTopLevel(this) is not MainWindow window) return;
+      int address = signpost.Pointer;
+      signpost.GotoScript();
+      // Capture the host before navigation detaches this map. Select source only after
+      // the destination tab is realized, and never steal focus from another destination.
+      Dispatcher.UIThread.Post(() => {
+         var editor = window.Editor;
+         if (editor?.SelectedTab is not ViewPort selected || !ReferenceEquals(selected.Model, source.Model) ||
+             editor.GotoViewModel.ControlVisible || editor.FindControlVisible || editor.HexConverterVisible || editor.ShowError ||
+             selected.Tools.CodeTool.Mode != CodeMode.Script || !selected.Tools.CodeTool.Contents.Any(body => body.Address == address)) return;
+         var tab = window.GetVisualDescendants().OfType<TabView>()
+            .FirstOrDefault(tab => ReferenceEquals(tab.DataContext, selected) && tab.IsEffectivelyVisible);
+         var input = tab?.GetVisualDescendants().OfType<TextEditor>()
+            .FirstOrDefault(field => field.Tag is CodeBody body && body.Address == address && field.IsEffectivelyVisible)?.EditBox;
+         if (input?.Focus() == true) input.SelectAll();
+      }, DispatcherPriority.Background);
    }
 
    private void BuildKeyBindings() {

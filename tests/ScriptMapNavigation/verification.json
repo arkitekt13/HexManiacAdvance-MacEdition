@@ -1,11 +1,12 @@
 {
   "procedure": "bash scripts/verify-mac.sh --no-restore",
-  "groups": 71,
-  "assertions": 21686,
+  "verifiedDate": "2026-11-07",
+  "implementationHead": "48180bb4",
+  "branch": "codex/map-reference-event-navigation",
+  "groups": 74,
+  "assertions": 21969,
   "failures": 0,
   "skippedGroups": 0,
-  "checkpoint": "7a6c80ecebd2aebf07b57d625b59a879369628e9",
-  "branch": "codex/map-reference-event-navigation",
   "results": [
     {
       "group": "AutocompleteDismissal",
@@ -22,6 +23,12 @@
     {
       "group": "BlockBagFill",
       "assertions": 2081,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "BlockPanelLayout",
+      "assertions": 48,
       "failures": 0,
       "skipped": false
     },
@@ -333,13 +340,19 @@
     },
     {
       "group": "ScriptMapNavigation",
-      "assertions": 41,
+      "assertions": 72,
       "failures": 0,
       "skipped": false
     },
     {
       "group": "ScriptMapReference",
       "assertions": 63,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptScrollStability",
+      "assertions": 195,
       "failures": 0,
       "skipped": false
     },
@@ -358,6 +371,12 @@
     {
       "group": "ShortFieldTabSelection",
       "assertions": 21,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "SignpostScriptNavigation",
+      "assertions": 9,
       "failures": 0,
       "skipped": false
     },
@@ -435,13 +454,47 @@
     }
   ],
   "buildWarnings": [
-    "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/tests/MapImageExport/MapImageExport.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
+    "tests/MapImageExport/MapImageExport.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
   ],
-  "focusedGroup": "ScriptMapNavigation: 41 assertions",
-  "memoryProcedure": "Release ScriptMapMemoryBenchmark --trace-only --no-root-trace; lifetime-memory.json",
+  "featureCommits": {
+    "signpostMapNavigation": "d84a50f6",
+    "signpostArrowSelection": "ec68830d",
+    "blockPanelLayout": "adacd7b6",
+    "mapScriptDeleteIcons": "48180bb4"
+  },
+  "visualChecks": {
+    "deleteRows": 2,
+    "before": {
+      "button": [
+        20,
+        18
+      ],
+      "path": [
+        5,
+        -1,
+        10,
+        20
+      ]
+    },
+    "after": {
+      "button": [
+        24,
+        18
+      ],
+      "path": [
+        8,
+        5,
+        8,
+        8
+      ]
+    },
+    "renderedTemplates": "Actual map-script and table-sub-script templates with layout-only models; before/after PNGs visually inspected."
+  },
   "limitations": [
-    "Synthetic/headless inputs only; native popup positioning, trackpad feel and real-ROM gameplay need user testing.",
-    "The full upstream xUnit suite was not run.",
-    "No personal ROMs/settings used; no core compiler, numeric parsing, relocation or history algorithms changed."
+    "Synthetic/headless regressions; native trackpad/popup appearance and real-ROM gameplay remain user checks.",
+    "No personal ROM/settings opened or modified.",
+    "No compiler, numeric, allocation, pointer relocation, history or engine algorithm changed.",
+    "Full upstream xUnit suite not rerun.",
+    "lifetime-memory.json is the earlier navigation measurement; TabViewLifetime is freshly rerun in this result."
   ]
 }

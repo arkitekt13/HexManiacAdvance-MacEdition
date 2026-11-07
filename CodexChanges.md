@@ -2846,3 +2846,13 @@ Validation: The production controls reproduce the overlap at 256px/14pt: automat
 | src/HexManiac.Avalonia/Controls/MapTab.axaml | 991 | Give both map-script and table-sub-script delete buttons a 24×18 hit area and a centered 8×8 square X. |
 
 Validation: An ignored headless preview instantiates the actual parent/sub-script templates and renders both before and after. Previously each X used a 10×20 control at (5,-1) inside a 20×18 button; the taller-than-button control let its uniformly stretched ink sit too high. Both now use an 8×8 square at (8,5) in a 24×18 button, with zero center offset and no bounds overflow. Before/after images were visually inspected. Build has zero warnings/errors, existing Delete command bindings are unchanged, and no ROM is used. Complete regression results follow in the verification record.
+
+## 181 — Verify signpost navigation and map-panel UI changes together
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptMapNavigation/verification.json | 1 | Record all 74 fresh regression groups, their assertion counts, the four implementation commits, delete-icon geometry and validation boundaries. |
+| tests/ScriptMapNavigation/README.md | 5 | Describe the current 72-check navigation coverage, including signpost unions and arrow-independent selection behavior. |
+| README.md | 65 | Include script signposts in the script-side Map View feature description. |
+
+Validation: Fresh complete `bash scripts/verify-mac.sh --no-restore` passes **74 groups / 21,969 assertions / zero failures / zero skipped groups** on implementation head 48180bb4. This includes ScriptMapNavigation 72, SignpostScriptNavigation 9, BlockPanelLayout 48, ScriptScrollStability 195, ScriptMapReference 63, ScriptWorkflowSafety 598, ScriptAssistanceEntry 789, ClipboardRouting 78 and TabViewLifetime 41, plus every existing map/rendering/history, input, save and packaging regression group. The only build warning is the existing MapImageExport NU1900 vulnerability-index lookup warning; no build errors occur. Actual parent/sub-script delete-icon templates were rendered before and after and visually inspected. The earlier navigation memory measurement remains historical; no fresh memory benchmark or native real-ROM gameplay claim is made. The full upstream xUnit suite was not rerun. No personal ROM/settings were used, and the four requested behavioral/visual changes remain separate commits. Native UI confirmation remains user testing after restart.

@@ -3000,3 +3000,13 @@ Validation: The new containment check fails against b548924d, reproducing the re
 | tests/BlockPanelLayout/README.md | 18 | Document the stationary Block ID row and expanded regression coverage. |
 
 Validation: BlockPanelLayout passes 156 assertions across 256/320/512px widths and 14/20pt fonts, including seven representative one- through four-digit IDs, exact stable control bounds, row alignment, non-overlap and the existing real checkbox-binding checks. The project builds with zero warnings/errors and the rendered layout was inspected. The full suite was not rerun for this localized presentation change; no ROM, settings, tile-selection or movement-permission behavior changed.
+
+## 197 — Center Block ID in the space before Edit Block
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 131 | Center the fixed-width Block ID group in the available left column while reserving an independent right column for Edit Block. |
+| tests/BlockPanelLayout/Program.cs | 32 | Check horizontal centering alongside stable digit changes, label alignment and button non-overlap at all existing sizes. |
+| tests/BlockPanelLayout/README.md | 24 | Describe the centered group and 162-assertion layout coverage. |
+
+Validation: BlockPanelLayout passes 162 assertions across 256/320/512px panel widths and 14/20pt text, with zero build warnings/errors. Seven representative IDs through 1023 retain exact control bounds and fit their reserved numeric field; Edit Block remains separate, and the rendered preview was inspected. The full suite was not rerun for this presentation-only adjustment. No ROM, settings or map-editing behavior changed.

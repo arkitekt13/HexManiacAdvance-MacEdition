@@ -17,3 +17,8 @@ Block ID now sits to the left of Edit Block in a shared three-column row: label,
 reserved value space and button. Seven representative IDs (0 through 1023) check
 that every column stays in exactly the same position and the text fits at each
 width/font combination. The expanded group passes 156 assertions.
+
+The Block ID label/value group is centered within the space before the independently
+reserved Edit Block column. Its numeric field remains 48px wide so digit changes
+do not shift the group. Centering, narrow-width non-overlap and existing movement
+row alignment bring this group to 162 assertions.

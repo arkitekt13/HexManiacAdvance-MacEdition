@@ -3010,3 +3010,13 @@ Validation: BlockPanelLayout passes 156 assertions across 256/320/512px widths a
 | tests/BlockPanelLayout/README.md | 24 | Describe the centered group and 162-assertion layout coverage. |
 
 Validation: BlockPanelLayout passes 162 assertions across 256/320/512px panel widths and 14/20pt text, with zero build warnings/errors. Seven representative IDs through 1023 retain exact control bounds and fit their reserved numeric field; Edit Block remains separate, and the rendered preview was inspected. The full suite was not rerun for this presentation-only adjustment. No ROM, settings or map-editing behavior changed.
+
+## 198 — Group Block ID beside Edit Block with clear spacing
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 131 | Shift Block ID right beside Edit Block with an explicit 8px gap and retain fixed digit space without crowding narrow panels. |
+| tests/BlockPanelLayout/Program.cs | 33 | Verify the explicit button gap alongside stable bounds, four-digit fit and existing non-overlap checks. |
+| tests/BlockPanelLayout/README.md | 29 | Record the final toolbar placement and tested narrow-panel fit. |
+
+Validation: BlockPanelLayout passes 162 assertions across 256/320/512px widths and 14/20pt fonts, with zero build warnings/errors. A rendered preview was inspected using the widest tested ID, 1023, to verify the gap before Edit Block. The full suite was not rerun for this local presentation-only adjustment. No ROM, settings or editing behavior changed.

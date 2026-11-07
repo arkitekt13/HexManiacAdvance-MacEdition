@@ -22,3 +22,7 @@ The Block ID label/value group is centered within the space before the independe
 reserved Edit Block column. Its numeric field remains 48px wide so digit changes
 do not shift the group. Centering, narrow-width non-overlap and existing movement
 row alignment bring this group to 162 assertions.
+
+The final visual refinement right-aligns the Block ID group next to Edit Block
+with an explicit 8px gap. Its reserved digit width stays fixed, and the narrower
+outer/button padding preserves the 256px/20pt fit. All 162 assertions still pass.

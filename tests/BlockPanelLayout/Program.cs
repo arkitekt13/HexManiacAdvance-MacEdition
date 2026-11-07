@@ -30,7 +30,7 @@ foreach(double width in new[]{256d,320d,512d})foreach(double font in new[]{14d,2
  foreach(var control in new Control[]{automatic,id,movement,edit})Check(Area(control).Left>=-1&&Area(control).Right<=width+1,"Every block-panel control must fit the available width.");
  var value=header.GetVisualDescendants().OfType<TextBlock>().Single(t=>t.Name=="BlockIdValue");
  var group=header.GetVisualDescendants().OfType<StackPanel>().Single(c=>c.Name=="BlockIdGroup");
- Check(Math.Abs(Area(group).Center.X-(4+Area(edit).Left)/2)<=1,"Block ID group must be centered in the space before Edit Block.");
+ Check(Math.Abs(Area(group).Right+8-Area(edit).Left)<=1,"Block ID group must sit eight pixels before the reserved Edit Block column.");
  var labelBounds=Area(id);var valueBounds=Area(value);var editBounds=Area(edit);
  Check(labelBounds.Right<=valueBounds.Left&&valueBounds.Right<=editBounds.Left,$"Block ID columns width={width} font={font}: label={labelBounds}, value={valueBounds}, edit={editBounds}.");
  Check(Math.Abs(labelBounds.Center.Y-editBounds.Center.Y)<=1,$"Block ID row: font={font}, label={labelBounds}, edit={editBounds}.");

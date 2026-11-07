@@ -28,11 +28,20 @@ foreach(double width in new[]{256d,320d,512d})foreach(double font in new[]{14d,2
  Check(!Area(movement).Intersects(Area(id)),"Block ID must not overlap the movement selector.");
  Check(!Area(edit).Intersects(Area(automatic))&&!Area(edit).Intersects(Area(movement)),"Edit Block must have its own clear hit area.");
  foreach(var control in new Control[]{automatic,id,movement,edit})Check(Area(control).Left>=-1&&Area(control).Right<=width+1,"Every block-panel control must fit the available width.");
+ var value=header.GetVisualDescendants().OfType<TextBlock>().Single(t=>t.Name=="BlockIdValue");
+ var labelBounds=Area(id);var valueBounds=Area(value);var editBounds=Area(edit);
+ Check(labelBounds.Right<=valueBounds.Left&&valueBounds.Right<=editBounds.Left,"Block ID, value and Edit Block must occupy separate columns.");
+ Check(Math.Abs(labelBounds.Center.Y-editBounds.Center.Y)<=1,"Block ID must share the Edit Block row.");
+ foreach(var number in new[]{0,1,11,99,100,888,1023}){
+  value.Text=number.ToString();Pump();
+  Check(Area(id)==labelBounds&&Area(value)==valueBounds&&Area(edit)==editBounds,"Changing digit width must not move Block ID, its value column or Edit Block.");
+  Check(value.TextLayout.Width<=value.Bounds.Width+.01,$"Block IDs must fit: width={width},font={font},id={number},desired={value.DesiredSize},bounds={value.Bounds}.");
+ }
  var at=automatic.TranslatePoint(new Avalonia.Point(12,automatic.Bounds.Height/2),host).Value;
  var before=model.AutoUpdateCollision;host.MouseMove(at);host.MouseDown(at,MouseButton.Left);host.MouseUp(at,MouseButton.Left);Pump();
  Check(model.AutoUpdateCollision!=before,"Automatic movement permission stays clickable and bound.");
 }
-if(args.Length==1){host.Width=512;Pump();using var preview=new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(512,(int)Math.Ceiling(header.DesiredSize.Height)));preview.Render(header);preview.Save(args[0]);}
+if(args.Length==1){host.Width=512;host.Height=header.DesiredSize.Height;Pump();using var preview=new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(512,(int)Math.Ceiling(header.DesiredSize.Height)));preview.Render(header);preview.Save(args[0]);}
 host.Content=null;host.Close();Console.WriteLine($"CHECKS_PASSED:{checks}");
 class HeaderModel{
  public object Blocks{get;}=new{ScaledWidth=256d};public bool AutoUpdateCollision{get;set;}=true;public bool BlockEditorVisible=>true;public int DrawBlockIndex=>17;public bool BlockBagVisible=>false;public bool IsSingleBlock=>false;public bool DrawMultipleTiles=>false;public bool IsValid9GridSelection=>false;public bool Use9Grid{get;set;}public int CollisionIndex{get;set;}

@@ -128,14 +128,13 @@
                <local:AngleComboBox Grid.Column="1" Direction="Out" MinWidth="50" VerticalAlignment="Stretch"
                   ItemsSource="{Binding PrimaryMap.BlockEditor.MovementPermissions}" SelectedIndex="{Binding CollisionIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}" />
             </Grid>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8,2,8,4" Grid.Row="4" IsVisible="{Binding BlockEditorVisible}">
-               <local:AngleBorder Direction="Out" Content="Block ID" />
-               <TextBlock Text="{Binding DrawBlockIndex}" VerticalAlignment="Center" Margin="8,0,0,0" />
-            </StackPanel>
-            <Decorator Grid.Row="1" Height="20" HorizontalAlignment="Right" Margin="8,4" IsVisible="{Binding BlockEditorVisible}">
-               <local:AngleButton DataContext="{Binding PrimaryMap.BlockEditor}" Content="Edit Block" x:Name="EditBlockButton"
-                   Direction="Right" Padding="2,0" Command="{res:MethodCommand ToggleShowTiles}" />
-            </Decorator>
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="4,4" IsVisible="{Binding BlockEditorVisible}">
+               <local:AngleBorder Direction="Out" Content="Block ID" VerticalAlignment="Center"/>
+               <TextBlock Grid.Column="1" Name="BlockIdValue" Text="{Binding DrawBlockIndex}" MinWidth="48"
+                          VerticalAlignment="Center" Margin="4,0"/>
+               <local:AngleButton Grid.Column="2" DataContext="{Binding PrimaryMap.BlockEditor}" Content="Edit Block" x:Name="EditBlockButton"
+                   Direction="Right" Padding="2,0" VerticalAlignment="Center" Command="{res:MethodCommand ToggleShowTiles}" />
+            </Grid>
             <StackPanel Name="BlockBag" VerticalAlignment="Bottom" HorizontalAlignment="Left"
                         Orientation="Horizontal" IsVisible="{Binding BlockBagVisible}">
                <ToolTip.Tip>

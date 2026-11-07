@@ -2990,3 +2990,13 @@ Validation: The documented full Mac procedure passes 78 groups / 22,148 assertio
 | tests/BlockPanelLayout/README.md | 12 | Record the reproduced protruding-label regression and updated layout coverage. |
 
 Validation: The new containment check fails against b548924d, reproducing the reported label protrusion. After the layout-only repair, BlockPanelLayout passes 60 assertions across 256/320/512px widths and 14/20pt fonts; the project builds with zero warnings/errors and its rendered preview was inspected. Existing non-overlap, available-width and real checkbox-binding checks also pass. No ROM, settings, map data or movement-permission behavior changed. The full suite was not rerun for this localized layout adjustment.
+
+## 196 — Keep Block ID stationary beside Edit Block
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 131 | Place Block ID at the left of the Edit Block row with separate label, reserved numeric and button columns to prevent digit-width shifts. |
+| tests/BlockPanelLayout/Program.cs | 31 | Verify identical column positions and unclipped IDs from 0 through 1023 at six panel-width/font combinations. |
+| tests/BlockPanelLayout/README.md | 18 | Document the stationary Block ID row and expanded regression coverage. |
+
+Validation: BlockPanelLayout passes 156 assertions across 256/320/512px widths and 14/20pt fonts, including seven representative one- through four-digit IDs, exact stable control bounds, row alignment, non-overlap and the existing real checkbox-binding checks. The project builds with zero warnings/errors and the rendered layout was inspected. The full suite was not rerun for this localized presentation change; no ROM, settings, tile-selection or movement-permission behavior changed.

@@ -12,3 +12,8 @@ Block ID (191,137,65,18). Measured rows fix the overlap. The follow-up Movement-
 that its label and selector share a center and that the label fits inside the
 selector height; the previous fixed 30px/20px heights fail that check. Removing
 those conflicting heights fixes the reported protruding label; 60 assertions pass.
+
+Block ID now sits to the left of Edit Block in a shared three-column row: label,
+reserved value space and button. Seven representative IDs (0 through 1023) check
+that every column stays in exactly the same position and the text fits at each
+width/font combination. The expanded group passes 156 assertions.

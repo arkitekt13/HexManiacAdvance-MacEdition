@@ -3040,3 +3040,13 @@ Validation: The attached-but-hidden reproduction fails against the previous hand
 | tests/SignpostScriptNavigation/README.md | 1 | Document dialogue-only arrow behavior and its separate navigation safeguards. |
 
 Validation: The message-only assertion fails against the previous explicit SelectAll handler. SignpostScriptNavigation now passes 14 assertions with zero build warnings/errors; actual pointer navigation selects text without commands/braces, typing replaces only the message and leaves the surrounding movement/script compilable, and normal clicking deselects. No-dialogue scripts receive focus without command selection. Pure navigation/selection preserves ROM bytes and metadata. Fresh ScriptArrowFocus (26) and ScriptMapNavigation (76) runs also pass, preserving other-arrow behavior and Map View pending-source/read-only protections; GotoFocus separately passes 17. Only the signpost arrow requests dialogue selection. The complete suite was not rerun for these focused UI corrections; personal ROM/settings were untouched.
+
+## 201 — Reconnect Go To focus when opening ROMs or switching tabs
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 262 | Track and replace Go To model subscriptions so focus and overlay handling follow the active tab rather than the initial welcome-screen instance. |
+| tests/GotoFocus/Program.cs | 25 | Construct the welcome window before opening the first synthetic ROM and exercise additional tab replacements, stale events, native-command entry and pending-focus cancellation. |
+| tests/GotoFocus/README.md | 28 | Explain the missed startup sequence, confirmed subscription defect and expanded 27-assertion coverage. |
+
+Validation: The normal window-before-ROM startup fixture fails against 30e2e552 at the first focus assertion, reproducing a gap the earlier ROM-before-window fixture missed. After subscription repair, GotoFocus passes 27 assertions, including immediate typing after first open, a second ROM tab, returning through the native menu's bound command, old-model isolation, delayed-attachment replacement and window-close cleanup. Fresh ScriptArrowFocus (26), ScriptMapNavigation (76), TabViewLifetime (41) and SignpostScriptNavigation (14) also pass: 184 assertions across five groups, zero build warnings/errors. Both synthetic ROMs and histories remain unchanged. Native computer inspection reached a welcome-screen app rather than the user's pictured session; no personal ROM/profile was opened for testing, and this result does not claim the user's native shortcut was directly observed working. The full suite was not rerun for this subscription correction.

@@ -19,11 +19,12 @@ Application.Current.Resources["FileSystem"] = fs;
 var editor = new EditorViewModel(fs, InstantDispatch.Instance);
 App.UpdateThemeDictionary(Application.Current.Resources, editor.Theme);
 var view = new ViewPort(new LoadedFile("synthetic.gba", new byte[512]));
-editor.Add(view);
-editor.GotoViewModel.ControlVisible = false;
 var window = new MainWindow { Width = 1200, Height = 800, FileSystem = fs, Editor = editor };
 window.Resources["FileSystem"] = fs;
 window.Show();
+// Match normal startup: the window exists before the first ROM is opened.
+editor.Add(view);
+editor.GotoViewModel.ControlVisible=false;
 void Pump() {
    Dispatcher.UIThread.RunJobs();
    window.Measure(new Size(1200, 800)); window.Arrange(new Rect(0, 0, 1200, 800));
@@ -90,5 +91,32 @@ editor.GotoViewModel.ShowGoto.Execute(true);panel.IsVisible=false;window.FocusMa
 editor.GotoViewModel.ControlVisible=false;panel.IsVisible=true;Pump();
 Check(!field.IsFocused,"A closed Go To panel cancels pending visibility focus.");
 Check(view.Model.RawData.SequenceEqual(original)&&!view.Undo.CanExecute(null),"Delayed visibility and cancellation preserve ROM and history.");
+// Switching tabs replaces GotoViewModel; native menu and shortcut must follow it.
+editor.GotoViewModel.ControlVisible=false;Pump();
+var retired=editor.GotoViewModel;
+var second=new ViewPort(new LoadedFile("second-synthetic.gba",new byte[512]));
+var secondBytes=second.Model.RawData.ToArray();editor.Add(second);Pump();
+Check(!ReferenceEquals(retired,editor.GotoViewModel),"Opening a second tab really replaces the Go To model.");
+GoTo();field=angle.GetTextBox();
+Check(field.IsFocused,"Command-G focuses Go To after switching to a newly opened tab.");
+window.KeyTextInput("120");Pump();
+Check(editor.GotoViewModel.Text=="120","The new tab's Go To query receives immediate replacement typing.");
+editor.GotoViewModel.ControlVisible=false;Pump();window.FocusManager.ClearFocus();
+retired.ControlVisible=true;Pump();
+Check(!field.IsFocused&&!editor.GotoViewModel.ControlVisible,"A retired model cannot reopen or refocus current Go To.");
+retired.ControlVisible=false;editor.SelectedIndex=0;Pump();
+editor.GotoViewModel.ShowGoto.Execute(true);Pump();field=angle.GetTextBox();
+Check(field.IsFocused,"Native menu's bound command focuses Go To after returning to an existing tab.");
+window.KeyTextInput("140");Pump();
+Check(editor.GotoViewModel.Text=="140","Typing after native-command entry replaces the previous tab query.");
+// Replace a model while its input-attachment focus request is still queued.
+editor.GotoViewModel.ControlVisible=false;Pump();host.Children.Remove(angle);
+var obsolete=editor.GotoViewModel;obsolete.ShowGoto.Execute(true);Pump();
+editor.SelectedIndex=1;Pump();window.FocusManager.ClearFocus();host.Children.Insert(position,angle);Pump();
+Check(!angle.GetTextBox().IsFocused,"Model replacement cancels a previous tab's deferred attachment focus.");
+GoTo();field=angle.GetTextBox();Check(field.IsFocused,"The replacement model remains focusable after cancellation.");
+Check(view.Model.RawData.SequenceEqual(original)&&second.Model.RawData.SequenceEqual(secondBytes)&&!view.Undo.CanExecute(null)&&!second.Undo.CanExecute(null),"Startup, tab switching and retired-model checks leave both ROMs and histories unchanged.");
 window.Close();
+window.FocusManager?.ClearFocus();editor.GotoViewModel.ControlVisible=true;Pump();
+Check(!field.IsFocused,"Closing the window detaches its Go To focus subscription.");
 Console.WriteLine($"CHECKS_PASSED:{checks}");

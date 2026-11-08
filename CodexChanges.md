@@ -3137,3 +3137,11 @@ Validation: MapImageExport passes its existing 33 assertions. Rendered and visua
 | tests/ScriptScrollStability/README.md | 30 | Record the distinct delayed-refresh cause, native before/after observations and expanded coverage. |
 
 Validation: The added regression fails on 0a8da532 with scroll offset 1198 → 100.8125 after delayed Enter compilation. The repaired ScriptScrollStability passes 245 assertions, including actual script fonts 14/20, unchanged earlier editor identity/caret, repeated blank lines near the bottom, preserved source/focus/caret, unchanged model bytes/structural metadata for blank lines, legitimate dialogue compilation and exact Undo/Redo. The exact supplied script also passes through the local-file route without committing its story. Native synthetic-ROM confirmation reproduces 1209 → 114.78125 before repair and a stable 1195 → 1195 after repair. This does not disable keyboard/model caret reveal or alter parsing, transactions, allocation, relocation or history algorithms. The user's ROM/preferences and separately updated welcome-background PNG remain untouched. Focused suite results are recorded separately; the full suite was not rerun for this editor-refresh correction.
+
+## 210 — Record focused verification of delayed script-refresh stability
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptScrollStability/compile-refresh-verification.json | 1 | Preserve the exact 13-group focused result and native delayed-compilation scroll observations for 0f633b3f. |
+
+Validation: Fresh related regressions pass 13 groups / 2,234 assertions, with zero failures, zero skipped groups and zero build warnings/errors. ScriptScrollStability was rebuilt and rerun after strengthening font-size coverage and passes 245 with both the sanitized default and exact supplied local-file routes. The result also includes existing workflow failure-atomicity, assistance, clipboard, navigation, diagnostics, width updates, editor lifetime and signpost-relocation groups. Native before/after evidence and scope limitations are in the verification file. Personal ROM/preferences were untouched, and the user's modified welcome PNG remains unstaged. This is a focused result, not a claim that the complete Mac or upstream xUnit suites were rerun.

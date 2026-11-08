@@ -3103,3 +3103,14 @@ Validation: The documented Mac procedure passes 80 groups / 22,417 assertions, w
 | tests/BlockFlipControls/README.md | 1 | Document the reproduced hover-gap failure, native confirmation and targeted regression results. |
 
 Validation: Against 3ddb055b, the new real-control regression fails while approaching the upper-left vertical flip arrow, matching native reproduction for both upper-/lower-left foreground pieces. After repair, BlockFlipControls passes 1,825 assertions, verifying every approach step, correct hit targets, exact intended bit changes and normal exit dismissal across 280/300/350px widths and 14/20pt text. Fresh MacSecondaryActions (43) and BlockPanelLayout (162) also pass: 2,030 assertions across three groups, zero build warnings/errors. Native coordinate clicks in a disposable synthetic-data app crossed both formerly dead gaps and successfully flipped the intended pieces. Tile positions/overall reserved space and model flip/painting commands are unchanged; the user's Tutorial Village ROM and personal settings were never opened. The full suite was not rerun for this local hover-region repair.
+
+## 207 — Add Tutorial Village as the first welcome-screen background
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/Welcome/background.png | 1 | Bundle an unchanged copy of arkitekt13's 1312×960 Tutorial Village export through the existing optional-background asset pipeline. |
+| OptionalAssets/Welcome/README.md | 1 | Record image provenance, dimensions, replacement procedure and existing responsive crop/fade behavior. |
+| docs/MAC_RELEASE_CHECKLIST.md | 105 | Mark the initial image present while retaining final packaged-native visual approval as an open release check. |
+| docs/MAC_HELPER_TESTING.md | 72 | Distinguish the included initial image from pending final approval and tutorial-patch gameplay work. |
+
+Validation: WelcomeScreen passes 38 assertions and MacPackaging passes 43, with zero build warnings/errors. The supplied image and bundled asset are byte-identical; the image is copied to build output at resources/Optional/Welcome/background.png. Rendered the actual attached StartScreen with the supplied image and default theme at 1200×800, 800×600 and 500×400; inspected previews and retained the full export using existing proportional fill and dark fade. No image pixels, app layout/rendering code, ROM or original export were changed. Final native appearance approval remains open, particularly at very small window sizes; this is the first background version rather than a finalized tutorial patch or release asset approval. The full regression suite was not rerun for this asset/documentation-only addition.

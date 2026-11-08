@@ -1,0 +1,107 @@
+section0: # 005800
+  lockall
+  setvar 0x4041 1
+  move.player <auto>
+{
+emote_exclamation_mark
+}
+  waitmovement 0
+  goto <005000>
+
+section1: # 005000
+  special SpawnCameraObject
+  move.camera <auto>
+{
+walk_up
+walk_up
+walk_up
+walk_up
+walk_up
+walk_up
+}
+  waitmovement 0
+  move.npc 22 <auto>
+{
+emote_smile
+}
+  msgbox.npc <auto>
+{
+[red]xxxxxxx: [black]x xxxxxxx xxxxx xx...
+
+xxx xxxxxxxx xxxxxxx [red]xxx[black].
+
+xxx xxxx xxxx x xxxxx xxxx xx xxxxxxx
+xx xxxxxxx xxx xxxxx. xxxx xxxx xxx
+x xxxx xxxxxx x xxxxxxx xx
+xxxxxxxxxxxxx xxxxx.
+}
+  move.npc 22 <auto>
+{
+walk_up
+}
+  waitmovement 0
+  move.npc 23 <auto>
+{
+walk_up
+}
+  move.npc 24 <auto>
+{
+walk_up
+}
+  waitmovement 0
+  move.npc 21 <auto>
+{
+emote_question_mark
+walk_up
+face_left
+face_down
+face_right
+face_down
+}
+  waitmovement 0
+  msgbox.npc <auto>
+{
+[red]xxxxxxx: [black]xxxxx xx xx xxxx xx
+xxxxx, xx'x xxxxxxx xxxx xxxxxx xxx.
+}
+  move.npc 22 <auto>
+{
+walk_up
+}
+  move.npc 23 <auto>
+{
+walk_up
+}
+  move.npc 24 <auto>
+{
+walk_up
+}
+  waitmovement 0
+  move.npc 22 <auto>
+{
+walk_fastest_up
+}
+  move.npc 23 <auto>
+{
+walk_fastest_up
+walk_fastest_up
+walk_fastest_up
+face_right
+}
+  move.npc 24 <auto>
+{
+walk_fastest_up
+walk_fastest_up
+walk_fastest_up
+face_left
+}
+  waitmovement 0
+  msgbox.npc <auto>
+{
+[red]xxxxxxx: [black]x xxxxxxx xxx xxx xxx
+xxx xxxxxx xxxx.
+}
+  hidesprite 21
+  setflag 0x00B4
+  releaseall
+  end

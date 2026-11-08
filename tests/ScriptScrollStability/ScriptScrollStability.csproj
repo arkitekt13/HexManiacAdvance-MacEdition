@@ -4,6 +4,7 @@
     <PackageReference Include="Avalonia.Headless" Version="11.2.3" />
     <ProjectReference Include="../../src/HexManiac.Avalonia/HexManiac.Avalonia.csproj" />
     <Compile Include="../../tools/ScriptWorkflowReview/WorkflowFixture.cs" Link="WorkflowFixture.cs" />
+    <Content Include="SyntheticCameraScript.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="SyntheticTourScript.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../../src/HexManiac.Core/Models/Code/*" Link="resources/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

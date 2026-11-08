@@ -27,3 +27,36 @@ is not committed. [verification.json](verification.json) records the fresh 13-gr
 3,266-assertion focused run and its validation boundaries.
 
 Native trackpad interaction and real-ROM UI confirmation remain user checks.
+
+## Delayed compilation after editing an earlier section
+
+The follow-up camera-event fixture preserves the new report's command structure,
+line counts and text widths with neutral dialogue and synthetic addresses. Its
+entry section is later in ROM than the long destination section. The isolated
+function-table name is compiled as a numeric placeholder; no gameplay is claimed.
+
+On 0a8da532, first using the earlier editor's caret, scrolling to the later source,
+and pressing Enter near its end reproduces the delayed jump. Refreshing the other
+body assigns it back into Contents even when it is the same object, rebuilding
+its TextEditor and restoring an offscreen caret. The source also passes through
+an unnecessary intermediate empty string. The new regression fails with outer
+offset 1198 → 100.8125.
+
+The repair avoids the intermediate clear and replaces a collection item only
+when its identity actually changes. Unchanged editors retain their controls and
+caret; changed source and genuinely different bodies still update normally.
+No BringIntoView request is suppressed, and the compiler transaction is unchanged.
+
+The group now passes 245 assertions. Added coverage uses actual script font sizes
+14/20, a remembered earlier caret, three repeated bottom-of-source Enter edits,
+settled delayed compilation, preserved controls/source/focus/caret, unchanged ROM
+bytes/structural metadata for blank lines, real dialogue changes and exact
+Undo/Redo. The optional local-file route also passes 245 assertions with the
+user's exact pasted source; its story is not committed. The shorter first section
+is kept visible by clamping exploratory click offsets to its actual height.
+
+Native confirmation used a disposable MainWindow and synthetic ROM with delayed
+compilation: the old code jumped 1209 → 114.78125; the repaired code stayed at 1195
+through compilation and retained focus in the later field. No personal ROM or
+preferences were opened. The broader native trackpad/gameplay checks remain user
+checks; see compile-refresh-verification.json for the focused regression result.

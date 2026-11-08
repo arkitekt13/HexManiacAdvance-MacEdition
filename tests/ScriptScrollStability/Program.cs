@@ -9,6 +9,7 @@ using HavenSoft.HexManiac.AvaloniaUI;
 using HavenSoft.HexManiac.AvaloniaUI.Controls;
 using HavenSoft.HexManiac.AvaloniaUI.Windows;
 using HavenSoft.HexManiac.Core.Models;
+using HavenSoft.HexManiac.Core.Models.Runs;
 using HavenSoft.HexManiac.Core.ViewModels;
 using HavenSoft.HexManiac.Review;
 using Point=Avalonia.Point;
@@ -49,7 +50,7 @@ foreach(var crlf in new[]{false,true})foreach(double size in new[]{14d,20d}){
  var window=new Window{Width=800,Height=size==14?500:680,Content=grid};window.Show();Drain(window);
  var originals=models.Select(m=>m.Content).ToArray();
  foreach(var field in fields)foreach(double into in new[]{50d,180d}){
-  blur.Focus();Drain(window);outer.Offset=new Vector(0,field.Bounds.Y+into);Drain(window);
+  blur.Focus();Drain(window);outer.Offset=new Vector(0,field.Bounds.Y+Math.Min(into,Math.Max(0,field.Bounds.Height-120)));Drain(window);
   StableClick(field,outer,window,$"LF/CRLF={crlf}, font={size}, editor={Array.IndexOf(fields,field)}, offset={outer.Offset.Y}");
   StableClick(field,outer,window,"Already-focused click",180);
   Check(originals.SequenceEqual(models.Select(m=>m.Content)),"Clicks cannot change source text.");
@@ -93,6 +94,38 @@ using(var fixture=new WorkflowFixture()){
  StableClick(field,outer,window,"Actual script tab");
  Check(body.Content==reported&&ReferenceEquals(fixture.Body,body)&&fixture.Dispatch.Pending==pending,$"Click/focus retains the exact pending script and debounce work: source={body.Content==reported}, same={ReferenceEquals(fixture.Body,body)}, timers={fixture.Dispatch.Pending}/{pending}.");
  Check(bytes.SequenceEqual(fixture.Model.RawData)&&metadata.SequenceEqual(fixture.Metadata())&&source.ChangeHistory.IsSaved&&!source.ChangeHistory.Undo.CanExecute(null),"Clicking and scrolling cannot change ROM bytes, metadata or history.");
+ window.Editor=null;window.Close();
+}
+// Delayed compilation of a later body must not recreate an earlier editor with a saved caret.
+foreach(double font in new[]{14d,20d})using(var fixture=new WorkflowFixture()){
+ fixture.Model.LoadMetadata(new StoredMetadata(lists:BaseModel.GetDefaultMetadatas("BPRE").SelectMany(md=>md.Lists).Where(list=>list.Name=="movementtypes").ToArray()));
+ var camera=File.ReadAllText("SyntheticCameraScript.txt").Split("\n\nsection1:");
+ void Seed(int address,string text){var token=new ModelDelta();var bytes=fixture.Tool.ScriptParser.Compile(token,fixture.Model,address,ref text,out _,out _);Check(bytes!=null,"Synthetic camera source must compile before UI checks.");token.ChangeData(fixture.Model,address,bytes);fixture.Tool.ScriptParser.FormatScript<XSERun>(token,fixture.Model,address,bytes.Length);}
+ Seed(0x5000,"section1:"+camera[1].Replace("special SpawnCameraObject","special 0"));Seed(0x5800,camera[0]);
+ fixture.View.Goto.Execute(0x5800);fixture.View.Tools.SelectedIndex=3;fixture.Tool.FontSize=(int)font;fixture.Dispatch.Flush();fixture.View.ChangeHistory.ClearHistory(false);fixture.View.ChangeHistory.TagAsSaved();
+ var app=new EditorViewModel(fixture.FileSystem,InstantDispatch.Instance);app.Add(fixture.View);app.GotoViewModel.ControlVisible=false;
+ var window=new MainWindow{Width=1200,Height=650,FontSize=font,Editor=app,FileSystem=fixture.FileSystem};window.Resources["FileSystem"]=fixture.FileSystem;window.Show();Drain(window);
+ var tab=window.GetVisualDescendants().OfType<TabView>().Single(t=>ReferenceEquals(t.DataContext,fixture.View));var outer=tab.FindControl<ScrollViewer>("CodeToolMultiTextBox");
+ var earlier=fixture.Tool.Contents.Single(b=>b.Address==0x5800);var body=fixture.Tool.Contents.Single(b=>b.Address==0x5000);
+ TextEditor Field(object vm)=>tab.GetVisualDescendants().OfType<TextEditor>().Single(t=>ReferenceEquals(t.DataContext,vm));
+ var firstField=Field(earlier.Editor);var field=Field(body.Editor);var input=field.EditBox;
+ Check(input.FontSize==font,"Delayed-compile coverage uses the requested script font size.");
+ earlier.Editor.PushCaretUpdate(80);Drain(window);var earlierCaret=firstField.EditBox.CaretIndex;input.Focus();Drain(window);
+ void Position(int index){input.SelectionStart=input.SelectionEnd=input.CaretIndex=index;Drain(window);var presenter=input.GetVisualDescendants().OfType<TextPresenter>().Single();var caret=presenter.TextLayout.HitTestTextPosition(index);var point=presenter.TranslatePoint(new Point(caret.X,caret.Y),window).Value;var top=outer.GetVisualDescendants().OfType<ScrollContentPresenter>().First().TranslatePoint(default,window).Value.Y;outer.Offset=new Vector(0,outer.Offset.Y+point.Y-top-150);Drain(window);}
+ for(int repeat=0;repeat<3;repeat++){
+  Position(body.Content.LastIndexOf("  end",StringComparison.Ordinal));var before=fixture.State();
+  window.KeyPressQwerty(PhysicalKey.Enter,RawInputModifiers.None);window.KeyReleaseQwerty(PhysicalKey.Enter,RawInputModifiers.None);Drain(window);
+  var offset=outer.Offset;var caret=input.CaretIndex;var source=body.Content;Check(fixture.Tool.HasPendingScriptChanges,"Enter must exercise the actual delayed compilation slot.");fixture.Dispatch.Flush();Drain(window);fixture.View.ChangeHistory.ChangeCompleted();
+  Check(outer.Offset==offset,$"Delayed Enter compilation must not jump to an earlier body's remembered caret: {offset} -> {outer.Offset}.");
+  Check(ReferenceEquals(Field(earlier.Editor),firstField)&&firstField.EditBox.CaretIndex==earlierCaret,"An unchanged earlier editor and its caret must survive the other body's compile.");
+  Check(input.IsFocused&&input.CaretIndex==caret&&body.Content==source,"The edited source, focus and caret must survive delayed compilation.");
+  Check(!fixture.Tool.HasUncompiledScriptChanges&&!body.HasError,"A blank-line edit must still compile successfully.");
+  Check(before.EqualsModel(fixture),"Adding only blank lines cannot change ROM bytes or structural metadata.");
+ }
+ // Actual dialogue edits still compile and retain normal one-step history.
+ var marker=body.Content.IndexOf("msgbox.npc",StringComparison.Ordinal);Position(body.Content.IndexOf('{',marker)+2);var prior=fixture.State();window.KeyTextInput("Z");Drain(window);var priorOffset=outer.Offset;fixture.Dispatch.Flush();Drain(window);fixture.View.ChangeHistory.ChangeCompleted();
+ Check(outer.Offset==priorOffset&&input.IsFocused&&!fixture.Tool.HasUncompiledScriptChanges,"Delayed dialogue compilation retains the current viewport and focus.");
+ Check(!prior.EqualsModel(fixture),"The legitimate dialogue edit must still update compiled ROM data.");var edited=fixture.State();fixture.View.Undo.Execute(null);fixture.Dispatch.Flush();Drain(window);Check(prior.EqualsModel(fixture),"Undo restores dialogue, pointers and metadata exactly.");fixture.View.Redo.Execute(null);fixture.Dispatch.Flush();Drain(window);Check(edited.EqualsModel(fixture),"Redo restores the compiled edit exactly.");
  window.Editor=null;window.Close();
 }
 Console.WriteLine($"CHECKS_PASSED:{checks}");

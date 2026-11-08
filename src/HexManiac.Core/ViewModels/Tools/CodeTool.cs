@@ -318,7 +318,6 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                body.ContentChanged -= ScriptChanged;
                body.HelpSourceChanged -= UpdateScriptHelpFromLine;
                if (draft == null) {
-                  body.Content = string.Empty;
                   body.Content = info.Content;
                }
                body.Address = scriptStart;
@@ -326,7 +325,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                body.Label = label;
                body.HelpSourceChanged += UpdateScriptHelpFromLine;
                body.ContentChanged += ScriptChanged;
-               Contents[i] = body;
+               // Replacing an unchanged item rebuilds its editor and restores its caret,
+               // pulling the viewport away from the different body being compiled.
+               if (!ReferenceEquals(Contents[i], body)) Contents[i] = body;
             } else {
                body.CompiledLength = info.Length;
                if (draft == null) body.Content = info.Content;

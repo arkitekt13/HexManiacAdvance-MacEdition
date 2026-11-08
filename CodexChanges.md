@@ -3125,3 +3125,15 @@ Validation: WelcomeScreen passes 38 assertions and MacPackaging passes 43, with 
 | tests/MapImageExport/README.md | 28 | Describe the new presentation and actual-control smoke verification. |
 
 Validation: MapImageExport passes its existing 33 assertions. Rendered and visually inspected the actual compiled dialog using a representative Tutorial Village output path; positional Reveal/OK clicks, Enter/Escape dismissal and bounded very-long-path layout passed an isolated smoke check with Finder launches intercepted. The app/preview build has zero warnings/errors; the existing export test project still reports NU1900 when NuGet vulnerability metadata cannot be fetched. No additional persistent tests were added for this reversible presentation adjustment, and the full suite was not rerun. Generic save/error prompts, export bytes, overwrite/copy handling and Finder behavior are unchanged. No ROM/export file or personal preferences were touched; the user's separately updated welcome-background PNG remains unstaged and unmodified by this work.
+
+## 209 — Preserve long-script scrolling through delayed compilation refresh
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Tools/CodeTool.cs | 320 | Update refreshed source directly and retain the collection item when its body identity is unchanged so another section's editor/caret is not rebuilt. |
+| tests/ScriptScrollStability/Program.cs | 99 | Reproduce delayed jumps after an earlier-section caret move and verify repeated Enter, compiled dialogue edits, stable controls/focus/source and Undo/Redo. |
+| tests/ScriptScrollStability/SyntheticCameraScript.txt | 1 | Preserve the reported camera-event structure with neutral dialogue and synthetic addresses for permanent regression coverage. |
+| tests/ScriptScrollStability/ScriptScrollStability.csproj | 8 | Copy the camera-event regression source into the test output. |
+| tests/ScriptScrollStability/README.md | 30 | Record the distinct delayed-refresh cause, native before/after observations and expanded coverage. |
+
+Validation: The added regression fails on 0a8da532 with scroll offset 1198 → 100.8125 after delayed Enter compilation. The repaired ScriptScrollStability passes 245 assertions, including actual script fonts 14/20, unchanged earlier editor identity/caret, repeated blank lines near the bottom, preserved source/focus/caret, unchanged model bytes/structural metadata for blank lines, legitimate dialogue compilation and exact Undo/Redo. The exact supplied script also passes through the local-file route without committing its story. Native synthetic-ROM confirmation reproduces 1209 → 114.78125 before repair and a stable 1195 → 1195 after repair. This does not disable keyboard/model caret reveal or alter parsing, transactions, allocation, relocation or history algorithms. The user's ROM/preferences and separately updated welcome-background PNG remain untouched. Focused suite results are recorded separately; the full suite was not rerun for this editor-refresh correction.

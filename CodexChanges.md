@@ -3114,3 +3114,14 @@ Validation: Against 3ddb055b, the new real-control regression fails while approa
 | docs/MAC_HELPER_TESTING.md | 72 | Distinguish the included initial image from pending final approval and tutorial-patch gameplay work. |
 
 Validation: WelcomeScreen passes 38 assertions and MacPackaging passes 43, with zero build warnings/errors. The supplied image and bundled asset are byte-identical; the image is copied to build output at resources/Optional/Welcome/background.png. Rendered the actual attached StartScreen with the supplied image and default theme at 1200×800, 800×600 and 500×400; inspected previews and retained the full export using existing proportional fill and dark fade. No image pixels, app layout/rendering code, ROM or original export were changed. Final native appearance approval remains open, particularly at very small window sizes; this is the first background version rather than a finalized tutorial patch or release asset approval. The full regression suite was not rerun for this asset/documentation-only addition.
+
+## 208 — Tidy the map-image export confirmation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MapImageSavedDialog.axaml | 1 | Present a compact themed confirmation with a clear heading, selectable filename/location and aligned Reveal in Finder/OK buttons. |
+| src/HexManiac.Avalonia/Windows/MapImageSavedDialog.axaml.cs | 9 | Populate file details and retain reveal-without-dismissal plus standard dialog dismissal behavior. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 474 | Use the dedicated success dialog while preserving the existing export policy, Finder action and no-owner console fallback. |
+| tests/MapImageExport/README.md | 28 | Describe the new presentation and actual-control smoke verification. |
+
+Validation: MapImageExport passes its existing 33 assertions. Rendered and visually inspected the actual compiled dialog using a representative Tutorial Village output path; positional Reveal/OK clicks, Enter/Escape dismissal and bounded very-long-path layout passed an isolated smoke check with Finder launches intercepted. The app/preview build has zero warnings/errors; the existing export test project still reports NU1900 when NuGet vulnerability metadata cannot be fetched. No additional persistent tests were added for this reversible presentation adjustment, and the full suite was not rerun. Generic save/error prompts, export bytes, overwrite/copy handling and Finder behavior are unchanged. No ROM/export file or personal preferences were touched; the user's separately updated welcome-background PNG remains unstaged and unmodified by this work.

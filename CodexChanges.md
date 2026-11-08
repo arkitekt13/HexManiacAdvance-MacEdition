@@ -3092,3 +3092,14 @@ Validation: ScriptDraftWarning passes 18 assertions with zero build warnings/err
 | tests/ScriptGapRoundTrip/README.md | 24 | Link the exact full-suite result alongside the targeted synthetic reproduction. |
 
 Validation: The documented Mac procedure passes 80 groups / 22,417 assertions, with zero failures and zero skipped groups. ScriptGapRoundTrip passes 117 and ScriptDraftWarning passes 18; existing pending-source, compilation/resource failure atomicity, navigation, relocation, history and UI groups also pass. Production implementation is 19216eec with focus-coverage tests at 530de08e; no production code changed during this run. The only build-warning category is the existing MapImageExport NU1900 inability to fetch NuGet vulnerability metadata. The full upstream xUnit suite was not rerun. Existing rejected drafts remain protected rather than silently rewritten, and personal ROM/settings were untouched.
+
+## 206 — Keep tile flip arrows reachable across their hover gaps
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/SelectedBlockEditor.axaml | 45 | Reserve the existing outer spacing as a padded transparent interaction area containing tile images, arrows and the gaps between them. |
+| src/HexManiac.Avalonia/Controls/SelectedBlockEditor.axaml.cs | 24 | Hide flip controls only when the pointer leaves the complete interaction region and retain wheel handling within that region. |
+| tests/BlockFlipControls/Program.cs | 28 | Trace continuous pointer approaches and positional clicks for both flip axes across all eight pieces, panel widths and text sizes. |
+| tests/BlockFlipControls/README.md | 1 | Document the reproduced hover-gap failure, native confirmation and targeted regression results. |
+
+Validation: Against 3ddb055b, the new real-control regression fails while approaching the upper-left vertical flip arrow, matching native reproduction for both upper-/lower-left foreground pieces. After repair, BlockFlipControls passes 1,825 assertions, verifying every approach step, correct hit targets, exact intended bit changes and normal exit dismissal across 280/300/350px widths and 14/20pt text. Fresh MacSecondaryActions (43) and BlockPanelLayout (162) also pass: 2,030 assertions across three groups, zero build warnings/errors. Native coordinate clicks in a disposable synthetic-data app crossed both formerly dead gaps and successfully flipped the intended pieces. Tile positions/overall reserved space and model flip/painting commands are unchanged; the user's Tutorial Village ROM and personal settings were never opened. The full suite was not rerun for this local hover-region repair.

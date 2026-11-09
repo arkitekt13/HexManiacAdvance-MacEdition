@@ -3154,3 +3154,12 @@ Validation: Fresh related regressions pass 13 groups / 2,234 assertions, with ze
 | OptionalAssets/Welcome/README.md | 3 | Record the refreshed image and its current approximately 267 KiB size. |
 
 Validation: The supplied PNG header reports 1312×960 pixels and its SHA-256 is 22e561867f25cd875386383241f5ddf7de6b4c6759a64bbe8358bbbd16ac8611. No image conversion, crop or source/export/ROM edit was performed. The existing copy-to-build/publish and responsive fade pipeline remains unchanged. This previously unstaged user asset is included under the explicit request to push and merge everything; complete pre-merge Mac-suite validation follows separately.
+
+## 212 — Record complete pre-merge verification and commit review
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MAP_REFERENCE_MERGE_VERIFICATION.json | 1 | Preserve exact results for every group in the complete pre-merge Mac suite against b6b642f9, with commit-review and rollback-checkpoint details. |
+| tests/README.md | 9 | Link the dated complete-suite proof and distinguish it from upstream and native verification. |
+
+Validation: The documented Mac procedure passes 81 groups / 24,292 assertions, with zero failures and zero skipped groups. The only build-warning category is the existing MapImageExport NU1900 inability to fetch NuGet vulnerability metadata. Reviewed all 38 existing feature commits since the default-branch checkpoint: each has a descriptive subject and its own CodexChanges update; the supplied refreshed background is separately committed as b6b642f9 with entry 211. Changelog numbering is continuous. The annotated tag checkpoint/pre-map-reference-merge-2026-11-08 preserves default-branch commit 7a6c80ec, and the planned merge preserves individual feature commits. No production code changed during this complete run; this entry adds verification documentation only. Personal ROM/preferences were untouched; the upstream xUnit suite and a complete native/gameplay pass were not rerun.

@@ -6,6 +6,10 @@ fresh binaries, executes them in separate processes, and requires one positive a
 from each. A build failure, nonzero process exit, missing count, duplicate count, or empty test
 set fails the run. The summary reports groups and assertions rather than claiming xUnit cases ran.
 
+Pre-merge verification on 2026-11-08 passed **81 groups / 24,292 assertions**,
+with zero failures or skipped groups; [exact results](MAP_REFERENCE_MERGE_VERIFICATION.json)
+record the tested branch, rollback checkpoint and build-warning limitation.
+
 These checks use synthetic data and offscreen rendering, not commercial ROMs or native windows.
 The original `src/HexManiac.Tests` xUnit suite is separate and is not included in these assertion
 counts. Run `scripts/verify-upstream.sh` for that suite, or add `--in-process` when VSTest's

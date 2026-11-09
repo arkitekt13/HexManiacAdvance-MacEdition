@@ -110,6 +110,17 @@ cancellation writes nothing. Finish or discard rejected/pending script edits fir
 Keep the ROM and TOML together when moving the tutorial project.
 See [release asset instructions](../OptionalAssets/Tutorial/README.md).
 
+## Updates
+
+On startup, Mac Edition checks this project's published GitHub releases, at most once per day.
+A newer stable release with a compatible Mac download shows an **Update available** notice.
+Choose **View Update** to open the releases page, or **Dismiss** to hide it for this session;
+**Help > Update** remains available. Nothing downloads or installs automatically.
+Offline checks fail quietly. Pushing changes to a branch does not create an update.
+
+Mac Edition uses its own release numbering, starting at **1.0.0**; your project's existing
+Core/TOML version remains independent. Keep your ROM and TOML together when moving projects.
+
 ## If macOS blocks a downloaded app
 
 Current development bundles are ad-hoc signed and are not notarized.

@@ -16,6 +16,10 @@ byte[] Releases(string tag = "v0.6.2", string asset = "HexManiacAdvance-osx-arm6
       assets = new[] { new { name = asset, state, size, browser_download_url = repo + "/releases/download/" + tag + "/" + asset } }
    }});
 bool Available(byte[] json, string current = "0.6.1", Architecture arch = Architecture.Arm64) => MacUpdateChecker.HasCompatibleUpdate(json, current, arch);
+Check(AppIdentity.VersionNumber == "1.0.0", "The Mac updater reads the independent 1.0.0 app version.");
+Check(!Available(Releases("v1.0.0"),AppIdentity.VersionNumber) && !Available(Releases("v0.6.2"),AppIdentity.VersionNumber), "Same Mac release and newer upstream 0.x versions do not update Mac 1.0.");
+Check(Available(Releases("v1.0.0"),"0.6.1"), "Existing 0.6.1 clients can discover the Mac 1.0 release.");
+Check(Available(Releases("v1.0.1"),AppIdentity.VersionNumber), "A later Mac 1.0.1 release is discovered.");
 Check(Available(Releases()), "Newer ARM64 Mac release is available.");
 Check(!Available(Releases("v0.6.1")) && !Available(Releases("v0.5.9")), "Same and older releases are not updates.");
 Check(!Available(Releases("v0.6.1.0")), "Normalize omitted revision to zero.");

@@ -33,3 +33,15 @@ Network/API failures do not advance the successful-check timestamp or show an er
 A previous matching Mac result is retained on failed refresh; absent a valid result, Update
 stays disabled. Cache-write failure does not discard a valid network result. Live startup
 appearance, actual network access, and the browser menu action remain manual checks.
+
+## Mac Edition 1.0 and visible notices
+
+Mac Edition's release identity is now 1.0.0, independent of Core's unchanged 0.6.1 metadata
+version. Existing 0.6.1 clients can discover a published v1.0.0 release; Mac 1.0.0 ignores
+that same release and older upstream 0.x versions, and can discover v1.0.1.
+The synthetic 0.6.1 cases above remain intentional coverage for older clients.
+
+A compatible positive result now displays a nonmodal banner on the welcome/editor window.
+View Update opens this fork's releases page; Dismiss lasts for the window session without
+clearing Help > Update. It never installs software or prompts on failed/offline checks.
+[UpdateNotice](../UpdateNotice/README.md) covers actual input, focus and source protection.

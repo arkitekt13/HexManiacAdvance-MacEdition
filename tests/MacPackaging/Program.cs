@@ -17,7 +17,8 @@ try {
  File.WriteAllText(Path.Combine(source,"LICENSE"),"synthetic original project MIT license");
  Directory.CreateDirectory(Path.Combine(source,"docs"));File.WriteAllText(Path.Combine(source,"docs/MAC_HELPER_TESTING.md"),"synthetic helper instructions");
  Directory.CreateDirectory(Path.Combine(source,"src/HexManiac.Avalonia"));
- File.WriteAllText(Path.Combine(source,"src/SharedAssemblyInfo.cs"),"[assembly: AssemblyFileVersion(\"9.8.7\")]\n");
+ File.WriteAllText(Path.Combine(source,"src/SharedAssemblyInfo.cs"),"[assembly: AssemblyFileVersion(\"0.6.1\")]\n");
+ File.WriteAllText(Path.Combine(source,"src/HexManiac.Avalonia/MacAssemblyInfo.cs"),"[assembly: AssemblyFileVersion(\"9.8.7\")]\n");
  File.WriteAllText(Path.Combine(source,"src/HexManiac.Avalonia/HexManiac.Avalonia.csproj"),"<Project />");
  void Tool(string name,string body) {var path=Path.Combine(bin,name);File.WriteAllText(path,"#!/bin/bash\nset -eu\n"+body);if(!OperatingSystem.IsWindows())File.SetUnixFileMode(path,UnixFileMode.UserRead|UnixFileMode.UserWrite|UnixFileMode.UserExecute);}
  Tool("dotnet","""

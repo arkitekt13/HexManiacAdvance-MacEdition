@@ -3369,3 +3369,20 @@ Validation: Rebuilt with the bundled PDF runtime, rendered and visually inspecte
 | tests/UpdateNotice/ | 1 | Exercise actual banner clicks, source focus/selection, welcome/editor lifetime, fixed routing and unchanged model/history/rejected drafts. |
 
 Validation: Fresh UpdateNotice builds with zero warnings/errors and passes 13 headless assertions. The rendered actual banner is visually inspected. Showing it and clicking either action preserve source focus, caret, selection, bytes, metadata and saved/history state; rejected drafts and diagnostics remain intact. It never downloads/installs anything or launches a browser without a user click. Dismissal lasts for the window session while Help > Update remains available; a new window can remind again, and detached editor events cannot affect a replacement editor. Existing version/architecture/release/cache/network policy is unchanged. No personal ROM or preferences changed. A pushed pre-change checkpoint is available; Mac-only 1.0 identity and cross-feature verification follow separately.
+
+## 230 — Give Mac Edition an independent 1.0.0 release identity
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacAssemblyInfo.cs | 1 | Define Mac-only 1.0.0 assembly/file versions while retaining existing attribution and common assembly settings. |
+| src/HexManiac.Avalonia/HexManiac.Avalonia.csproj | 12 | Stop linking shared Core version declarations into the Mac app without modifying Core or SharedAssemblyInfo.cs. |
+| publish-mac.sh | 12 | Read bundle identity from the Mac version file rather than Core's migration version. |
+| tests/MacVersionMetadata/ | 1 | Verify existing-format projects load without regeneration and retain custom definitions, lists, history and Core version through actual saving/reopening. |
+| tests/CrashReporting/Program.cs | 14 | Check actual Mac 1.0.0 and unchanged Core 0.6.1.0 assembly identities. |
+| tests/StartupUpdates/Program.cs | 19 | Cover old-client transition to 1.0.0, same/older-version rejection and later 1.0.1 availability. |
+| tests/MacPackaging/Program.cs | 20 | Give fake Core and app files different versions to prove the app version drives bundle/archive identity. |
+| tests/UpdateNotice/Program.cs | 67 | Add explicit pending-source preservation to the banner's input and rejected-draft checks. |
+| docs/DEVELOPMENT.md | 50 | Document independent release/metadata versioning and stable release asset requirements. |
+| docs/MAC_SETUP.md | 114 | Explain the dismissible notice, daily startup checks and manual download workflow. |
+
+Validation: MacVersionMetadata passes 15 synthetic existing-project assertions; Core still exports metadata version 0.6.1 while the app reports 1.0.0. Initial opening produces zero metadata writes and no dirty/Undo state; custom anchors/formats/lists, actual Save/reopen, script decoding and Undo/Redo are retained. StartupUpdates passes 46 assertions, CrashReporting 31 and MacPackaging 43; focused builds have zero warnings/errors. The real Apple Silicon Release app builds successfully, reports 1.0.0 in both bundle version fields and passes deep strict signature verification (still ad-hoc, not notarized). Fresh actual-base SCADE verification passes 37 checks against independent output, retaining 541 definitions; the tutorial lifecycle process passes 76 assertions (58 default plus 18 real-base) and retains 547 definitions without initial TOML regeneration. Original supplied ROM hashes are unchanged; the user's working tutorial is never opened. No Core, shared metadata version, compiler, numeric, engine or history code is modified. Complete final regression evidence follows separately; no GitHub release is published by this version change.

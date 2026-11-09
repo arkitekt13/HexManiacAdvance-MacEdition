@@ -9,7 +9,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NAME="HexManiacAdvance"
 OUT="$ROOT/artifacts/mac/$RID"
 FINAL="$OUT/$NAME.app"
-VERSION="$(sed -n 's/^\[assembly: AssemblyFileVersion("\([0-9.]*\)")\].*/\1/p' "$ROOT/src/SharedAssemblyInfo.cs" | tr -d '\r')"
+VERSION="$(sed -n 's/^\[assembly: AssemblyFileVersion("\([0-9.]*\)")\].*/\1/p' "$ROOT/src/HexManiac.Avalonia/MacAssemblyInfo.cs" | tr -d '\r')"
 if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then echo 'Could not read the application version.' >&2; exit 1; fi
 command -v dotnet >/dev/null || { echo 'Install the .NET 8 SDK to build this application.' >&2; exit 1; }
 command -v codesign >/dev/null || { echo 'Mac packaging requires codesign on macOS.' >&2; exit 1; }

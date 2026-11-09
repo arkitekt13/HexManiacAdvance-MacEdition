@@ -3297,3 +3297,12 @@ Validation: The dedicated synthetic/headless group builds with zero warnings/err
 | README.md | 89 | Update the public test summary and point to current per-group evidence. |
 
 Validation: Fresh documented Mac runner passes 84 groups / 24,511 assertions, zero failures and zero skipped groups. IkarusUpgrade contributes 70 assertions. The opt-in exact-base process separately passes 127 assertions (those same 70 plus 57 supplemental real-ROM checks); it is not added wholesale to the full-suite total. Temporary vanilla FireRed 1.0, bundled HUBOL and supplied SCADE retain every named anchor address/format (549/549/541) through actual Save/reopen, agree with expected patch bytes, and restore initialized map images and previous edits through data-tab Undo/Redo. Published IPS and creator notes are byte-identical. Uploaded source remains SHA-256 3d0c79f1627022e18765766f6cb5ea067f6b5bf7dca115552189ad65a5c3a8ac; temporary pairs are deleted and no personal ROM/preferences changed. The only warning category is existing MapImageExport NU1900 vulnerability-feed unavailability; there are no compiler warnings. Native macOS picker behavior, gameplay, FireRed 1.1, other CFRU builds and custom projects remain manual checks, and the upstream xUnit suite is not included/rerun. Feature remains isolated and unmerged on codex/ikarus-visual-upgrade, with the pushed pre-implementation checkpoint available.
+
+## 224 — Enable the read-only usage diagnostic for the supplied FireRed 1.0
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tools/FlagVariableReview/UsageDetectionAudit.cs | 50 | Accept BPRE0 alongside BPRE1 in the optional diagnostic while retaining the explicit English-FireRed gate and real revision/hash reporting. |
+| tools/FlagVariableReview/README.md | 24 | Document the two supported read-only fixture revisions and absolute input path. |
+
+Validation: Diagnostic builds with zero warnings/errors. FireRed 1.0 completes all five synthetic game identities with 20 command cases each, then reviews 4,762 variable references from 3,979 decoded segments and 2,143 roots: zero missing references/IDs and zero incomplete traversals within the bounded collector. Model and uploaded-file bytes remain unchanged. The existing supplied 1.1 phase is also rerun successfully; actual engine behavior and complete arbitrary/native-code usage are not certified. This changes only the opt-in diagnostic, not the app, compiler or allocator. Exact results follow in the separate fixture-verification evidence commit.

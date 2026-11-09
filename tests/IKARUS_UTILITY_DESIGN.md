@@ -28,3 +28,12 @@ custom history change only after success. A narrowly scoped reloadable ModelDelt
 subclass restores metadata and prior change-tracking on rollback/Undo/Redo; existing
 ordinary deltas retain their current implementation. Test prior and subsequent edits,
 shared views, script source, exact bytes/definitions/history and real map pixels.
+
+Implementation finding: refreshing an existing Map Editor discovers derived formatting
+and ordinarily records it as another history token. A live-map regression reproduced a
+first Undo that reverted only formatting and left the patch applied. The dedicated utility
+therefore uses a synchronous transient NoDataChange token while rebuilding/rendering map
+caches, preserving redo/saved state and prohibiting ROM writes. The document's existing map
+caches refresh after history reversion as well. No global history behavior is switched on;
+normal callers retain the existing path. Real vanilla/HUBOL/SCADE UI Undo/Redo and
+save/reopen regressions now cover this difference from fresh detached map snapshots.

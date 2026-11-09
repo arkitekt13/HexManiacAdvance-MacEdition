@@ -185,6 +185,7 @@
             </NativeMenuItem>
             <NativeMenuItem Header="Scripts" Command="{Binding LaunchScriptsLocation}" />
             <NativeMenuItemSeparator />
+            <NativeMenuItem Header="Ikarus Visual Upgrade…" IsEnabled="False" Click="ApplyIkarusClick"/>
             <NativeMenuItem Header="Create SCADE ROM…" IsEnabled="False" Click="CreateScadeRomClick"
                             ToolTip="Open the unmodified English FireRed 1.0 base ROM first." />
             <NativeMenuItem Header="Create Tutorial ROM…" IsEnabled="False" Click="CreateTutorialRomClick"

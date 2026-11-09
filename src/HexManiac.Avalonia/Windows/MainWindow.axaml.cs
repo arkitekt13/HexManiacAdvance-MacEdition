@@ -74,7 +74,7 @@ public partial class MainWindow : Window {
             BuildKeyBindings();
             FillQuickEditMenus();
             RefreshTutorialMenu();
-            RefreshScadeMenu();
+            RefreshScadeMenu(); RefreshIkarusMenu();
             ResetFocus();
          }
       }
@@ -88,6 +88,7 @@ public partial class MainWindow : Window {
       InitializeComponent();
       InitializeTutorialMenu();
       InitializeScadeMenu();
+      InitializeIkarusMenu();
       InitializeEditingCommands();
       AddHandler(KeyDownEvent, CancelReferencePanOnEscape, RoutingStrategies.Tunnel, handledEventsToo: true);
       AddHandler(KeyDownEvent, HandleTextEditingKeys, RoutingStrategies.Tunnel);
@@ -296,7 +297,7 @@ public partial class MainWindow : Window {
    }
 
    private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
-      if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) { RefreshTutorialMenu(); RefreshScadeMenu(); }
+      if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) { RefreshTutorialMenu(); RefreshScadeMenu(); RefreshIkarusMenu(); }
       if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) SyncSelectionFromViewModel();
       if (e.PropertyName == nameof(EditorViewModel.ShowAutomationPanel)) UpdateAutomationPanel();
       if (e.PropertyName == nameof(EditorViewModel.GotoViewModel)) {

@@ -36,6 +36,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       private bool revertInProgress;
       private bool customChangeInProgress;
       private T currentChange;
+      private T transientChange;
       private int undoStackSizeAtSaveTag;
 
       public ICommand Undo => undo;
@@ -44,6 +45,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
       public event EventHandler Reverted;
       public T CurrentChange {
          get {
+            if (transientChange != null) return transientChange;
             VerifyRevertNotInProgress();
             ClearRedoStack();
 
@@ -108,7 +110,16 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          };
       }
 
+      /// <summary>Use an isolated token for synchronous derived formatting, preserving undo/redo and the saved tag.</summary>
+      public IDisposable UseTransientChange(T token) {
+         if (token == null) throw new ArgumentNullException(nameof(token));
+         var previous = transientChange;
+         transientChange = token;
+         return new StubDisposable { Dispose = () => transientChange = previous };
+      }
+
       public void ChangeCompleted() {
+         if (transientChange != null) return;
          if (!continueCurrentTransaction) customChangeInProgress = false;
          if (currentChange == null) return;
          if (!currentChange.HasAnyChange) { currentChange = null; return; }

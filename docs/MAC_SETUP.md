@@ -57,6 +57,26 @@ Mixing-bag membership uses **Command-click in the block selector**, which is dis
 Control-click context menus. In dialogue, Enter inserts a line break; a blank line introduces
 a paragraph/page break. Overflow warnings are visual guidance, not automatic text wrapping.
 
+## Apply the Ikarus Visual Upgrade
+
+1. Open your **English FireRed** project (vanilla, HUBOL, CFRU or SCADE).
+2. Choose **Utilities > Ikarus Visual Upgrade…** and read the confirmation.
+3. Choose **Back Up and Continue…**, then choose a folder and a **new backup name**.
+4. HMA verifies both the backup `.gba` and matching `.toml` before applying the upgrade.
+5. Test the result. **Save** keeps it; **Undo** restores the pre-upgrade state.
+
+An unedited or minimally edited project is recommended, but ordinary edits are allowed.
+The backup includes unsaved ROM changes and current metadata; existing backup files are
+never replaced. Correct rejected script source before proceeding. Canceling the confirmation
+or backup picker leaves your project alone. Your original files are not automatically saved.
+
+This patch changes graphics **and** some map layouts, movement permissions, block behaviors
+and a Five Isle Meadow tile-change routine. It appears compatible with vanilla FireRed,
+HUBOL, CFRU and SCADE. Automated checks cover English FireRed 1.0, the bundled HUBOL build
+and the supplied SCADE build; gameplay, FireRed 1.1 and other CFRU builds need further testing.
+Other games and non-English ROMs are blocked. Keep your paired backup until testing is complete.
+Creator notes and full contributor credits are available in the confirmation dialog.
+
 ## Create a SCADE ROM base
 
 SCADE is Shiny Miner's CFRU Expansion / DPE-gen9 build, separate from the tutorial.

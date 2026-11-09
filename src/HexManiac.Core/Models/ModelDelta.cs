@@ -197,7 +197,7 @@ namespace HavenSoft.HexManiac.Core.Models {
          }
       }
 
-      public ModelDelta Revert(IDataModel model) {
+      public virtual ModelDelta Revert(IDataModel model) {
          var reverse = new ModelDelta { HasDataChange = HasDataChange };
 
          foreach (var kvp in oldData) {

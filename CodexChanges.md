@@ -3266,3 +3266,23 @@ Validation: Exact clean FireRed 1.0, bundled HUBOL and supplied SCADE each rende
 | tests/IKARUS_UTILITY_DESIGN.md | 1 | Record the authorized edited-project recommendation, mandatory verified paired backup, source/draft guards and undoable metadata refresh design before implementation. |
 
 Validation: Pushed checkpoint/pre-ikarus-visual-upgrade-2026-11-09 at 27175c4f and isolated work on codex/ikarus-visual-upgrade. Reviewed existing backup, generic IPS import, model loading and history behavior: the backup command does not guarantee both writes, and generic IPS import clears history. No production code or game data changed in this design commit. Implementation and verification follow separately.
+
+## 222 — Add the backed-up, undoable Ikarus Visual Upgrade utility
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/Ikarus/ | 1 | Bundle the exact reviewed FR V3.2 IPS and unchanged creator notes, full graphics credits and usage guidance. |
+| src/HexManiac.Avalonia/Project/IkarusUpgrade.cs | 1 | Validate assets/game identity, prepare on a detached model, publish and verify a non-overwriting current ROM/TOML backup, recheck source and apply. |
+| src/HexManiac.Avalonia/Windows/MainWindow.Ikarus.cs | 1 | Add the Utilities action, confirmation and native backup picker with captured-source/sibling-draft guards and derived map refreshes. |
+| src/HexManiac.Avalonia/Windows/IkarusUpgradeDialog.axaml | 1 | Present the fresh-project recommendation, bounded compatibility claims, non-graphics changes, backup workflow and expandable original credits. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 188 | Expose the new dedicated utility without changing generic IPS/UPS import. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 77 | Initialize and refresh utility availability with editor/tab changes. |
+| src/HexManiac.Avalonia/HexManiac.Avalonia.csproj | 42 | Copy optional IPS assets into both build and publish output. |
+| src/HexManiac.Core/Models/ModelDelta.cs | 200 | Allow the dedicated reloadable patch token to override reversion; ordinary delta implementation stays unchanged. |
+| src/HexManiac.Core/Models/ReloadingModelDelta.cs | 1 | Apply same-size reviewed bytes with rollback, preserve pre-existing history, and rebuild metadata-derived formats through Undo/Redo. |
+| src/HexManiac.Core/ViewModels/ChangeHistory.cs | 113 | Provide an explicitly scoped formatting token so derived refreshes preserve Undo/Redo and saved state. |
+| tests/IkarusUpgrade/ | 1 | Cover backup failures, source/draft guards, isolated formatting and actual dialog controls, plus opt-in real-ROM save/reopen and existing-map checks. |
+| README.md | 82 | List the backed-up visual upgrade with its recommendation and testing limits. |
+| docs/MAC_SETUP.md | 63 | Give concrete utility steps, backup/Undo behavior and the tested compatibility boundaries. |
+
+Validation: The dedicated synthetic/headless group builds with zero warnings/errors and passes 70 assertions. Published IPS and creator notes match their source hashes byte for byte. Real temporary vanilla FireRed 1.0, bundled HUBOL and supplied SCADE projects retain all 549/549/541 named anchor addresses/formats through actual Save/reopen, produce exact expected patched bytes, refresh both map snapshots and initialized Map Editors, and retain earlier edits through UI Undo/Redo. An existing-map probe exposed a formatting-only history token after refresh; scoped NoDataChange formatting removes that extra Undo step without clearing Redo, refuses byte writes, and refreshes map caches after data-tab Undo/Redo. The ordinary history path is unchanged outside this explicit utility scope. Mandatory verified backup captures current unsaved bytes/metadata without overwriting originals; cancellation before choosing a destination writes/compiles nothing, and rejected sibling source stops patching. English BPRE revisions including 1.1 are accepted without a clean CRC requirement; other games/languages and unsupported sizes are blocked. Compatibility remains qualified for gameplay, 1.1, other CFRU builds and custom projects; native picker behavior remains manual. No personal ROM/preferences changed. Complete final-suite and opt-in counts follow in a separate evidence commit.

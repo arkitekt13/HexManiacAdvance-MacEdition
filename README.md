@@ -79,6 +79,7 @@ If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source
 - **Ready-to-type navigation** - Command-G opens Go To with the search field focused, including after changing ROM tabs.
 - **Tutorial Village welcome image** - A faded map background introduces the project while keeping the welcome actions clear.
 - **Easier field editing** - Short fields select their contents when reached with Tab, and encounter suggestions support mouse selection.
+- **Ikarus Visual Upgrade** - Apply the bundled visual patch to an English FireRed project after creating a verified ROM/TOML backup, with Undo available; fresh projects are recommended and broader compatibility still needs gameplay testing.
 - **External emulator support** - Launch your saved ROM in an installed emulator such as mGBA.
 - **Less repeated work** - Improvements reduce unnecessary rendering, script layout calculations, highlighting and data lookups.
 

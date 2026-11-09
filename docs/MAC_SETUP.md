@@ -57,6 +57,22 @@ Mixing-bag membership uses **Command-click in the block selector**, which is dis
 Control-click context menus. In dialogue, Enter inserts a line break; a blank line introduces
 a paragraph/page break. Overflow warnings are visual guidance, not automatic text wrapping.
 
+## Create a SCADE ROM base
+
+SCADE is Shiny Miner's CFRU Expansion / DPE-gen9 build, separate from the tutorial.
+
+1. Open a **clean English FireRed 1.0** ROM; FireRed 1.1 and edited ROMs are rejected.
+2. Choose **Utilities > Create SCADE ROM…**.
+3. Choose the folder and a new ROM name in the Mac save dialog.
+4. HMA creates `Your Name.gba` and the creator's matching `Your Name.toml`
+   beside it, then opens the new ROM with those definitions.
+
+The original ROM and its metadata are preserved. Existing destination files are
+never replaced; choose another name if either file already exists. Finish or
+discard pending/rejected script edits before using the utility. Keep the TOML
+beside the new ROM when moving or sharing your project. General BPS import is
+not enabled by this feature. See [asset/version details](../OptionalAssets/SCADE/README.md).
+
 ## If macOS blocks a downloaded app
 
 Current development bundles are ad-hoc signed and are not notarized.

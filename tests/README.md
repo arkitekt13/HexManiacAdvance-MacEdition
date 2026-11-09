@@ -29,6 +29,8 @@ real published-loader checks and native distribution checks still awaiting helpe
 verification, separate ROM creation and pending/rejected script protection; the asset locations
 are documented in [OptionalAssets/Tutorial](../OptionalAssets/Tutorial/README.md) and
 [OptionalAssets/Welcome](../OptionalAssets/Welcome/README.md).
+[ScadeInstaller](ScadeInstaller/README.md) covers bundled SCADE BPS decoding, independent
+format vectors, paired ROM/TOML publication, pending drafts and normal metadata load/save/reopen.
 The [ID suggestion lifetime review](ID_SUGGESTION_LIFECYCLE_REVIEW.md) and
 [IdSuggestionLifecycle](IdSuggestionLifecycle/README.md) cover live usage, deletion/reuse,
 scoped reservations and retained pending/rejected source.

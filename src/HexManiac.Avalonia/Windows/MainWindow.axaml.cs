@@ -74,6 +74,7 @@ public partial class MainWindow : Window {
             BuildKeyBindings();
             FillQuickEditMenus();
             RefreshTutorialMenu();
+            RefreshScadeMenu();
             ResetFocus();
          }
       }
@@ -86,6 +87,7 @@ public partial class MainWindow : Window {
       // one both loads the XAML and assigns the x:Name fields.
       InitializeComponent();
       InitializeTutorialMenu();
+      InitializeScadeMenu();
       InitializeEditingCommands();
       AddHandler(KeyDownEvent, CancelReferencePanOnEscape, RoutingStrategies.Tunnel, handledEventsToo: true);
       AddHandler(KeyDownEvent, HandleTextEditingKeys, RoutingStrategies.Tunnel);
@@ -294,7 +296,7 @@ public partial class MainWindow : Window {
    }
 
    private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
-      if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) RefreshTutorialMenu();
+      if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) { RefreshTutorialMenu(); RefreshScadeMenu(); }
       if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) SyncSelectionFromViewModel();
       if (e.PropertyName == nameof(EditorViewModel.ShowAutomationPanel)) UpdateAutomationPanel();
       if (e.PropertyName == nameof(EditorViewModel.GotoViewModel)) {

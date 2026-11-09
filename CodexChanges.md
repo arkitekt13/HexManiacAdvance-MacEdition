@@ -3258,3 +3258,11 @@ Validation: Generated HUBOL and SCADE from the exact uploaded clean FireRed 1.0 
 | tests/ScadeInstaller/README.md | 79 | Link alternate-patch reproduction and refined script coverage. |
 
 Validation: Exact clean FireRed 1.0, bundled HUBOL and supplied SCADE each render 425 maps before/after with zero new failures; independent IPS application and exact patch-delta Undo/Redo agree. All 549/549/541 named definitions retain addresses/formats through actual save/reopen. No equivalent ability-pointer, active compressed-graphics or overwritten live script-entry corruption from the earlier DS patch is found. Checked active Pokémon/ability/move/item/trainer data remains unchanged. On each base, 120 map images change, 99 maps' block cells change, 43 maps' collision/elevation bitmaps change and 212 maps use changed behavior/layer attributes; dimensions do not change. One shared child routine at 0x168983, reached by a Five Isle Meadow signpost and map header, replaces setmaptile 12 21 687 1 with return. The probe follows 1,959/1,945/1,958 valid roots with zero thrown parse errors, without certifying unsupported/native code. Final investigation completes 35 invariants; default ScadeInstaller passes 137 assertions with zero build warnings/errors. No full Mac run was repeated for these opt-in test/documentation changes. Uploaded originals and preferences remain unchanged; no patch/ROM/PNG was committed and no utility or production feature was added. Recommend a fresh-base trial and in-game progression/movement checks before integration or existing-project use.
+
+## 221 — Checkpoint and scope the Ikarus Visual Upgrade workflow
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/IKARUS_UTILITY_DESIGN.md | 1 | Record the authorized edited-project recommendation, mandatory verified paired backup, source/draft guards and undoable metadata refresh design before implementation. |
+
+Validation: Pushed checkpoint/pre-ikarus-visual-upgrade-2026-11-09 at 27175c4f and isolated work on codex/ikarus-visual-upgrade. Reviewed existing backup, generic IPS import, model loading and history behavior: the backup command does not guarantee both writes, and generic IPS import clears history. No production code or game data changed in this design commit. Implementation and verification follow separately.

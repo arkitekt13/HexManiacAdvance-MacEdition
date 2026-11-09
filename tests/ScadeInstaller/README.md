@@ -55,3 +55,17 @@ ROM/TOML pairs; it never opens the input ROM directly in HMA. Native picker beha
 and in-game feature testing remain manual. The default synthetic group now passes
 137 assertions after strengthening real-save coverage; this does not replace or
 increase the historical complete-suite result in verification.json.
+
+## Opt-in DS graphics IPS review
+
+```sh
+dotnet tests/ScadeInstaller/bin/Debug/net8.0/ScadeInstaller.dll --ds-graphics-review "/path/to/clean-base.gba" "/path/to/supplied.ips.txt" "/absolute/path/to/ignored-report-folder"
+```
+
+Requires the exact supplied patch hash and a repository checkout containing the
+bundled HUBOL patch. It creates all three bases in memory, renders all maps before/
+after, inspects collateral changes and deletes its temporary ROM outputs. An optional
+`--skip-maps` final argument repeats raw-pointer/graphics/event-link diagnostics
+without rendering. The report folder contains JSON and representative PNGs, never
+ROM files. This is an investigation, not a shipped graphics utility or an automatic
+part of the synthetic suite. See [confirmed findings](../DS_GRAPHICS_COMPATIBILITY_REVIEW.md).

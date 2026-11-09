@@ -32,6 +32,15 @@ are documented in [OptionalAssets/Tutorial](../OptionalAssets/Tutorial/README.md
 The November 9 SCADE candidate passed **83 groups / 24,439 assertions**, with zero failures
 or skipped groups; [exact results and manual limits](ScadeInstaller/verification.json).
 
+The final Ikarus candidate passed **84 groups / 24,511 assertions**, with zero failures
+or skipped groups; [exact per-group results](IkarusUpgrade/verification.json).
+The optional real-ROM process passes 127 assertions: the same 70 focused assertions plus
+57 supplemental vanilla/HUBOL/SCADE checks, not an extra 127 added to the complete total.
+
+[IkarusUpgrade](IkarusUpgrade/README.md) covers the backed-up visual upgrade, related drafts,
+formatting-safe Undo/Redo and modal controls; [real-ROM evidence](IkarusUpgrade/real-verification.json)
+records actual vanilla/HUBOL/SCADE save/reopen and initialized-map checks.
+
 [ScadeInstaller](ScadeInstaller/README.md) covers bundled SCADE BPS decoding, independent
 format vectors, paired ROM/TOML publication, pending drafts and normal metadata load/save/reopen.
 The later [real FireRed 1.0 verification](ScadeInstaller/real-base-verification.json) confirms

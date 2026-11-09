@@ -3186,3 +3186,11 @@ Validation: ScriptFontControls passes 12 assertions with zero build warnings/err
 | scripts/build-accomplishments.py | 1 | Rebuild the PDF from the reviewed records with consistent typography, section layout and page numbering. |
 
 Validation: Rendered and visually inspected all five final PDF pages, verified extracted text and bullet counts, checked local README destinations and git diff whitespace. The sheet distinguishes the November 8 complete Mac run (81 groups / 24,292 assertions / zero failures / zero skipped groups) from the subsequent seven-group / 1,024-assertion font-control checks; no new suite run is claimed. Historical performance figures retain their workload scope, the pending tutorial patch is identified as a framework, and .hma compatibility awaits correct-base user verification. These changes update documentation only; no app code, ROM, preferences or packaging output changed in this commit.
+
+## 215 — Checkpoint and investigate supplied SCADE assets and metadata loading
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/SCADE_INVESTIGATION.md | 1 | Record patch identity, pinned input hashes, BPS requirements, existing metadata loading and safe new-copy publication design before implementation. |
+
+Validation: Pushed annotated checkpoint/pre-scade-2026-11-09 at 9d7f347a before edits. Independently inspected the supplied BPS header/footer and verified its patch CRC with Python zlib; reviewed the supplied README and TOML plus HMA's real metadata selection/version paths. The patch requires 16 MiB FireRed 1.0 and produces 32 MiB; the supplied TOML has 541 anchors and version 99.0.0. No patch was applied or production code changed in this evidence commit. Existing TutorialPatch binary passes 36 assertions; this is not a fresh complete-suite result. Personal ROMs/preferences remain unchanged.

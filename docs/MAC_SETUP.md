@@ -50,6 +50,7 @@ the script tab; Undo/Redo and external reload also refresh the reference.
 | Pan a map with a trackpad | Option + primary-button drag |
 | Select placed map blocks | Control + primary-button drag |
 | Zoom a map | Status-bar minus/plus buttons or the existing wheel gesture |
+| Resize code text | Minus/plus buttons beside Code Type; Command-scrolling does not resize text |
 | Replace a short field | Tab or Shift-Tab into it, then type over the selected value |
 
 Mixing-bag membership uses **Command-click in the block selector**, which is distinct from

@@ -3163,3 +3163,15 @@ Validation: The supplied PNG header reports 1312×960 pixels and its SHA-256 is 
 | tests/README.md | 9 | Link the dated complete-suite proof and distinguish it from upstream and native verification. |
 
 Validation: The documented Mac procedure passes 81 groups / 24,292 assertions, with zero failures and zero skipped groups. The only build-warning category is the existing MapImageExport NU1900 inability to fetch NuGet vulnerability metadata. Reviewed all 38 existing feature commits since the default-branch checkpoint: each has a descriptive subject and its own CodexChanges update; the supplied refreshed background is separately committed as b6b642f9 with entry 211. Changelog numbering is continuous. The annotated tag checkpoint/pre-map-reference-merge-2026-11-08 preserves default-branch commit 7a6c80ec, and the planned merge preserves individual feature commits. No production code changed during this complete run; this entry adds verification documentation only. Personal ROM/preferences were untouched; the upstream xUnit suite and a complete native/gameplay pass were not rerun.
+
+## 213 — Replace accidental code-font scroll zoom with explicit controls
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/TabView.axaml | 816 | Fit centered minus/plus buttons and a current-size indicator beside Code Type while retaining Hex View and Map View. |
+| src/HexManiac.Avalonia/Controls/TabView.axaml.cs | 492 | Resize through explicit button clicks and remove Command-wheel font resizing while keeping the existing 8–20 bounds. |
+| tests/ScriptFontControls/Program.cs | 25 | Exercise real pointer input, modified wheel deltas, ordinary scrolling, size limits and unchanged source/model/history/selection. |
+| tests/ScriptFontControls/README.md | 1 | Document explicit font controls and the preserved Command-minus navigation shortcut. |
+| docs/MAC_SETUP.md | 53 | Explain how to resize code text and that Command-scrolling no longer resizes it. |
+
+Validation: ScriptFontControls passes 12 assertions with zero build warnings/errors. Actual button clicks adjust one step and retain caret/selection/focus, normal scrolling still moves the source, Command-wheel/fractional/horizontal deltas never resize it, and source/ROM/metadata/saved/history/pending-compile state remains unchanged. Fresh ScriptScrollStability (245), ScriptMapReference (63), ScriptMapNavigation (76), ScriptWidthUpdates (448), ClipboardRouting (78) and ScriptEditorLayout (102) also pass: seven focused groups / 1,024 assertions, zero failures and zero build warnings/errors. The actual compiled header was rendered and visually inspected. Command-minus is already Go Back, so its keyboard/native-menu route remains untouched; explicit buttons fulfill the requested alternative. No personal ROM/preferences were opened. The full Mac suite was not rerun for this focused input/UI change.

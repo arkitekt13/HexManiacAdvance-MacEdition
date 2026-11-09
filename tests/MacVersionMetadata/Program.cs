@@ -53,4 +53,12 @@ Check(reopened.Model.RawData.SequenceEqual(saved)&&Definitions(reopened.Model),"
 reopened.Goto.Execute(WorkflowFixture.Root);reopened.Tools.CodeTool.Mode=HavenSoft.HexManiac.Core.ViewModels.Tools.CodeMode.Script;
 reopened.Tools.CodeTool.IsSelected=true;
 Check(reopened.Tools.CodeTool.Contents.Any(body=>body.Content.Contains("setvar")&&!body.HasError),"existing scripts still decode without diagnostics after reopening");
+if(args.Length==1) {
+ var contents=Path.Combine(Path.GetFullPath(args[0]),"Contents");var binaries=Path.Combine(contents,"MacOS");
+ Check(System.Reflection.AssemblyName.GetAssemblyName(Path.Combine(binaries,"HexManiacAdvance.dll")).Version==new Version(1,0,0,0),"actual published Mac assembly reports 1.0.0");
+ Check(System.Reflection.AssemblyName.GetAssemblyName(Path.Combine(binaries,"HexManiac.Core.dll")).Version==new Version(0,6,1,0),"actual bundled Core assembly retains 0.6.1");
+ var elements=System.Xml.Linq.XDocument.Load(Path.Combine(contents,"Info.plist")).Root.Element("dict").Elements().ToArray();
+ string Value(string key)=>elements[Array.FindIndex(elements,e=>e.Name=="key"&&e.Value==key)+1].Value;
+ Check(Value("CFBundleShortVersionString")=="1.0.0"&&Value("CFBundleVersion")=="1.0.0","actual Finder bundle versions match the Mac app identity");
+}
 Console.WriteLine($"CHECKS_PASSED:{checks}");

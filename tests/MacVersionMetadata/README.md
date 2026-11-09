@@ -11,3 +11,7 @@ Only disposable synthetic project files are used, never the user's tutorial.
 Supplemental real-base SCADE and tutorial probes verify their original supplied definitions
 on Mac 1.0 separately. MacPackaging checks that bundle/archive versions come from the Mac
 app's version file even when SharedAssemblyInfo.cs contains a different Core version.
+
+An optional absolute `.app` path checks the real published Mac assembly, bundled Core
+assembly and both Info.plist version fields (three additional checks beyond the default 15).
+It reads assembly metadata without launching the app or opening any personal ROM.

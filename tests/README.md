@@ -28,6 +28,11 @@ fitted window overlay and source/input lifecycle.
 [MacPackaging](MacPackaging/README.md) covers build-script failure preservation.
 The [helper-readiness investigation](FIRST_LAUNCH_READINESS_REVIEW.md) separates reproduced defects,
 real published-loader checks and native distribution checks still awaiting helpers.
+The Mac Edition 1.0 candidate passes **86 groups / 24,568 assertions**, with zero failures
+or skipped groups; [exact counts and project-compatibility proof](StartupUpdates/mac-edition-1-0-verification.json).
+[UpdateNotice](UpdateNotice/README.md) covers nonintrusive availability prompts and pending/rejected source;
+[MacVersionMetadata](MacVersionMetadata/README.md) covers the independent app/Core versions and existing project lifecycle.
+
 The final paired-tutorial framework passes **84 groups / 24,533 assertions**, with zero
 failures or skipped groups; [exact counts and limits](TutorialPatch/verification.json).
 A separate real-1.1 lifecycle probe adds 18 checks and preserves all 547 named definitions;

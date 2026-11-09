@@ -1,0 +1,587 @@
+{
+  "date": "2026-11-09",
+  "testedApplicationCommit": "cbf8802295dc6cd1354a49d13c09bc1c34155549",
+  "bannerCommit": "d34e519d",
+  "branch": "codex/ikarus-visual-upgrade",
+  "rollbackCheckpoint": "checkpoint/pre-update-notice-1-0-2026-11-09",
+  "macAppVersion": "1.0.0",
+  "coreAssemblyVersion": "0.6.1.0",
+  "coreMetadataVersion": "0.6.1",
+  "unchangedCoreTree": "5035dfb85aa6545ce7a9a79c1955227743f07041",
+  "unchangedSharedAssemblyInfoBlob": "dd7e78ecc59bc19624419ab65942833e17905455",
+  "command": "bash scripts/verify-mac.sh --no-restore",
+  "summary": {
+    "groups": 86,
+    "assertions": 24568,
+    "failures": 0,
+    "skippedGroups": 0
+  },
+  "groups": [
+    {
+      "group": "AutocompleteDismissal",
+      "assertions": 85,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "AutocompleteMapping",
+      "assertions": 320,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "BlockBagFill",
+      "assertions": 2081,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "BlockFlipControls",
+      "assertions": 1825,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "BlockPanelLayout",
+      "assertions": 162,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "BlocksetPreviews",
+      "assertions": 160,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "BlocksetSelection",
+      "assertions": 199,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "BorderBounds",
+      "assertions": 195,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ClipboardRouting",
+      "assertions": 78,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ColorEditorInput",
+      "assertions": 93,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "CommentHighlighting",
+      "assertions": 4652,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "CrashReporting",
+      "assertions": 31,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "DialogueDiagnostics",
+      "assertions": 40,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "DialogueScaffolding",
+      "assertions": 384,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "EditorScrollbars",
+      "assertions": 78,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ExternalEmulatorLaunch",
+      "assertions": 31,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ExternalFileChanges",
+      "assertions": 38,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "FileDrop",
+      "assertions": 24,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "FirstLaunch",
+      "assertions": 47,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "FlagUsageSafety",
+      "assertions": 1098,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "FocusAnimation",
+      "assertions": 25,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "GotoFocus",
+      "assertions": 27,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "IdSuggestionLifecycle",
+      "assertions": 87,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "IkarusUpgrade",
+      "assertions": 70,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ImageEditorInput",
+      "assertions": 38,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ImageHoverPreviews",
+      "assertions": 56,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ItemTablePresentation",
+      "assertions": 48,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MacPackaging",
+      "assertions": 43,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MacSecondaryActions",
+      "assertions": 43,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MacVersionMetadata",
+      "assertions": 15,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapArrowIcons",
+      "assertions": 98,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapEventEditing",
+      "assertions": 63,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapEventMenus",
+      "assertions": 68,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapGestureLifecycle",
+      "assertions": 1343,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapHeaderScripts",
+      "assertions": 69,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapHistoryRefresh",
+      "assertions": 23,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapHoverLookup",
+      "assertions": 50,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapHoverPreview",
+      "assertions": 134,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapImageExport",
+      "assertions": 33,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapRendering",
+      "assertions": 93,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapSelection",
+      "assertions": 394,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapSpriteSelection",
+      "assertions": 180,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapThreadSafety",
+      "assertions": 22,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapUsageSearch",
+      "assertions": 106,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MapZoom",
+      "assertions": 1276,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "MovementValidation",
+      "assertions": 1981,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "NpcTemplate",
+      "assertions": 44,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ObjectScriptNavigation",
+      "assertions": 51,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "PaletteClipboard",
+      "assertions": 40,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "PaletteHistory",
+      "assertions": 36,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "PatchSafety",
+      "assertions": 357,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "PortraitFreshness",
+      "assertions": 68,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ProfilePersistence",
+      "assertions": 32,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ProjectExportSafety",
+      "assertions": 13,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ProjectImport",
+      "assertions": 30,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "SaveSafety",
+      "assertions": 17,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScadeInstaller",
+      "assertions": 137,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptArgumentSafety",
+      "assertions": 1560,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptArrowFocus",
+      "assertions": 26,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptAssistance",
+      "assertions": 364,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptAssistanceEntry",
+      "assertions": 789,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptDraftWarning",
+      "assertions": 18,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptEditorLayout",
+      "assertions": 102,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptFontControls",
+      "assertions": 12,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptGapRoundTrip",
+      "assertions": 117,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptMapNavigation",
+      "assertions": 76,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptMapReference",
+      "assertions": 63,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptScrollStability",
+      "assertions": 245,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptWidthUpdates",
+      "assertions": 448,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptWorkflowSafety",
+      "assertions": 598,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ShortFieldTabSelection",
+      "assertions": 21,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "SignpostScriptGrowth",
+      "assertions": 48,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "SignpostScriptNavigation",
+      "assertions": 14,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "StartupUpdates",
+      "assertions": 46,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "StreamTemplates",
+      "assertions": 123,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "TabMenus",
+      "assertions": 34,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "TabViewLifetime",
+      "assertions": 41,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "TextSelection",
+      "assertions": 63,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "TourGuideWorkflow",
+      "assertions": 321,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "TutorialLayout",
+      "assertions": 332,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "TutorialPatch",
+      "assertions": 58,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "UpdateNotice",
+      "assertions": 14,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "UpstreamVerificationRunner",
+      "assertions": 29,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "VerificationRunner",
+      "assertions": 9,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "WelcomeScreen",
+      "assertions": 38,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "WildEncounterEditing",
+      "assertions": 128,
+      "failures": 0,
+      "skipped": false
+    }
+  ],
+  "projectProtection": {
+    "syntheticExistingProjectAssertions": 15,
+    "initialMetadataRegenerationWrites": 0,
+    "customNamedDefinitionsAndListsPreserved": true,
+    "normalSaveKeepsCoreMetadataVersion": true,
+    "saveReopenUndoRedoAndScriptDecodingPass": true,
+    "workingTutorialOpened": false,
+    "userPreferencesModified": false
+  },
+  "realProjectChecks": {
+    "scadeSupplementalAssertions": 37,
+    "scadeDefinitionsRetained": 541,
+    "scadeOriginalMetadataUnchangedOnFirstOpen": true,
+    "scadeIndependentOutputSha256": "15e44f658a27070352e731b167715f21bebf6a67e6e55e51b81420765d4dcc6f",
+    "tutorialDefaultAssertionsIncludedInMacRun": 58,
+    "tutorialSupplementalAssertions": 18,
+    "tutorialCombinedProcessAssertions": 76,
+    "tutorialDefinitionsRetained": 547,
+    "tutorialOriginalMetadataUnchangedOnFirstOpen": true,
+    "limits": "The tutorial probe uses a temporary fabricated lesson on the real clean base, not the unfinished village project."
+  },
+  "realBundle": {
+    "architecture": "osx-arm64",
+    "configuration": "Release",
+    "publishScriptPass": true,
+    "bothPlistVersions": "1.0.0",
+    "actualMacAssemblyVersion": "1.0.0.0",
+    "actualBundledCoreAssemblyVersion": "0.6.1.0",
+    "additionalBundleChecks": 3,
+    "combinedMetadataAndBundleProcessAssertions": 18,
+    "strictDeepSignatureVerificationPass": true,
+    "signing": "ad-hoc, not notarized"
+  },
+  "notice": {
+    "defaultAssertions": 14,
+    "fixedDestination": "https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases",
+    "dismissal": "window session; Help > Update remains available",
+    "automaticDownloadsOrInstalls": false,
+    "focusSelectionPendingRejectedDraftsAndHistoryPreserved": true
+  },
+  "warnings": [
+    "Existing MapImageExport NU1900 vulnerability-feed unavailability; no source compiler warnings."
+  ],
+  "remainingChecks": [
+    "Native browser opening from the real notice and an actual published newer release",
+    "Downloaded signed/notarized distribution and native installation",
+    "Finished Tutorial Village assets/gameplay when supplied",
+    "Intel runtime execution; packaging logic is covered synthetically"
+  ],
+  "releaseState": "Version prepared; no stable 1.0 GitHub release published and feature code remains unmerged."
+}

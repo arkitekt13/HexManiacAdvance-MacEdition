@@ -93,6 +93,23 @@ discard pending/rejected script edits before using the utility. Keep the TOML
 beside the new ROM when moving or sharing your project. General BPS import is
 not enabled by this feature. See [asset/version details](../OptionalAssets/SCADE/README.md).
 
+## Create the Tutorial Village project
+
+The **Utilities > Create Tutorial ROM…** action stays disabled until the finished
+tutorial patch and matching definitions are included in a build.
+
+1. Open an **unmodified English FireRed 1.1** ROM. The complete ROM hash must match;
+   FireRed 1.0, edited ROMs and other games are rejected.
+2. Choose **Utilities > Create Tutorial ROM…**.
+3. Choose a folder and a new ROM name.
+4. HMA creates `Your Name.gba` and the bundled `Your Name.toml`, then opens the pair.
+
+The matching TOML is in place before opening, preserving the tutorial's custom definitions.
+Your base ROM and its metadata are untouched. Existing files are never replaced, and
+cancellation writes nothing. Finish or discard rejected/pending script edits first.
+Keep the ROM and TOML together when moving the tutorial project.
+See [release asset instructions](../OptionalAssets/Tutorial/README.md).
+
 ## If macOS blocks a downloaded app
 
 Current development bundles are ad-hoc signed and are not notarized.

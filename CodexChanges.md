@@ -2,6 +2,8 @@
 
 This log records changes we make in this fork, starting with our local work; it does not repeat changes inherited from the original projects.
 
+Utilities entries 215-227 describe work on the unmerged `codex/ikarus-visual-upgrade` preview branch; publishing this log and feature overview does not merge that application code.
+
 ## Entry format
 
 - Add a numbered section for each fix or feature, in chronological order.
@@ -3345,3 +3347,15 @@ Validation: Focused TutorialPatch builds with zero warnings/errors and passes 58
 | README.md | 89 | Point to the current 84-group / 24,533-assertion verification record. |
 
 Validation: Fresh documented Mac runner passes 84 groups / 24,533 assertions, zero failures and zero skipped groups. TutorialPatch contributes 58 assertions. The separate opt-in process passes 76 assertions (the same 58 plus 18 supplemental real-base checks), not an extra 76 added to the full-suite total. Exact clean English FireRed 1.1, a temporary one-byte lesson UPS and its matching exported TOML exercise the public loader, edited/revision-zero rejection, byte-exact paired output, zero metadata regeneration on initial open, real Pallet rendering, actual Save/reopen and Undo/Redo. All 547 named definition addresses/formats survive and source SHA-256 remains 729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059. Temporary pairs are removed; the unfinished village, personal ROMs and preferences are untouched. Only existing MapImageExport NU1900 vulnerability-feed unavailability remains; there are no compiler warnings. No final tutorial asset files are added: the utility stays disabled pending the finished patch/TOML/manifest. Native picker and final gameplay remain manual checks. Existing upstream Debug/Release results are separate and were not rerun for this UI/package-only change.
+
+## 228 — Highlight ROM utilities, tutorial readiness and community help
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| README.md | 53 | Add a clearly labeled utilities preview for SCADE, backed-up Ikarus and the unfinished Tutorial Village framework without claiming they are in the main download. |
+| README.md | 110 | Add Haven's official HMA Discord invite alongside upstream tutorials and Mac Edition bug reports. |
+| docs/accomplishments.json | 1 | Expand the grouped sheet to 100 one-sentence accomplishments with current metrics, utility safeguards and distinct implemented/pending status. |
+| scripts/build-accomplishments.py | 54 | Read current test metrics, evidence and availability notes from editable records instead of retaining hard-coded old counts. |
+| output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | N/A | Publish six reviewed pages covering the new utilities and verified real-ROM workflows while retaining original project credits and scoped performance metrics. |
+
+Validation: Rebuilt with the bundled PDF runtime, rendered and visually inspected all six pages, checked every accomplishment title and all page numbers, and verified exactly 100 bullets. Metrics cite the completed 84-group / 24,533-assertion Mac run separately from upstream cases and installer real-ROM checks; no test rerun is claimed for documentation. The official Discord invite is taken from Haven's current README and resolves to Hex Maniac Advance Development. Compatibility remains qualified, the playable tutorial is explicitly unfinished, and code is identified as preview-only. Documentation-only publication updates the default GitHub page and PDF without merging the feature branch or changing app source, ROMs or preferences.

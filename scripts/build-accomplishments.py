@@ -56,8 +56,8 @@ story=[]
 for index, sections in enumerate(data['pages']):
     if index: story.append(PageBreak())
     if index == 0:
-        story.append(Paragraph('<b>81 groups / 24,292 assertions / 0 failures / 0 skipped groups</b>', note))
-        story.append(Paragraph('Last complete Mac regression: November 8; subsequent font controls passed separate focused checks.', note))
+        story.append(Paragraph('<b>' + escape(data['verification_summary']) + '</b>', note))
+        story.append(Paragraph(escape(data['verification_detail']), note))
     for section, items in sections:
         story.append(Paragraph(escape(section), heading))
         for title, text, refs in items:
@@ -66,8 +66,8 @@ for index, sections in enumerate(data['pages']):
         story.append(Spacer(1,12))
         story.append(Paragraph('How to read the metrics', heading))
         story.append(Paragraph('Figures describe recorded component or synthetic workloads, not an overall app speedup; timings cannot be added, and temporary allocation differs from retained managed heap and native RAM.', note))
-        story.append(Paragraph('Evidence: CodexChanges entries 001-213, the performance reports under tests, and tests/MAP_REFERENCE_MERGE_VERIFICATION.json for the complete run at b6b642f9; later font-control checks are recorded separately in entry 213.', note))
-        story.append(Paragraph('The Tutorial Village background is included; the playable tutorial patch and guides remain in development, and HMA patch compatibility with the correct base ROM still awaits user verification.', note))
+        story.append(Paragraph(escape(data['evidence_note']), note))
+        story.append(Paragraph(escape(data['availability_note']), note))
         story.append(Paragraph('Built on Haven\'s HexManiacAdvance and the original Mac port by xavierkeys; Mac Edition is maintained by arkitekt13.', note))
 SimpleDocTemplate(str(output), pagesize=(612,792), leftMargin=42, rightMargin=42,
                   topMargin=106, bottomMargin=52, title='HexManiacAdvance Mac Edition - Development Accomplishments',

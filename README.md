@@ -50,6 +50,16 @@ If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source
 
 ## Mac Edition features
 
+### ROM utilities preview
+
+These utilities are implemented on the [current preview branch](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/tree/codex/ikarus-visual-upgrade) and are not yet merged into the main download.
+
+- **Create SCADE ROM** - Build a new SCADE ROM from exact unmodified English FireRed 1.0, with the creator's matching TOML placed beside it before opening.
+- **Ikarus Visual Upgrade** - Apply the reviewed visual and map upgrade to an English FireRed project after creating a verified named ROM/TOML backup, with Undo/Redo available.
+- **Tutorial Village framework** - Create a separate tutorial ROM and matching supplied TOML from exact unmodified English FireRed 1.1 once the finished assets are bundled; the action stays disabled until then.
+
+Ikarus is recommended for unedited or minimally edited projects, without enforcing that recommendation. It appears compatible with vanilla FireRed, HUBOL, CFRU and SCADE, but further gameplay/build testing is required. It changes some map layouts and behaviors as well as graphics. The playable Tutorial Village is still being finished.
+
 ### Map editing
 
 - **Trackpad panning and zoom** - Pan with Option-drag and zoom with the on-screen minus/plus buttons.
@@ -79,17 +89,17 @@ If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source
 - **Ready-to-type navigation** - Command-G opens Go To with the search field focused, including after changing ROM tabs.
 - **Tutorial Village welcome image** - A faded map background introduces the project while keeping the welcome actions clear.
 - **Easier field editing** - Short fields select their contents when reached with Tab, and encounter suggestions support mouse selection.
-- **Ikarus Visual Upgrade** - Apply the bundled visual patch to an English FireRed project after creating a verified ROM/TOML backup, with Undo available; fresh projects are recommended and broader compatibility still needs gameplay testing.
 - **External emulator support** - Launch your saved ROM in an installed emulator such as mGBA.
 - **Less repeated work** - Improvements reduce unnecessary rendering, script layout calculations, highlighting and data lookups.
 
 See the [accomplishments PDF](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf) for a grouped summary and measured improvements, or the [detailed changelog](CodexChanges.md) for individual fixes and validation.
 
-The last complete Mac regression run passed **84 groups / 24,533 assertions**, with **zero failures and zero skipped groups**. An additional 57 real-ROM checks cover the Ikarus upgrade on vanilla FireRed, HUBOL and SCADE. These are recorded test results, not a substitute for helper feedback or gameplay testing. See the [complete-run evidence](tests/TutorialPatch/verification.json).
+The current utilities preview passed **84 groups / 24,533 assertions**, with **zero failures and zero skipped groups**. An additional 57 real-ROM checks cover the Ikarus upgrade on vanilla FireRed, HUBOL and SCADE. These are recorded test results, not a substitute for helper feedback or gameplay testing. See the [complete-run evidence](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/blob/codex/ikarus-visual-upgrade/tests/TutorialPatch/verification.json).
 
 ## Help
 
 - **Learn ROM editing and scripting:** [Haven's HMA tutorials](https://github.com/haven1433/HexManiacAdvance/wiki).
+- **Ask general HMA questions and share scripts:** [Join the official HMA Discord](https://discord.gg/x9eQuBg).
 - **Connect mGBA or learn the Mac controls:** [Mac usage guide](docs/MAC_SETUP.md).
 - **Report a Mac Edition bug:** [Open an issue](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/issues).
 

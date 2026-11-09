@@ -1,8 +1,9 @@
 # Welcome map background
 
-`background.png` currently contains the first Tutorial Village map export supplied
-by arkitekt13 on 2026-11-08. It is an unchanged 1312 × 960 PNG (about 263 KiB),
-including the exported border. The original map export and ROM are untouched.
+`background.png` currently contains the Tutorial Village map export supplied by
+arkitekt13, first added and refreshed on 2026-11-08. The current supplied PNG is
+1312 × 960 (about 267 KiB), including the exported border. The original map export
+and ROM are untouched by this asset update.
 
 Replace this file as the village evolves, then build or publish normally. It is
 copied into `resources/Optional/Welcome/background.png` beside the app's binaries.

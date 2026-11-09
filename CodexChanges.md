@@ -3145,3 +3145,12 @@ Validation: The added regression fails on 0a8da532 with scroll offset 1198 → 1
 | tests/ScriptScrollStability/compile-refresh-verification.json | 1 | Preserve the exact 13-group focused result and native delayed-compilation scroll observations for 0f633b3f. |
 
 Validation: Fresh related regressions pass 13 groups / 2,234 assertions, with zero failures, zero skipped groups and zero build warnings/errors. ScriptScrollStability was rebuilt and rerun after strengthening font-size coverage and passes 245 with both the sanitized default and exact supplied local-file routes. The result also includes existing workflow failure-atomicity, assistance, clipboard, navigation, diagnostics, width updates, editor lifetime and signpost-relocation groups. Native before/after evidence and scope limitations are in the verification file. Personal ROM/preferences were untouched, and the user's modified welcome PNG remains unstaged. This is a focused result, not a claim that the complete Mac or upstream xUnit suites were rerun.
+
+## 211 — Include the refreshed Tutorial Village welcome image
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/Welcome/background.png | 1 | Include the user's updated 1312×960 Tutorial Village background exactly as supplied in the asset folder. |
+| OptionalAssets/Welcome/README.md | 3 | Record the refreshed image and its current approximately 267 KiB size. |
+
+Validation: The supplied PNG header reports 1312×960 pixels and its SHA-256 is 22e561867f25cd875386383241f5ddf7de6b4c6759a64bbe8358bbbd16ac8611. No image conversion, crop or source/export/ROM edit was performed. The existing copy-to-build/publish and responsive fade pipeline remains unchanged. This previously unstaged user asset is included under the explicit request to push and merge everything; complete pre-merge Mac-suite validation follows separately.

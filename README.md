@@ -85,7 +85,7 @@ If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source
 
 See the [accomplishments PDF](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf) for a grouped summary and measured improvements, or the [detailed changelog](CodexChanges.md) for individual fixes and validation.
 
-The last complete Mac regression run passed **84 groups / 24,511 assertions**, with **zero failures and zero skipped groups**. An additional 57 real-ROM checks cover the Ikarus upgrade on vanilla FireRed, HUBOL and SCADE. These are recorded test results, not a substitute for helper feedback or gameplay testing. See the [complete-run evidence](tests/IkarusUpgrade/verification.json).
+The last complete Mac regression run passed **84 groups / 24,533 assertions**, with **zero failures and zero skipped groups**. An additional 57 real-ROM checks cover the Ikarus upgrade on vanilla FireRed, HUBOL and SCADE. These are recorded test results, not a substitute for helper feedback or gameplay testing. See the [complete-run evidence](tests/TutorialPatch/verification.json).
 
 ## Help
 

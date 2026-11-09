@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-09",
+  "testedCommit": "96bfc0e9657ccbe6fc3a9ca69206c87eb9834d14",
+  "branch": "codex/ikarus-visual-upgrade",
+  "command": "dotnet tests/TutorialPatch/bin/Debug/net8.0/TutorialPatch.dll /absolute/path/to/clean-firered-1.1.gba",
+  "counts": {
+    "defaultAssertions": 58,
+    "supplementalRealBaseChecks": 18,
+    "combinedOptInProcessAssertions": 76,
+    "failures": 0
+  },
+  "base": {
+    "game": "English FireRed 1.1",
+    "gameCode": "BPRE1",
+    "length": 16777216,
+    "crc32": "84EE4776",
+    "sha256": "729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059",
+    "originalUnchanged": true
+  },
+  "fixture": "A temporary fabricated one-byte UPS lesson patch and matching exported current metadata. This is not the unfinished Tutorial Village patch or gameplay verification.",
+  "results": {
+    "publicProductionLoaderAcceptsExactCleanBase": true,
+    "oneChangedByteRejected": true,
+    "revisionZeroRejected": true,
+    "pairedOutputByteExact": true,
+    "initialOpenMetadataWrites": 0,
+    "namedAnchorAddressesAndFormatsRetained": 547,
+    "actualNormalRomWrites": 1,
+    "actualNormalTomlWrites": 1,
+    "saveReopenRetainsAllDefinitions": true,
+    "palletTownReferenceRenders": true,
+    "undoRedoExact": true,
+    "originalOpenBaseAndHistoryUnchanged": true,
+    "temporaryPairsDeleted": true
+  },
+  "syntheticCoverage": [
+    "Public loader rejects a manifest whitelisting fabricated base bytes",
+    "Internal synthetic loader exercises the same parser/publisher with fabricated identities only",
+    "Forward-only UPS, checksum/output verification and expansion",
+    "Original supplied UTF-8 BOM TOML published byte for byte before ROM",
+    "Missing/tampered/empty/outdated/out-of-ROM definitions rejected",
+    "Existing ROM/TOML and directory collisions rejected",
+    "Raced publication retains foreign ROM and removes owned TOML",
+    "Arbitrary output bytes rejected",
+    "Initial normal load does not regenerate metadata; actual Save/reopen retains definitions",
+    "Source bytes/metadata/history and pending/rejected source/diagnostics/Redo protected"
+  ],
+  "remainingManualChecks": [
+    "Finished Tutorial Village assets and gameplay when supplied",
+    "Native macOS save-picker behavior",
+    "Future HMA metadata version changes require repackaging current saved definitions"
+  ],
+  "assetState": "No tutorial.ups, tutorial.toml or tutorial.json added to release assets; the native utility remains disabled."
+}

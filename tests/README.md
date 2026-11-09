@@ -28,6 +28,11 @@ fitted window overlay and source/input lifecycle.
 [MacPackaging](MacPackaging/README.md) covers build-script failure preservation.
 The [helper-readiness investigation](FIRST_LAUNCH_READINESS_REVIEW.md) separates reproduced defects,
 real published-loader checks and native distribution checks still awaiting helpers.
+The final paired-tutorial framework passes **84 groups / 24,533 assertions**, with zero
+failures or skipped groups; [exact counts and limits](TutorialPatch/verification.json).
+A separate real-1.1 lifecycle probe adds 18 checks and preserves all 547 named definitions;
+it uses a fabricated lesson, not the unfinished Tutorial Village assets.
+
 [TutorialPatch](TutorialPatch/README.md) covers optional tutorial assets, exact-base/output
 verification, separate ROM creation and pending/rejected script protection; the asset locations
 are documented in [OptionalAssets/Tutorial](../OptionalAssets/Tutorial/README.md) and

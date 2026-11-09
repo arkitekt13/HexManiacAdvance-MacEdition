@@ -54,29 +54,37 @@ If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source
 
 - **Trackpad panning and zoom** - Pan with Option-drag and zoom with the on-screen minus/plus buttons.
 - **Clear map status** - See map dimensions and cursor coordinates, with pixel dimensions available on hover.
-- **Map image export** - Save PNGs into a `MapImages` folder beside your ROM, with overwrite or updated-copy choices.
+- **Map image export** - Save PNGs into a `MapImages` folder beside your ROM, choose which events to include, and overwrite or save an updated copy.
 - **NPC sprite selection** - Choose a sprite before placing an NPC and remember that choice during the session.
 - **Stable image previews** - Large sprites, tilesets, NPC summaries and Go To previews fit their available space without blocking clicks.
 - **Steady border editing** - Paint border blocks without the panel repeatedly closing and reopening.
-- **Reliable map edits** - Fixes cover interrupted drags, copied blocks, movement permissions and Undo/Redo.
+- **Reachable editor controls** - Scrollbars leave room for field arrows, tile flip controls stay clickable, and Block ID stays in place.
+- **Reliable map edits** - Fixes cover interrupted drags, copied blocks, movement permissions, conditional map-script rows and Undo/Redo.
 
 ### Scripting
 
-- **Map beside script source** - Switch between Hex View and a map reference you can pan, then click objects, script events or script signposts to open their code while writing overworld scripts, with Object ID/Flag or event Variable Number shown for context.
+- **Map beside script source** - Switch to Map View to pan and zoom around a map reference, with an optional tile grid and no tile editing.
+- **Click-to-open scripts** - Click objects, script events or script signposts in Map View to open their code, with Object ID and Flag or event Variable Number shown for context.
+- **Steady, readable source** - Long scripts keep their place through compilation, selected text stays readable, and minus/plus buttons control text size.
+- **Faster sign editing** - Enter through a signpost arrow to select just its first dialogue block for replacement.
 - **Ready-to-fill script blocks** - Supported dialogue and movement commands insert `<auto>` and braces, including when chosen from suggestions.
 - **Visible dialogue warnings** - Underlines show text that may overflow the in-game dialogue box.
-- **Better flag and variable suggestions** - Suggestions refresh after edits and allow reuse after the final protected reference is removed.
+- **Better flag and variable suggestions** - Suggestions account for more variable operands, refresh after edits and allow reuse after the final protected reference is removed.
 - **Protected script drafts** - Navigation, saving, closing and Undo/Redo account for pending or rejected source.
 - **Safe compilation failures** - Failed script/resource compilation restores ROM data while keeping your source and error messages.
 
 ### Everyday Mac use
 
 - **Mac keyboard and mouse controls** - Command-C/X/V work in the active text field, and Control-click opens context menus.
+- **Ready-to-type navigation** - Command-G opens Go To with the search field focused, including after changing ROM tabs.
+- **Tutorial Village welcome image** - A faded map background introduces the project while keeping the welcome actions clear.
 - **Easier field editing** - Short fields select their contents when reached with Tab, and encounter suggestions support mouse selection.
 - **External emulator support** - Launch your saved ROM in an installed emulator such as mGBA.
 - **Less repeated work** - Improvements reduce unnecessary rendering, script layout calculations, highlighting and data lookups.
 
-See the [detailed changelog](CodexChanges.md) for individual fixes and validation.
+See the [accomplishments PDF](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf) for a grouped summary and measured improvements, or the [detailed changelog](CodexChanges.md) for individual fixes and validation.
+
+The last complete Mac regression run passed **81 groups / 24,292 assertions**, with **zero failures and zero skipped groups**; later font controls passed a separate seven-group focused check. These are recorded test results, not a substitute for helper feedback or gameplay testing. See the [complete-run evidence](tests/MAP_REFERENCE_MERGE_VERIFICATION.json).
 
 ## Help
 

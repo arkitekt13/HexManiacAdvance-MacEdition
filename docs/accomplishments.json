@@ -1,0 +1,512 @@
+{
+  "date": "November 9, 2026",
+  "checkpoint": "e7bccda6",
+  "complete_suite_checkpoint": "b6b642f9",
+  "pages": [
+    [
+      [
+        "UI Improvements",
+        [
+          [
+            "Mac Edition welcome screen",
+            "Added a responsive welcome screen with a faded Tutorial Village background, contributor links and a prominent Open ROM button.",
+            "006-008,115-116,118"
+          ],
+          [
+            "Readable script display",
+            "Aligned commands, dialogue, comments and highlighting with a shared monospaced font and corrected placeholder spacing.",
+            "001"
+          ],
+          [
+            "Compact map tutorials",
+            "Made tutorial cards readable on hover, reduced their footprint and kept map previews behind editor overlays.",
+            "002-003"
+          ],
+          [
+            "Continuous encounter editing",
+            "Kept focus and caret position stable while editing grass, surf, tree and fishing encounter tables.",
+            "071-073"
+          ],
+          [
+            "Quick field replacement",
+            "Made Tab and Shift Tab select complete short-field values without selecting entire script or dialogue editors.",
+            "079"
+          ],
+          [
+            "Stable sprite selection",
+            "Fixed large NPC sprite previews and recovered selector state after scrolling, history changes and reopening.",
+            "086"
+          ],
+          [
+            "Fresh portrait and palette views",
+            "Refreshed edited portrait choices and dismissed stale palette editors after Undo, reload or context changes.",
+            "042,090"
+          ],
+          [
+            "Simpler toolbar",
+            "Hid optional Claude and built-in emulator controls while retaining their implementations and external emulator access.",
+            "103"
+          ],
+          [
+            "Readable selected source",
+            "Made script selections translucent so syntax-coloured text remains readable while highlighted.",
+            "156"
+          ],
+          [
+            "Unobstructed editor panels",
+            "Reserved scrollbar space so hovering cannot cover event arrows, tiles or other editor controls.",
+            "168"
+          ],
+          [
+            "Explicit script text sizing",
+            "Replaced accidental Command-scroll resizing with minus/plus controls and a size indicator.",
+            "213"
+          ]
+        ]
+      ],
+      [
+        "Mac Port Fixes",
+        [
+          [
+            "Control-click context menus",
+            "Restored existing menus for tabs, warps, map arrows, hex content and palettes using Mac secondary-click conventions.",
+            "049,075,085,092,094"
+          ],
+          [
+            "Finder integration",
+            "Replaced Windows file-location launching with Finder reveal for the owning ROM file.",
+            "075"
+          ],
+          [
+            "Remembered emulator choice",
+            "Made Play launch a selected external emulator such as mGBA, remembering its application path and supporting Browse.",
+            "069-070"
+          ],
+          [
+            "Focused clipboard commands",
+            "Kept Command copy, cut and paste on the focused text or palette target instead of falling through to binary editing.",
+            "076,091"
+          ],
+          [
+            "Safe field shortcuts",
+            "Kept Delete, Backspace and arrow keys inside focused map-event fields instead of deleting or panning the event.",
+            "077"
+          ],
+          [
+            "Control-click eyedroppers",
+            "Made Control-click sample sprite colors and block tiles without entering the painting path.",
+            "088,092"
+          ],
+          [
+            "Palette color entry",
+            "Restored propagation of named swatch colors and hexadecimal color edits into palette data.",
+            "089"
+          ],
+          [
+            "Map entry stability",
+            "Removed the cold-map UI-thread error and focus-outline animation crash.",
+            "005,083"
+          ],
+          [
+            "Restored editor controls",
+            "Fixed rotated map arrows and restored specialized trainer, sprite and palette templates.",
+            "004-005,038"
+          ],
+          [
+            "Ready-to-type Go To",
+            "Focused the search field after Command-G, including after opening a ROM or changing tabs.",
+            "199,201"
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        "Map Editing Improvements",
+        [
+          [
+            "Trackpad map panning",
+            "Added Option-drag panning that preserves the current brush and finishes correctly when Option is released first.",
+            "074"
+          ],
+          [
+            "Placed-block selection",
+            "Restored Mac Control-drag selection of placed blocks while preserving their collision and elevation data through saves and history.",
+            "053,056"
+          ],
+          [
+            "Brush placement preview",
+            "Added a translucent preview of the selected block pattern at its stamp destination.",
+            "055"
+          ],
+          [
+            "Mixing bag instructions",
+            "Corrected Mac help for Command-click bag membership, clearing the bag and activating random painting.",
+            "104"
+          ],
+          [
+            "Permission-safe painting",
+            "Preserved movement permissions during bag flood-fill and single-block rectangle painting.",
+            "105,109"
+          ],
+          [
+            "New object scripts",
+            "Restored the script-creation button so an object can receive an allocated starter script and attached pointer.",
+            "070"
+          ],
+          [
+            "Stable NPC previews",
+            "Eliminated complex hover-preview flicker and refreshed summaries after dialogue edits, Undo and Redo.",
+            "087,093"
+          ],
+          [
+            "Interrupted gesture cleanup",
+            "Stopped ghost painting and panning after capture loss, and kept interrupted strokes separate in Undo history.",
+            "107-108"
+          ],
+          [
+            "Reliable same-cell edits",
+            "Allowed painting, brush replacement and permission changes at the same cell after Undo or Redo.",
+            "110"
+          ],
+          [
+            "Reveal mode cleanup",
+            "Cleared transient Space reveal when keyboard focus, tabs or editing contexts change.",
+            "111"
+          ],
+          [
+            "Trackpad-friendly zoom buttons",
+            "Added centered minus and plus buttons that use the existing zoom levels and disable at their limits.",
+            "120-121"
+          ],
+          [
+            "Map dimensions at a glance",
+            "Displayed map size in tiles, native pixel dimensions on hover and clearly labeled cursor coordinates in the status bar.",
+            "120-121"
+          ],
+          [
+            "Direct map PNG export",
+            "Saved map images to MapImages beside the ROM with Overwrite, Save Updated Copy and Cancel choices for existing files.",
+            "117"
+          ],
+          [
+            "NPC template sprite choice",
+            "Added a bounded pre-placement sprite picker that remembers its independent choice and toolbar icon for the open ROM session.",
+            "125"
+          ],
+          [
+            "Bounded tileset previews",
+            "Kept blockset previews within the map viewport and limited standalone rendering to valid block counts.",
+            "122-123"
+          ],
+          [
+            "Stable tileset selection",
+            "Fixed the map-header dropdown crash while preserving immediate pointer writes, fresh previews and Undo/Redo.",
+            "124"
+          ],
+          [
+            "Safe border access",
+            "Rejected invalid border coordinates before calculating ROM addresses to protect neighboring data.",
+            "113"
+          ],
+          [
+            "Consistent nine-grid permissions",
+            "Applied explicit movement-permission choices to both inferred and fallback brush corners.",
+            "114"
+          ],
+          [
+            "Stationary block information",
+            "Gave Block ID a fixed position beside Edit Block without overlapping movement controls.",
+            "179,195-198"
+          ],
+          [
+            "Reachable tile flip controls",
+            "Kept flip arrows visible and clickable while crossing the gap beside each block quadrant.",
+            "205-206"
+          ],
+          [
+            "Accurate header script rows",
+            "Refreshed conditional map-script rows after adding or deleting entries while preserving Undo/Redo.",
+            "186-187"
+          ],
+          [
+            "Cleaner export confirmation",
+            "Displayed the saved filename and folder in a compact confirmation with Reveal in Finder and OK actions.",
+            "208"
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        "Scripting Improvements",
+        [
+          [
+            "Automatic dialogue scaffolds",
+            "Inserted an automatic text pointer and complete dialogue block with the caret ready for typing.",
+            "080-081"
+          ],
+          [
+            "Automatic movement scaffolds",
+            "Added complete movement blocks for player, camera, NPC and applymovement commands when the required operands are available.",
+            "082"
+          ],
+          [
+            "Completion-aware scaffolding",
+            "Ran dialogue and movement assistance after accepting a command suggestion as well as typing the command directly.",
+            "084"
+          ],
+          [
+            "Flag and variable assistance",
+            "Restored existing unused-ID helper buttons and Command U routing for eligible flag and variable commands.",
+            "080"
+          ],
+          [
+            "Accurate autocomplete placement",
+            "Corrected caret mapping and command replacement across multiline scripts while preserving explicit hexadecimal values.",
+            "061-062"
+          ],
+          [
+            "Visible dialogue warnings",
+            "Made overflow warnings and script errors visibly underline the affected text without adding popups or automatic wrapping.",
+            "078"
+          ],
+          [
+            "Usable suggestion lists",
+            "Fixed mouse acceptance and dismissed stale suggestions after outside clicks, focus changes, detachment or context replacement.",
+            "073,099"
+          ],
+          [
+            "Aligned trainer warnings",
+            "Corrected trainer move-token validation and warning spans while preserving existing matching and legality rules.",
+            "019,040"
+          ],
+          [
+            "Map reference beside source",
+            "Added a separate Map View with panning, zoom and an optional light tile grid while keeping tiles uneditable.",
+            "154-155"
+          ],
+          [
+            "Click-to-open event scripts",
+            "Opened object, script-event and script-signpost code from Map View while protecting incomplete drafts.",
+            "174,177"
+          ],
+          [
+            "Useful event context",
+            "Displayed Object ID and assigned Flag or none for objects, plus Variable Number for script events.",
+            "182-183"
+          ],
+          [
+            "Steady long-script editing",
+            "Stopped viewport jumps caused by focus changes and delayed compilation refreshing another script section.",
+            "175-176,209-210"
+          ],
+          [
+            "Replace sign dialogue directly",
+            "Selected only the first dialogue block when entering through a signpost arrow, with ordinary clicks clearing selection.",
+            "178,200"
+          ],
+          [
+            "Reliable initial assistance",
+            "Handled typed and accepted commands, trailing whitespace and earlier pointer edits without overwriting explicit addresses.",
+            "171-172"
+          ],
+          [
+            "Fresh unused IDs",
+            "Updated flag and variable availability after edits, deletion and history changes while retaining protected reservations.",
+            "137,145-146"
+          ],
+          [
+            "Earlier overflow indicators",
+            "Added a six-pixel advisory cushion to dialogue warnings without changing text encoding or inserting breaks.",
+            "164"
+          ],
+          [
+            "Clean completion dismissal",
+            "Kept accepted movement suggestions closed and prevented truncation markers from entering source.",
+            "157,161"
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        "Under the Hood Improvements",
+        [
+          [
+            "Safer file saves",
+            "Staged file replacements and preserved open unsaved documents when ROM or metadata saving fails.",
+            "010"
+          ],
+          [
+            "Validated binary patches",
+            "Validated patch structure and UPS checksums before changing ROM bytes, preserving existing edits after rejected IPS or UPS imports.",
+            "011"
+          ],
+          [
+            "Validated project imports",
+            "Rejected incompatible layouts, invalid values and lossy text before applying edits, with rollback if an import fails.",
+            "012"
+          ],
+          [
+            "Recoverable project exports",
+            "Published consistent table exports with owned-file manifests, writer coordination and recovery from interrupted publication.",
+            "013"
+          ],
+          [
+            "Safer external reloads",
+            "Handled replacement and rapid external saves more reliably while protecting local unsaved work.",
+            "016,067"
+          ],
+          [
+            "Protected pending script source",
+            "Bound deferred edits to their original context and accounted for pending source during Save, Save As, Close and reload.",
+            "066-067"
+          ],
+          [
+            "Atomic script compilation",
+            "Rolled back failed script and resource compilation across bytes, pointers, relocation, metadata and history while retaining drafts and diagnostics.",
+            "068"
+          ],
+          [
+            "Mac diagnostics and updates",
+            "Pointed crash/help links and compatible-release checks at the renamed Mac Edition repository while retaining upstream references where appropriate.",
+            "014-015,119"
+          ],
+          [
+            "Gap-safe script decompilation",
+            "Kept referenced scripts separate across unknown byte gaps instead of emitting uncompilable raw FF source.",
+            "202"
+          ],
+          [
+            "Signpost relocation safety",
+            "Updated script-bearing signpost targets when entry code moves, including failure rollback and exact Undo/Redo.",
+            "184-185"
+          ],
+          [
+            "Resolved draft warnings",
+            "Cleared an owned rejected-draft warning after correction without clearing newer or unrelated errors.",
+            "203-204"
+          ],
+          [
+            "Reliable preference reloads",
+            "Preserved unusual recent-file names and restored search limits independently of diff limits.",
+            "190-193"
+          ],
+          [
+            "Safer first launch",
+            "Handled settings-access failures and rejected invalid ROM metadata without aborting startup.",
+            "128-129"
+          ],
+          [
+            "Repeatable Mac packaging",
+            "Built architecture-specific app bundles without deleting the last successful output when packaging fails.",
+            "131,138,148"
+          ],
+          [
+            "Tutorial patch framework",
+            "Prepared a disabled-until-ready action that validates the English FireRed 1.1 base and creates a separate patched ROM.",
+            "150"
+          ]
+        ]
+      ],
+      [
+        "Verification Improvements",
+        [
+          [
+            "Complete Mac regression runner",
+            "Passed 81 groups and 24,292 assertions with zero failures and zero skipped groups in the November 8 complete Mac run.",
+            "212"
+          ],
+          [
+            "Real editor workflow coverage",
+            "Expanded synthetic UI coverage for gestures, clipboard routing, suggestions, image previews, persistence and history.",
+            "009,095,107-114,117,120-125"
+          ],
+          [
+            "Portable engine test hosts",
+            "Enabled the original unit and integration test hosts on Mac with explicit optional-ROM skips and recorded legacy expectation differences.",
+            "017-030,068"
+          ],
+          [
+            "Latest focused checks",
+            "Passed seven related groups and 1,024 assertions for the subsequent font-control change without claiming another complete-suite run.",
+            "213"
+          ],
+          [
+            "Reproducible release preparation",
+            "Recorded source-install and helper-package rehearsals plus a checklist separating completed checks from distribution gates.",
+            "134,140,148,151"
+          ],
+          [
+            "Recoverable development history",
+            "Kept fixes and investigation evidence in separate commits with documented checkpoint tags for later review or rollback.",
+            "212"
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        "Optimizations",
+        [
+          [
+            "Script highlighting",
+            "Reduced the recorded 2,000-line highlighting workload from about 197 to 7.8 ms and temporary allocation from 21.6 to 3.3 MB per edit.",
+            "032-033,100"
+          ],
+          [
+            "Script argument lookup",
+            "Reduced a 2,000-command deferred update from 2,795 to 90 ms in the repeated-argument benchmark.",
+            "059"
+          ],
+          [
+            "Script width layout",
+            "Coalesced ten queued width calculations into one, reducing the measured 500-line burst from 39.6 to 3.3 ms.",
+            "102"
+          ],
+          [
+            "NPC hover lookup",
+            "Reduced empty-tile lookup on the 32-NPC fixture from about 4.51 to 0.065 ms by avoiding unrelated event-editor construction.",
+            "097"
+          ],
+          [
+            "Map zoom rendering",
+            "Removed all 70 unnecessary bitmap publications in the zoom-only benchmark while preserving rendered pixels.",
+            "034"
+          ],
+          [
+            "Table navigation",
+            "Reduced the measured binding and layout time for 100 complex navigation switches from 924 to 675 ms.",
+            "036"
+          ],
+          [
+            "Portrait preparation",
+            "Reduced 100 candidate-preparation operations from 77.4 to about 3.0 ms while preserving image freshness.",
+            "043"
+          ],
+          [
+            "Trainer move validation",
+            "Reduced validation of 100 six-member custom teams from 83.1 to 15.0 ms.",
+            "040"
+          ],
+          [
+            "Item usage searches",
+            "Reduced a measured delayed map-usage query from 225 to 148-160 ms by reusing script outcomes within that query.",
+            "047"
+          ],
+          [
+            "Released detached editor controls",
+            "Reduced settled managed heap from 225.7 to 61.2 MiB in Hex mode and 212.1 to 62.3 MiB in the paired Map tab-switch workload.",
+            "165-166"
+          ],
+          [
+            "Unused-ID graph scanning",
+            "Reduced initialization from about 1,342 to 4.6 ms and post-edit refresh from 607 to 2.2 ms in the synthetic shared-tail workload.",
+            "146"
+          ]
+        ]
+      ]
+    ]
+  ]
+}

@@ -116,7 +116,6 @@ public partial class TabView : UserControl {
       // WPF: PreviewMouseDown="ClearPopup" on the UserControl, plus the UpdateInProgress gate.
       AddHandler(PointerPressedEvent, HandlePreviewPointerPressed, RoutingStrategies.Tunnel);
       AddHandler(KeyDownEvent, HandlePreviewKeyDown, RoutingStrategies.Tunnel);
-      CodeToolBody.AddHandler(PointerWheelChangedEvent, WheelCodeBody, RoutingStrategies.Tunnel);
       CodeToolMultiTextBox.AddHandler(PointerWheelChangedEvent, ScrollCodeContent, RoutingStrategies.Tunnel);
    }
 
@@ -490,11 +489,12 @@ public partial class TabView : UserControl {
       }
    }
 
-   private void WheelCodeBody(object sender, PointerWheelEventArgs e) {
-      if (e.KeyModifiers != HexContent.CommandModifier) return;
-      e.Handled = true;
+   private void DecreaseCodeFont(object sender, RoutedEventArgs e) => ChangeCodeFontSize(-1);
+   private void IncreaseCodeFont(object sender, RoutedEventArgs e) => ChangeCodeFontSize(1);
+
+   private void ChangeCodeFontSize(int delta) {
       if (CodeToolBody.DataContext is not CodeTool context) return;
-      context.FontSize = (Math.Sign(e.Delta.Y) + context.FontSize).LimitToRange(8, 20);
+      context.FontSize = (delta + context.FontSize).LimitToRange(8, 20);
    }
 
    private void ScrollCodeContent(object sender, PointerWheelEventArgs e) => ClearPopup();

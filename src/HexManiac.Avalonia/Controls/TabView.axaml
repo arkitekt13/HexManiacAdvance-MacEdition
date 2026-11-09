@@ -813,11 +813,23 @@
 
             <!-- Code Tool -->
             <DockPanel Name="CodeToolPanel" IsVisible="{Binding SelectedIndex, Converter={StaticResource Equality}, ConverterParameter=3, Mode=OneWay}">
-               <Grid HorizontalAlignment="Stretch" Margin="2" DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto">
+               <Grid HorizontalAlignment="Stretch" Margin="2" DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto,Auto">
                   <TextBlock Text="Code Type" Margin="5,0" Grid.Column="0" VerticalAlignment="Center"/>
                   <hsg3hv:AngleComboBox Height="22" Direction="Out" Grid.Column="1" x:Name="CodeModeSelector" SelectedItem="{Binding CodeTool.Mode, Mode=TwoWay, Converter={x:Static hsv:IgnoreEmptySelectionConverter.Instance}}"/>
-                  <Button Name="ScriptHexViewButton" Grid.Column="2" Content="Hex View" Classes="toolHeader" FontSize="12" Focusable="False" Click="ShowScriptHexClick"/>
-                  <Button Name="ScriptMapViewButton" Grid.Column="3" Content="Map View" Classes="toolHeader" FontSize="12" Focusable="False" Click="ShowScriptMapClick"/>
+                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" Margin="4,0">
+                     <Button Name="CodeFontDecrease" Content="−" Width="24" Height="24" Padding="0"
+                             FontSize="14" FontWeight="Bold" Focusable="False"
+                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                             ToolTip.Tip="Decrease code text size" Click="DecreaseCodeFont"/>
+                     <TextBlock Text="{Binding CodeTool.FontSize}" Width="20" FontSize="11"
+                                TextAlignment="Center" VerticalAlignment="Center"/>
+                     <Button Name="CodeFontIncrease" Content="+" Width="24" Height="24" Padding="0"
+                             FontSize="14" FontWeight="Bold" Focusable="False"
+                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                             ToolTip.Tip="Increase code text size" Click="IncreaseCodeFont"/>
+                  </StackPanel>
+                  <Button Name="ScriptHexViewButton" Grid.Column="3" Content="Hex View" Classes="toolHeader" FontSize="12" Focusable="False" Click="ShowScriptHexClick"/>
+                  <Button Name="ScriptMapViewButton" Grid.Column="4" Content="Map View" Classes="toolHeader" FontSize="12" Focusable="False" Click="ShowScriptMapClick"/>
                </Grid>
                <Grid Name="CodeToolBody" DataContext="{Binding CodeTool}" TextElement.FontSize="{Binding FontSize}">
                   <DockPanel IsVisible="{Binding UseSingleContent}">

@@ -26,6 +26,11 @@ void Rejected(Action action, string message) {
 }
 uint Crc(byte[] bytes) => (uint)Patcher.CalcCRC32(bytes);
 string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
+if (args.Length == 3 && args[0] == "--real-rom") {
+   var realChecks = RealRomVerification.Run(args[1], args[2]);
+   Console.WriteLine($"CHECKS_PASSED:{realChecks}");
+   return;
+}
 // Test-only encoder supplies independent command streams; expected output is always explicit.
 byte[] Number(ulong value) {
    var result = new List<byte>();
@@ -174,10 +179,11 @@ try {
    Check(!Directory.GetFiles(directory, ".hma-scade-*").Any(), "staging cleaned after success and failure");
 
    // Use the normal editor/file-system path, not direct LoadMetadata, for both opens.
+   int projectRomWrites = 0, projectMetadataWrites = 0;
    var fs = new StubFileSystem {
       MetadataFor = name => File.Exists(Path.ChangeExtension(name, ".toml")) ? File.ReadAllLines(Path.ChangeExtension(name, ".toml")) : Array.Empty<string>(),
-      Save = file => { File.WriteAllBytes(file.Name, file.Contents); return true; },
-      SaveMetadata = (name, lines) => { File.WriteAllLines(Path.ChangeExtension(name, ".toml"), lines); return true; },
+      Save = file => { File.WriteAllBytes(file.Name, file.Contents); projectRomWrites++; return true; },
+      SaveMetadata = (name, lines) => { File.WriteAllLines(Path.ChangeExtension(name, ".toml"), lines); projectMetadataWrites++; return true; },
    };
    var editor = new EditorViewModel(fs, InstantDispatch.Instance);
    var opened = editor.OpenFileAsync(new LoadedFile(path, File.ReadAllBytes(path))).GetAwaiter().GetResult();
@@ -186,13 +192,18 @@ try {
    Check(Address(opened, "data.pokemon.names") == 0x9000 && Address(opened, "scade.test.custom") == 0x9010, "normal initial open uses relocated custom definitions, not vanilla defaults");
    Check(File.ReadAllBytes(sidecar).SequenceEqual(toml), "initial opening does not regenerate supplied TOML");
    Check(opened.Model.ExportMetadata(null, editor.Singletons.MetadataInfo).ShowRawIVByteForTrainer, "creator trainer setting loaded");
+   byte oldValue = opened.Model[0x9010];
+   opened.ChangeHistory.CurrentChange.ChangeData(opened.Model, 0x9010, (byte)(oldValue ^ 1));
+   opened.ChangeHistory.ChangeCompleted();
    opened.Save.Execute(fs);
+   Check(projectRomWrites == 1 && projectMetadataWrites == 1 && opened.ChangeHistory.IsSaved, "Save actually serializes a changed custom-metadata project");
    var saved = new StoredMetadata(File.ReadAllLines(sidecar));
    Check(saved.NamedAnchors.Any(a => a.Name == "data.pokemon.names" && a.Address == 0x9000 && a.Format == "`asc`4") &&
       saved.NamedAnchors.Any(a => a.Name == "scade.test.custom" && a.Address == 0x9010 && a.Format == "[value.]4"), "save retains custom addresses and formats");
    var reopened = editor.OpenFileAsync(new LoadedFile(path, File.ReadAllBytes(path))).GetAwaiter().GetResult();
    reopened.Model.InitializationWorkload.GetAwaiter().GetResult();reopened.InitializationWorkload.GetAwaiter().GetResult();
    Check(Address(reopened, "data.pokemon.names") == 0x9000 && Address(reopened, "scade.test.custom") == 0x9010, "save/reopen retains custom definitions");
+   Check(reopened.Model[0x9010] == (byte)(oldValue ^ 1), "reopened project contains the actually saved edit");
    Check(original.EqualsModel(fixture), "loading new pair preserves original source model");
    editor.CloseAll.Execute(fs);
 

@@ -1,0 +1,88 @@
+{
+  "date": "2026-11-09",
+  "productionCommit": "f55f4155",
+  "branch": "codex/scade-installer",
+  "scope": "Opt-in supplied real-base verification, separate from the earlier complete synthetic Mac suite. No production code changes were needed.",
+  "source": {
+    "bytes": 16777216,
+    "crc32": "DD88761C",
+    "sha256": "3d0c79f1627022e18765766f6cb5ea067f6b5bf7dca115552189ad65a5c3a8ac",
+    "identity": "English FireRed 1.0, BPRE revision 0",
+    "unchangedAfterTests": true
+  },
+  "patchSha256": "5ed744542e565c3271db94f50191e861c914cafc54632a7f6b04d465efcec87c",
+  "output": {
+    "bytes": 33554432,
+    "crc32": "07C373C5",
+    "sha256": "15e44f658a27070352e731b167715f21bebf6a67e6e55e51b81420765d4dcc6f",
+    "matchesIndependentOutputByteForByte": true
+  },
+  "independentPatcher": {
+    "project": "Marc Robledo Rom Patcher JS",
+    "commit": "4f17297cd1dc0835a0b0747497fa15f5f63f1623",
+    "originalPatchAndAllThreeChecksumsUsed": true
+  },
+  "realBaseChecks": {
+    "assertions": 37,
+    "failures": 0,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "normalCleanBaseLoadingAndUtilityEligibility": true,
+    "initialTomlByteIdentical": true,
+    "initialTomlNotRegenerated": true,
+    "all541AnchorAddressesLoaded": true,
+    "normalSaveForcedByDisposableStatEdit": true,
+    "romWriteCount": 1,
+    "metadataWriteCount": 1,
+    "all541AnchorAddressesAndFormatsRetainedAfterSave": true,
+    "all541AnchorAddressesRetainedAfterReopen": true,
+    "undoAfterSaveRestoresExactPatchedBytes": true,
+    "redoRestoresDisposableEdit": true,
+    "loadedBaseCopyAndUploadedOriginalUnchanged": true,
+    "temporaryPairsDeletedAfterTest": true
+  },
+  "mapReferenceRenders": [
+    {
+      "mapId": 3000,
+      "name": "PALLET TOWN.3-0",
+      "tiles": [
+        24,
+        20
+      ]
+    },
+    {
+      "mapId": 3001,
+      "name": "VIRIDIAN CITY.3-1",
+      "tiles": [
+        48,
+        40
+      ]
+    },
+    {
+      "mapId": 4000,
+      "name": "PALLET TOWN.4-0",
+      "tiles": [
+        13,
+        10
+      ]
+    }
+  ],
+  "defaultSyntheticGroup": {
+    "assertions": 137,
+    "failures": 0,
+    "scope": "Strengthened normal-save coverage now performs a real serialization, rather than an unchanged-document Save no-op."
+  },
+  "previousCompleteMacRun": {
+    "groups": 83,
+    "assertions": 24439,
+    "proof": "verification.json",
+    "rerunForThisTestOnlyChange": false
+  },
+  "remainingManualChecks": [
+    "Actual native Mac save dialog, cancellation and output naming workflow.",
+    "In-game SCADE gameplay and engine-specific feature compatibility."
+  ],
+  "userPreferencesModified": false,
+  "romDataCommitted": false,
+  "rawRealVerificationLogSha256": "76af05bc0fb284a951ba57d160612da3174748be98d5576becaf0e5123bff7a9"
+}

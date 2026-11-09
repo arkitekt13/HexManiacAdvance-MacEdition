@@ -34,6 +34,8 @@ or skipped groups; [exact results and manual limits](ScadeInstaller/verification
 
 [ScadeInstaller](ScadeInstaller/README.md) covers bundled SCADE BPS decoding, independent
 format vectors, paired ROM/TOML publication, pending drafts and normal metadata load/save/reopen.
+The later [real FireRed 1.0 verification](ScadeInstaller/real-base-verification.json) confirms
+independent patch output and all 541 custom anchor definitions through actual save/reopen.
 The [ID suggestion lifetime review](ID_SUGGESTION_LIFECYCLE_REVIEW.md) and
 [IdSuggestionLifecycle](IdSuggestionLifecycle/README.md) cover live usage, deletion/reuse,
 scoped reservations and retained pending/rejected source.

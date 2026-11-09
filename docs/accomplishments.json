@@ -1,7 +1,7 @@
 {
   "date": "November 9, 2026",
-  "checkpoint": "e7bccda6",
-  "complete_suite_checkpoint": "b6b642f9",
+  "checkpoint": "5b77a83c",
+  "complete_suite_checkpoint": "96bfc0e9",
   "pages": [
     [
       [
@@ -331,6 +331,93 @@
     ],
     [
       [
+        "ROM Utilities and Tutorial Village",
+        [
+          [
+            "SCADE ROM creation",
+            "Created a new SCADE ROM from exact clean English FireRed 1.0 while preserving the original base project.",
+            "215-218"
+          ],
+          [
+            "Supplied SCADE definitions",
+            "Bundled the creator-supplied TOML under the chosen ROM name before opening, preserving relocated tables and custom definitions.",
+            "216,218"
+          ],
+          [
+            "Ikarus Visual Upgrade",
+            "Added a FireRed utility that applies the reviewed Ikarus patch with clear notice of its graphics, map-layout and behavior changes.",
+            "219-223"
+          ],
+          [
+            "Verified pre-upgrade backups",
+            "Required a named ROM and TOML backup including unsaved changes before Ikarus application, with exact Undo and Redo restoration.",
+            "222-223"
+          ],
+          [
+            "Qualified compatibility guidance",
+            "Recommended fresh or minimally edited Ikarus projects and described apparent vanilla FireRed, HUBOL, CFRU and SCADE compatibility as requiring further testing.",
+            "220-223"
+          ],
+          [
+            "Tutorial Village distribution framework",
+            "Prepared a Utilities action that requires exact unmodified English FireRed 1.1 and creates a new matching ROM and TOML pair when final assets are bundled.",
+            "150,226-227"
+          ],
+          [
+            "Protected tutorial definitions",
+            "Verified tutorial patch and metadata hashes, preserved the supplied TOML before opening and blocked mismatched assets or output collisions.",
+            "226-227"
+          ],
+          [
+            "Learning through the village",
+            "Prepared the distribution path for a planned playable tutorial whose map, NPCs and event scripts will serve as inspectable examples once finished.",
+            "226-227"
+          ]
+        ]
+      ],
+      [
+        "Verification Improvements",
+        [
+          [
+            "Complete Mac regression runner",
+            "Passed 84 groups and 24,533 assertions with zero failures and zero skipped groups in the latest complete Mac run.",
+            "227"
+          ],
+          [
+            "Real FireRed workflow coverage",
+            "Unlocked 158 previously skipped tests and passed 1,907 upstream plus 58 integration cases in both Debug and Release.",
+            "224-225"
+          ],
+          [
+            "Verified installer metadata",
+            "Retained all 541 SCADE and 547 tutorial named definitions through actual normal saving and reopening on real bases.",
+            "218,227"
+          ],
+          [
+            "Real editor workflow coverage",
+            "Expanded synthetic UI coverage for gestures, clipboard routing, suggestions, image previews, persistence and history.",
+            "009,095,107-114,117,120-125"
+          ],
+          [
+            "Portable engine test hosts",
+            "Enabled the original unit and integration test hosts on Mac with explicit optional-ROM skips and recorded legacy expectation differences.",
+            "017-030,068,225"
+          ],
+          [
+            "Reproducible release preparation",
+            "Recorded source-install and helper-package rehearsals plus a checklist separating completed checks from distribution gates.",
+            "134,140,148,151"
+          ],
+          [
+            "Recoverable development history",
+            "Kept features and verification evidence in separate commits with pushed checkpoints for review or rollback.",
+            "215-227"
+          ]
+        ]
+      ]
+    ],
+    [
+      [
         "Under the Hood Improvements",
         [
           [
@@ -402,46 +489,6 @@
             "Repeatable Mac packaging",
             "Built architecture-specific app bundles without deleting the last successful output when packaging fails.",
             "131,138,148"
-          ],
-          [
-            "Tutorial patch framework",
-            "Prepared a disabled-until-ready action that validates the English FireRed 1.1 base and creates a separate patched ROM.",
-            "150"
-          ]
-        ]
-      ],
-      [
-        "Verification Improvements",
-        [
-          [
-            "Complete Mac regression runner",
-            "Passed 81 groups and 24,292 assertions with zero failures and zero skipped groups in the November 8 complete Mac run.",
-            "212"
-          ],
-          [
-            "Real editor workflow coverage",
-            "Expanded synthetic UI coverage for gestures, clipboard routing, suggestions, image previews, persistence and history.",
-            "009,095,107-114,117,120-125"
-          ],
-          [
-            "Portable engine test hosts",
-            "Enabled the original unit and integration test hosts on Mac with explicit optional-ROM skips and recorded legacy expectation differences.",
-            "017-030,068"
-          ],
-          [
-            "Latest focused checks",
-            "Passed seven related groups and 1,024 assertions for the subsequent font-control change without claiming another complete-suite run.",
-            "213"
-          ],
-          [
-            "Reproducible release preparation",
-            "Recorded source-install and helper-package rehearsals plus a checklist separating completed checks from distribution gates.",
-            "134,140,148,151"
-          ],
-          [
-            "Recoverable development history",
-            "Kept fixes and investigation evidence in separate commits with documented checkpoint tags for later review or rollback.",
-            "212"
           ]
         ]
       ]
@@ -508,5 +555,9 @@
         ]
       ]
     ]
-  ]
+  ],
+  "verification_summary": "84 groups / 24,533 assertions / 0 failures / 0 skipped groups",
+  "verification_detail": "Latest complete Mac run: November 9; real-ROM and upstream checks are recorded separately.",
+  "availability_note": "SCADE and Ikarus are implemented on the current utilities preview branch; Tutorial Village packaging is ready, with the finished playable assets still to be supplied. General .hma patch compatibility with the correct base remains awaiting user verification.",
+  "evidence_note": "Evidence: CodexChanges entries 001-227; tests/TutorialPatch/verification.json for the complete run at 96bfc0e9; installer lifecycle records and tests/FIRERED_10_VERIFICATION.json for separate real-ROM checks."
 }

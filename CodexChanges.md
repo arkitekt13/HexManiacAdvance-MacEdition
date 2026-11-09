@@ -3359,3 +3359,13 @@ Validation: Fresh documented Mac runner passes 84 groups / 24,533 assertions, ze
 | output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | N/A | Publish six reviewed pages covering the new utilities and verified real-ROM workflows while retaining original project credits and scoped performance metrics. |
 
 Validation: Rebuilt with the bundled PDF runtime, rendered and visually inspected all six pages, checked every accomplishment title and all page numbers, and verified exactly 100 bullets. Metrics cite the completed 84-group / 24,533-assertion Mac run separately from upstream cases and installer real-ROM checks; no test rerun is claimed for documentation. The official Discord invite is taken from Haven's current README and resolves to Hex Maniac Advance Development. Compatibility remains qualified, the playable tutorial is explicitly unfinished, and code is identified as preview-only. Documentation-only publication updates the default GitHub page and PDF without merging the feature branch or changing app source, ROMs or preferences.
+
+## 229 — Show a nonintrusive notice for compatible Mac updates
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 278 | Show a dismissible update banner above both the editor and welcome screen with fixed View Update and Dismiss actions. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 970 | Observe validated update availability, preserve session dismissal and use the existing file-system process launcher for the fixed fork releases page. |
+| tests/UpdateNotice/ | 1 | Exercise actual banner clicks, source focus/selection, welcome/editor lifetime, fixed routing and unchanged model/history/rejected drafts. |
+
+Validation: Fresh UpdateNotice builds with zero warnings/errors and passes 13 headless assertions. The rendered actual banner is visually inspected. Showing it and clicking either action preserve source focus, caret, selection, bytes, metadata and saved/history state; rejected drafts and diagnostics remain intact. It never downloads/installs anything or launches a browser without a user click. Dismissal lasts for the window session while Help > Update remains available; a new window can remind again, and detached editor events cannot affect a replacement editor. Existing version/architecture/release/cache/network policy is unchanged. No personal ROM or preferences changed. A pushed pre-change checkpoint is available; Mac-only 1.0 identity and cross-feature verification follow separately.

@@ -275,6 +275,19 @@
     </NativeMenu>
   </NativeMenu.Menu>
 
+  <DockPanel>
+    <Border Name="UpdateNotice" DockPanel.Dock="Top" IsVisible="False"
+            Background="{DynamicResource Background}" BorderBrush="{DynamicResource Accent}"
+            BorderThickness="0,0,0,1" Padding="12,8">
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <TextBlock Text="A newer version of Mac Edition is available." TextWrapping="Wrap"
+                   Foreground="{DynamicResource Primary}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+        <Button Name="ViewUpdateButton" Grid.Column="1" Content="View Update" Click="ViewUpdateClick"
+                Focusable="False" Padding="12,6" Margin="0,0,8,0" HorizontalContentAlignment="Center"/>
+        <Button Name="DismissUpdateButton" Grid.Column="2" Content="Dismiss" Click="DismissUpdateNotice"
+                Focusable="False" Padding="12,6" HorizontalContentAlignment="Center"/>
+      </Grid>
+    </Border>
   <Grid Name="ContentPanel">
     <DockPanel Name="EditorWorkspace" IsVisible="{Binding !IsVisible, ElementName=WelcomeScreen}">
       <!-- Toolbar / search panels row -->
@@ -601,4 +614,5 @@
                        IsVisible="{Binding ItemCount, ElementName=Tabs, Converter={StaticResource EqualityCheck}, ConverterParameter=0}"/>
 
   </Grid>
+  </DockPanel>
 </Window>

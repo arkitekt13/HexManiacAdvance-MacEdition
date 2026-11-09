@@ -55,6 +55,8 @@ public partial class MainWindow : Window {
             editor.RequestDelayedWork -= DeferWork;
          }
          editor = value;
+         updateNoticeDismissed = false;
+         RefreshUpdateNotice();
          DataContext = value;
          if (value == null) {
             Tabs.ItemsSource = null;
@@ -297,6 +299,7 @@ public partial class MainWindow : Window {
    }
 
    private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
+      if (e.PropertyName == nameof(EditorViewModel.IsNewVersionAvailable)) RefreshUpdateNotice();
       if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) { RefreshTutorialMenu(); RefreshScadeMenu(); RefreshIkarusMenu(); }
       if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) SyncSelectionFromViewModel();
       if (e.PropertyName == nameof(EditorViewModel.ShowAutomationPanel)) UpdateAutomationPanel();
@@ -964,7 +967,16 @@ public partial class MainWindow : Window {
    private void AboutClick(object sender, EventArgs e) =>
       new AboutWindow(editor.Singletons.MetadataInfo).ShowDialog(this);
 
-   private void UpdateClick(object sender, EventArgs e) => Launch(App.ReleaseUrl);
+   private bool updateNoticeDismissed;
+   private void RefreshUpdateNotice() => UpdateNotice.IsVisible = editor?.IsNewVersionAvailable == true && !updateNoticeDismissed;
+   private void DismissUpdateNotice(object sender, RoutedEventArgs e) {
+      updateNoticeDismissed = true;
+      RefreshUpdateNotice();
+   }
+   private void ViewUpdateClick(object sender, RoutedEventArgs e) => UpdateClick(sender, e);
+   private void UpdateClick(object sender, EventArgs e) {
+      if (editor?.IsNewVersionAvailable == true) FileSystem?.LaunchProcess("open", App.ReleaseUrl);
+   }
 
    /// WPF bound this with {hsv:MethodCommand CalculateHashes}; a NativeMenuItem has no
    /// DataContext for a MethodCommand to bind against, so it calls the view model directly.

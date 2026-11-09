@@ -26,7 +26,7 @@ void Rejected(Action action, string message) {
 }
 uint Crc(byte[] bytes) => (uint)Patcher.CalcCRC32(bytes);
 string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
-if ((args.Length == 4 || args.Length == 5 && args[4] == "--skip-maps") && args[0] == "--ds-graphics-review") {
+if ((args.Length == 4 || args.Length == 5 && args[4] == "--skip-maps") && (args[0] == "--ds-graphics-review" || args[0] == "--graphics-review")) {
    DsGraphicsCompatibility.Run(args[1], args[2], args[3], renderMaps: args.Length == 4);
    return;
 }

@@ -5,6 +5,7 @@ using HavenSoft.HexManiac.AvaloniaUI.Project;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.Models.Map;
+using HavenSoft.HexManiac.Core.Models.Code;
 using HavenSoft.HexManiac.Core.Models.Runs;
 using HavenSoft.HexManiac.Core.Models.Runs.Sprites;
 using HavenSoft.HexManiac.Core.ViewModels;
@@ -22,7 +23,12 @@ internal static class DsGraphicsCompatibility {
       string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
       var source = File.ReadAllBytes(sourcePath); var originalHash = Hash(source);
       var patch = File.ReadAllBytes(patchPath);
-      Check(Hash(patch) == "73ADDD57354ACEBD58EC55B7B7E3FBEA14EE389A5CA90B762261260EDFD8033D", "review uses the exact supplied DS patch");
+      string profile = Hash(patch) switch {
+         "73ADDD57354ACEBD58EC55B7B7E3FBEA14EE389A5CA90B762261260EDFD8033D" => "DS v1.6.3",
+         "CBC79D5613C24D682119C6A43BA191BAAE39A0C7FAB8A0CBF53311891A3C8B7C" => "Ikarus FR v3.2",
+         _ => null,
+      };
+      Check(profile != null, "review uses an exact supplied graphics patch");
       var records = ReadIps(patch);
       Check((uint)Patcher.CalcCRC32(source) == 0xDD88761C, "exact clean base required");
       Directory.CreateDirectory(reportDirectory);
@@ -89,28 +95,34 @@ internal static class DsGraphicsCompatibility {
             var spriteResults = new List<object>();
             foreach (var (address, sprite) in affectedSprites) {
                string beforeError = null, afterError = null;
-               try { _ = sprite.GetPixels(before.Model, 0, 0); } catch (Exception ex) { beforeError = ex.GetType().Name + ": " + ex.Message; }
+               try { if (sprite.GetPixels(before.Model, 0, 0) is not { Length: > 0 }) throw new InvalidDataException("No decoded sprite pixels."); } catch (Exception ex) { beforeError = ex.GetType().Name + ": " + ex.Message; }
                try {
                   var next = after.Model.GetNextRun(address) as ISpriteRun;
                   if (next == null) throw new InvalidOperationException("Sprite format missing after patch.");
-                  _ = next.GetPixels(after.Model, 0, 0);
+                  if (next.GetPixels(after.Model, 0, 0) is not { Length: > 0 }) throw new InvalidDataException("No decoded sprite pixels.");
                } catch (Exception ex) { afterError = ex.GetType().Name + ": " + ex.Message; }
                string rawAfterError = null;
                int? rawAfterLength = null;
+               string rawBeforeHash = null, rawAfterHash = null;
                int[] stableIncomingPointers = sprite.PointerSources.Where(p => before.Model.ReadPointer(p) == address && after.Model.ReadPointer(p) == address).ToArray();
                if (sprite.FormatString.StartsWith("`lz")) {
                   try {
                      var data = LZRun.Decompress(after.Model, address);
                      rawAfterLength = data?.Length;
+                     var originalData = LZRun.Decompress(before.Model, address);
+                     if (originalData != null) rawBeforeHash = Hash(originalData);
+                     if (data != null) rawAfterHash = Hash(data);
                      if (data == null) throw new InvalidDataException("Original sprite address no longer decompresses as valid GBA LZ data.");
                   } catch (Exception ex) { rawAfterError = ex.GetType().Name + ": " + ex.Message; }
                }
-               spriteResults.Add(new { address, format = sprite.FormatString, beforeError, afterError, rawAfterError, rawAfterLength, originalExpectedBytes = sprite.SpriteFormat.ExpectedByteLength, stableIncomingPointers });
+               spriteResults.Add(new { address, format = sprite.FormatString, beforeError, afterError, rawAfterError, rawAfterLength, originalExpectedBytes = sprite.SpriteFormat.ExpectedByteLength, rawBeforeHash, rawAfterHash,
+                  originalAnchor = before.Model.GetAnchorFromAddress(-1, address),
+                  incomingOwners = stableIncomingPointers.Select(p => new { source = p, owner = before.Model.GetAnchorFromAddress(-1, before.Model.GetNextRun(p).Start) }).ToArray(), stableIncomingPointers });
             }
             var tableResults = new List<object>();
             foreach (var tableName in new[] { "data.pokemon.names", "data.abilities.names", "data.abilities.descriptions", "data.pokemon.stats", "data.pokemon.moves.stats.battle", "data.items.stats", "data.trainers.stats" }) {
                var oldTable = before.Model.GetTable(tableName); var newTable = after.Model.GetTable(tableName);
-               if (oldTable == null || newTable == null) { tableResults.Add(new { name = tableName, unavailable = true }); continue; }
+               if (oldTable == null || newTable == null) { tableResults.Add(new { name = tableName, unavailable = true, beforeAvailable = oldTable != null, afterAvailable = newTable != null }); continue; }
                int count = Math.Min(oldTable.Length, newTable.Length);
                int changed = Enumerable.Range(0, count).Count(i => before.Model[oldTable.Start + i] != after.Model[newTable.Start + i]);
                tableResults.Add(new { name = tableName, beforeAddress = oldTable.Start, afterAddress = newTable.Start, beforeCount = oldTable.ElementCount, afterCount = newTable.ElementCount, changedBytes = changed });
@@ -126,20 +138,56 @@ internal static class DsGraphicsCompatibility {
                   invalidDescriptionPointers.Add(new { index = i, ability, address = at, oldPointer, newPointer });
                }
             }
-            var changedScriptRuns = actualChanges.Select(i => before.Model.GetNextRun(i)).OfType<XSERun>().DistinctBy(r => r.Start)
+            var changedScriptRuns = actualChanges.Select(i => (index: i, run: before.Model.GetNextRun(i)))
+               .Where(pair => pair.run.Start <= pair.index && pair.index < pair.run.Start + pair.run.Length).Select(pair => pair.run).OfType<XSERun>().DistinctBy(r => r.Start)
                .Select(r => new { address = r.Start, length = r.Length, stableIncomingPointers = r.PointerSources.Where(p => before.Model.ReadPointer(p) == r.Start && after.Model.ReadPointer(p) == r.Start).ToArray() }).ToArray();
             var affectedEventScripts = new List<object>();
+            var parsedScriptBodyChanges = new List<object>();
+            var parsedScriptErrors = new List<object>();
+            var parser = new ScriptParser(before.Model.GetShortGameCode(), editor.Singletons.ScriptLines, 2);
+            var scriptRanges = new Dictionary<int, List<(int start, int length, int changed)>>();
+            List<(int start, int length, int changed)> ChangedBodies(int root) {
+               if (scriptRanges.TryGetValue(root, out var cached)) return cached;
+               var bodies = new List<(int, int, int)>();scriptRanges[root] = bodies;
+               if (root < 0 || root >= bytes.Length) return bodies;
+               try {
+                  foreach (int segment in parser.CollectScripts(before.Model, root)) {
+                     int length = parser.GetScriptSegmentLength(before.Model, segment);
+                     int index = Array.BinarySearch(actualChanges, segment);if (index < 0) index = ~index;
+                     int changed = 0;
+                     while (index < actualChanges.Length && actualChanges[index] < (long)segment + length) { changed++;index++; }
+                     if (changed > 0) bodies.Add((segment, length, changed));
+                  }
+               } catch (Exception ex) { parsedScriptErrors.Add(new { root, error = ex.GetType().Name + ": " + ex.Message }); }
+               return bodies;
+            }
             var changedRoots = changedScriptRuns.Select(r => r.address).ToHashSet();
             foreach (var bank in AllMapsModel.Create(before.Model, () => new NoTrackChange())) foreach (var map in bank) {
                if (map == null) continue;
                var events = map.Events;
                void Record(string kind, int index, int script) {
-                  if (changedRoots.Contains(script)) affectedEventScripts.Add(new { map = map.Group * 1000 + map.Map, kind, index, script,
+                  foreach (var body in ChangedBodies(script)) {
+                     int oldLabels = 0, newLabels = 0;
+                     string beforeBody = parser.Parse(before.Model, body.start, body.length, ref oldLabels);
+                     string afterBody = parser.Parse(after.Model, body.start, Math.Max(1, parser.GetScriptSegmentLength(after.Model, body.start)), ref newLabels);
+                     parsedScriptBodyChanges.Add(new { map = map.Group * 1000 + map.Map, mapName = BlockMapViewModel.MapIDToText(before.Model, map.Group * 1000 + map.Map), kind, index, root = script, body = body.start, body.length, changedBytes = body.changed, beforeBody, afterBody });
+                  }
+                  if (changedRoots.Contains(script) || script >= 0 && script < Math.Min(bytes.Length, patched.Length) && before.Model[script] != after.Model[script]) affectedEventScripts.Add(new { map = map.Group * 1000 + map.Map, kind, index, script,
                      beforeOpcode = before.Model[script], afterOpcode = after.Model[script] });
                }
                for (int n = 0; n < events.Objects.Count; n++) Record("object", n, events.Objects[n].ScriptAddress);
                for (int n = 0; n < events.Scripts.Count; n++) Record("script", n, events.Scripts[n].ScriptAddress);
                for (int n = 0; n < events.Signposts.Count; n++) if (events.Signposts[n].HasScript) Record("signpost", n, events.Signposts[n].ScriptAddress);
+               var headers = map.Element.GetSubTable("mapscripts");
+               if (headers != null) for (int n = 0; n < headers.Count; n++) {
+                  int type = headers[n].GetValue("type"), target = headers[n].GetAddress("pointer");
+                  if (type == 2 || type == 4) {
+                     for (int row = 0; row < 1024 && target >= 0 && target + 8 <= bytes.Length; row++, target += 8) {
+                        if (before.Model.ReadMultiByteValue(target, 2) == 0) break;
+                        Record("conditional-header", n * 1024 + row, before.Model.ReadPointer(target + 4));
+                     }
+                  } else if (type != 0) Record("map-header", n, target);
+               }
             }
             var beforeMaps = renderMaps ? Maps(before, name + "-before") : new List<MapResult>();
             var afterMaps = renderMaps ? Maps(after, name + "-after") : new List<MapResult>();
@@ -167,11 +215,11 @@ internal static class DsGraphicsCompatibility {
             var missingReopened = anchors.Where(a => reopened.Model.GetAddressFromAnchor(new NoDataChangeDeltaModel(), -1, a.Name) != a.Address).Select(a => a.Name).ToArray();
             results.Add(new { name, beforeLength = bytes.Length, afterLength = patched.Length,
                beforeSha256 = Hash(bytes), afterSha256 = Hash(patched), changedBytes = actualChanges.Length,
-               changedBytesByOriginalFormat = types, tableResults, invalidDescriptionPointers, changedScriptRuns, affectedEventScripts, affectedSprites = spriteResults,
+               changedBytesByOriginalFormat = types, tableResults, invalidDescriptionPointers, changedScriptRuns, affectedEventScripts, parsedScriptBodyChanges, parsedScriptErrors, scriptRootsExamined = scriptRanges.Keys.Count(r => r >= 0 && r < bytes.Length), affectedSprites = spriteResults,
                anchorsBefore = anchors.Count, missingAfter = missing, alteredAfterSerialization = alteredFormats, missingReopened,
                mapCount = beforeMaps.Count, maps = comparisons });
             Console.WriteLine($"DS_REVIEW_DONE:{name}:maps={comparisons.Length}:newFailures={comparisons.Count(m => m.beforeError == null && m.afterError != null)}:changedImages={comparisons.Count(m => m.pixelsChanged)}");
-            File.WriteAllText(Path.Combine(reportDirectory, "results.json"), JsonSerializer.Serialize(new { sourceSha256 = originalHash, patchSha256 = Hash(patch), ipsRecords = records.Count, requestedWriteBytes = records.Sum(r => r.Bytes.Length), variants = results }, new JsonSerializerOptions { WriteIndented = true }));
+            File.WriteAllText(Path.Combine(reportDirectory, "results.json"), JsonSerializer.Serialize(new { profile, sourceSha256 = originalHash, patchSha256 = Hash(patch), ipsRecords = records.Count, requestedWriteBytes = records.Sum(r => r.Bytes.Length), variants = results }, new JsonSerializerOptions { WriteIndented = true }));
             GC.Collect();GC.WaitForPendingFinalizers();
          }
          Check(Hash(File.ReadAllBytes(sourcePath)) == originalHash, "uploaded source unchanged");
@@ -206,7 +254,7 @@ internal static class DsGraphicsCompatibility {
                      using var bitmap = new SKBitmap(vm.PixelWidth, vm.PixelHeight);
                      for (int y = 0; y < vm.PixelHeight; y++) for (int x = 0; x < vm.PixelWidth; x++) {
                         int c = data[y * vm.PixelWidth + x];
-                        bitmap.SetPixel(x, y, new SKColor((byte)((c & 31) * 255 / 31), (byte)(((c >> 5) & 31) * 255 / 31), (byte)(((c >> 10) & 31) * 255 / 31), 255));
+                        bitmap.SetPixel(x, y, new SKColor((byte)(((c >> 10) & 31) * 255 / 31), (byte)(((c >> 5) & 31) * 255 / 31), (byte)((c & 31) * 255 / 31), 255));
                      }
                      using var image = SKImage.FromBitmap(bitmap);using var encoded = image.Encode(SKEncodedImageFormat.Png, 100);
                      using var stream = File.Create(Path.Combine(reportDirectory, label + "-" + id + ".png"));encoded.SaveTo(stream);

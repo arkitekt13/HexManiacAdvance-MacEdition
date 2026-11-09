@@ -69,3 +69,8 @@ after, inspects collateral changes and deletes its temporary ROM outputs. An opt
 without rendering. The report folder contains JSON and representative PNGs, never
 ROM files. This is an investigation, not a shipped graphics utility or an automatic
 part of the synthetic suite. See [confirmed findings](../DS_GRAPHICS_COMPATIBILITY_REVIEW.md).
+
+The same probe now accepts the exact supplied Ikarus FR v3.2 hash through the
+`--graphics-review` alias. See [Ikarus findings](../IKARUS_GRAPHICS_COMPATIBILITY_REVIEW.md).
+Its event check follows recognized child script bodies, including map headers and
+conditional header rows, so an unchanged entry opcode cannot hide later edits.

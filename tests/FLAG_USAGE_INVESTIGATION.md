@@ -154,3 +154,13 @@ The JSON report is local at artifacts/script-safety/usage-detection-review.json.
 
 The supported behavior baseline is [FlagUsageSafety](FlagUsageSafety/README.md); it does not
 turn a partial scan into a guarantee. No allocator or engine changes are implemented.
+
+## Supplied FireRed 1.0 follow-up — 2026-11-09
+
+The read-only diagnostic now explicitly accepts BPRE0 alongside BPRE1. Both supplied
+revisions complete 2,143 roots / 3,979 decoded segments / 4,762 reviewed variable references,
+with zero missing IDs/references and zero incomplete traversals in the bounded collector.
+Each also reruns the five synthetic identities and 20 command cases per identity with zero
+missing references. Source and in-memory scan bytes remain unchanged. This extends the
+original investigation's fixture coverage, not its native-code or completeness claims.
+See [exact identities, limits and associated upstream runs](FIRERED_10_VERIFICATION.json).

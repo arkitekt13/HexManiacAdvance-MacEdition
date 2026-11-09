@@ -15,6 +15,9 @@ The original `src/HexManiac.Tests` xUnit suite is separate and is not included i
 counts. Run `scripts/verify-upstream.sh` for that suite, or add `--in-process` when VSTest's
 local test-host socket is unavailable. It builds on .NET 8, and the latest in-process baseline
 has zero failures with explicit optional-ROM skips; see [UPSTREAM_BASELINE.md](UPSTREAM_BASELINE.md).
+The supplied FireRed 1.0 now unlocks **158 previously skipped upstream/integration cases**;
+both suites pass in Debug and Release. [Exact counts and remaining fixture skips](FIRERED_10_VERIFICATION.json).
+
 The second upstream project, `src/HexManiac.Integration`, now has a portable host; select it
 with `--integration` and see [INTEGRATION_BASELINE.md](INTEGRATION_BASELINE.md) for its separate results.
 See individual group READMEs for any manual GUI checks that remain.

@@ -1,5 +1,16 @@
 # Upstream engine baseline — 2026-11-02
 
+## Latest supplied FireRed 1.0 verification — 2026-11-09
+
+**2,716 cases: 1,907 passed, 0 failed, 809 skipped, 0 engine errors**, in both Debug and Release.
+The exact clean 1.0 upload unlocks 126 previously skipped cases in this project.
+[Structured evidence and full newly passing case names](FIRERED_10_VERIFICATION.json)
+record both configurations, untouched fixture hashes and remaining limits. The two projects
+unlock 158 previously skipped cases in total, counted once across configurations.
+The remaining skips require other fixtures; historical checkpoints below keep their original counts.
+No application assertions were relaxed or implementation changed.
+
+
 Infrastructure branch: `improve/upstream-test-harness`, based on `7faa0a43`.
 Host: macOS ARM64, .NET SDK 8.0.300 / runtime 8.0.5, Debug configuration.
 Engine: xUnit 2.4.1; dependency versions retained; targeted assertion improvements are recorded below.
@@ -14,7 +25,7 @@ were excluded from that run. The review distinguishes earlier fixture-bearing ob
 and the working dependency host used after a clean archived runner omitted its xUnit runtime
 dependency; clean runner packaging is not certified by this result.
 
-Current status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
+Historical ROM-free status: all 32 originally failing behavior cases pass, and the absent-ROM no-data case
 is an explicit skip. The ROM-free first-project baseline records **2,715 cases: 1,667 passed, 0 failed,
 1,048 skipped, 0 engine errors**; see the follow-up sections below for evidence and coverage limits.
 The seven additional table-navigation cases check refresh-scoped discovery, live getters,

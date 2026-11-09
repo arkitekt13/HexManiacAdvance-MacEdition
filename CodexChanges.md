@@ -3306,3 +3306,15 @@ Validation: Fresh documented Mac runner passes 84 groups / 24,511 assertions, ze
 | tools/FlagVariableReview/README.md | 24 | Document the two supported read-only fixture revisions and absolute input path. |
 
 Validation: Diagnostic builds with zero warnings/errors. FireRed 1.0 completes all five synthetic game identities with 20 command cases each, then reviews 4,762 variable references from 3,979 decoded segments and 2,143 roots: zero missing references/IDs and zero incomplete traversals within the bounded collector. Model and uploaded-file bytes remain unchanged. The existing supplied 1.1 phase is also rerun successfully; actual engine behavior and complete arbitrary/native-code usage are not certified. This changes only the opt-in diagnostic, not the app, compiler or allocator. Exact results follow in the separate fixture-verification evidence commit.
+
+## 225 — Run previously blocked FireRed 1.0 upstream and integration checks
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/FIRERED_10_VERIFICATION.json | 1 | Record exact four-run counts, 158 newly enabled case names, source identities, bounded usage diagnostics and remaining fixture/manual limits. |
+| tests/UPSTREAM_BASELINE.md | 3 | Add the supplied-1.0 Debug/Release results without rewriting historical ROM-free checkpoints. |
+| tests/INTEGRATION_BASELINE.md | 3 | Record the real FireRed workflows now passing and the nine remaining Emerald skips. |
+| tests/FLAG_USAGE_INVESTIGATION.md | 191 | Add read-only corroboration on 1.0 and a fresh 1.1 diagnostic repeat with explicit bounded-scan limits. |
+| tests/README.md | 20 | Link the newly available real-ROM coverage separately from Mac assertion totals. |
+
+Validation: Unchanged upstream first-project assertions pass in Debug and Release: 2,716 cases, 1,907 passed, zero failed, 809 skipped, zero engine errors per configuration. Integration passes in both configurations: 67 cases, 58 passed, zero failed, nine skipped, zero engine errors. Direct comparison with prior fixture-bearing XML identifies 126 first-project and 32 integration cases changing Skip to Pass: 158 distinct newly enabled cases, not doubled across configurations. BasicLoad also discovers the newly staged 1.0 file. Remaining skips require other games/revisions/hacks, including Emerald; no fixture is mislabeled or assertion weakened. The read-only variable collector checks 4,762 references across 3,979 segments and 2,143 roots on each supplied revision, with zero missing/incomplete results within its checked roles; all model/disk hashes remain unchanged. The existing unmarked-method xUnit1013 warning is preserved and its method is not counted as executed. Only ignored test-output fixture copies are staged; no personal ROM, TOML or preferences are changed/committed. Existing SCADE and Ikarus exact-base evidence already covers those installers; native gameplay/pickers and unrelated fixtures remain manual/outside scope. Application code and prior 84-group / 24,511-assertion Mac evidence are unchanged.

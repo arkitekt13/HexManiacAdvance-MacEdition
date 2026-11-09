@@ -2756,3 +2756,410 @@ Validation: On checkpoint 71f4abc7 the initial regression builds without warning
 | tests/ScriptAssistance/Program.cs | 71 | Include the exact command/input route in failures without changing the existing assistance assertions. |
 
 Validation: ScriptAssistanceEntry passes 789 assertions across 72 real-input cases and explicit stale-callback/caret-bound checks. LF/CRLF, typed/Enter/mouse completion, msgbox.npc/preparemsg/move.player, trailing spaces/tabs and prior auto-pointer editing all receive initial help. The command name alone waits for its separator; explicit addresses, deletion and later operand whitespace remain exactly as entered, while future commands still receive help. Planned insertion is source-only until native input settles and cannot overwrite a newer source edit, survive Undo/navigation, target another body/address or write ROM directly. The first full run exposed the typed msgbox alias's preinserted separator; the overlay compatibility repair omits only that generated separator and preserves existing whitespace. Legacy ScriptAssistance still passes all 364 assertions. A fresh complete `scripts/verify-mac.sh --no-restore` passes **70 groups / 21,645 assertions / zero failures / zero skipped groups**, including compilation/resource/pointer/relocation, rejected drafts, Save/Close, Undo/Redo, Map View, clipboard, completion dismissal and control lifetime regressions. Exact counts and build warnings are in `tests/ScriptAssistanceEntry/verification.json`; the existing MapImageExport NU1900 vulnerability-index warning remains. No compiler, allocator, numeric grammar, game-engine or history algorithm changed, no personal ROM/settings were opened, and no new timer or preference UI was introduced. Existing explicit opt-outs and Spartan mode remain respected; editing a pointer never flips them. Goto/call gain no auto syntax. Native real-ROM testing remains user validation. Evidence and implementation are separate commits on the unmerged feature branch.
+
+## 173 — Investigate safe event navigation from the script-side map
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/SCRIPT_MAP_EVENT_NAVIGATION_REVIEW.md | 1 | Preserve the rollback checkpoint, read-only live-pointer probe, navigation/draft/relocation design and the inline-help click interception found during actual-window testing. |
+
+Validation: The synthetic checkpoint probe preserves live bytes, metadata, free-space/history and saved state for object/script-event reads, then resolves an updated pointer rather than a cached address. Checkpoint 7a6c80ec and its pushed annotated pre-feature tag preserve the previously merged build. This evidence commit documents the investigation separately from production implementation; no personal ROM or settings are used. Final implementation and complete regression results follow in the next entry.
+
+## 174 — Open event scripts directly from the script-side map
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/ScriptMapSnapshot.cs | 53 | Copy immutable object/script-event hit bounds and IDs from the detached render without retaining its model or event editors. |
+| src/HexManiac.Avalonia/Project/ScriptMapEvent.cs | 12 | Validate current map/row identity and resolve live pointers and sprite IDs through read-only accessors. |
+| src/HexManiac.Avalonia/Controls/ScriptMapReferenceView.cs | 35 | Add click-versus-pan handling, read-only event details and an overlapping-event chooser with stale-action cancellation. |
+| src/HexManiac.Avalonia/Controls/TabView.ScriptMap.cs | 131 | Settle pending source, block rejected drafts with an inline red notice, reread relocated pointers and navigate in the same script tab while protecting focus and hidden hex input. |
+| src/HexManiac.Avalonia/Controls/TabView.ScriptMap.cs | 35 | Let map gestures pass through inline command help so it cannot consume the first navigation click. |
+| tests/MapRendering/SyntheticMapFixture.cs | 51 | Support combined NPC-text and script-event synthetic fixtures without erasing the latter's table format. |
+| tests/ScriptMapNavigation/Program.cs | 25 | Cover actual pointer/chooser/focus input, readonly state, rejected source, relocation, correction/retry, Undo/Redo, stale records and control cleanup. |
+| tests/ScriptMapNavigation/verification.json | 1 | Preserve every fresh regression group's assertion count, build warning and validation boundary. |
+| tests/ScriptMapNavigation/lifetime-memory.json | 1 | Preserve actual Hex/Map tab-switch and window-close lifetime measurements. |
+| README.md | 65 | Describe event-script navigation beside the existing Map View feature. |
+
+Validation: A fresh complete `bash scripts/verify-mac.sh --no-restore` passes **71 groups / 21,686 assertions / zero failures / zero skipped groups**. New ScriptMapNavigation passes 41 assertions, including clicking while inline help is visible, exact rejected dialogue source/diagnostics/selection retention, stale callback cancellation, a click that settles and rereads its own relocated destination, one-step Undo/Redo restoration, large-sprite hit regions, null/shared pointers, a real overlapping-event menu selection and Command-V routed to source. Existing ScriptMapReference passes 63 assertions; the full run also covers HMA-006/007/008 workflow protections, save/close, source assistance, completion dismissal and control lifetime. Build output has only the existing MapImageExport NU1900 vulnerability-index lookup warning; app and focused builds have zero warnings/errors. The upstream xUnit suite was not rerun.
+
+Release lifecycle measurements retain zero detached TabViews/old bitmap wrappers after actual tab switches in both Hex and Map modes, zero source-tab handlers, and zero of 27 watched controls after each window closes; source bytes remain unchanged. These are headless synthetic measurements, not native responsiveness or in-game claims. The map remains a detached image with navigation-only targets, no live map editing commands or tile selection. Pure navigation preserves bytes/metadata/history; pending valid source deliberately compiles through the existing compiler before navigation. No personal ROM/settings or core compilation, numeric, allocation, relocation, history or game-engine algorithms changed. Investigation and implementation are separate commits on the unmerged feature branch; the pushed pre-feature checkpoint tag remains available. Native real-ROM/trackpad/popup testing remains user verification after restart.
+
+## 175 — Reproduce long script boxes jumping when clicked
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptScrollStability/Program.cs | 1 | Exercise real pointer/caret/scroll input in the production script viewer, with a synthetic full-tab case protecting pending source and ROM state. |
+| tests/ScriptScrollStability/SyntheticTourScript.txt | 1 | Preserve the reported two-section script's layout while replacing personal dialogue with neutral text. |
+| tests/ScriptScrollStability/baseline.json | 1 | Record the checkpoint failure where clicking visible source moves the outer scrollbar from 55 to 5. |
+
+Validation: On checkpoint 554b16db the regression builds with zero warnings/errors and fails at its first stability assertion, reproducing the jump without opening the user's ROM. An isolated focus experiment identifies the outer CodeToolMultiTextBox ScrollViewer's whole-control focus reveal as the cause; disabling that automatic reveal stabilizes initial clicks. The evidence commit precedes production repair; remaining interaction, caret-reveal and source/history assertions must still pass after the fix. Personal dialogue is excluded from tracked test fixtures, and no personal ROM/settings are opened or modified.
+
+## 176 — Keep long script boxes steady when clicked
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/TabView.axaml | 847 | Disable whole-control focus reveal on the outer multi-script viewer so clicking visible source does not scroll an oversized editor to its edge. |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs | 210 | Correct the port's inaccurate focus-scrolling comment while preserving native caret reveal and the existing focus handler. |
+| tests/ScriptScrollStability/Program.cs | 18 | Verify stable clicks, exact caret hits, selection drag, typing, keyboard/model caret reveal and pending-source/ROM safety across real production controls. |
+| tests/ScriptScrollStability/SyntheticTourScript.txt | 33 | Keep neutral dialogue line widths without trailing-whitespace artifacts in the tracked fixture. |
+| tests/ScriptScrollStability/verification.json | 1 | Preserve exact fresh focused-group counts and separate validation of the user's pasted source. |
+
+Validation: ScriptScrollStability passes **195 assertions** with its neutral two-section fixture and another **195** when given the exact pasted script from an ignored local text file. LF/CRLF, 14/20-point text, two viewport sizes, unfocused/already-focused clicks, manual scroll, drag selection and exact clicked character positions pass. Arrow keys still reveal an offscreen caret; model-driven assistance can reveal both the beginning and end of a long source. A complete MainWindow/script-tab case preserves the exact pending source/debounce count, synthetic ROM bytes/metadata and saved/Undo state. The one behavioral change is the outer ScrollViewer focus setting; native caret bring-into-view remains enabled, and there is no scroll-restoration timer or blanket event suppression.
+
+Fresh **13 groups / 3,266 assertions / zero failures / zero skipped groups**, with zero build warnings/errors, cover ScriptScrollStability 195, EditorScrollbars 78, ScriptMapReference 63, ScriptMapNavigation 41, ScriptWidthUpdates 448, ScriptEditorLayout 102, ScriptAssistance 364, ScriptAssistanceEntry 789, ClipboardRouting 78, ScriptWorkflowSafety 598, TabViewLifetime 41, AutocompleteDismissal 85 and DialogueScaffolding 384. ScriptScrollStability was rerun after adding explicit offscreen model-caret coverage; the totals use its final 195 checks. The complete Mac and upstream xUnit suites were not repeated for this one-setting repair; the preceding full Mac run was 71 groups / 21,686 assertions. No personal ROM/settings were opened or modified, and personal dialogue is excluded from committed fixtures. Compiler, numeric parsing, allocation, relocation, history, script semantics and game-engine behavior are unchanged. Evidence and repair are separate commits on the unmerged feature branch. Native trackpad/real-ROM UI confirmation remains user testing after restart.
+
+## 177 — Navigate script signposts from the script-side map
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/ScriptMapEvent.cs | 10 | Resolve signpost kinds 0–4 through arg as a script pointer and expose other kinds only as informational non-script records. |
+| src/HexManiac.Avalonia/Project/ScriptMapSnapshot.cs | 69 | Capture detached signpost hit bounds and kind alongside existing object/script targets. |
+| src/HexManiac.Avalonia/Controls/TabView.ScriptMap.cs | 139 | Show hidden-item/secret-base status without settling source or attempting script navigation. |
+| tests/ScriptMapNavigation/Program.cs | 140 | Exercise all script signpost kinds, pointer changes, rejected drafts, null/deleted/stale-kind targets and pointer-shaped non-script data. |
+
+Validation: ScriptMapNavigation passes 71 assertions, up from 41; all five script-bearing signpost kinds open in the same left editor without live formatting writes. Hidden-item kinds 5–7, secret-base kind 8 and unsupported kind 255 retain the exact pending compile callbacks and source while displaying their purpose; their payload is never read as a pointer. Fresh live row counts and kind identity reject deleted/stale targets, and signpost clicks share the existing rejected-source protection. Build has zero warnings/errors. Only synthetic inputs are used; compiler, pointer tracking/relocation, numeric and history algorithms are unchanged. Full cross-feature verification follows after the requested UI changes.
+
+## 178 — Focus and select source when entering through a signpost arrow
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 638 | Give the signpost arrow an explicit enabled navigation handler so its host is captured before the map detaches. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 89 | Focus and select the requested source box after navigation while rejecting stale destinations and open overlays. |
+| tests/SignpostScriptNavigation/Program.cs | 55 | Verify real arrow input, first/reused script tabs, select-all, click-to-deselect and unchanged ROM state. |
+| tests/ScriptMapNavigation/Program.cs | 153 | Verify Map View signpost navigation does not automatically select all source. |
+
+Validation: SignpostScriptNavigation passes nine assertions with zero build warnings/errors; actual pointer input focuses the script and selects its contents on first and repeated arrow entry, while a normal source click clears the selection for incremental editing. ScriptMapNavigation passes 72 assertions including the separate Map View behavior. The source lookup targets the requested CodeBody rather than the last-focused address field; delayed focus checks the current model, selected address and overlay state. No personal ROM/settings, compiler, pointer relocation or history rules changed. Cross-feature verification follows after the requested visual fixes.
+
+## 179 — Separate block identity and movement-permission controls
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 106 | Replace the shared fixed-height/margin arrangement with measured rows for Edit Block, permission controls, Block ID and optional nine-grid selection. |
+| tests/BlockPanelLayout/Program.cs | 14 | Verify non-overlap, panel-width containment and working checkbox bindings across six width/font combinations. |
+
+Validation: The production controls reproduce the overlap at 256px/14pt: automatic permission occupies (5,139,212,15), crossing Block ID at (191,137,65,18). The repaired layout passes 48 assertions at 256/320/512px and 14/20pt, with zero build warnings/errors. The permission label can wrap and the movement selector uses the available width; existing data bindings and drawing/permission behavior remain unchanged. This regression uses a layout-only model, no ROM. Full cross-feature verification follows after the remaining delete-icon adjustment.
+
+## 180 — Center map-script delete icons
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 991 | Give both map-script and table-sub-script delete buttons a 24×18 hit area and a centered 8×8 square X. |
+
+Validation: An ignored headless preview instantiates the actual parent/sub-script templates and renders both before and after. Previously each X used a 10×20 control at (5,-1) inside a 20×18 button; the taller-than-button control let its uniformly stretched ink sit too high. Both now use an 8×8 square at (8,5) in a 24×18 button, with zero center offset and no bounds overflow. Before/after images were visually inspected. Build has zero warnings/errors, existing Delete command bindings are unchanged, and no ROM is used. Complete regression results follow in the verification record.
+
+## 181 — Verify signpost navigation and map-panel UI changes together
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptMapNavigation/verification.json | 1 | Record all 74 fresh regression groups, their assertion counts, the four implementation commits, delete-icon geometry and validation boundaries. |
+| tests/ScriptMapNavigation/README.md | 5 | Describe the current 72-check navigation coverage, including signpost unions and arrow-independent selection behavior. |
+| README.md | 65 | Include script signposts in the script-side Map View feature description. |
+
+Validation: Fresh complete `bash scripts/verify-mac.sh --no-restore` passes **74 groups / 21,969 assertions / zero failures / zero skipped groups** on implementation head 48180bb4. This includes ScriptMapNavigation 72, SignpostScriptNavigation 9, BlockPanelLayout 48, ScriptScrollStability 195, ScriptMapReference 63, ScriptWorkflowSafety 598, ScriptAssistanceEntry 789, ClipboardRouting 78 and TabViewLifetime 41, plus every existing map/rendering/history, input, save and packaging regression group. The only build warning is the existing MapImageExport NU1900 vulnerability-index lookup warning; no build errors occur. Actual parent/sub-script delete-icon templates were rendered before and after and visually inspected. The earlier navigation memory measurement remains historical; no fresh memory benchmark or native real-ROM gameplay claim is made. The full upstream xUnit suite was not rerun. No personal ROM/settings were used, and the four requested behavioral/visual changes remain separate commits. Native UI confirmation remains user testing after restart.
+
+## 182 — Show Object ID and assigned flag in Map View
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/ScriptMapEvent.cs | 12 | Replace Sprite ID metadata with live object flags and label Object ID explicitly, showing unassigned flags as none. |
+| src/HexManiac.Avalonia/Project/ScriptMapSnapshot.cs | 62 | Capture only the requested object identity/flag metadata alongside detached hit bounds. |
+| tests/ScriptMapNavigation/Program.cs | 131 | Check assigned/removed flags from the current row without rebuilding the map or exposing Sprite ID. |
+
+Validation: ScriptMapNavigation passes 74 assertions with zero build warnings/errors. Object details use the same four-digit hexadecimal flag notation as the editor, with an explicit 0x prefix; zero is shown as none. Flags are reread on click, while event identity guards and pure-navigation ROM/metadata/history protections remain unchanged. No personal ROM/settings are used.
+
+## 183 — Show the event trigger variable in Map View
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/ScriptMapEvent.cs | 13 | Include the live trigger field as Variable Number in script-event details and chooser labels. |
+| src/HexManiac.Avalonia/Project/ScriptMapSnapshot.cs | 68 | Capture the green event's trigger variable without changing its script or trigger semantics. |
+| tests/ScriptMapNavigation/Program.cs | 76 | Verify changed variable numbers are shown on subsequent clicks without rerendering the map. |
+
+Validation: ScriptMapNavigation passes 76 assertions with zero build warnings/errors. Variable Number uses the existing trigger editor's four-digit hexadecimal convention with a 0x prefix, including 0x0000 when that is the stored value. Changing 0x403F to 0x4040 is reflected on click from the live record. No compilation, numeric parsing, trigger comparisons, history or personal ROM/settings changed.
+
+## 184 — Reproduce signpost entries losing relocated scripts
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/SignpostScriptGrowth/Program.cs | 9 | Force script growth behind a named neighbor and require every script-bearing signpost to follow while preserving pointer-shaped item/base payloads. |
+| tests/SignpostScriptGrowth/README.md | 1 | Document the synthetic relocation reproduction and intended history/resource safety coverage. |
+
+Validation: On 7ef1738c the new regression builds with zero warnings/errors and fails at the first signpost pointer assertion. A separate isolated probe shows the formatted root moving from 018800 to 01C000 with zero ordinary pointer sources, while arg remains 018800 and compilation reports success; old script bytes are cleared. The normal template deliberately keeps arg as a raw union, so generic pointer-source relocation does not know that reference exists. No personal ROM/settings are opened. This evidence commit precedes the targeted repair.
+
+## 185 — Keep signposts linked when an XSE script entry relocates
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Tools/CodeTool.cs | 506 | Retarget matching script-kind signpost args inside the existing compile transaction only when an XSE entry actually moves. |
+| tests/SignpostScriptGrowth/Program.cs | 30 | Force a second-pass compiler failure after pointer retargeting and require exact rollback, retained diagnostics and successful correction/retry. |
+
+Validation: SignpostScriptGrowth passes 48 assertions with zero build warnings/errors. All five script signpost kinds follow a moved entry; pointer-shaped hidden-item/base/unsupported payloads remain unchanged, and ordinary shared object pointers retain their existing relocation behavior. Exact one-step Undo/Redo restores bytes, metadata and saved state. An injected second-pass error confirms signpost args have already been updated before failure, then verifies full byte/metadata/allocation rollback, no model-history entry, retained rejected source/diagnostics and successful retry. Separate dialogue growth moves its text resource while keeping the script entry stable and remains exactly undoable. The scan uses read-only map accessors, runs only on an actual XSE entry move, does not convert arg to tracked-pointer metadata, and writes through the existing attempted change. Parsing, numeric rules, resource/relocation allocation and history algorithms are unchanged; this repairs the additional raw-union references those algorithms cannot otherwise see. No personal ROM/settings are used. Complete cross-feature verification follows the remaining audit work.
+
+## 186 — Reproduce missing map-header condition rows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MapHeaderScripts/Program.cs | 10 | Exercise real header table additions/deletions, shifted row edits, type transitions and exact model-history round trips. |
+| tests/MapHeaderScripts/README.md | 1 | Document the raw-table/UI-count mismatch and the audit regression's scope. |
+
+Validation: On 3fc61c58 the regression builds with zero warnings/errors and fails at the first Add Table Script assertion. The isolated probe confirms one displayed child versus two ROM table rows at the same table address. The non-relocation branch calls LINQ Append without consuming its returned sequence and does not publish a new view model; its attempted row address also points four bytes past the row start. This evidence commit precedes repair. No personal ROM/settings are used.
+
+## 187 — Keep map-header condition rows current and independently undoable
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/MapScriptCollection.cs | 185 | Release old child callbacks before rebuilding condition view models from current row addresses. |
+| src/HexManiac.Core/ViewModels/Map/MapScriptCollection.cs | 287 | Initialize an empty table's first condition like existing type conversion, then publish every added row and close its history action. |
+| src/HexManiac.Core/ViewModels/Map/MapScriptCollection.cs | 337 | Reload shifted child rows after deletion and separate that operation from later field edits in Undo history. |
+| tests/MapHeaderScripts/Program.cs | 10 | Cover added/deleted/shifted/empty/relocated rows, stale callbacks, regular/table type transitions and parent history. |
+
+Validation: MapHeaderScripts passes 69 assertions with zero build warnings/errors. Added rows are immediately visible; deleting the first row rebinds the survivor to its actual ROM start, so editing cannot overwrite a former row or terminator. Deleting every condition and adding one back creates temp0/value-zero rather than an invisible zero-variable terminator, matching existing regular-to-table defaults. A named neighbor forces actual table relocation and checks owner/child pointers. All regular/table type transitions preserve the surviving entry and round-trip through Undo/Redo; parent deletion and shifted edits do likewise. Byte and structural-metadata comparisons exclude only the existing FreeSpaceSearch allocation hint, which ordinary history has never rewound; no allocator/history algorithm was changed to make that hint compare equal. Failed evidence and repair remain separate commits. No personal ROM/settings or numeric/game-engine rules changed.
+
+## 188 — Reproduce inconsistent source focus across map arrows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptArrowFocus/Program.cs | 57 | Navigate through real object/green/header arrow controls and require correct targets, source focus, normal selection and valid-address enablement. |
+| tests/MapRendering/SyntheticMapFixture.cs | 73 | Add optional synthetic regular and conditional header scripts for the navigation audit. |
+
+Validation: On 8c95a0e5 the real-pointer regression builds with zero warnings/errors and fails on the first object-arrow source-focus assertion after opening the intended address. This is the same missing source-focus behavior previously fixed only for signposts; it does not indicate a wrong script address or modified ROM. Further assertions preserve table-parent navigation and check green-event address validity. The synthetic fixture option is off by default. Evidence precedes repair; no personal ROM/settings are used.
+
+## 189 — Focus source consistently after map script arrows
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 285 | Queue source focus for object, green-event and map-header arrows while preserving their existing bound commands and CanExecute rules. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 89 | Share guarded post-navigation source lookup, selecting all only for the explicitly requested signpost arrow. |
+| src/HexManiac.Core/ViewModels/Map/IEventViewModel.cs | 1773 | Expose and notify valid-address navigation state for green events and reject invalid direct navigation requests. |
+
+Validation: ScriptArrowFocus passes 26 assertions and SignpostScriptNavigation passes nine, with zero build warnings/errors. Actual pointer input opens the intended object, green, regular-header and conditional-child source and focuses its text box without selecting all; conditional parent arrows continue to open their tables. Signpost arrows retain select-all and ordinary click-to-deselect. Green-event arrows disable/re-enable after null, out-of-ROM and corrected assignments, including programmatic updates. The shared callback checks current model, selected tool/address, realized visible controls and open overlays before focusing. Existing MethodCommand bindings remain in place, including object-arrow enablement behavior. Map View uses its separate navigation path. No personal ROM/settings, parsing, compiler, relocation or history algorithm changed.
+
+## 190 — Reproduce recent-file paths disappearing after restart
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ProfilePersistence/Program.cs | 11 | Save and reload a real injected Mac profile with disposable filenames containing spaces, brackets, commas, quotes, apostrophes and Unicode. |
+| tests/ProfilePersistence/README.md | 1 | Document isolated startup/emulator/profile checks and the existing default-window-size boundary. |
+
+Validation: On 0a141bdf the new group builds with zero warnings/errors and fails on exact recent-path restoration after a successful profile reload. Map View/grid/assistance/zoom settings restore, but ParseRecentFiles splits at the first bracket/comma even inside a quoted filename. No personal profile or ROM is opened. Window geometry is not explicitly persisted in existing code; the audit does not manufacture a new geometry-restoration feature. Evidence precedes the targeted preference-format repair.
+
+## 191 — Preserve exact recent-file paths across profile reloads
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 616 | Read a marked escaped recent-file array while retaining a quote-aware literal reader for older profiles. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 655 | Mark new recent-file values as Json and escape complete paths rather than constructing quoted strings by concatenation. |
+| tests/ProfilePersistence/Program.cs | 34 | Verify exact legacy migration, punctuation/Unicode reopening and safe handling of malformed/missing recent entries. |
+
+Validation: ProfilePersistence passes 28 assertions with zero build warnings/errors. Five disposable files with spaces, brackets, commas, embedded quotes, apostrophes and Unicode survive a real injected Mac profile save/reload and reopen through their exact Recent menu commands without changing bytes. Unmarked old profiles keep literal Windows backslashes and single/double-quoted paths; saving them migrates to the marked escaped format without ambiguous escape guessing. Invalid/null/missing recent entries do not prevent startup or discard unrelated settings. Fresh instances retain Map View/grid/assistance/zoom and the injected emulator preference; every launch is intercepted, so no native app starts. No ROM auto-opens on restart. Existing 1200×800 default geometry is verified and unchanged; explicit geometry restoration is not a pre-existing persisted feature. No personal profile/ROM, game metadata format, numeric parsing or engine behavior changed. System.Text.Json is provided by the existing target runtime; no package or runtime upgrade was added.
+
+## 192 — Reproduce crossed diff/search preference values
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ProfilePersistence/Program.cs | 14 | Save distinct diff/search limits and require a new editor to restore each from its own key. |
+
+Validation: On 9b9de924 the isolated-profile regression builds with zero warnings/errors and fails when MaximumDiffSegments=17 and MaximumSearchResults=321 are reloaded. Inspection confirms the search-limit branch checks and parses maxDiffLine instead of maxSearchResultsLine. This is an existing preference-reader mix-up, not a search algorithm or runtime issue. Evidence precedes repair and uses no personal settings.
+
+## 193 — Restore the search-result limit from its own setting
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 613 | Check and parse maxSearchResultsLine rather than maxDiffLine when restoring MaximumSearchResults. |
+| tests/ProfilePersistence/Program.cs | 46 | Verify independent limits with both keys, the search key alone and missing/invalid search values. |
+
+Validation: ProfilePersistence passes 32 assertions with zero build warnings/errors. Distinct saved limits restore as 17/321; the search key works without a diff key, while missing or malformed search values retain the existing 400 default independently of diff preferences. Existing numeric parsing, 1–10000 bounds, search/diff algorithms and all other settings remain unchanged. Evidence and one-line repair are separate commits; no personal settings or ROM are used.
+
+## 194 — Record completed script/map follow-up audit and full regression results
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/SCRIPT_MAP_FOLLOWUP_AUDIT.md | 1 | Record reproducible defects, separate evidence/repair commits, rollback checkpoint, safety coverage and unchanged-working audit areas. |
+| tests/SCRIPT_MAP_FOLLOWUP_VERIFICATION.json | 1 | Preserve every group and assertion count from the final complete Mac regression run against a25c0742. |
+| tests/ScriptMapNavigation/README.md | 7 | Update navigation coverage to 76 assertions and describe live variable/flag details with a link to the latest suite proof. |
+| README.md | 65 | Describe the object flag and event variable context available beside script source. |
+
+Validation: The documented full Mac procedure passes 78 groups / 22,148 assertions, with zero failures and zero skipped groups. The only build-warning category is the existing MapImageExport NU1900 failure to fetch NuGet vulnerability metadata. All production changes were committed before this final run; this entry adds documentation only. No personal ROM/profile was opened or modified, and emulator starts were intercepted. Native interaction/real-ROM gameplay and the full upstream xUnit suite are outside this result. The pre-audit state is retained by checkpoint/pre-script-map-audit-2026-11-07; individual evidence and repairs remain separate commits.
+
+## 195 — Align the block-panel Movement label with its selector
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 126 | Remove conflicting fixed label/selector heights and center the Movement label within their measured row. |
+| tests/BlockPanelLayout/Program.cs | 24 | Check shared vertical centering and label containment at all six existing panel-width/font combinations. |
+| tests/BlockPanelLayout/README.md | 12 | Record the reproduced protruding-label regression and updated layout coverage. |
+
+Validation: The new containment check fails against b548924d, reproducing the reported label protrusion. After the layout-only repair, BlockPanelLayout passes 60 assertions across 256/320/512px widths and 14/20pt fonts; the project builds with zero warnings/errors and its rendered preview was inspected. Existing non-overlap, available-width and real checkbox-binding checks also pass. No ROM, settings, map data or movement-permission behavior changed. The full suite was not rerun for this localized layout adjustment.
+
+## 196 — Keep Block ID stationary beside Edit Block
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 131 | Place Block ID at the left of the Edit Block row with separate label, reserved numeric and button columns to prevent digit-width shifts. |
+| tests/BlockPanelLayout/Program.cs | 31 | Verify identical column positions and unclipped IDs from 0 through 1023 at six panel-width/font combinations. |
+| tests/BlockPanelLayout/README.md | 18 | Document the stationary Block ID row and expanded regression coverage. |
+
+Validation: BlockPanelLayout passes 156 assertions across 256/320/512px widths and 14/20pt fonts, including seven representative one- through four-digit IDs, exact stable control bounds, row alignment, non-overlap and the existing real checkbox-binding checks. The project builds with zero warnings/errors and the rendered layout was inspected. The full suite was not rerun for this localized presentation change; no ROM, settings, tile-selection or movement-permission behavior changed.
+
+## 197 — Center Block ID in the space before Edit Block
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 131 | Center the fixed-width Block ID group in the available left column while reserving an independent right column for Edit Block. |
+| tests/BlockPanelLayout/Program.cs | 32 | Check horizontal centering alongside stable digit changes, label alignment and button non-overlap at all existing sizes. |
+| tests/BlockPanelLayout/README.md | 24 | Describe the centered group and 162-assertion layout coverage. |
+
+Validation: BlockPanelLayout passes 162 assertions across 256/320/512px panel widths and 14/20pt text, with zero build warnings/errors. Seven representative IDs through 1023 retain exact control bounds and fit their reserved numeric field; Edit Block remains separate, and the rendered preview was inspected. The full suite was not rerun for this presentation-only adjustment. No ROM, settings or map-editing behavior changed.
+
+## 198 — Group Block ID beside Edit Block with clear spacing
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 131 | Shift Block ID right beside Edit Block with an explicit 8px gap and retain fixed digit space without crowding narrow panels. |
+| tests/BlockPanelLayout/Program.cs | 33 | Verify the explicit button gap alongside stable bounds, four-digit fit and existing non-overlap checks. |
+| tests/BlockPanelLayout/README.md | 29 | Record the final toolbar placement and tested narrow-panel fit. |
+
+Validation: BlockPanelLayout passes 162 assertions across 256/320/512px widths and 14/20pt fonts, with zero build warnings/errors. A rendered preview was inspected using the widest tested ID, 1023, to verify the gap before Edit Block. The full suite was not rerun for this local presentation-only adjustment. No ROM, settings or editing behavior changed.
+
+## 199 — Retain Go To focus until its input is visible
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 665 | Keep a cancellable visibility/layout/attachment focus request until the Go To input can accept typing. |
+| tests/GotoFocus/Program.cs | 78 | Reproduce delayed visibility after attachment through the native menu's bound command and verify focus, replacement typing and cancellation. |
+| tests/GotoFocus/README.md | 20 | Record the reproduced presentation-timing gap and native-confirmation boundary. |
+
+Validation: The attached-but-hidden reproduction fails against the previous handler and passes after repair; GotoFocus now passes 17 assertions with zero build warnings/errors. Existing Command-G input, immediate typing, query replacement, Escape, delayed attachment and stale-request cancellation checks pass alongside the new delayed-visibility case. Pending event subscriptions end on successful focus, close or editor replacement, without timers. ROM/history remain unchanged. Headless timing simulation does not establish the exact Cocoa event sequence; native confirmation of the reported shortcut remains useful.
+
+## 200 — Select signpost dialogue instead of the entire script
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 124 | Use decompiled stream classifications to select only the first text block's contents after a signpost-arrow navigation. |
+| tests/SignpostScriptNavigation/Program.cs | 70 | Verify message-only selection, multiline text after movement, immediate replacement typing, normal click-to-deselect and no selection for scripts without dialogue. |
+| tests/SignpostScriptNavigation/README.md | 1 | Document dialogue-only arrow behavior and its separate navigation safeguards. |
+
+Validation: The message-only assertion fails against the previous explicit SelectAll handler. SignpostScriptNavigation now passes 14 assertions with zero build warnings/errors; actual pointer navigation selects text without commands/braces, typing replaces only the message and leaves the surrounding movement/script compilable, and normal clicking deselects. No-dialogue scripts receive focus without command selection. Pure navigation/selection preserves ROM bytes and metadata. Fresh ScriptArrowFocus (26) and ScriptMapNavigation (76) runs also pass, preserving other-arrow behavior and Map View pending-source/read-only protections; GotoFocus separately passes 17. Only the signpost arrow requests dialogue selection. The complete suite was not rerun for these focused UI corrections; personal ROM/settings were untouched.
+
+## 201 — Reconnect Go To focus when opening ROMs or switching tabs
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 262 | Track and replace Go To model subscriptions so focus and overlay handling follow the active tab rather than the initial welcome-screen instance. |
+| tests/GotoFocus/Program.cs | 25 | Construct the welcome window before opening the first synthetic ROM and exercise additional tab replacements, stale events, native-command entry and pending-focus cancellation. |
+| tests/GotoFocus/README.md | 28 | Explain the missed startup sequence, confirmed subscription defect and expanded 27-assertion coverage. |
+
+Validation: The normal window-before-ROM startup fixture fails against 30e2e552 at the first focus assertion, reproducing a gap the earlier ROM-before-window fixture missed. After subscription repair, GotoFocus passes 27 assertions, including immediate typing after first open, a second ROM tab, returning through the native menu's bound command, old-model isolation, delayed-attachment replacement and window-close cleanup. Fresh ScriptArrowFocus (26), ScriptMapNavigation (76), TabViewLifetime (41) and SignpostScriptNavigation (14) also pass: 184 assertions across five groups, zero build warnings/errors. Both synthetic ROMs and histories remain unchanged. Native computer inspection reached a welcome-screen app rather than the user's pictured session; no personal ROM/profile was opened for testing, and this result does not claim the user's native shortcut was directly observed working. The full suite was not rerun for this subscription correction.
+
+## 202 — Keep script sections separate across unknown padding
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/Code/ScriptParser.cs | 110 | Combine a script destination across a one-byte gap only when that byte is a complete recognized command. |
+| src/HexManiac.Core/Models/Code/ScriptParser.cs | 197 | Align script-length consolidation with supported section boundaries so unknown padding remains outside generated source. |
+| tests/ScriptGapRoundTrip/Program.cs | 11 | Reproduce FF-gap source failures and verify preserved layout, compilation, shared targets, relocation/resources, rejected drafts and Undo/Redo. |
+| tests/ScriptGapRoundTrip/README.md | 1 | Document the synthetic reproduction and preserved existing separator behavior. |
+
+Validation: The new regression fails against 4efc18ba because the decompiler combines a one-byte FF gap into source containing an unsupported .raw FF directive. After repair, ScriptGapRoundTrip passes 117 assertions with zero build warnings/errors across one-/two-/three-byte gaps and single/shared callers. Generated bodies compile, comment-only edits preserve bytes/metadata, and growth/forced relocation preserves caller pointers, dialogue resources, named neighbors and gaps through exact Undo/Redo. Rejected drafts retain diagnostics and correct successfully. Adjacent sections and recognized one-byte end/nop separators retain their existing combined behavior. The repair preserves unknown bytes and numeric/opcode/allocation rules; it does not add a raw-byte compiler feature or erase padding. Personal ROM/settings were untouched; full-suite validation follows separately.
+
+## 203 — Clear resolved script-draft warnings without hiding other errors
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/ViewPort.cs | 655 | Retain the emitted persistence warning and notify listeners only when all rejected/pending drafts in that viewport are resolved. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 322 | Track displayed error ownership and clear a resolved warning only when its source and text still match. |
+| src/HexManiac.Core/ViewModels/EditorViewModel.cs | 1252 | Attach and detach warning-resolution listeners with existing tab listener lifetimes. |
+| tests/ScriptDraftWarning/Program.cs | 6 | Reproduce the stale banner and verify correction/discard, unrelated-error preservation, multiple drafts and identical warnings from separate ROMs. |
+| tests/ScriptDraftWarning/README.md | 1 | Document resolution rules and synthetic warning ownership coverage. |
+
+Validation: The regression fails before repair because successful correction retains the red persistence banner. ScriptDraftWarning now passes 16 assertions with zero build warnings/errors. Correction or explicit draft discard clears only its own still-displayed warning; another rejected edit, unresolved draft, newer unrelated/direct error or another ROM's identical-address warning stays visible. Exact model bytes/structural metadata are preserved in rejection/correction/discard cases. Existing log messages remain available, file/game behavior is unchanged and personal ROM/settings were untouched. Full-suite validation follows separately.
+
+## 204 — Verify warning recovery preserves script typing focus
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptDraftWarning/Program.cs | 46 | Exercise rejected-source warning recovery in the actual headless MainWindow and verify source focus survives resolution in Hex View. |
+| tests/ScriptDraftWarning/ScriptDraftWarning.csproj | 4 | Use the existing Avalonia.Headless test dependency for the real-control recovery check. |
+| tests/ScriptDraftWarning/README.md | 16 | Record the added focus check and updated assertion count. |
+
+Validation: ScriptDraftWarning passes 18 assertions with zero build warnings/errors. Actual source controls accept focus before the invalid draft, and successful correction clears the warning while keeping typing focus in the script source. Existing ownership, unrelated-error, multi-ROM and multi-draft tests continue to pass. No further production adjustment was needed for this edge case; full-suite validation remains in progress.
+
+## 205 — Record full verification of the script-gap and warning repairs
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptGapRoundTrip/verification.json | 1 | Record every assertion count from the complete 80-group Mac regression run after both repairs and recovery-focus coverage. |
+| tests/ScriptGapRoundTrip/README.md | 24 | Link the exact full-suite result alongside the targeted synthetic reproduction. |
+
+Validation: The documented Mac procedure passes 80 groups / 22,417 assertions, with zero failures and zero skipped groups. ScriptGapRoundTrip passes 117 and ScriptDraftWarning passes 18; existing pending-source, compilation/resource failure atomicity, navigation, relocation, history and UI groups also pass. Production implementation is 19216eec with focus-coverage tests at 530de08e; no production code changed during this run. The only build-warning category is the existing MapImageExport NU1900 inability to fetch NuGet vulnerability metadata. The full upstream xUnit suite was not rerun. Existing rejected drafts remain protected rather than silently rewritten, and personal ROM/settings were untouched.
+
+## 206 — Keep tile flip arrows reachable across their hover gaps
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/SelectedBlockEditor.axaml | 45 | Reserve the existing outer spacing as a padded transparent interaction area containing tile images, arrows and the gaps between them. |
+| src/HexManiac.Avalonia/Controls/SelectedBlockEditor.axaml.cs | 24 | Hide flip controls only when the pointer leaves the complete interaction region and retain wheel handling within that region. |
+| tests/BlockFlipControls/Program.cs | 28 | Trace continuous pointer approaches and positional clicks for both flip axes across all eight pieces, panel widths and text sizes. |
+| tests/BlockFlipControls/README.md | 1 | Document the reproduced hover-gap failure, native confirmation and targeted regression results. |
+
+Validation: Against 3ddb055b, the new real-control regression fails while approaching the upper-left vertical flip arrow, matching native reproduction for both upper-/lower-left foreground pieces. After repair, BlockFlipControls passes 1,825 assertions, verifying every approach step, correct hit targets, exact intended bit changes and normal exit dismissal across 280/300/350px widths and 14/20pt text. Fresh MacSecondaryActions (43) and BlockPanelLayout (162) also pass: 2,030 assertions across three groups, zero build warnings/errors. Native coordinate clicks in a disposable synthetic-data app crossed both formerly dead gaps and successfully flipped the intended pieces. Tile positions/overall reserved space and model flip/painting commands are unchanged; the user's Tutorial Village ROM and personal settings were never opened. The full suite was not rerun for this local hover-region repair.
+
+## 207 — Add Tutorial Village as the first welcome-screen background
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/Welcome/background.png | 1 | Bundle an unchanged copy of arkitekt13's 1312×960 Tutorial Village export through the existing optional-background asset pipeline. |
+| OptionalAssets/Welcome/README.md | 1 | Record image provenance, dimensions, replacement procedure and existing responsive crop/fade behavior. |
+| docs/MAC_RELEASE_CHECKLIST.md | 105 | Mark the initial image present while retaining final packaged-native visual approval as an open release check. |
+| docs/MAC_HELPER_TESTING.md | 72 | Distinguish the included initial image from pending final approval and tutorial-patch gameplay work. |
+
+Validation: WelcomeScreen passes 38 assertions and MacPackaging passes 43, with zero build warnings/errors. The supplied image and bundled asset are byte-identical; the image is copied to build output at resources/Optional/Welcome/background.png. Rendered the actual attached StartScreen with the supplied image and default theme at 1200×800, 800×600 and 500×400; inspected previews and retained the full export using existing proportional fill and dark fade. No image pixels, app layout/rendering code, ROM or original export were changed. Final native appearance approval remains open, particularly at very small window sizes; this is the first background version rather than a finalized tutorial patch or release asset approval. The full regression suite was not rerun for this asset/documentation-only addition.
+
+## 208 — Tidy the map-image export confirmation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MapImageSavedDialog.axaml | 1 | Present a compact themed confirmation with a clear heading, selectable filename/location and aligned Reveal in Finder/OK buttons. |
+| src/HexManiac.Avalonia/Windows/MapImageSavedDialog.axaml.cs | 9 | Populate file details and retain reveal-without-dismissal plus standard dialog dismissal behavior. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 474 | Use the dedicated success dialog while preserving the existing export policy, Finder action and no-owner console fallback. |
+| tests/MapImageExport/README.md | 28 | Describe the new presentation and actual-control smoke verification. |
+
+Validation: MapImageExport passes its existing 33 assertions. Rendered and visually inspected the actual compiled dialog using a representative Tutorial Village output path; positional Reveal/OK clicks, Enter/Escape dismissal and bounded very-long-path layout passed an isolated smoke check with Finder launches intercepted. The app/preview build has zero warnings/errors; the existing export test project still reports NU1900 when NuGet vulnerability metadata cannot be fetched. No additional persistent tests were added for this reversible presentation adjustment, and the full suite was not rerun. Generic save/error prompts, export bytes, overwrite/copy handling and Finder behavior are unchanged. No ROM/export file or personal preferences were touched; the user's separately updated welcome-background PNG remains unstaged and unmodified by this work.
+
+## 209 — Preserve long-script scrolling through delayed compilation refresh
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Tools/CodeTool.cs | 320 | Update refreshed source directly and retain the collection item when its body identity is unchanged so another section's editor/caret is not rebuilt. |
+| tests/ScriptScrollStability/Program.cs | 99 | Reproduce delayed jumps after an earlier-section caret move and verify repeated Enter, compiled dialogue edits, stable controls/focus/source and Undo/Redo. |
+| tests/ScriptScrollStability/SyntheticCameraScript.txt | 1 | Preserve the reported camera-event structure with neutral dialogue and synthetic addresses for permanent regression coverage. |
+| tests/ScriptScrollStability/ScriptScrollStability.csproj | 8 | Copy the camera-event regression source into the test output. |
+| tests/ScriptScrollStability/README.md | 30 | Record the distinct delayed-refresh cause, native before/after observations and expanded coverage. |
+
+Validation: The added regression fails on 0a8da532 with scroll offset 1198 → 100.8125 after delayed Enter compilation. The repaired ScriptScrollStability passes 245 assertions, including actual script fonts 14/20, unchanged earlier editor identity/caret, repeated blank lines near the bottom, preserved source/focus/caret, unchanged model bytes/structural metadata for blank lines, legitimate dialogue compilation and exact Undo/Redo. The exact supplied script also passes through the local-file route without committing its story. Native synthetic-ROM confirmation reproduces 1209 → 114.78125 before repair and a stable 1195 → 1195 after repair. This does not disable keyboard/model caret reveal or alter parsing, transactions, allocation, relocation or history algorithms. The user's ROM/preferences and separately updated welcome-background PNG remain untouched. Focused suite results are recorded separately; the full suite was not rerun for this editor-refresh correction.
+
+## 210 — Record focused verification of delayed script-refresh stability
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScriptScrollStability/compile-refresh-verification.json | 1 | Preserve the exact 13-group focused result and native delayed-compilation scroll observations for 0f633b3f. |
+
+Validation: Fresh related regressions pass 13 groups / 2,234 assertions, with zero failures, zero skipped groups and zero build warnings/errors. ScriptScrollStability was rebuilt and rerun after strengthening font-size coverage and passes 245 with both the sanitized default and exact supplied local-file routes. The result also includes existing workflow failure-atomicity, assistance, clipboard, navigation, diagnostics, width updates, editor lifetime and signpost-relocation groups. Native before/after evidence and scope limitations are in the verification file. Personal ROM/preferences were untouched, and the user's modified welcome PNG remains unstaged. This is a focused result, not a claim that the complete Mac or upstream xUnit suites were rerun.
+
+## 211 — Include the refreshed Tutorial Village welcome image
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/Welcome/background.png | 1 | Include the user's updated 1312×960 Tutorial Village background exactly as supplied in the asset folder. |
+| OptionalAssets/Welcome/README.md | 3 | Record the refreshed image and its current approximately 267 KiB size. |
+
+Validation: The supplied PNG header reports 1312×960 pixels and its SHA-256 is 22e561867f25cd875386383241f5ddf7de6b4c6759a64bbe8358bbbd16ac8611. No image conversion, crop or source/export/ROM edit was performed. The existing copy-to-build/publish and responsive fade pipeline remains unchanged. This previously unstaged user asset is included under the explicit request to push and merge everything; complete pre-merge Mac-suite validation follows separately.
+
+## 212 — Record complete pre-merge verification and commit review
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MAP_REFERENCE_MERGE_VERIFICATION.json | 1 | Preserve exact results for every group in the complete pre-merge Mac suite against b6b642f9, with commit-review and rollback-checkpoint details. |
+| tests/README.md | 9 | Link the dated complete-suite proof and distinguish it from upstream and native verification. |
+
+Validation: The documented Mac procedure passes 81 groups / 24,292 assertions, with zero failures and zero skipped groups. The only build-warning category is the existing MapImageExport NU1900 inability to fetch NuGet vulnerability metadata. Reviewed all 38 existing feature commits since the default-branch checkpoint: each has a descriptive subject and its own CodexChanges update; the supplied refreshed background is separately committed as b6b642f9 with entry 211. Changelog numbering is continuous. The annotated tag checkpoint/pre-map-reference-merge-2026-11-08 preserves default-branch commit 7a6c80ec, and the planned merge preserves individual feature commits. No production code changed during this complete run; this entry adds verification documentation only. Personal ROM/preferences were untouched; the upstream xUnit suite and a complete native/gameplay pass were not rerun.

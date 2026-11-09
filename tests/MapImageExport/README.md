@@ -23,3 +23,11 @@ No user ROM or settings are read or changed.
 Manual: Edit Map Header > Export Image > This Map, test each event option and conflict action,
 then export All Connected Maps; check sprite/marker appearance, native dialog cancellation,
 read-only folders, Finder reveal and the saved PNG in Preview.
+
+The success confirmation uses a dedicated compact dialog: a clear heading,
+selectable filename and folder location, a bounded scrolling area for long paths,
+and one aligned row for Reveal in Finder and OK. Enter/Escape dismiss the dialog;
+Reveal invokes the existing Finder action without dismissing it. Generic save and
+error prompts are unchanged. The actual compiled dialog was rendered for visual
+inspection and smoke-checked with positional button input, Enter/Escape and an
+exceptionally long location, with Finder launches intercepted.

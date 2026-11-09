@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
+using Avalonia;
 using System.Threading.Tasks;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.Models;
@@ -12,6 +14,8 @@ namespace HavenSoft.HexManiac.AvaloniaUI.Project;
 
 /// <summary>Draw through a detached model: lazy event formatting never touches the live document.</summary>
 public sealed record ScriptMapSnapshot(string Caption, ReadonlyPixelViewModel Image) {
+   public IReadOnlyList<ScriptMapEvent> Events { get; init; } = Array.Empty<ScriptMapEvent>();
+
    public static ScriptMapSnapshot Create(ViewPort source, int mapID) {
       var (bytes, metadata) = Capture(source);
       return Render(bytes, metadata, mapID);
@@ -46,7 +50,30 @@ public sealed record ScriptMapSnapshot(string Caption, ReadonlyPixelViewModel Im
       };
       var pixels = map.PixelData;
       if (pixels == null) throw new InvalidOperationException("The reference map could not be rendered.");
+      var targets = new List<ScriptMapEvent>();
+      var events = map.EventGroup;
+      if (events != null) {
+         for (int i = 0; i < events.Objects.Count; i++) {
+            var obj = events.Objects[i];
+            var bounds = new Rect(obj.X * 16 + obj.LeftOffset, obj.Y * 16 + obj.TopOffset,
+               obj.EventRender?.PixelWidth ?? 16, obj.EventRender?.PixelHeight ?? 16);
+            bounds = bounds.Union(new Rect(obj.X * 16, obj.Y * 16, 16, 16));
+            targets.Add(new(mapID, ScriptMapEventKind.Object, i, obj.Start, obj.X, obj.Y, obj.ObjectID, obj.Flag, bounds));
+         }
+         var rows = header.GetSubTable("events")[0].GetSubTable("scripts");
+         for (int i = 0; i < events.Scripts.Count; i++) {
+            var ev = events.Scripts[i];
+            targets.Add(new(mapID, ScriptMapEventKind.Script, i, rows[i].Start, ev.X, ev.Y, null, null,
+               new Rect(ev.X * 16, ev.Y * 16, 16, 16), Variable: ev.Trigger));
+         }
+         rows = header.GetSubTable("events")[0].GetSubTable("signposts");
+         for (int i = 0; i < events.Signposts.Count; i++) {
+            var ev = events.Signposts[i];
+            targets.Add(new(mapID, ScriptMapEventKind.Signpost, i, rows[i].Start, ev.X, ev.Y, null, null,
+               new Rect(ev.X * 16, ev.Y * 16, 16, 16), ev.Kind));
+         }
+      }
       return new ScriptMapSnapshot($"Reference: {map.FullName} — {width} × {height} tiles",
-         new ReadonlyPixelViewModel(map.PixelWidth, map.PixelHeight, pixels.ToArray()));
+         new ReadonlyPixelViewModel(map.PixelWidth, map.PixelHeight, pixels.ToArray())) { Events = targets.AsReadOnly() };
    }
 }

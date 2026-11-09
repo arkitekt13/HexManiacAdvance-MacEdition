@@ -1,0 +1,90 @@
+[
+  {
+    "phase": "actual-tab-lifecycle",
+    "mapView": false,
+    "distinctTabViewsAlive": 0,
+    "detachedTabViewsAlive": 0,
+    "sourceTabHandlers": 0,
+    "cleanedDetachedControls": 0,
+    "afterDetachedCleanupHeap": 64243800,
+    "detachedAfterCleanup": 0,
+    "sourceTabHandlersAfterCleanup": 0,
+    "sourceBytesUnchanged": true,
+    "baselineHeap": 63363632,
+    "afterGcHexHeaps": [
+      63397968,
+      63503672,
+      63639968,
+      63674560,
+      63714192,
+      63754280,
+      63700968,
+      63721992,
+      63738176,
+      63743752,
+      63807264,
+      63872040
+    ],
+    "oldBitmapWrappersAlive": 0,
+    "oldTabViewsAlive": 0,
+    "settledHeaps": [
+      64214792,
+      64223216,
+      64223304
+    ],
+    "burstStartHeap": 63888488,
+    "afterBurstGcHeap": 64221208,
+    "burstAllocated": 111882624,
+    "burstMs": 6038.8276
+  },
+  {
+    "phase": "after-window-close",
+    "mapView": false,
+    "watchedObjects": 27,
+    "objectsStillAlive": 0
+  },
+  {
+    "phase": "actual-tab-lifecycle",
+    "mapView": true,
+    "distinctTabViewsAlive": 0,
+    "detachedTabViewsAlive": 0,
+    "sourceTabHandlers": 0,
+    "cleanedDetachedControls": 0,
+    "afterDetachedCleanupHeap": 65679720,
+    "detachedAfterCleanup": 0,
+    "sourceTabHandlersAfterCleanup": 0,
+    "sourceBytesUnchanged": true,
+    "baselineHeap": 61655896,
+    "afterGcHexHeaps": [
+      66653144,
+      64928064,
+      64986616,
+      65036928,
+      65084376,
+      65117376,
+      65133152,
+      65162168,
+      65161248,
+      65169240,
+      65251568,
+      65304176
+    ],
+    "oldBitmapWrappersAlive": 0,
+    "oldTabViewsAlive": 0,
+    "settledHeaps": [
+      65651576,
+      65660000,
+      65668312
+    ],
+    "burstStartHeap": 103676440,
+    "afterBurstGcHeap": 65648384,
+    "burstAllocated": 568402096,
+    "burstMs": 6024.9192
+  },
+  {
+    "phase": "after-window-close",
+    "mapView": true,
+    "watchedObjects": 27,
+    "objectsStillAlive": 0
+  }
+]

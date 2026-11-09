@@ -105,34 +105,38 @@
             </Button>
          </Grid>
          <Grid Width="{Binding Blocks.ScaledWidth}" MinHeight="100" DockPanel.Dock="Top">
-            <!-- The shorthand "Auto,75" cannot carry MinHeight, and without it row 0 collapses to
-                 the size of the block preview and row 1's bottom-aligned content overlaps it. -->
+            <!-- Keep each setting in its own measured row: font size and panel width vary. -->
             <Grid.RowDefinitions>
                <RowDefinition Height="Auto" MinHeight="112"/>
-               <RowDefinition Height="75"/>
+               <RowDefinition Height="Auto"/>
+               <RowDefinition Height="Auto"/>
+               <RowDefinition Height="Auto"/>
+               <RowDefinition Height="Auto"/>
+               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <CheckBox HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,10,10,35" Grid.Row="1"
-                  Content="Automatic Movement Permission" IsChecked="{Binding AutoUpdateCollision, Mode=TwoWay}"
-                  >
+            <CheckBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="5,4,8,4" Grid.Row="2"
+                  IsChecked="{Binding AutoUpdateCollision, Mode=TwoWay}">
+               <TextBlock Text="Automatic Movement Permission" TextWrapping="Wrap"/>
                <ToolTip.Tip>
                   <TextBlock>Update Movement Permission Selection based on Most Common Permission for selected block.<LineBreak/>For example, if you select a tree, it'll set the movement permission based on other trees.</TextBlock>
                </ToolTip.Tip>
             </CheckBox>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="0,10" Grid.Row="1">
+            <Grid ColumnDefinitions="Auto,*" Margin="4,2,8,4" Grid.Row="3">
                <local:AngleBorder Direction="Left" VerticalAlignment="Stretch">
-                  <TextBlock Text="Movement:" Margin="4,0" Height="30"/>
+                  <TextBlock Text="Movement:" Margin="4,0" VerticalAlignment="Center"/>
                </local:AngleBorder>
-               <local:AngleComboBox Direction="Out" Width="135" Height="20"
+               <local:AngleComboBox Grid.Column="1" Direction="Out" MinWidth="50" VerticalAlignment="Stretch"
                   ItemsSource="{Binding PrimaryMap.BlockEditor.MovementPermissions}" SelectedIndex="{Binding CollisionIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,12" Grid.Row="1" IsVisible="{Binding BlockEditorVisible}">
-               <local:AngleBorder Direction="Out" VerticalAlignment="Stretch" Content="Block ID" />
-               <TextBlock Text="{Binding DrawBlockIndex}" HorizontalAlignment="Center" Margin="0,5,0,0" />
-            </StackPanel>
-            <Decorator Grid.Row="1" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,30,55" IsVisible="{Binding BlockEditorVisible}">
-               <local:AngleButton DataContext="{Binding PrimaryMap.BlockEditor}" Content="Edit Block" x:Name="EditBlockButton"
-                   Direction="Right" Padding="2,0" Command="{res:MethodCommand ToggleShowTiles}" />
-            </Decorator>
+            </Grid>
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="2,4" IsVisible="{Binding BlockEditorVisible}">
+               <StackPanel Name="BlockIdGroup" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,0,8,0">
+                  <local:AngleBorder Direction="Out" Content="Block ID" VerticalAlignment="Center"/>
+                  <TextBlock Name="BlockIdValue" Text="{Binding DrawBlockIndex}" Width="48"
+                             VerticalAlignment="Center" Margin="2,0,0,0"/>
+               </StackPanel>
+               <local:AngleButton Grid.Column="1" DataContext="{Binding PrimaryMap.BlockEditor}" Content="Edit Block" x:Name="EditBlockButton"
+                   Direction="Right" Padding="0" VerticalAlignment="Center" Command="{res:MethodCommand ToggleShowTiles}" />
+            </Grid>
             <StackPanel Name="BlockBag" VerticalAlignment="Bottom" HorizontalAlignment="Left"
                         Orientation="Horizontal" IsVisible="{Binding BlockBagVisible}">
                <ToolTip.Tip>
@@ -154,7 +158,7 @@
             <TextBlock IsVisible="{Binding IsSingleBlock}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top">
                <Run Text="Usage Count:" /><Run Text=" " /><Run Text="{Binding BlockUsageCount, Mode=OneWay}" />
             </TextBlock>
-            <CheckBox IsChecked="{Binding Use9Grid, Mode=TwoWay}" Content="Draw 9-Grid" VerticalAlignment="Top" Grid.Row="1" HorizontalAlignment="Center"
+            <CheckBox IsChecked="{Binding Use9Grid, Mode=TwoWay}" Content="Draw 9-Grid" VerticalAlignment="Top" Grid.Row="5" HorizontalAlignment="Center"
                       IsVisible="{Binding IsValid9GridSelection}"
                       ToolTip.Tip="Draw one of the selected 9 blocks based on a grid." />
          </Grid>
@@ -282,7 +286,7 @@
                         <local:AngleTextBox Grid.Row="8" Grid.Column="1" Margin="0,2,21,2" Direction="Out"
                                             Classes.scriptError="{Binding HasScriptAddressError}" ToolTip.Tip="{Binding ScriptAddressError}"
                                             TextBinding="{Binding ScriptAddressText, Mode=TwoWay}" />
-                        <local:AngleButton Grid.Row="8" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Command="{res:MethodCommand GotoScript}"
+                        <local:AngleButton Grid.Row="8" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Command="{res:MethodCommand GotoScript}" Click="EventScriptClick"
                               Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                            <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
                         </local:AngleButton>
@@ -351,7 +355,7 @@
                                  <StackPanel>
                                     <TextBlock Margin="10,10" TextWrapping="Wrap" FontStyle="Italic" Foreground="{DynamicResource Secondary}"
                                                Text="(Rematch script logic and text must be edited with the script editor.)" />
-                                    <local:AngleButton Command="{res:MethodCommand GotoScript}" Direction="Right" HorizontalAlignment="Right" Margin="0,-20,2,2"
+                                    <local:AngleButton Command="{res:MethodCommand GotoScript}" Click="EventScriptClick" Direction="Right" HorizontalAlignment="Right" Margin="0,-20,2,2"
                                        Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                                        <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
                                     </local:AngleButton>
@@ -517,7 +521,7 @@
                                  <StackPanel>
                                     <TextBlock Margin="30,20,30,0" TextWrapping="Wrap" FontStyle="Italic" Foreground="{DynamicResource Secondary}"
                                                Text="(Elaborate scripts must be edited with the script editor. Only partial editing is available here.)" />
-                                    <local:AngleButton Command="{res:MethodCommand GotoScript}" Direction="Right" HorizontalAlignment="Right" Margin="0,0,2,2"
+                                    <local:AngleButton Command="{res:MethodCommand GotoScript}" Click="EventScriptClick" Direction="Right" HorizontalAlignment="Right" Margin="0,0,2,2"
                                        Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                                        <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
                                     </local:AngleButton>
@@ -604,7 +608,7 @@
                         <local:AngleTextBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Top" Margin="0,2,21,2" Direction="Out"
                                             Classes.scriptError="{Binding HasScriptAddressError}" ToolTip.Tip="{Binding ScriptAddressError}"
                                             TextBinding="{Binding ScriptAddressText, Mode=TwoWay}" />
-                        <local:AngleButton Command="{res:MethodCommand GotoScript}" Direction="Right" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Right"
+                        <local:AngleButton Command="{res:MethodCommand GotoScript}" Click="EventScriptClick" Direction="Right" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Right"
                               Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                            <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
                         </local:AngleButton>
@@ -635,7 +639,7 @@
                         <local:AngleTextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Margin="0,2,24,2" Direction="Out"
                            Classes.scriptError="{Binding HasScriptAddressError}" ToolTip.Tip="{Binding ScriptAddressError}"
                            TextBinding="{Binding PointerText, Mode=TwoWay}" IsVisible="{Binding ShowPointer}" />
-                        <local:AngleButton Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Command="{res:MethodCommand GotoScript}"
+                        <local:AngleButton Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Direction="Right" Name="SignpostScriptArrow" Command="{res:MethodCommand GotoScript}" Click="SignpostScriptClick" IsEnabled="{Binding CanGotoScript}"
                            IsVisible="{Binding ShowPointer}"
                            Width="22" Height="18" IsTabStop="False" Padding="0,2" BorderBrush="{DynamicResource Backlight}">
                            <Path Data="{res:Icon RightAngleArrow}" Fill="{DynamicResource Secondary}" Stretch="Fill" />
@@ -988,10 +992,10 @@
                                     </TextBlock>
                                  </DataTemplate>
                               </DockPanel.DataTemplates>
-                              <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18">
-                                 <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="10" Height="20" />
+                              <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18" Width="24">
+                                 <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="8" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                               </local:AngleButton>
-                              <local:AngleButton Command="{res:MethodCommand Goto}" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
+                              <local:AngleButton Command="{res:MethodCommand Goto}" Click="HeaderScriptClick" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
                                  <Path Fill="{DynamicResource Secondary}" Stretch="Fill" Data="{res:Icon RightAngleArrow}" Width="10" Height="12" />
                               </local:AngleButton>
                               <local:AngleComboBox SelectedIndex="{Binding ScriptTypeIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}" ItemsSource="{Binding ScriptOptions}" Direction="Out" DockPanel.Dock="Left" Width="140" Height="18" />
@@ -1002,10 +1006,10 @@
                                  <DataTemplate>
                                     <StackPanel Margin="8,2">
                                        <DockPanel>
-                                          <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18">
-                                             <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="10" Height="20" />
+                                          <local:AngleButton Command="{res:MethodCommand Delete}" DockPanel.Dock="Left" Direction="Left" Padding="0" VerticalAlignment="Center" Height="18" Width="24">
+                                             <Path Fill="{DynamicResource Secondary}" Stretch="Uniform" Data="{res:Icon Exit}" Width="8" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                           </local:AngleButton>
-                                          <local:AngleButton Command="{res:MethodCommand Goto}" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
+                                          <local:AngleButton Command="{res:MethodCommand Goto}" Click="HeaderScriptClick" DockPanel.Dock="Right" Direction="Right" Padding="0" Width="20" Height="18">
                                              <Path Fill="{DynamicResource Secondary}" Stretch="Fill" Data="{res:Icon RightAngleArrow}" Width="10" Height="12" />
                                           </local:AngleButton>
                                           <local:AngleBorder Direction="Left" Content="Address:" Padding="2,0" />

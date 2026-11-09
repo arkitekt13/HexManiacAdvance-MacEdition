@@ -46,11 +46,9 @@ public partial class MainWindow : Window {
    public EditorViewModel Editor {
       get => editor;
       set {
-         CancelGotoFocus();
+         WatchGotoModel(null);
          if (editor != null) {
             editor.PropertyChanged -= ViewModelPropertyChanged;
-            editor.GotoViewModel.PropertyChanged -= GotoViewModelPropertyChanged;
-            editor.GotoViewModel.MoveFocusToGoto -= FocusGotoBox;
             editor.MoveFocusToFind -= FocusFindBox;
             editor.MoveFocusToHexConverter -= FocusHexBox;
             editor.MoveFocusToPrimaryContent -= FocusPrimaryContent;
@@ -68,8 +66,7 @@ public partial class MainWindow : Window {
          }
          if (editor != null) {
             editor.PropertyChanged += ViewModelPropertyChanged;
-            editor.GotoViewModel.PropertyChanged += GotoViewModelPropertyChanged;
-            editor.GotoViewModel.MoveFocusToGoto += FocusGotoBox;
+            WatchGotoModel(editor.GotoViewModel);
             editor.MoveFocusToFind += FocusFindBox;
             editor.MoveFocusToHexConverter += FocusHexBox;
             editor.MoveFocusToPrimaryContent += FocusPrimaryContent;
@@ -110,7 +107,7 @@ public partial class MainWindow : Window {
       Activated += (sender, e) => {
          if (editor?.GotoViewModel?.ControlVisible == true) FocusGotoBox();
       };
-      Closed += (_, _) => CancelGotoFocus();
+      Closed += (_, _) => WatchGotoModel(null);
    }
 
    /// <summary>Port of the Window.InputBindings block; Ctrl becomes Cmd on macOS.</summary>
@@ -262,6 +259,26 @@ public partial class MainWindow : Window {
       }
    }
 
+   private GotoControlViewModel watchedGotoModel;
+
+   private void WatchGotoModel(GotoControlViewModel model) {
+      CancelGotoFocus();
+      if (watchedGotoModel != null) {
+         watchedGotoModel.PropertyChanged -= GotoViewModelPropertyChanged;
+         watchedGotoModel.MoveFocusToGoto -= FocusGotoBox;
+      }
+      watchedGotoModel = model;
+      if (model == null) return;
+      model.PropertyChanged += GotoViewModelPropertyChanged;
+      model.MoveFocusToGoto += FocusGotoBox;
+      if (model.ControlVisible) {
+         BlurTabs();
+         FocusGotoBox();
+      } else {
+         UnblurTabs();
+      }
+   }
+
    private void GotoViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
       if (e.PropertyName != nameof(GotoControlViewModel.ControlVisible)) return;
       ImagePreviewLayer.Hide();
@@ -280,7 +297,10 @@ public partial class MainWindow : Window {
       if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) RefreshTutorialMenu();
       if (e.PropertyName == nameof(EditorViewModel.SelectedIndex)) SyncSelectionFromViewModel();
       if (e.PropertyName == nameof(EditorViewModel.ShowAutomationPanel)) UpdateAutomationPanel();
-      if (e.PropertyName == nameof(EditorViewModel.GotoViewModel)) return;
+      if (e.PropertyName == nameof(EditorViewModel.GotoViewModel)) {
+         WatchGotoModel(editor.GotoViewModel);
+         return;
+      }
       if (e.PropertyName == nameof(EditorViewModel.FindControlVisible) && editor.FindControlVisible) {
          Dispatcher.UIThread.Post(() => FindBox.Focus(), DispatcherPriority.Background);
       }
@@ -661,22 +681,34 @@ public partial class MainWindow : Window {
          bool IsCurrent() => request == gotoFocusRequest && ReferenceEquals(target, editor?.GotoViewModel) && target?.ControlVisible == true;
          if (!IsCurrent()) return;
          var textBox = GotoBox.GetTextBox();
-         if (textBox == null || textBox.IsFocused) return;
+         if (textBox == null) return;
+         void StopWaiting() {
+            LayoutUpdated -= RetryFocus;
+            GotoPanel.PropertyChanged -= VisibilityChanged;
+            textBox.AttachedToVisualTree -= Attached;
+            if (request == gotoFocusRequest) cancelPendingGotoAttachment = null;
+         }
          void FocusText() {
-            if (IsCurrent() && !textBox.IsFocused && textBox.Focus()) textBox.SelectAll();
+            if (!IsCurrent()) { StopWaiting(); return; }
+            if (!textBox.IsEffectivelyVisible || textBox.GetVisualRoot() == null) return;
+            if (textBox.IsFocused || textBox.Focus()) {
+               textBox.SelectAll();
+               StopWaiting();
+            }
          }
-         if (textBox.GetVisualRoot() != null) {
-            FocusText();
-         } else {
-            EventHandler<VisualTreeAttachmentEventArgs> attached = null;
-            attached = (_, _) => {
-               textBox.AttachedToVisualTree -= attached;
-               cancelPendingGotoAttachment = null;
-               Dispatcher.UIThread.Post(FocusText, DispatcherPriority.Loaded);
-            };
-            cancelPendingGotoAttachment = () => textBox.AttachedToVisualTree -= attached;
-            textBox.AttachedToVisualTree += attached;
+         void RetryFocus(object sender, EventArgs args) => FocusText();
+         void VisibilityChanged(object sender, AvaloniaPropertyChangedEventArgs args) {
+            if (args.Property == IsVisibleProperty) Dispatcher.UIThread.Post(FocusText, DispatcherPriority.Loaded);
          }
+         void Attached(object sender, VisualTreeAttachmentEventArgs args) =>
+            Dispatcher.UIThread.Post(FocusText, DispatcherPriority.Loaded);
+         // Attachment alone does not mean the overlay is visible and focusable yet.
+         // Retain a cancellable layout request until focus succeeds; no timer/polling loop.
+         LayoutUpdated += RetryFocus;
+         GotoPanel.PropertyChanged += VisibilityChanged;
+         textBox.AttachedToVisualTree += Attached;
+         cancelPendingGotoAttachment = StopWaiting;
+         FocusText();
       }, DispatcherPriority.Loaded);
    }
 

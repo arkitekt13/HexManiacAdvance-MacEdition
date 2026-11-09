@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -12,8 +13,11 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using HavenSoft.HexManiac.Core;
+using HavenSoft.HexManiac.AvaloniaUI.Windows;
 using HavenSoft.HexManiac.Core.ViewModels.Images;
 using HavenSoft.HexManiac.Core.ViewModels.Map;
+using ViewPort = HavenSoft.HexManiac.Core.ViewModels.ViewPort;
+using HavenSoft.HexManiac.Core.ViewModels.Tools;
 using CoreBlockEditor = HavenSoft.HexManiac.Core.ViewModels.Map.BlockEditor;
 
 namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
@@ -80,6 +84,68 @@ public partial class MapTab : UserControl {
       SetUpReveal();
       SetUpSelectionPop();
       WatchBlockEditor();
+   }
+
+   private void SignpostScriptClick(object sender, RoutedEventArgs e) {
+      if (sender is Control { DataContext: SignpostEventViewModel signpost } && signpost.ShowPointer && signpost.CanGotoScript)
+         QueueScriptSourceFocus(signpost.Pointer, selectDialogue: true);
+   }
+
+   private void EventScriptClick(object sender, RoutedEventArgs e) {
+      if (sender is Control { DataContext: ObjectEventViewModel obj }) QueueScriptSourceFocus(obj.ScriptAddress);
+      else if (sender is Control { DataContext: ScriptEventViewModel script }) QueueScriptSourceFocus(script.ScriptAddress);
+   }
+
+   private void HeaderScriptClick(object sender, RoutedEventArgs e) {
+      if (sender is Control { DataContext: MapScriptViewModel script }) QueueScriptSourceFocus(script.ScriptAddress);
+      else if (sender is Control { DataContext: MapSubScriptViewModel child }) QueueScriptSourceFocus(child.ScriptAddress);
+   }
+
+   private void QueueScriptSourceFocus(int address, bool selectDialogue = false) {
+      var model = ViewModel?.ViewPort.Model;
+      if (model == null || TopLevel.GetTopLevel(this) is not MainWindow window) return;
+      // Keep bound commands and their CanExecute behavior. Click captures the host before
+      // navigation detaches the map; focus only the source actually opened by that command.
+      Dispatcher.UIThread.Post(() => {
+         var editor = window.Editor;
+         if (editor?.SelectedTab is not ViewPort selected || !ReferenceEquals(selected.Model, model) ||
+             editor.GotoViewModel.ControlVisible || editor.FindControlVisible || editor.HexConverterVisible || editor.ShowError ||
+             selected.Tools.SelectedTool is not CodeTool { Mode: CodeMode.Script } || !selected.Tools.CodeTool.Contents.Any(body => body.Address == address)) return;
+         var tab = window.GetVisualDescendants().OfType<TabView>()
+            .FirstOrDefault(tab => ReferenceEquals(tab.DataContext, selected) && tab.IsEffectivelyVisible);
+         var field = tab?.GetVisualDescendants().OfType<TextEditor>()
+            .FirstOrDefault(field => field.Tag is CodeBody body && body.Address == address && field.IsEffectivelyVisible);
+         var input = field?.EditBox;
+         if (input?.Focus() != true || !selectDialogue) return;
+         SelectSignpostDialogue(input, (CodeBody)field.Tag);
+      }, DispatcherPriority.Background);
+   }
+
+   private static void SelectSignpostDialogue(TextBox input, CodeBody body) {
+      // Decompilation records stream types, including loadpointer's generic pointer.
+      // Select only the first text stream; movement/item braces and commands stay intact.
+      var text = input.Text ?? string.Empty;
+      var offset = 0;
+      var stream = -1;
+      var start = -1;
+      foreach (var line in text.Split('\n')) {
+         var trimmed = line.Trim();
+         if (trimmed == "{") {
+            stream++;
+            if (body.StreamTypes != null && stream < body.StreamTypes.Count &&
+                body.StreamTypes[stream] == HavenSoft.HexManiac.Core.Models.Code.ExpectedPointerType.Text)
+               start = Math.Min(text.Length, offset + line.Length + 1);
+         } else if (trimmed == "}" && start >= 0) {
+            var end = offset;
+            if (end > start && text[end - 1] == '\n') end--;
+            if (end > start && text[end - 1] == '\r') end--;
+            input.SelectionStart = start;
+            input.SelectionEnd = end;
+            return;
+         }
+         offset += line.Length + 1;
+      }
+      input.SelectionStart = input.SelectionEnd = input.CaretIndex;
    }
 
    private void BuildKeyBindings() {

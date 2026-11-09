@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HavenSoft.HexManiac.AvaloniaUI.Windows.MapImageSavedDialog"
+        Title="Map image saved" Width="500" SizeToContent="Height"
+        CanResize="False" WindowStartupLocation="CenterOwner" FontSize="14"
+        Background="{DynamicResource Background}">
+   <StackPanel Margin="24" Spacing="16">
+      <StackPanel Spacing="6">
+         <TextBlock Text="Map image saved" FontSize="20" FontWeight="SemiBold"
+                    Foreground="{DynamicResource Primary}"/>
+         <TextBlock Text="Your map was exported as a PNG." TextWrapping="Wrap"
+                    Foreground="{DynamicResource Primary}" Opacity="0.8"/>
+      </StackPanel>
+      <Border Background="{DynamicResource Backlight}" CornerRadius="6" Padding="14,12">
+         <StackPanel Spacing="6">
+            <SelectableTextBlock Name="FileNameText" FontWeight="SemiBold" TextWrapping="Wrap"
+                                 Foreground="{DynamicResource Primary}"/>
+            <ScrollViewer MaxHeight="96" HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto" AllowAutoHide="False">
+               <SelectableTextBlock Name="DirectoryText" FontSize="12" TextWrapping="Wrap"
+                                    Foreground="{DynamicResource Primary}" Opacity="0.8"/>
+            </ScrollViewer>
+         </StackPanel>
+      </Border>
+      <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+         <Button Name="RevealButton" Content="Reveal in Finder" HorizontalAlignment="Left"
+                 Padding="12,6" MinHeight="32" HorizontalContentAlignment="Center"
+                 VerticalContentAlignment="Center" Click="Reveal"/>
+         <Button Name="OkButton" Grid.Column="1" Content="OK" MinWidth="80" MinHeight="32"
+                 Padding="12,6" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                 IsDefault="True" IsCancel="True" Click="Accept"/>
+      </Grid>
+   </StackPanel>
+</Window>

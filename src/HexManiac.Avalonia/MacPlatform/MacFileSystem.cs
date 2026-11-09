@@ -471,8 +471,14 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
          using var bitmap = EncodeImage(pixels, width);
          bitmap.Save(stream);
       });
-      if (saved != null) ShowCustomMessageBox("Map image saved to:\n" + saved, false,
-         new ProcessModel("Reveal in Finder", "/" + saved));
+      if (saved != null) {
+         var owner = getOwner();
+         if (owner == null) Console.Error.WriteLine("Map image saved to:\n" + saved);
+         else UiSync.Run(() => {
+            var dialog = new Windows.MapImageSavedDialog(saved, () => FollowLink("/" + saved));
+            return dialog.ShowDialog(owner);
+         });
+      }
    }
 
    public void SaveImage(short[] image, int width, string fileName = null) {

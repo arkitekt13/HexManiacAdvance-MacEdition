@@ -69,6 +69,7 @@ no user ROM, settings or emulator is packaged, and no release is uploaded by thi
 - [ ] Include the original LICENSE and applicable third-party notices with the distributed archive.
 
 Use the [release checklist](MAC_RELEASE_CHECKLIST.md) for candidate gates and platform results.
-The optional welcome/tutorial frameworks are implemented; final images, tutorial assets/gameplay,
-the broad tooltip audit and in-app guides remain future work.
+The optional welcome/tutorial frameworks are implemented, and an initial Tutorial Village
+welcome image is included. Final image approval, tutorial assets/gameplay, the broad
+tooltip audit and in-app guides remain future work.
 Automated regression counts do not substitute for native Mac or gameplay observations.

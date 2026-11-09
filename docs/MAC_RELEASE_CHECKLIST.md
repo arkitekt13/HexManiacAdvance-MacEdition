@@ -102,8 +102,8 @@ These are release decisions or verification gates. They do not mean the current 
 
 ## 4. Optional launch polish—does not block helper testing
 
-- [ ] Add the final [welcome background PNG](../OptionalAssets/Welcome/README.md); inspect
-  cropping, fade, readability and small-window layout in the packaged app.
+- [x] Add the initial [welcome background PNG](../OptionalAssets/Welcome/README.md): Tutorial Village export, with rendered previews at large and compact sizes.
+- [ ] Approve final background cropping, fade, readability and small-window layout in the packaged native app.
 - [ ] Finish the tutorial village and create the [UPS/manifest assets](../OptionalAssets/Tutorial/README.md)
   from the exact unmodified English FireRed 1.1 base; record all required hashes.
 - [ ] If shipping the tutorial, play through the tour on the generated ROM, verify scripts/warps/

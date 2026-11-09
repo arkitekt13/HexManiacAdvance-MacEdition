@@ -652,9 +652,13 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
 
       private GameReferenceTables RefTable => Singletons.GameReferenceTables.TryGetValue(Model.GetGameCode(), out var refTable) ? refTable : null;
 
+      private string scriptPersistenceError;
+      public event EventHandler<string> ScriptPersistenceErrorResolved;
+
       private bool TryFlushScriptChanges() {
          if (tools == null || tools.CodeTool.FlushPendingScriptChanges()) return true;
-         RaiseError($"Script edits at {tools.CodeTool.UncompiledScriptAddresses} could not compile. Correct the source, or use Undo in that script to discard the rejected draft, before saving or closing.");
+         scriptPersistenceError = $"Script edits at {tools.CodeTool.UncompiledScriptAddresses} could not compile. Correct the source, or use Undo in that script to discard the rejected draft, before saving or closing.";
+         RaiseError(scriptPersistenceError);
          return false;
       }
 
@@ -1180,6 +1184,11 @@ namespace HavenSoft.HexManiac.Core.ViewModels {
          };
          history.Redo.CanExecuteChanged += (sender, e) => redoWrapper.CanExecuteChanged.Invoke(redoWrapper, e);
          if (tools != null) tools.CodeTool.ScriptStateChanged += (_, _) => {
+            if (scriptPersistenceError != null && !tools.CodeTool.HasUncompiledScriptChanges) {
+               var resolved = scriptPersistenceError;
+               scriptPersistenceError = null;
+               ScriptPersistenceErrorResolved?.Invoke(this, resolved);
+            }
             undoWrapper.RaiseCanExecuteChanged();
             save.RaiseCanExecuteChanged();
             NotifyPropertyChanged(nameof(Name));

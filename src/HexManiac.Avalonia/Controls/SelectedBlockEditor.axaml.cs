@@ -21,8 +21,8 @@ public partial class SelectedBlockEditor : UserControl {
          tile.PointerEntered += MouseEnterTile;
          tile.PointerPressed += TilePointerPressed;
       }
-      TileCanvas.PointerExited += (sender, e) => ViewModel?.ExitTiles();
-      TileCanvas.PointerWheelChanged += (sender, e) => e.Handled = true; // WPF: WheelOverImage
+      TileInteractionArea.PointerExited += (sender, e) => ViewModel?.ExitTiles();
+      TileInteractionArea.PointerWheelChanged += (sender, e) => e.Handled = true; // WPF: WheelOverImage
    }
 
    private void MouseEnterTile(object sender, PointerEventArgs e) {

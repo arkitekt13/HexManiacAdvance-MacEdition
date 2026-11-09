@@ -12,7 +12,7 @@ public sealed class SyntheticMapFixture {
    public PokemonModel Model { get; }
    public ViewPort ViewPort { get; }
    public BlockMapViewModel Map { get; }
-   public SyntheticMapFixture(int width, int height, bool withScriptEvent = false, bool withNpcText = false, bool withWarp = false) {
+   public SyntheticMapFixture(int width, int height, bool withScriptEvent = false, bool withNpcText = false, bool withWarp = false, bool withSignpost = false, bool withMapScripts = false) {
       var data = new byte[Math.Max(0x20000, Cells + width * height * 2)];
       void Word(int address, int value) => BitConverter.GetBytes(value).CopyTo(data, address);
       void Pointer(int address, int target) => Word(address, 0x08000000 + target);
@@ -48,12 +48,27 @@ public sealed class SyntheticMapFixture {
          PCSString.Convert("\"Discovered NPC text.\"").CopyTo(data, 0x19000);
          // Keep script/text pointers unformatted so lazy event discovery must annotate them.
          const string objects = "[id. graphics. unused:1 x:|z y:|z elevation.11 moveType. range:|t|x::|y:: trainerType: trainerRangeOrBerryID: script<> flag:|h padding:]/objectCount";
-         headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<{objects}> warps<> scripts<> signposts<>]1> mapscripts<>]1";
+         var scriptEvents = withScriptEvent ? "[x: y: elevation: trigger:|h index:: script<`xse`>]/scriptCount" : string.Empty;
+         headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<{objects}> warps<> scripts<{scriptEvents}> signposts<>]1> mapscripts<>]1";
       }
       if (withWarp) {
          Pointer(0x128, 0x160); data[0x161] = 1; Pointer(0x168, 0x16000);
          data[0x16000] = 2; data[0x16002] = 3; data[0x16007] = 3;
          headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<> warps<[x:|z y:|z elevation.11 warpID. map. bank.]/warpCount> scripts<> signposts<>]1> mapscripts<>]1";
+      }
+      if (withSignpost) {
+         Pointer(0x128, 0x160); data[0x163] = 1; Pointer(0x170, 0x1B000);
+         Word(0x1B000, 20); data[0x1B002] = 8; Pointer(0x1B008, 0x18800);
+         const string signposts = "signposts<[x: y: elevation. kind. unused: arg::|h]/signpostCount>";
+         if (headerFormat.Contains("signposts<>")) headerFormat = headerFormat.Replace("signposts<>", signposts);
+         else headerFormat = $"[layout<{layoutFormat}> connections<> events<[objectCount. warpCount. scriptCount. signpostCount. objects<> warps<> scripts<> {signposts}]1> mapscripts<>]1";
+      }
+      if (withMapScripts) {
+         headerFormat = headerFormat.Replace("mapscripts<>", "mapscripts<[type. pointer<>]!00>");
+         Pointer(0x12C, 0x1D000); data[0x1D000] = 1; Pointer(0x1D001, 0x18A00);
+         data[0x1D005] = 2; Pointer(0x1D006, 0x1D100); data[0x1D00A] = 0;
+         data[0x18A00] = data[0x18C00] = 2;
+         data[0x1D101] = 0x40; Pointer(0x1D104, 0x18C00);
       }
       var bankFormat = $"[map<{headerFormat}>]1";
       var metadata = new StoredMetadata(anchors: new[] {

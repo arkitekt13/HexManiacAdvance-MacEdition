@@ -1765,11 +1765,14 @@ show:
          set {
             element.SetAddress("script", value, false);
             UpdateScriptError(element.GetAddress("script"));
-            NotifyPropertiesChanged(nameof(ScriptAddressText), nameof(CanCreateScript));
+            NotifyPropertiesChanged(nameof(ScriptAddressText), nameof(CanCreateScript), nameof(CanGotoScript));
          }
       }
 
+      public bool CanGotoScript => 0 <= ScriptAddress && ScriptAddress < element.Model.Count;
+
       public void GotoScript() {
+         if (!CanGotoScript) return;
          SetDestinationFormat();
          gotoAddress(ScriptAddress);
       }
@@ -1795,7 +1798,7 @@ show:
          set {
             SetAddressText(value, ref scriptAddressText, "script", false);
             NotifyPropertyChanged();
-            NotifyPropertiesChanged(nameof(ScriptAddress), nameof(CanCreateScript));
+            NotifyPropertiesChanged(nameof(ScriptAddress), nameof(CanCreateScript), nameof(CanGotoScript));
             UpdateScriptError(ScriptAddress);
          }
       }

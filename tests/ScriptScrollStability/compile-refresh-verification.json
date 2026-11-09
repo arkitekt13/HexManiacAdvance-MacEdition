@@ -1,0 +1,110 @@
+{
+  "verifiedDate": "2026-11-08",
+  "implementationHead": "0f633b3f",
+  "baselineHead": "0a8da532",
+  "scope": "Focused related regressions; not the complete Mac suite.",
+  "groups": 13,
+  "assertions": 2234,
+  "failures": 0,
+  "skippedGroups": 0,
+  "results": [
+    {
+      "group": "ScriptScrollStability",
+      "assertions": 245,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptWorkflowSafety",
+      "assertions": 598,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptMapNavigation",
+      "assertions": 76,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptMapReference",
+      "assertions": 63,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptArrowFocus",
+      "assertions": 26,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptEditorLayout",
+      "assertions": 102,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ScriptWidthUpdates",
+      "assertions": 448,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "DialogueDiagnostics",
+      "assertions": 40,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "DialogueScaffolding",
+      "assertions": 384,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "AutocompleteDismissal",
+      "assertions": 85,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "ClipboardRouting",
+      "assertions": 78,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "TabViewLifetime",
+      "assertions": 41,
+      "failures": 0,
+      "skipped": false
+    },
+    {
+      "group": "SignpostScriptGrowth",
+      "assertions": 48,
+      "failures": 0,
+      "skipped": false
+    }
+  ],
+  "procedure": "Fresh build and DLL execution for each listed group using --no-restore --disable-build-servers -p:UseSharedCompilation=false -m:1 -nr:false. ScriptScrollStability was rerun after strengthening actual font-size coverage and passed 245 with both default and supplied-local-source routes.",
+  "native": {
+    "environment": "Disposable native MainWindow; synthetic ROM and intercepted filesystem; automatic 500ms compilation polling in the probe.",
+    "before": {
+      "outerOffsetBefore": 1209,
+      "outerOffsetAfter": 114.78125
+    },
+    "after": {
+      "outerOffsetBefore": 1195,
+      "outerOffsetAfter": 1195
+    },
+    "action": "Use earlier-section caret, scroll to later section bottom, insert Enter and let pending compilation settle."
+  },
+  "limitations": [
+    "No personal ROM/profile opened or modified.",
+    "User story is retained only in a temporary local reproduction; committed fixture uses neutral dialogue.",
+    "Synthetic function-table name replaced with numeric placeholder; no gameplay certification.",
+    "Original keyboard/model caret reveal checks remain enabled.",
+    "Full Mac suite and upstream xUnit suite not rerun."
+  ]
+}

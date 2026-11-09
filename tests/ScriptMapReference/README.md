@@ -36,3 +36,7 @@ Native trackpad feel, Retina/multiple-display appearance and real tutorial-villa
 gameplay remain user checks; these headless results do not certify those paths.
 See [the investigation](../SCRIPT_MAP_REFERENCE_REVIEW.md) for the original side-effect
 probe and design limits.
+
+Event navigation from this static image is covered separately by
+[ScriptMapNavigation](../ScriptMapNavigation/README.md), including pending-source
+rejection, current-pointer resolution after relocation and Object/Sprite IDs.

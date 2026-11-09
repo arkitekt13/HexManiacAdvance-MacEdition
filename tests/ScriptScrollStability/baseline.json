@@ -1,0 +1,10 @@
+{
+  "checkpoint": "554b16db",
+  "procedure": "Build ScriptScrollStability, then run its DLL before production repair",
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "result": "Failed as expected",
+  "firstFailure": "LF/CRLF=False, font=14, editor=0, offset=55: clicking visible source must not jump the outer scroll offset: 0, 55 -> 0, 5.",
+  "personalRomOpened": false,
+  "source": "Sanitized two-section script preserving reported structure and dialogue line lengths"
+}

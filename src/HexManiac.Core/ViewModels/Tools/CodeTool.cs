@@ -1,5 +1,6 @@
 ﻿using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.Models.Code;
+using HavenSoft.HexManiac.Core.Models.Map;
 using HavenSoft.HexManiac.Core.Models.Runs;
 using HavenSoft.HexManiac.Core.ViewModels.Map;
 using System;
@@ -317,7 +318,6 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                body.ContentChanged -= ScriptChanged;
                body.HelpSourceChanged -= UpdateScriptHelpFromLine;
                if (draft == null) {
-                  body.Content = string.Empty;
                   body.Content = info.Content;
                }
                body.Address = scriptStart;
@@ -325,7 +325,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                body.Label = label;
                body.HelpSourceChanged += UpdateScriptHelpFromLine;
                body.ContentChanged += ScriptChanged;
-               Contents[i] = body;
+               // Replacing an unchanged item rebuilds its editor and restores its caret,
+               // pulling the viewport away from the different body being compiled.
+               if (!ReferenceEquals(Contents[i], body)) Contents[i] = body;
             } else {
                body.CompiledLength = info.Length;
                if (draft == null) body.Content = info.Content;
@@ -502,6 +504,23 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
          return new StubDisposable { Dispose = () => ignoreContentUpdates = false };
       }
 
+      private void RepointScriptSignposts(ModelDelta token, int previous, int current) {
+         // arg is intentionally not a tracked pointer: other signpost kinds pack item/base
+         // data into the same bytes. Scan only when XSE code actually moves, within its
+         // existing transaction, and retain the raw union format rather than adding sources.
+         foreach (var bank in AllMapsModel.Create(model, () => new NoDataChangeDeltaModel())) {
+            if (bank == null) continue;
+            foreach (var map in bank) {
+               var events = map?.Events;
+               if (events?.Element == null || !events.Element.TryGetValue(Format.SignpostCount, out var count)) continue;
+               foreach (var signpost in events.Signposts.Take(count)) {
+                  if (signpost.Kind is >= 0 and <= 4 && signpost.ScriptAddress == previous)
+                     model.WritePointer(token, signpost.Element.Start + 8, current);
+               }
+            }
+         }
+      }
+
       private bool CompileScriptChanges<SERun>(CodeBody body, IFormattedRun run, ref string codeContent, string previousText, ScriptParser parser, bool updateSelection) where SERun : IScriptStartRun {
          ShowErrorText = false;
          ErrorText = string.Empty;
@@ -568,6 +587,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
                      if (run is NoInfoRun) run = Construct<SERun>(run.Start, run.PointerSources);
                      run = model.RelocateForExpansion(attempt, run, body.CompiledLength, code.Length);
                      if (start != run.Start) {
+                        if (typeof(SERun) == typeof(XSERun)) RepointScriptSignposts(attempt, start, run.Start);
                         notifications.Add((start, run.Start));
                         start = run.Start;
                         int changedCaret = body.CaretPosition;

@@ -185,6 +185,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
       // we don't really care for these to be part of undo/redo
       private void Load() {
          var model = viewPort.Model;
+         foreach (var child in SubScripts) child.DeleteMe -= HandleDelete;
          SubScripts.Clear();
          var token = new NoDataChangeDeltaModel();
          if (scriptType != 2 && scriptType != 4) {
@@ -286,20 +287,24 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          model.ObserveRunWritten(token, tableRun);
          if (originalRun.Start != tableRun.Start) viewPort.RaiseMessage($"Repointed data from {originalRun.Start.ToAddress()} to {tableRun.Start.ToAddress()}.");
 
+         // A zero variable is the stream terminator. An empty table has no previous
+         // condition to clone, so use the same temp0/default value as type conversion.
+         int rowStart = tableRun.Start + (tableRun.ElementCount - 1) * tableRun.ElementLength;
+         if (originalRun.ElementCount == 0) {
+            model.WriteMultiByteValue(rowStart, 2, token, 0x4000);
+            model.WriteMultiByteValue(rowStart + 2, 2, token, 0);
+         }
          // add new element data
          var newScriptStart = model.FindFreeSpace(model.FreeSpaceStart, 1);
          token.ChangeData(model, newScriptStart, 0x02);
-         model.UpdateArrayPointer(token, default, default, -1, tableRun.Start + (tableRun.ElementCount - 1) * tableRun.ElementLength + 4, newScriptStart);
+         model.UpdateArrayPointer(token, default, default, -1, rowStart + 4, newScriptStart);
          model.ObserveRunWritten(token, new XSERun(newScriptStart));
 
          address = tableRun.Start;
          displayAddress = $"<{address:X6}>";
          NotifyPropertyChanged(nameof(Address));
-         if (run.Start != tableRun.Start) {
-            Load();
-         } else {
-            SubScripts.Append(new MapSubScriptViewModel(viewPort, eventTemplate, tableRun.Start + tableRun.ElementCount * tableRun.ElementLength - 4));
-         }
+         viewPort.ChangeHistory.ChangeCompleted();
+         Load();
       }
 
       public void Delete() {
@@ -331,9 +336,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          }
          tableRun = tableRun.Append(token, -1);
          model.ObserveRunWritten(token, tableRun);
-         SubScripts[index].DeleteMe -= HandleDelete;
-         SubScripts.RemoveAt(index);
          e.Success = true;
+         viewPort.ChangeHistory.ChangeCompleted();
+         Load();
       }
    }
 

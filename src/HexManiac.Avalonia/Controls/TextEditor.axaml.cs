@@ -207,8 +207,8 @@ public partial class TextEditor : UserControl {
       if (TransparentLayer.CaretIndex != caret) TransparentLayer.CaretIndex = caret;
    }
 
-   /// WPF had to suppress RequestBringIntoView around the focus call; Avalonia's Focus() does not
-   /// scroll ancestors, so the plain call is equivalent.
+   /// The multi-script host disables whole-control focus reveal so long boxes stay put.
+   /// Native caret bring-into-view requests remain enabled for keyboard navigation.
    private void HandleViewModelRequestKeyboardFocus(object sender, EventArgs e) => TransparentLayer.Focus();
 
    private void HandleViewModelErrorUpdate(object sender, EventArgs e) => QueueErrorDecorationUpdate();

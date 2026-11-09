@@ -844,7 +844,9 @@
                   <DockPanel IsVisible="{Binding UseMultiContent}">
                      <TextBlock Foreground="{DynamicResource Error}" DockPanel.Dock="Bottom" TextWrapping="Wrap"
                         Text="{Binding ErrorText}" IsVisible="{Binding ShowErrorText}" />
-                     <ScrollViewer AllowAutoHide="False" Name="CodeToolMultiTextBox">
+                     <!-- A source box can be taller than this viewport. Reveal caret requests,
+                          not the whole box on focus: that jumps away from a clicked line. -->
+                     <ScrollViewer AllowAutoHide="False" Name="CodeToolMultiTextBox" BringIntoViewOnFocusChange="False">
                         <StackPanel>
                            <ItemsControl ItemsSource="{Binding Contents}" Name="CodeToolMultiTextBoxItems" VerticalAlignment="Top">
                               <ItemsControl.ItemTemplate>

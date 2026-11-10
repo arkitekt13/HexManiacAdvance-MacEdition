@@ -1,0 +1,93 @@
+{
+  "date": "2026-11-10",
+  "tested_app_commit": "5179545e3a23788257eba4801aefed5e5bcdec5e",
+  "probe_commit": "08f6836b8dec18179aa5b3ff5b63d64441914955",
+  "host": {
+    "macOS": "27.2",
+    "architecture": "arm64"
+  },
+  "production_source_changed": false,
+  "command": "tools/PackagedProjectReview/run.sh <unpacked-app> <exact-clean-FireRed-1.1> <empty-output>",
+  "packaged_project_review": {
+    "checks": 871,
+    "cycles": 60,
+    "burstSaves": 40,
+    "appVersion": "1.0.0.0",
+    "coreVersion": "0.6.1.0",
+    "runtime": "copied-package/Contents/MacOS/",
+    "isolatedProfile": true,
+    "nativeUI": false,
+    "controlledModelDispatcher": true,
+    "scenarios": [
+      {
+        "location": "temporary path",
+        "closeReopenCycles": 30,
+        "continuousSaves": 20,
+        "romBytes": 16777216,
+        "metadataBytes": 183718,
+        "anchors": 549
+      },
+      {
+        "location": "repository Documents path",
+        "closeReopenCycles": 30,
+        "continuousSaves": 20,
+        "romBytes": 16777216,
+        "metadataBytes": 183718,
+        "anchors": 549
+      }
+    ],
+    "normalProfileUnchanged": true
+  },
+  "save_commands": 100,
+  "reported_save_failures": 0,
+  "input": {
+    "base": "unmodified English FireRed 1.1",
+    "sha256": "729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059",
+    "read_only_source": true,
+    "hash_unchanged": true,
+    "wrong_base_rejected_before_writes": true
+  },
+  "archive": {
+    "name": "HexManiacAdvance-MacEdition-1.0.0-osx-arm64-5179545e3a23.zip",
+    "sha256": "936c0225126a640d9bfd4b2cbc18506f2e6be267bd916e9c601deedb7b8625da",
+    "checksum_passed": true,
+    "crc_passed": true,
+    "extracted_signature_passed": true,
+    "helper_instructions_build_info_and_license_present": true,
+    "no_ROM_save_or_personal_settings_files": true,
+    "signing": "local ad-hoc; not notarized",
+    "entry_count": 2055
+  },
+  "packaged_file_sha256": {
+    "HexManiacAdvance.dll": "3df19106723756d6089e264754e9ef33d41214002bf92b566c38ed72e159de72",
+    "HexManiac.Core.dll": "ba9dbe2f955c6534054da985501028c935ddac09301cc608e9a048569191f7e7",
+    "Avalonia.Base.dll": "0a26167ee7870e6070e7255d9f08be9fd6cc58cb04554dccdb07357f2b8e29c8",
+    "Avalonia.Controls.dll": "730f30a15b034aa5c51b235d5cdc4a2eb3538fe45657f4a123a5f3ec2ce9b76d",
+    "libcoreclr.dylib": "66f0dfca2dda973e5527df9646441fd0f67ee6302849aebe0992f7fc68fade69"
+  },
+  "native_ui": {
+    "status": "blocked",
+    "reason": "Mac locked; user is away and cannot unlock it",
+    "native_app_entry_point_run": false,
+    "file_pickers_exercised": false,
+    "native_emulator_launched": false,
+    "emulator_callbacks_simulated": true
+  },
+  "fresh_installation": {
+    "status": "partial automated coverage only",
+    "isolated_profile_startup_resources_and_settings": "passed",
+    "corrupt_sidecar_refusal_and_correction": "passed",
+    "bundled_runtime_execution": "passed",
+    "no_SDK_clean_machine": "not tested",
+    "download_quarantine_Gatekeeper_and_permission_prompts": "not tested"
+  },
+  "limitations": [
+    "The probe uses actual packaged assemblies, runtime and Mac filesystem, but controlled model scheduling and no Cocoa window.",
+    "The Documents path is within the permitted development workspace; arbitrary-folder OS privacy grants are not certified.",
+    "The host has an SDK installed even though this probe executed using the included runtime.",
+    "The local archive was not downloaded through a browser and does not certify first-download security behavior.",
+    "The intermittent metadata-save denial was not reproduced and remains open; these successes do not prove it resolved.",
+    "871 checks are supplemental and are not added to the recorded 89-group / 24,770-assertion Mac suite.",
+    "The working Tutorial Village and normal preferences were not modified."
+  ]
+}

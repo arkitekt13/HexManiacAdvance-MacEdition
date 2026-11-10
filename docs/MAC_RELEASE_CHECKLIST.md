@@ -9,8 +9,8 @@ Use disposable ROM copies with their matching `.toml` files; keep personal setti
 
 These results apply to the recorded checkpoints, not automatically to a later release candidate.
 
-- [x] Complete Mac regression run: **62 groups / 18,164 assertions / zero failures or skipped groups**.
-  [Exact results](../tests/optional-release-assets/mac-verification.json), November 5, 2026.
+- [x] Complete Mac regression run: **89 groups / 24,770 assertions / zero failures or skipped groups**.
+  [Exact results](../tests/MAC_LAUNCH_SAFETY_VERIFICATION.json), November 10, 2026.
 - [x] Downloaded source builds on the existing Apple Silicon development Mac; ARM64 helper
   packaging, ZIP integrity and extracted ad-hoc signature checks pass.
   [Installation rehearsal](../tests/INSTALLATION_REHEARSAL.md), baseline `6c64f826`.
@@ -19,6 +19,11 @@ These results apply to the recorded checkpoints, not automatically to a later re
 - [x] Optional welcome-image and tutorial-patch frameworks are implemented; PNG/JSON/UPS publish
   copying and synthetic tutorial protections pass. Final assets are not included yet.
 - [x] Mac setup, helper instructions, original-project credits and Haven's tutorial links exist.
+- [x] Supplemental packaged-code/runtime save review: **871 assertions**, **100 saves**,
+  60 edit/save/close/reopen cycles plus 40 continuous-session saves, with isolated preferences
+  and full-size metadata. Local ZIP integrity/signature checks also pass.
+  [Results and limits](../tests/PACKAGED_RELEASE_REVIEW.json), November 10, 2026.
+  This used no native window; the locked Mac prevented native installation/picker/emulator checks.
 
 ## 1. Before sending a private helper build
 
@@ -47,6 +52,9 @@ reproduction steps; do not mark an untested path as passing because a headless t
 - [ ] With no ROM open, check welcome layout, Open/cancel, credits, help and Mac Edition issue links.
 - [ ] Test Finder Open With and file drops with the app closed and already running, including a
   ROM path containing spaces. Confirm the intended document opens without an unwanted second instance.
+- [ ] Repeat ordinary native saves after real edits on a disposable project. If the intermittent
+  TOML denial returns, retain the full error and its Operation line; automated success has not
+  established the cause or resolved this issue.
 - [ ] Check native Open/Save As cancellation and destinations; save/reopen the `.gba` and its
   matching metadata. Confirm a rejected script draft remains visible and cannot silently be saved.
 - [ ] Select mGBA through Play/Browse, cancel once, relaunch and confirm the selection is remembered;

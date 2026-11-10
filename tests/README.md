@@ -33,6 +33,9 @@ hex/Go To image-hint failures; [ImageHoverPreviews](ImageHoverPreviews/README.md
 fitted window overlay and source/input lifecycle.
 [FirstLaunch](FirstLaunch/README.md) covers isolated settings, startup paths and rejected ROM opens;
 [MacPackaging](MacPackaging/README.md) covers build-script failure preservation.
+The optional [packaged-project review](PACKAGED_RELEASE_REVIEW.json) adds 871 standalone
+assertions across 100 real Mac save commands using the packaged assemblies/runtime; these
+are separate from the Mac group total. Native fresh-install checks remain pending.
 The [helper-readiness investigation](FIRST_LAUNCH_READINESS_REVIEW.md) separates reproduced defects,
 real published-loader checks and native distribution checks still awaiting helpers.
 The earlier Mac Edition 1.0 candidate passed **86 groups / 24,568 assertions**, with zero failures

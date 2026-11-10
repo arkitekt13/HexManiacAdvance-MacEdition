@@ -3409,3 +3409,15 @@ Validation: Fresh documented Mac runner passes 86 groups / 24,568 assertions, ze
 | tests/TutorialPatch/Program.cs | 156 | Cover results-tab eligibility even when tutorial assets are present. |
 
 Validation: Restoring Find submission exposed a NullReferenceException in SCADE menu refresh when a multi-match search selected SearchResultsViewPort. The default SCADE group passes 138 assertions and TutorialPatch passes 59, including new results-source guards and their existing patch, metadata, draft and lifecycle protections. The Find keyboard group also now reaches its multiple-results checks without this exception. No patch algorithms, ROM data, compiler or history behavior changed.
+
+## 233 — Submit global Find searches with Return
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 308 | Bind Enter only inside FindBox to the existing Find command using the current control text. |
+| tests/FindKeyboard/ | 1 | Reproduce the missing binding with actual keyboard input and verify search, navigation and data preservation. |
+| tests/README.md | 34 | Link the focused Find regression and distinguish its counts from complete-suite evidence. |
+
+Validation: The new group fails before the binding at Return submission, then passes 25 assertions after the repair. Fresh focused groups pass FindKeyboard 25, GotoFocus 27, ClipboardRouting 78, UpdateNotice 14, ScadeInstaller 138 and TutorialPatch 59: six groups / 341 assertions, zero failures or skipped groups; builds report zero warnings/errors. Checks cover case-insensitive Pokémon names, hex searches, case/file-scope settings, no results, multiple results, F3/Shift-F3 and Escape. Enter in another field remains normal text input, and searches leave both synthetic ROMs, metadata, disk files and Undo histories unchanged. No Core search, table navigation, script compiler or engine behavior changed; no personal ROM or preferences were opened. Native Cocoa confirmation remains a manual check.
+
+Packaging: The Apple Silicon self-contained app rebuilt successfully as Mac Edition 1.0.0 and passed deep strict signature verification with its local ad-hoc signature. The publish process emitted the existing macOS CSSM_ModuleLoad diagnostic, but completed successfully.

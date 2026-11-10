@@ -33,6 +33,9 @@ or skipped groups; [exact counts and project-compatibility proof](StartupUpdates
 [UpdateNotice](UpdateNotice/README.md) covers nonintrusive availability prompts and pending/rejected source;
 [MacVersionMetadata](MacVersionMetadata/README.md) covers the independent app/Core versions and existing project lifecycle.
 
+[FindKeyboard](FindKeyboard/README.md) records the scoped Return submission repair and
+six focused groups / 341 assertions, including results-tab patch-utility guards.
+
 The final paired-tutorial framework passes **84 groups / 24,533 assertions**, with zero
 failures or skipped groups; [exact counts and limits](TutorialPatch/verification.json).
 A separate real-1.1 lifecycle probe adds 18 checks and preserves all 547 named definitions;

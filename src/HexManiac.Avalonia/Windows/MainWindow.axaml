@@ -305,7 +305,11 @@
                         ToolTip.Tip="Match Exact Case - off: 'abc' can find 'ABC'">
             <TextBlock Text="Aa" Foreground="{Binding MatchExactCase, Converter={StaticResource FindToggleBrush}}"/>
           </ToggleButton>
-          <TextBox Name="FindBox" MinWidth="200" Text="{Binding FindText, Mode=TwoWay}" />
+          <TextBox Name="FindBox" MinWidth="200" Text="{Binding FindText, Mode=TwoWay}">
+            <TextBox.KeyBindings>
+              <KeyBinding Gesture="Enter" Command="{Binding Find}" CommandParameter="{Binding Text, ElementName=FindBox}"/>
+            </TextBox.KeyBindings>
+          </TextBox>
         </StackPanel>
 
         <!-- Hex Converter -->

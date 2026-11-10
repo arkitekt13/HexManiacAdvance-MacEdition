@@ -9,6 +9,8 @@ namespace HavenSoft.HexManiac.Core.Models {
    /// This protects the previous file from a failed write; it is not a transaction across files.
    /// </summary>
    public static class AtomicFileWriter {
+      public const string FailureStageKey = "AtomicFileWriter.Stage";
+
       public static void Write(string path, Action<Stream> write) {
          if (write == null) throw new ArgumentNullException(nameof(write));
          path = Path.GetFullPath(path);
@@ -23,17 +25,25 @@ namespace HavenSoft.HexManiac.Core.Models {
          var directory = Path.GetDirectoryName(path);
          Directory.CreateDirectory(directory);
          var temporary = Path.Combine(directory, "." + Path.GetFileName(path) + "." + Guid.NewGuid().ToString("N") + ".tmp");
+         var stage = "copying the existing file to a temporary file";
          try {
             // Copy existing attributes/permissions using the net6-compatible filesystem API.
             // The additional copy is intentional: replacement must not broaden file access.
             var replacing = File.Exists(path);
             if (replacing) File.Copy(path, temporary);
+            stage = "opening the temporary file for writing";
             using (var stream = new FileStream(temporary, replacing ? FileMode.Truncate : FileMode.CreateNew, FileAccess.Write, FileShare.None)) {
+               stage = "writing the temporary file";
                write(stream);
+               stage = "flushing the temporary file to disk";
                stream.Flush(flushToDisk: true);
             }
             // Replacement can be refused by an external file lock; leave the old file untouched.
+            stage = "replacing the destination with the completed temporary file";
             File.Move(temporary, path, overwrite: true);
+         } catch (Exception error) when (error is IOException or UnauthorizedAccessException) {
+            error.Data[FailureStageKey] = stage;
+            throw;
          } finally {
             try { if (File.Exists(temporary)) File.Delete(temporary); }
             catch (IOException) { }

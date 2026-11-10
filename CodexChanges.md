@@ -3452,3 +3452,18 @@ Validation: ScriptSelectionDeletion passes 132 actual-input assertions across fo
 Related focused checks also pass: ClipboardRouting 78, ScriptAssistanceEntry 789, AutocompleteDismissal 85, SignpostScriptNavigation 14, ScriptScrollStability 245 and ScriptWorkflowSafety 598. With the new group, seven groups / 1,941 assertions pass, zero failures/skipped groups and zero build warnings/errors. This focused run is not a new complete-suite total.
 
 Packaging: Apple Silicon self-contained Mac Edition 1.0.0 rebuilt successfully and passed deep strict ad-hoc signature verification. The existing CSSM_ModuleLoad publish diagnostic was nonfatal. Quit and reopen HMA to use the rebuilt app.
+
+## 236 — Investigate intermittent TOML-save denial and report the failing operation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/AtomicFileWriter.cs | 12 | Attach operation context to the original I/O/access exception while retaining its type, identity, stack and existing safe-write behavior. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 367 | Include that context in the final metadata-save error with instructions to keep the project open and retry or save under a new name. |
+| tests/SaveSafety/Program.cs | 44 | Verify failure context preserves the original exception and existing staged-write protections. |
+| tests/SaveSafety/INTERMITTENT_METADATA_SAVE.md | 1 | Record actual project validation, temporary-copy checks, live trace findings and the still-unresolved save-denial cause. |
+
+Investigation: Both recovery ROM/TOML pairs load read-only in isolated in-memory HMA models as BPRE1 with all 547 anchor definitions and 73 lists retained. Original/recovery anchor definitions and lists match; the original TOML remained identical to its post-failure snapshot. The denial is intermittent, including after Save As, so new-name success alone does not establish a permanent solution. Temporary-copy overwrite probes succeed. Live exception captures did not catch a save failure, but did establish a separate missing-current-directory condition in the old instance after bundle replacement; causation for the save denial is not established. No game files, permissions, attributes or preferences were modified by this work.
+
+This change adds diagnosis only: copy/write/flush/rename, permissions, five retries, cleanup and saved/dirty handling remain unchanged. It does not claim to fix the intermittent access failure. A failing save in a clean restarted session remains necessary to identify the exact blocked operation.
+
+Validation: SaveSafety passes 19 assertions and ScriptWorkflowSafety passes 598: two focused groups / 617 assertions, zero failures/skips and zero build warnings/errors. The existing exception instance is rethrown with operation data; failed-write file preservation, metadata retries, pending/rejected source, relocation, save/reopen and Undo/Redo checks remain passing. These are focused counts, not a fresh complete-suite total.

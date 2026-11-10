@@ -364,7 +364,9 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
             return true;
          } catch (Exception ex) {
             if (tryCount >= 5) {
-               ShowCustomMessageBox($"Failed to write {metadataName}:{Environment.NewLine}{ex.Message}.", showYesNoCancel: false);
+               var stage = ex.Data[AtomicFileWriter.FailureStageKey] as string;
+               var detail = stage == null ? string.Empty : $"{Environment.NewLine}Operation: {stage}.{Environment.NewLine}";
+               ShowCustomMessageBox($"Failed to write {metadataName}:{Environment.NewLine}{ex.Message}{detail}{Environment.NewLine}This metadata save did not complete. Keep the project open; retry Save or use Save As with a new name.", showYesNoCancel: false);
                return false;
             }
             Thread.Sleep(100);

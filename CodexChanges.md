@@ -3421,3 +3421,19 @@ Validation: Restoring Find submission exposed a NullReferenceException in SCADE 
 Validation: The new group fails before the binding at Return submission, then passes 25 assertions after the repair. Fresh focused groups pass FindKeyboard 25, GotoFocus 27, ClipboardRouting 78, UpdateNotice 14, ScadeInstaller 138 and TutorialPatch 59: six groups / 341 assertions, zero failures or skipped groups; builds report zero warnings/errors. Checks cover case-insensitive Pokémon names, hex searches, case/file-scope settings, no results, multiple results, F3/Shift-F3 and Escape. Enter in another field remains normal text input, and searches leave both synthetic ROMs, metadata, disk files and Undo histories unchanged. No Core search, table navigation, script compiler or engine behavior changed; no personal ROM or preferences were opened. Native Cocoa confirmation remains a manual check.
 
 Packaging: The Apple Silicon self-contained app rebuilt successfully as Mac Edition 1.0.0 and passed deep strict signature verification with its local ad-hoc signature. The publish process emitted the existing macOS CSSM_ModuleLoad diagnostic, but completed successfully.
+
+## 234 — Prevent the map encounter help link from crashing after a rebuild
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacPlatform/MacHelpLink.cs | 1 | Open help with the absolute macOS launcher, a stable working directory and a single URL argument; return launch/exit diagnostics safely. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 959 | Await the More Info launcher and report errors on the originating viewport instead of letting process failures escape the click handler. |
+| tests/MapHelpLink/ | 1 | Reproduce deleted-directory launch failure and verify safe process execution and error handling without opening a browser. |
+
+Investigation: The reported stack fails in Process.ResolvePath → GetCwd, before the browser is opened. App startup sets the current directory inside its bundle; republishing while an old instance runs can remove that directory. This is a likely trigger, while the missing-directory failure itself is reproduced. The legendary tip is existing pattern-based guidance for cry/setwildbattle/capture-flag scripts, independent of the selected sprite; it is not a species classification or gameplay change. The existing Haven tutorial URL is preserved.
+
+Validation: MapHelpLink passes 19 assertions, including actual reproduction of the old FileNotFoundException from a removed temporary cwd, successful absolute launch from that same state, URL argument preservation, invalid schemes, null child process, expected launch exceptions, nonzero exit codes and stderr. Tests substitute harmless system processes and never open a browser or personal ROM. Native More Info browser confirmation remains manual. No Core, compiler, encounter recognition, game behavior, ROM data or history code changes.
+
+Related focused verification: BlocksetPreviews passes 160 assertions and FindKeyboard passes 25; together with MapHelpLink, three groups / 204 assertions pass with zero failures or skipped groups and zero build warnings/errors. This is a focused run, not a replacement complete-suite total.
+
+Packaging: The self-contained Apple Silicon Mac Edition 1.0.0 app rebuilt successfully and passed deep strict ad-hoc signature verification. The publish process emitted the existing CSSM_ModuleLoad diagnostic and completed successfully. Quit the existing app before reopening the rebuilt bundle.

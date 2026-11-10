@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using Avalonia;
@@ -13,6 +12,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using HavenSoft.HexManiac.Core;
+using HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
 using HavenSoft.HexManiac.AvaloniaUI.Windows;
 using HavenSoft.HexManiac.Core.ViewModels.Images;
 using HavenSoft.HexManiac.Core.ViewModels.Map;
@@ -956,10 +956,12 @@ public partial class MapTab : UserControl {
    #endregion
 
    /// WPF used NativeProcess.Start on the Hyperlink Uri; on macOS that is `open`.
-   private void Navigate(object sender, RoutedEventArgs e) {
-      if (sender is Control control && control.Tag is string url) {
-         Process.Start(new ProcessStartInfo("open", $"\"{url}\"") { UseShellExecute = false });
-      }
+   private async void Navigate(object sender, RoutedEventArgs e) {
       e.Handled = true;
+      var source = ViewModel?.ViewPort;
+      if (sender is Control control && control.Tag is string url) {
+         var error = await MacHelpLink.OpenAsync(url);
+         if (error != null) source?.RaiseError($"Could not open help: {error}");
+      }
    }
 }

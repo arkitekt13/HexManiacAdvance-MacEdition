@@ -153,6 +153,7 @@ try {
    manifest.OutputSha256 = Hash(workflowOutput); manifest.PatchSha256 = Hash(patch); Write();
    tutorial = Load();
    Check(tutorial.DisabledReason(null) != null, "No selected ROM disables tutorial creation.");
+   Check(tutorial.DisabledReason(new SearchResultsViewPort("query")) != null, "Search results disable tutorial creation without a ROM model.");
    Check(tutorial.DisabledReason(workflow.View) == null, "An exact base without drafts enables creation.");
    workflow.Edit(WorkflowFixture.Source(1, 2), settle: false);
    var pendingState = workflow.State(); var pendingSource = workflow.Body.Content;

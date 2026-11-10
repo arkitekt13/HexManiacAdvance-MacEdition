@@ -84,7 +84,7 @@ public sealed class TutorialPatch {
       source[0xBC] == 1 && Matches(source, manifest.BaseSha256);
 
    public string DisabledReason(IViewPort source) {
-      if (source == null) return "Open the unmodified English FireRed 1.1 ROM first.";
+      if (source?.Model == null) return "Open the unmodified English FireRed 1.1 ROM first.";
       if (source.UpdateInProgress || !source.Model.InitializationWorkload.IsCompleted ||
           source is ViewPort view && !view.InitializationWorkload.IsCompleted) return "Wait for the ROM to finish loading.";
       if (source.Tools?.CodeTool?.HasUncompiledScriptChanges == true)

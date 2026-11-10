@@ -3398,3 +3398,14 @@ Validation: MacVersionMetadata passes 15 synthetic existing-project assertions; 
 | README.md | 101 | Point preview verification to the current 86-group / 24,568-assertion evidence. |
 
 Validation: Fresh documented Mac runner passes 86 groups / 24,568 assertions, zero failures and zero skipped groups. UpdateNotice contributes 14 actual-input assertions and MacVersionMetadata 15 project checks; StartupUpdates contributes 46, CrashReporting 31 and MacPackaging 43. Core tree 5035dfb85aa6545ce7a9a79c1955227743f07041 and SharedAssemblyInfo.cs are identical to the pushed pre-change checkpoint. The app and actual Apple Silicon bundle report 1.0.0 while both the runtime metadata writer and actual bundled Core retain 0.6.1; strict deep signature verification passes and the package remains ad-hoc signed. Fifteen synthetic project checks plus three actual-bundle checks pass as an 18-assertion supplemental process, not eighteen extra assertions added to the full total. Fresh SCADE checks pass 37 against an independent exact output, preserving all 541 supplied definitions; the tutorial process passes 76 (58 default plus 18 supplemental), preserving all 547 real-base definitions and byte-identical TOML on initial open. Actual Save/reopen and Undo/Redo retain custom definitions and scripts, and original input hashes remain unchanged. The user's working tutorial and preferences are never opened/modified. Existing MapImageExport NU1900 is the only warning category, with no compiler warnings. Native browser/update-release flow, Intel execution, notarization and final tutorial gameplay remain explicit manual/distribution checks. Upstream Core suites were not repeated because Core and its shared version are unchanged. No GitHub 1.0 release is published, and code remains on the isolated feature branch.
+
+## 232 — Keep ROM-creation utilities disabled on search results
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/ScadePackage.cs | 70 | Treat a results viewport without a ROM model as an unavailable source instead of dereferencing it. |
+| src/HexManiac.Avalonia/Project/TutorialPatch.cs | 87 | Apply the same source guard to the optional tutorial utility. |
+| tests/ScadeInstaller/Program.cs | 141 | Reject a search-results source without throwing. |
+| tests/TutorialPatch/Program.cs | 156 | Cover results-tab eligibility even when tutorial assets are present. |
+
+Validation: Restoring Find submission exposed a NullReferenceException in SCADE menu refresh when a multi-match search selected SearchResultsViewPort. The default SCADE group passes 138 assertions and TutorialPatch passes 59, including new results-source guards and their existing patch, metadata, draft and lifecycle protections. The Find keyboard group also now reaches its multiple-results checks without this exception. No patch algorithms, ROM data, compiler or history behavior changed.

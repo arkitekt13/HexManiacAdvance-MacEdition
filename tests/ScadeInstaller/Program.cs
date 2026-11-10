@@ -138,6 +138,7 @@ try {
    Check(package != null && reason == null, "valid package loads through actual metadata parser");
    Check(package.MatchesBase(source) && package.DisabledReason(fixture.View) == null, "eligible exact base");
    Check(package.DisabledReason(null).Contains("1.0"), "no source disabled");
+   Check(package.DisabledReason(new SearchResultsViewPort("query")).Contains("1.0"), "search results are not a patchable ROM");
    Check(package.Create(source).SequenceEqual(target) && original.EqualsModel(fixture), "detached patch preserves source and history");
    var wrong = source.ToArray(); wrong[0xBC] = 1;
    Rejected(() => package.Create(wrong), "revision 1.1 rejected");

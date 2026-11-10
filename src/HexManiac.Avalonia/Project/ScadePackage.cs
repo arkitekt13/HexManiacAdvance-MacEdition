@@ -67,7 +67,7 @@ public sealed class ScadePackage {
       source[0xAC] == 'B' && source[0xAD] == 'P' && source[0xAE] == 'R' && source[0xAF] == 'E' && source[0xBC] == 0 &&
       (uint)Patcher.CalcCRC32(source) == manifest.SourceCrc32;
    public string DisabledReason(IViewPort source) {
-      if (source == null) return "Open the unmodified English FireRed 1.0 base ROM first.";
+      if (source?.Model == null) return "Open the unmodified English FireRed 1.0 base ROM first.";
       if (source.UpdateInProgress) return "Wait for the ROM to finish loading.";
       if (source.Tools?.CodeTool?.HasUncompiledScriptChanges == true)
          return "Finish or discard pending/rejected script edits before creating a SCADE ROM.";

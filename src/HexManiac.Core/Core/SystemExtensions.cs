@@ -428,7 +428,14 @@ namespace HavenSoft.HexManiac.Core {
       /// This wrapper method allows old Process.Start calls to work as expected.
       /// </summary>
       public static void Start(string url) {
-         Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+         Process.Start(CreateStartInfo(url));
+      }
+
+      public static ProcessStartInfo CreateStartInfo(string url) {
+         if (!OperatingSystem.IsMacOS()) return new ProcessStartInfo(url) { UseShellExecute = true };
+         var info = new ProcessStartInfo("/usr/bin/open") { WorkingDirectory = "/", UseShellExecute = false };
+         info.ArgumentList.Add(url);
+         return info;
       }
 
       public static void Start(string url, string arguments) {

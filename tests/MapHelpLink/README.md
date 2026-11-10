@@ -22,3 +22,8 @@ encounter documentation URL. This is a narrow help-button repair; script
 recognition, encounter guidance, compilation, ROM data and history are unchanged.
 No personal ROM, settings or fixtures are opened or changed. Native browser
 opening from the More Info button remains a manual confirmation.
+
+The [follow-up launch audit](LAUNCH_PATH_AUDIT.md) extends this to other browser,
+Finder, emulator and chooser paths. The expanded group passes 31 assertions,
+including real harmless process launches from a removed parent cwd for those
+configurations. No external application or browser opens during the checks.

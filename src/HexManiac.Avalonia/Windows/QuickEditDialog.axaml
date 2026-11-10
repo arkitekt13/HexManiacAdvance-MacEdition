@@ -15,6 +15,7 @@
       <Button Name="WikiLink" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0"
               Click="OpenWiki" Content="Click here to learn more."
               Foreground="{DynamicResource Accent}" IsVisible="False" />
+      <TextBlock Name="LinkError" Margin="5,0" TextWrapping="Wrap" Foreground="{DynamicResource Error}"/>
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
          <Button Content="Run" Margin="5" Click="RunEdit" />
          <Button Content="Cancel" Margin="5" IsCancel="True" Click="CancelEdit" />

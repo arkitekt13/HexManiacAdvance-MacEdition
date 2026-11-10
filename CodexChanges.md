@@ -3477,3 +3477,20 @@ Validation: SaveSafety passes 19 assertions and ScriptWorkflowSafety passes 598:
 | docs/DEVELOPMENT.md | 9 | Explain the quit-first workflow, process-check behavior and the small remaining launch-after-check interval. |
 
 Validation: MacPackaging passes 49 assertions with zero build warnings/errors, retaining all prior packaging/signature/archive checks. Early refusal occurs before signing or staging and late refusal cleans its own stage without replacing the previous bundle. A supplemental actual macOS process-inventory probe rejected a harmless exec-aliased sleep process at the real app command path, printing Quit HMA first; it did not start HMA or open any game. The guard never terminates a process or saves/discards user work. It applies to the architecture/output bundle being rebuilt; it is not a global application-launch lock.
+
+## 238 — Remove missing-working-directory dependencies from Mac launch paths
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacPlatform/MacOpen.cs | 1 | Share absolute native-open arguments and a stable child working directory; resolve application-relative resource paths from the app base. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 189 | Use the native-open builder for files, web targets and Finder actions and contain expected launch failures. |
+| src/HexManiac.Avalonia/MacPlatform/MacHelpLink.cs | 12 | Retain web validation and failure handling while sharing native process configuration. |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs | 57 | Open credit links through the guarded web helper and surface errors in the editor. |
+| src/HexManiac.Avalonia/Windows/ | 1 | Route Help/assertion links through the Mac adapter and license/quick-edit/core-help links through the guarded web helper, with local error feedback. |
+| src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorLauncher.cs | 63 | Explicitly use a stable working directory without changing emulator arguments or preferences. |
+| src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorPicker.cs | 15 | Keep the existing chooser script and use a stable child working directory. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileReveal.cs | 12 | Share native reveal configuration while preserving separate -R/path arguments. |
+| src/HexManiac.Core/Core/SystemExtensions.cs | 434 | Give the single-target native launcher a macOS-specific absolute executable/cwd; preserve other platforms and the executable-with-arguments overload. |
+| tests/MapHelpLink/LAUNCH_PATH_AUDIT.md | 1 | Record inspected routes, unchanged scope, automated coverage and remaining native UI checks. |
+
+Validation: MapHelpLink passes 31 assertions, ExternalEmulatorLaunch 35, TabMenus 34, UpdateNotice 14 and CrashReporting 31: five focused groups / 145 assertions, zero failures/skips and zero build warnings/errors. Actual harmless native processes exercise browser/file/Finder/emulator/chooser/Core-help configurations from a removed parent cwd without opening applications. Existing URI argument safety, failure handling, fork release/report identity, chooser, emulator, clipboard/ROM preservation and tab-menu checks remain passing. No compiler, engine, numeric parsing, relocation, history or safe-write strategy changes; no personal ROM or preferences opened. The intermittent save denial remains open, with its diagnostic operation context retained.

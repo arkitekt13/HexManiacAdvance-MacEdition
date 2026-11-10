@@ -13,7 +13,7 @@ public static class ExternalEmulatorPicker {
 
    public static ProcessStartInfo CreateStartInfo() {
       var info = new ProcessStartInfo("/usr/bin/osascript") {
-         UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true,
+         WorkingDirectory = "/", UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true,
       };
       info.ArgumentList.Add("-e");
       info.ArgumentList.Add(Script);

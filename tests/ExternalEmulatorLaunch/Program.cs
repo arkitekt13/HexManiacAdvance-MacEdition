@@ -7,6 +7,7 @@ Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 int checks = 0;
 void Check(bool value, string message) { checks++; if (!value) throw new InvalidOperationException(message); }
 var picker = ExternalEmulatorPicker.CreateStartInfo();
+Check(picker.WorkingDirectory == "/", "The chooser does not inherit a removed app working directory.");
 Check(picker.FileName == "/usr/bin/osascript" && !picker.UseShellExecute && picker.ArgumentList.Count == 2,
    "The picker invokes the system application chooser without shell interpolation.");
 Check(picker.ArgumentList[1].Contains("choose application") && picker.ArgumentList[1].Contains("as alias"),
@@ -31,6 +32,7 @@ Task<string> Pick() { picks++; return Task.FromResult(choice); }
 Task<string> Start(ProcessStartInfo info) {
    starts++;
    Check(info.FileName == "/usr/bin/open" && !info.UseShellExecute, "Launch explicitly through macOS without a shell.");
+   Check(info.WorkingDirectory == "/", "External emulator launches use a stable working directory.");
    Check(info.ArgumentList.SequenceEqual(new[] { "-a", app, f.View.FullFileName }), "Keep application and ROM paths as separate arguments.");
    return Task.FromResult<string>(null);
 }

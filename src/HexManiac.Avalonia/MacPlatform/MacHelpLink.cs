@@ -15,11 +15,7 @@ internal static class MacHelpLink {
          throw new ArgumentException("The help link is not a valid web address.");
       // A running app's bundle may have been replaced by a rebuild. Neither
       // executable lookup nor the child process may depend on its old cwd.
-      var info = new ProcessStartInfo("/usr/bin/open") {
-         WorkingDirectory = "/", UseShellExecute = false, RedirectStandardError = true,
-      };
-      info.ArgumentList.Add(url);
-      return info;
+      return MacOpen.CreateStartInfo(url);
    }
 
    internal static async Task<string> OpenAsync(string url, Func<ProcessStartInfo, Process> start = null) {

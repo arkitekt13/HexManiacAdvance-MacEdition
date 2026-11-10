@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
+using HavenSoft.HexManiac.Core;
 
 int checks = 0;
 void Check(bool value, string message) { checks++; if (!value) throw new Exception(message); }
@@ -12,6 +13,9 @@ Check(!info.UseShellExecute && info.RedirectStandardError, "Launch directly and 
 Check(info.Arguments == "" && info.ArgumentList.SequenceEqual(new[] { url }), "Pass the unchanged upstream tutorial URL as one argument.");
 var spaced = MacHelpLink.CreateStartInfo("https://example.com/help?q=two%20words&topic=flags");
 Check(spaced.ArgumentList.Count == 1, "URL punctuation is not parsed as command-line arguments.");
+var fileOpen = MacOpen.CreateStartInfo("/tmp/folder with spaces/rom \"quoted\".gba");
+Check(fileOpen.ArgumentList.Single() == "/tmp/folder with spaces/rom \"quoted\".gba", "Local file names remain a single unquoted argument.");
+Check(MacOpen.CreateStartInfo("resources/scripts").ArgumentList.Single() == Path.Combine(AppContext.BaseDirectory,"resources/scripts"), "Application-relative resources resolve independently of the current directory.");
 foreach (var invalid in new[] { "", "relative/path", "file:///tmp/example", "javascript:alert(1)" }) {
    bool started = false;
    var error = await MacHelpLink.OpenAsync(invalid, _ => { started = true; return null; });
@@ -42,6 +46,18 @@ try {
       return Process.Start(start);
    });
    Check(result == null, "Absolute launch succeeds even when the parent's current directory was removed.");
+   foreach (var native in new[] {
+      MacOpen.CreateStartInfo("resources/scripts"),
+      MacFileReveal.CreateStartInfo("/tmp/a file.gba"),
+      ExternalEmulatorLauncher.CreateStartInfo("/Applications/mGBA.app", "/tmp/a file.gba"),
+      ExternalEmulatorPicker.CreateStartInfo(),
+      NativeProcess.CreateStartInfo(url),
+   }) {
+      Check(Path.IsPathRooted(native.FileName) && native.WorkingDirectory == "/", "Audited native launchers use absolute executable paths and stable working directories.");
+      native.FileName = "/usr/bin/true"; native.ArgumentList.Clear();
+      using var process = Process.Start(native); process.WaitForExit();
+      Check(process.ExitCode == 0, "The audited launch configuration works with a removed parent cwd without opening apps.");
+   }
 } finally {
    Directory.SetCurrentDirectory(savedDirectory);
    if (Directory.Exists(deleted)) Directory.Delete(deleted);

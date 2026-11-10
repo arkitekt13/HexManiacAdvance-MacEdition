@@ -987,6 +987,5 @@ public partial class MainWindow : Window {
       if (sender is NativeMenuItem item && item.CommandParameter is string url) Launch(url);
    }
 
-   private static void Launch(string url) =>
-      Process.Start(new ProcessStartInfo("open", $"\"{url}\"") { UseShellExecute = false });
+   private void Launch(string url) => FileSystem?.LaunchProcess("open", url);
 }

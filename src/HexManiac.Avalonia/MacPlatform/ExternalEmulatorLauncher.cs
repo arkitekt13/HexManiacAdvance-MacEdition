@@ -60,7 +60,7 @@ public sealed class ExternalEmulatorLauncher {
       File.Exists(Path.Combine(path, "Contents", "Info.plist"));
 
    public static ProcessStartInfo CreateStartInfo(string application, string rom) {
-      var info = new ProcessStartInfo("/usr/bin/open") { UseShellExecute = false, RedirectStandardError = true };
+      var info = new ProcessStartInfo("/usr/bin/open") { WorkingDirectory = "/", UseShellExecute = false, RedirectStandardError = true };
       info.ArgumentList.Add("-a");
       info.ArgumentList.Add(application);
       info.ArgumentList.Add(rom);

@@ -3437,3 +3437,18 @@ Validation: MapHelpLink passes 19 assertions, including actual reproduction of t
 Related focused verification: BlocksetPreviews passes 160 assertions and FindKeyboard passes 25; together with MapHelpLink, three groups / 204 assertions pass with zero failures or skipped groups and zero build warnings/errors. This is a focused run, not a replacement complete-suite total.
 
 Packaging: The self-contained Apple Silicon Mac Edition 1.0.0 app rebuilt successfully and passed deep strict ad-hoc signature verification. The publish process emitted the existing CSSM_ModuleLoad diagnostic and completed successfully. Quit the existing app before reopening the rebuilt bundle.
+
+## 235 — Allow Backspace to delete backward script selections
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs | 78 | Track selection-notification scope and suppress synchronous model caret echoes during the native selection update. |
+| tests/ScriptSelectionDeletion/ | 1 | Reproduce backward multiline dialogue deletion and cover source replacement, compilation, history and caret preservation. |
+
+Investigation: In the full MainWindow, selecting the supplied dialogue shape forward and pressing Backspace succeeds, but selecting it backward causes immediate no-op deletion. Bare Avalonia TextBox deletion succeeds. Script selection observers publish their anchor as model context; the resulting model caret request echoed into the TextBox during its selection mutation and interfered with deletion. This agrees with the user's clarification that typing can replace the selection and Backspace does nothing immediately. The presentation-layer guard leaves Core caret context and compiler semantics unchanged.
+
+Validation: ScriptSelectionDeletion passes 132 actual-input assertions across forward/backward selections, content-only/newline-inclusive boundaries, Backspace, forward Delete and replacement typing. The source changes immediately and remains changed after deferred compilation; one Undo and Redo restore exact ROM bytes/metadata. Focus, read-only protection, explicit programmatic caret movement and no implicit project saves are retained. All inputs are fabricated temporary projects; the user's Tutorial Village, other personal ROMs and preferences are never opened. Native user confirmation remains useful.
+
+Related focused checks also pass: ClipboardRouting 78, ScriptAssistanceEntry 789, AutocompleteDismissal 85, SignpostScriptNavigation 14, ScriptScrollStability 245 and ScriptWorkflowSafety 598. With the new group, seven groups / 1,941 assertions pass, zero failures/skipped groups and zero build warnings/errors. This focused run is not a new complete-suite total.
+
+Packaging: Apple Silicon self-contained Mac Edition 1.0.0 rebuilt successfully and passed deep strict ad-hoc signature verification. The existing CSSM_ModuleLoad publish diagnostic was nonfatal. Quit and reopen HMA to use the rebuilt app.

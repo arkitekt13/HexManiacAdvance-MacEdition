@@ -1,7 +1,7 @@
 # Mac distribution packaging
 
 Run `dotnet run --project tests/MacPackaging` or the complete Mac suite.
-Forty-three assertions execute a disposable copy of the real publish script with fake dotnet and
+Forty-nine assertions execute a disposable copy of the real publish script with fake dotnet and
 codesign tools; no actual app is built, signed or launched by this regression group.
 
 The matrix covers invalid architecture/extra arguments, publish failure, missing resources,

@@ -94,7 +94,7 @@ Ikarus is recommended for unedited or minimally edited projects, without enforci
 
 See the [accomplishments PDF](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf) for a grouped summary and measured improvements, or the [detailed changelog](CodexChanges.md) for individual fixes and validation.
 
-The current utilities preview passed **86 groups / 24,568 assertions**, with **zero failures and zero skipped groups**. An additional 57 real-ROM checks cover the Ikarus upgrade on vanilla FireRed, HUBOL and SCADE. These are recorded test results, not a substitute for helper feedback or gameplay testing. See the [complete-run evidence](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/blob/codex/ikarus-visual-upgrade/tests/StartupUpdates/mac-edition-1-0-verification.json).
+The current Mac Edition preview passed **89 groups / 24,770 assertions**, with **zero failures and zero skipped groups**. An additional 57 real-ROM checks cover the Ikarus upgrade on vanilla FireRed, HUBOL and SCADE. These are recorded test results, not a substitute for helper feedback or gameplay testing. See the [complete-run evidence](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/blob/codex/ikarus-visual-upgrade/tests/MAC_LAUNCH_SAFETY_VERIFICATION.json).
 
 ## Help
 

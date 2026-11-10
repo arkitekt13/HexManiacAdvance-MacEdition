@@ -6,6 +6,13 @@ fresh binaries, executes them in separate processes, and requires one positive a
 from each. A build failure, nonzero process exit, missing count, duplicate count, or empty test
 set fails the run. The summary reports groups and assertions rather than claiming xUnit cases ran.
 
+The November 10 launch-safety candidate passes **89 groups / 24,770 assertions**,
+zero failures and zero skipped groups; [exact per-group counts and limits](MAC_LAUNCH_SAFETY_VERIFICATION.json).
+This includes the running-app publishing guard, launch-path audit and recent Find,
+selection-deletion and save-diagnostic regressions. NU1900 vulnerability-feed access
+is the only warning category; there are no compiler warnings. Older runs below
+remain historical evidence rather than the latest total.
+
 Pre-merge verification on 2026-11-08 passed **81 groups / 24,292 assertions**,
 with zero failures or skipped groups; [exact results](MAP_REFERENCE_MERGE_VERIFICATION.json)
 record the tested branch, rollback checkpoint and build-warning limitation.
@@ -28,7 +35,7 @@ fitted window overlay and source/input lifecycle.
 [MacPackaging](MacPackaging/README.md) covers build-script failure preservation.
 The [helper-readiness investigation](FIRST_LAUNCH_READINESS_REVIEW.md) separates reproduced defects,
 real published-loader checks and native distribution checks still awaiting helpers.
-The Mac Edition 1.0 candidate passes **86 groups / 24,568 assertions**, with zero failures
+The earlier Mac Edition 1.0 candidate passed **86 groups / 24,568 assertions**, with zero failures
 or skipped groups; [exact counts and project-compatibility proof](StartupUpdates/mac-edition-1-0-verification.json).
 [UpdateNotice](UpdateNotice/README.md) covers nonintrusive availability prompts and pending/rejected source;
 [MacVersionMetadata](MacVersionMetadata/README.md) covers the independent app/Core versions and existing project lifecycle.

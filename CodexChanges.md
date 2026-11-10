@@ -3494,3 +3494,14 @@ Validation: MacPackaging passes 49 assertions with zero build warnings/errors, r
 | tests/MapHelpLink/LAUNCH_PATH_AUDIT.md | 1 | Record inspected routes, unchanged scope, automated coverage and remaining native UI checks. |
 
 Validation: MapHelpLink passes 31 assertions, ExternalEmulatorLaunch 35, TabMenus 34, UpdateNotice 14 and CrashReporting 31: five focused groups / 145 assertions, zero failures/skips and zero build warnings/errors. Actual harmless native processes exercise browser/file/Finder/emulator/chooser/Core-help configurations from a removed parent cwd without opening applications. Existing URI argument safety, failure handling, fork release/report identity, chooser, emulator, clipboard/ROM preservation and tab-menu checks remain passing. No compiler, engine, numeric parsing, relocation, history or safe-write strategy changes; no personal ROM or preferences opened. The intermittent save denial remains open, with its diagnostic operation context retained.
+
+## 239 — Verify all Mac regressions after the publishing guard and launch audit
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MAC_LAUNCH_SAFETY_VERIFICATION.json | 1 | Preserve the clean tested source commit, all 89 group counts, warning limits, actual guarded-publish result and outstanding checks. |
+| tests/README.md | 9 | Identify the new complete run and distinguish it from older verification records. |
+| README.md | 97 | Update the preview's verification total and link to the current evidence. |
+| tests/MacPackaging/README.md | 4 | Align the group summary with its 49-assertion running-app coverage. |
+
+Validation: Fresh documented scripts/verify-mac.sh --no-restore passes 89 groups / 24,770 assertions, zero failures and zero skipped groups, on clean source commit 05f8f4cc438e11a8b33fe952bfc6fc0e71d9f245. The only warning category is the existing NU1900 package-vulnerability-feed access warning; no compiler warnings occur. MacPackaging contributes 49, MapHelpLink 31, ExternalEmulatorLaunch 35, SaveSafety 19, FindKeyboard 25 and ScriptSelectionDeletion 132; every group is recorded in JSON rather than inferred from old totals. The real guarded Apple Silicon publish succeeds with HMA stopped, retains version 1.0.0, and passes deep strict ad-hoc signature verification. A prior actual process-inventory probe refused a harmless stand-in for a running app. No user game, TOML, permissions, extended attributes or preferences were modified. Native browser/Finder/chooser UI, Intel execution, original upstream suites and optional commercial-ROM modes were not repeated. The intermittent save denial remains unresolved and its operation-level diagnostics remain in place; no safe-write-strategy changes were made.

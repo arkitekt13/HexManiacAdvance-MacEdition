@@ -3467,3 +3467,13 @@ Investigation: Both recovery ROM/TOML pairs load read-only in isolated in-memory
 This change adds diagnosis only: copy/write/flush/rename, permissions, five retries, cleanup and saved/dirty handling remain unchanged. It does not claim to fix the intermittent access failure. A failing save in a clean restarted session remains necessary to identify the exact blocked operation.
 
 Validation: SaveSafety passes 19 assertions and ScriptWorkflowSafety passes 598: two focused groups / 617 assertions, zero failures/skips and zero build warnings/errors. The existing exception instance is rethrown with operation data; failed-write file preservation, metadata retries, pending/rejected source, relocation, save/reopen and Undo/Redo checks remain passing. These are focused counts, not a fresh complete-suite total.
+
+## 237 — Refuse to replace an app bundle while that HMA instance is running
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| publish-mac.sh | 12 | Check the target bundle's process before building and immediately before swapping; fail closed when the process inventory is unavailable and preserve the existing app. |
+| tests/MacPackaging/Program.cs | 43 | Exercise running/late-opened app cancellation, failed inventory, unrelated process paths and preserved build/archive outputs. |
+| docs/DEVELOPMENT.md | 9 | Explain the quit-first workflow, process-check behavior and the small remaining launch-after-check interval. |
+
+Validation: MacPackaging passes 49 assertions with zero build warnings/errors, retaining all prior packaging/signature/archive checks. Early refusal occurs before signing or staging and late refusal cleans its own stage without replacing the previous bundle. A supplemental actual macOS process-inventory probe rejected a harmless exec-aliased sleep process at the real app command path, printing Quit HMA first; it did not start HMA or open any game. The guard never terminates a process or saves/discards user work. It applies to the architecture/output bundle being rebuilt; it is not a global application-launch lock.

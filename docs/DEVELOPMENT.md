@@ -6,6 +6,12 @@ Use the Avalonia project for Mac builds. The Windows WPF solution is a separate 
 
 ## Build an application bundle
 
+Quit the app bundle you are rebuilding before publishing. The script checks for that
+bundle at startup and again before replacing it; if it is running, or the process
+check cannot run, the build stops and preserves the existing app. It never quits
+HMA or saves/discards your work for you. An app launched in the brief interval
+after the final check is outside this guard, so keep it closed until publishing finishes.
+
 To build a self-contained app:
 
 ```sh

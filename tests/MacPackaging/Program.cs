@@ -37,11 +37,19 @@ if [[ "${HMA_TEST_MODE:-}" == sign-failure && "$1" == --force ]]; then exit 32; 
 if [[ "${HMA_TEST_MODE:-}" == verify-failure && "$1" == --verify ]]; then exit 33; fi
 """);
  var log=Path.Combine(root,"codesign.log");
+ Tool("ps","""
+if [[ "${HMA_TEST_MODE:-}" == process-check-failure ]]; then exit 35; fi
+echo ' 101 /some/unrelated/HexManiacAdvance.app/Contents/MacOS/HexManiacAdvance'
+if [[ "${HMA_TEST_MODE:-}" == running-app || ( "${HMA_TEST_MODE:-}" == opened-during-build && -f "$HMA_TEST_LOG" ) ]]; then
+ echo " 102 $HMA_TEST_APP --example argument with spaces"
+fi
+""");
  int RunScript(string script,string mode,params string[] args) {
   var start=new ProcessStartInfo("/bin/bash"){WorkingDirectory=cwd,UseShellExecute=false,RedirectStandardOutput=true,RedirectStandardError=true};
   start.ArgumentList.Add(Path.Combine(source,script));foreach(var arg in args)start.ArgumentList.Add(arg);
   start.Environment["PATH"]=bin+Path.PathSeparator+Environment.GetEnvironmentVariable("PATH");
   start.Environment["HMA_TEST_MODE"]=mode;start.Environment["HMA_TEST_LOG"]=log;
+  start.Environment["HMA_TEST_APP"]=Path.Combine(source,"artifacts/mac/osx-arm64/HexManiacAdvance.app/Contents/MacOS/HexManiacAdvance");
   using var process=Process.Start(start)!;var output=process.StandardOutput.ReadToEndAsync();var error=process.StandardError.ReadToEndAsync();
   if(!process.WaitForExit(20000)){process.Kill(true);throw new TimeoutException("Packaging probe timed out.");}
   Task.WaitAll(output,error);Console.WriteLine($"PACKAGING:{mode}:{string.Join(',',args)}:exit={process.ExitCode}");return process.ExitCode;
@@ -49,6 +57,10 @@ if [[ "${HMA_TEST_MODE:-}" == verify-failure && "$1" == --verify ]]; then exit 3
  int Run(string mode,params string[] args)=>RunScript("publish-mac.sh",mode,args);
  string Output(string rid)=>Path.Combine(source,"artifacts/mac",rid,"HexManiacAdvance.app");
  var arm=Output("osx-arm64");Directory.CreateDirectory(arm);File.WriteAllText(Path.Combine(arm,"old-build"),"keep me");
+ foreach(var mode in new[]{"running-app","process-check-failure"}) {
+  Check(Run(mode,"osx-arm64")!=0,"Running apps and unavailable process checks must block replacement.");
+  Check(File.ReadAllText(Path.Combine(arm,"old-build"))=="keep me"&&!File.Exists(log),"A blocked build does not publish, sign or modify the previous app.");
+ }
  foreach(var bad in new[]{new[]{"invalid-rid"},new[]{"osx-arm64","extra"}}) {
   Check(Run("normal",bad)==2,"Invalid arguments must fail before publishing.");
   Check(File.ReadAllText(Path.Combine(arm,"old-build"))=="keep me","Invalid arguments preserve previous output.");
@@ -58,6 +70,9 @@ if [[ "${HMA_TEST_MODE:-}" == verify-failure && "$1" == --verify ]]; then exit 3
   Check(File.ReadAllText(Path.Combine(arm,"old-build"))=="keep me","A failed package preserves the previous bundle exactly.");
   Check(!Directory.GetDirectories(Path.GetDirectoryName(arm)!,".stage.*").Any(),"Failure cleans only its own staging folder.");
  }
+ File.Delete(log);
+ Check(Run("opened-during-build","osx-arm64")!=0,"An app opened after the first check blocks the final swap.");
+ Check(File.ReadAllText(Path.Combine(arm,"old-build"))=="keep me"&&!Directory.GetDirectories(Path.GetDirectoryName(arm)!,".stage.*").Any(),"Late cancellation preserves the previous app and cleans its own staging folder.");
  Check(Run("normal")==0,"Default arm64 packaging works from an unrelated directory.");
  Check(!File.Exists(Path.Combine(arm,"old-build"))&&File.Exists(Path.Combine(arm,"Contents/MacOS/resources/hma.py")),"Successful packaging replaces the old bundle with its complete resources.");
  var dict=XDocument.Load(Path.Combine(arm,"Contents/Info.plist")).Root!.Element("dict")!.Elements().ToArray();

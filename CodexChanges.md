@@ -3533,3 +3533,13 @@ Limitations: The Mac is locked and the user is away, so no native app entry poin
 | tools/NativePackagedReview/ | 1 | Retain the opt-in investigation host for actual packaged controls, native dialogs and dispatcher with separate HMA settings. |
 
 Validation: The manually prepared copy of packaged product `5179545e` opened native windows and dialogs using the bundled runtime. This is an investigation prototype with manual bundle preparation, not a new default regression group or production entry point. Its README documents bypassed desktop startup/IPC and the missing desktop lifetime that prevented standard Quit; only the verified disposable host process was terminated after its saved project was reopened. Production source and the user's working project were not changed. Native results are recorded separately.
+
+## 243 — Record native save checks and the unresolved emulator chooser failure
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/NATIVE_RELEASE_REVIEW.json | 1 | Separate observed native passes, failed application selection, read-only saved-pair verification and untested release gates. |
+| docs/MAC_RELEASE_CHECKLIST.md | 26 | Update native progress without checking off complete startup, emulator selection or clean-machine installation. |
+| tests/README.md | 39 | Link native evidence separately from automated assertion totals. |
+
+Validation: Native Open/cancel, Command-G, edit/Save, Save As/cancel with spaces and Unicode, dialogue growth, Undo/Redo, rejected-source save blocking, correction and tab close/reopen pass on disposable FireRed 1.1 projects. Read-only packaged-Core reload confirms the final dialogue, 549 retained anchor definitions, 74 lists, 16,777,216 ROM bytes and 183,718 metadata bytes. Rejected-save disk hashes remained unchanged. Play launches installed mGBA 0.10.5 with the exact owned ROM when only the isolated test preference is configured. Actual chooser selection fails: the user reports mGBA remains disabled in Browse even after checking application filtering. Its precise cause is unresolved; no product fix is claimed. All three normal HMA profile files remain byte-identical and the working village was not opened. Manual observations do not change the prior 89-group / 24,770-assertion suite total. The save denial was not reproduced and remains open; original desktop entry-point/restart, remembered selection after native restart, no-SDK machine and first-download security checks remain pending.

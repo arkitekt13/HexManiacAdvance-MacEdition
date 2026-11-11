@@ -35,7 +35,9 @@ fitted window overlay and source/input lifecycle.
 [MacPackaging](MacPackaging/README.md) covers build-script failure preservation.
 The optional [packaged-project review](PACKAGED_RELEASE_REVIEW.json) adds 871 standalone
 assertions across 100 real Mac save commands using the packaged assemblies/runtime; these
-are separate from the Mac group total. Native fresh-install checks remain pending.
+are separate from the Mac group total. The subsequent [native review](NATIVE_RELEASE_REVIEW.json)
+passed save/reopen, Save As, Undo/Redo, rejected-draft protection and configured mGBA launch;
+the actual emulator chooser failed. Full startup/restart and fresh-install checks remain pending.
 The [helper-readiness investigation](FIRST_LAUNCH_READINESS_REVIEW.md) separates reproduced defects,
 real published-loader checks and native distribution checks still awaiting helpers.
 The earlier Mac Edition 1.0 candidate passed **86 groups / 24,568 assertions**, with zero failures

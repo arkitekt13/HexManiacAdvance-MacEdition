@@ -23,7 +23,10 @@ These results apply to the recorded checkpoints, not automatically to a later re
   60 edit/save/close/reopen cycles plus 40 continuous-session saves, with isolated preferences
   and full-size metadata. Local ZIP integrity/signature checks also pass.
   [Results and limits](../tests/PACKAGED_RELEASE_REVIEW.json), November 10, 2026.
-  This used no native window; the locked Mac prevented native installation/picker/emulator checks.
+  This first run used no native window. A subsequent [isolated native review](../tests/NATIVE_RELEASE_REVIEW.json)
+  passed edit/save/Save As/reopen, Undo/Redo, rejected-draft protection and configured mGBA launch.
+  Application selection failed: mGBA remained disabled in Browse. Full startup/restart and
+  clean-machine installation checks remain pending; this is not a complete native smoke pass.
 
 ## 1. Before sending a private helper build
 

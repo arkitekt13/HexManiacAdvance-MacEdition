@@ -3525,3 +3525,11 @@ Validation: The final opt-in run passes 871 assertions across 100 Save commands:
 Validation: The actual unpacked helper archive for product commit 5179545e passes SHA-256, CRC, extracted deep-strict signature, helper-file and no-ROM/save/personal-settings inspections. A separate driver copy runs on its byte-identical bundled app/Core assemblies and local runtime; 871 assertions pass with 100 Save commands, 60 close/reopen cycles and 40 continuous-session saves. Both locations use 16 MiB disposable projects with 183,718-byte sidecars and 549 definitions; growing/shrinking scripts, field Undo/Redo, metadata retention, invalid-sidecar refusal/correction, isolated fresh defaults/resources/settings and simulated emulator preference callbacks pass. Source ROM bytes and normal preference hashes are unchanged. A fabricated wrong-base input is rejected before project/profile writes. No production code changes are made.
 
 Limitations: The Mac is locked and the user is away, so no native app entry point, Open/Save As dialogs, Finder activation, native mGBA launch, actual first-download security prompts or clean no-SDK machine is certified. The Documents test path is within the permitted workspace and the model dispatcher is controlled. The local package is still ad-hoc signed. No save failure was reproduced; the intermittent denial remains open, rather than being marked fixed. The 871 supplemental checks are not added to the prior full Mac total of 89 groups / 24,770 assertions.
+
+## 242 — Preserve the isolated native release-review host
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tools/NativePackagedReview/ | 1 | Retain the opt-in investigation host for actual packaged controls, native dialogs and dispatcher with separate HMA settings. |
+
+Validation: The manually prepared copy of packaged product `5179545e` opened native windows and dialogs using the bundled runtime. This is an investigation prototype with manual bundle preparation, not a new default regression group or production entry point. Its README documents bypassed desktop startup/IPC and the missing desktop lifetime that prevented standard Quit; only the verified disposable host process was terminated after its saved project was reopened. Production source and the user's working project were not changed. Native results are recorded separately.

@@ -71,6 +71,7 @@ public partial class TextEditor : UserControl {
    private bool widthUpdateQueued;
    private bool widthUpdatesAllowed = true;
    private bool modelSubscriptionsAllowed;
+   private bool reportingSelection;
    private int widthUpdateGeneration;
    private int scrollGeometryVersion;
    private int widthRequestScrollVersion;
@@ -91,7 +92,10 @@ public partial class TextEditor : UserControl {
 
       TransparentLayer.PropertyChanged += (sender, e) => {
          if (e.Property == TextBox.SelectionStartProperty || e.Property == TextBox.SelectionEndProperty) {
-            SelectionChanged?.Invoke(this, new RoutedEventArgs());
+            var previous = reportingSelection;
+            reportingSelection = true;
+            try { SelectionChanged?.Invoke(this, new RoutedEventArgs()); }
+            finally { reportingSelection = previous; }
          }
       };
       DataContextChanged += (sender, e) => HandleDataContextChanged();
@@ -199,6 +203,10 @@ public partial class TextEditor : UserControl {
    }
 
    private void HandleViewModelCaretMove(object sender, EventArgs e) {
+      // Selection observers publish the selection anchor as model context. Echoing
+      // that back during TextBox's own selection update can cancel a backward
+      // selection deletion. Explicit model-driven moves outside that update still apply.
+      if (reportingSelection) return;
       var vm = (TextEditorViewModel)sender;
       var caret = vm.CaretIndex;
       // Assistance can change source reentrantly while a two-way TextBox edit is being

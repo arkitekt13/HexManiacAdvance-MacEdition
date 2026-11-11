@@ -111,7 +111,7 @@ public class CustomTraceListener : TraceListener {
                   });
             });
             if (result == 2) {
-               NativeProcess.Start(AppIdentity.IssuesUrl);
+               fileSystem.LaunchProcess("open", AppIdentity.IssuesUrl);
                result = 1;
             }
          }

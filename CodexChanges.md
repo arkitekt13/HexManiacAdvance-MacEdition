@@ -3359,3 +3359,218 @@ Validation: Fresh documented Mac runner passes 84 groups / 24,533 assertions, ze
 | output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | N/A | Publish six reviewed pages covering the new utilities and verified real-ROM workflows while retaining original project credits and scoped performance metrics. |
 
 Validation: Rebuilt with the bundled PDF runtime, rendered and visually inspected all six pages, checked every accomplishment title and all page numbers, and verified exactly 100 bullets. Metrics cite the completed 84-group / 24,533-assertion Mac run separately from upstream cases and installer real-ROM checks; no test rerun is claimed for documentation. The official Discord invite is taken from Haven's current README and resolves to Hex Maniac Advance Development. Compatibility remains qualified, the playable tutorial is explicitly unfinished, and code is identified as preview-only. Documentation-only publication updates the default GitHub page and PDF without merging the feature branch or changing app source, ROMs or preferences.
+
+## 229 — Show a nonintrusive notice for compatible Mac updates
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 278 | Show a dismissible update banner above both the editor and welcome screen with fixed View Update and Dismiss actions. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml.cs | 970 | Observe validated update availability, preserve session dismissal and use the existing file-system process launcher for the fixed fork releases page. |
+| tests/UpdateNotice/ | 1 | Exercise actual banner clicks, source focus/selection, welcome/editor lifetime, fixed routing and unchanged model/history/rejected drafts. |
+
+Validation: Fresh UpdateNotice builds with zero warnings/errors and passes 13 headless assertions. The rendered actual banner is visually inspected. Showing it and clicking either action preserve source focus, caret, selection, bytes, metadata and saved/history state; rejected drafts and diagnostics remain intact. It never downloads/installs anything or launches a browser without a user click. Dismissal lasts for the window session while Help > Update remains available; a new window can remind again, and detached editor events cannot affect a replacement editor. Existing version/architecture/release/cache/network policy is unchanged. No personal ROM or preferences changed. A pushed pre-change checkpoint is available; Mac-only 1.0 identity and cross-feature verification follow separately.
+
+## 230 — Give Mac Edition an independent 1.0.0 release identity
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacAssemblyInfo.cs | 1 | Define Mac-only 1.0.0 assembly/file versions while retaining existing attribution and common assembly settings. |
+| src/HexManiac.Avalonia/HexManiac.Avalonia.csproj | 12 | Stop linking shared Core version declarations into the Mac app without modifying Core or SharedAssemblyInfo.cs. |
+| publish-mac.sh | 12 | Read bundle identity from the Mac version file rather than Core's migration version. |
+| tests/MacVersionMetadata/ | 1 | Verify existing-format projects load without regeneration and retain custom definitions, lists, history and Core version through actual saving/reopening. |
+| tests/CrashReporting/Program.cs | 14 | Check actual Mac 1.0.0 and unchanged Core 0.6.1.0 assembly identities. |
+| tests/StartupUpdates/Program.cs | 19 | Cover old-client transition to 1.0.0, same/older-version rejection and later 1.0.1 availability. |
+| tests/MacPackaging/Program.cs | 20 | Give fake Core and app files different versions to prove the app version drives bundle/archive identity. |
+| tests/UpdateNotice/Program.cs | 67 | Add explicit pending-source preservation to the banner's input and rejected-draft checks. |
+| docs/DEVELOPMENT.md | 50 | Document independent release/metadata versioning and stable release asset requirements. |
+| docs/MAC_SETUP.md | 114 | Explain the dismissible notice, daily startup checks and manual download workflow. |
+
+Validation: MacVersionMetadata passes 15 synthetic existing-project assertions; Core still exports metadata version 0.6.1 while the app reports 1.0.0. Initial opening produces zero metadata writes and no dirty/Undo state; custom anchors/formats/lists, actual Save/reopen, script decoding and Undo/Redo are retained. StartupUpdates passes 46 assertions, CrashReporting 31 and MacPackaging 43; focused builds have zero warnings/errors. The real Apple Silicon Release app builds successfully, reports 1.0.0 in both bundle version fields and passes deep strict signature verification (still ad-hoc, not notarized). Fresh actual-base SCADE verification passes 37 checks against independent output, retaining 541 definitions; the tutorial lifecycle process passes 76 assertions (58 default plus 18 real-base) and retains 547 definitions without initial TOML regeneration. Original supplied ROM hashes are unchanged; the user's working tutorial is never opened. No Core, shared metadata version, compiler, numeric, engine or history code is modified. Complete final regression evidence follows separately; no GitHub release is published by this version change.
+
+## 231 — Verify Mac 1.0 identity, project preservation and complete regressions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/StartupUpdates/mac-edition-1-0-verification.json | 1 | Preserve every group count, unchanged Core/shared-version identities, actual bundle versions, banner behavior and real project metadata checks. |
+| tests/MacVersionMetadata/Program.cs | 56 | Optionally inspect the actual published Mac/Core assemblies and both bundle version fields without launching the app or a personal ROM. |
+| tests/MacVersionMetadata/README.md | 15 | Distinguish three actual-bundle checks from the fifteen default project-compatibility assertions. |
+| tests/README.md | 28 | Link the 86-group candidate and separate metadata/notice protection groups from historical runs. |
+| README.md | 101 | Point preview verification to the current 86-group / 24,568-assertion evidence. |
+
+Validation: Fresh documented Mac runner passes 86 groups / 24,568 assertions, zero failures and zero skipped groups. UpdateNotice contributes 14 actual-input assertions and MacVersionMetadata 15 project checks; StartupUpdates contributes 46, CrashReporting 31 and MacPackaging 43. Core tree 5035dfb85aa6545ce7a9a79c1955227743f07041 and SharedAssemblyInfo.cs are identical to the pushed pre-change checkpoint. The app and actual Apple Silicon bundle report 1.0.0 while both the runtime metadata writer and actual bundled Core retain 0.6.1; strict deep signature verification passes and the package remains ad-hoc signed. Fifteen synthetic project checks plus three actual-bundle checks pass as an 18-assertion supplemental process, not eighteen extra assertions added to the full total. Fresh SCADE checks pass 37 against an independent exact output, preserving all 541 supplied definitions; the tutorial process passes 76 (58 default plus 18 supplemental), preserving all 547 real-base definitions and byte-identical TOML on initial open. Actual Save/reopen and Undo/Redo retain custom definitions and scripts, and original input hashes remain unchanged. The user's working tutorial and preferences are never opened/modified. Existing MapImageExport NU1900 is the only warning category, with no compiler warnings. Native browser/update-release flow, Intel execution, notarization and final tutorial gameplay remain explicit manual/distribution checks. Upstream Core suites were not repeated because Core and its shared version are unchanged. No GitHub 1.0 release is published, and code remains on the isolated feature branch.
+
+## 232 — Keep ROM-creation utilities disabled on search results
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/ScadePackage.cs | 70 | Treat a results viewport without a ROM model as an unavailable source instead of dereferencing it. |
+| src/HexManiac.Avalonia/Project/TutorialPatch.cs | 87 | Apply the same source guard to the optional tutorial utility. |
+| tests/ScadeInstaller/Program.cs | 141 | Reject a search-results source without throwing. |
+| tests/TutorialPatch/Program.cs | 156 | Cover results-tab eligibility even when tutorial assets are present. |
+
+Validation: Restoring Find submission exposed a NullReferenceException in SCADE menu refresh when a multi-match search selected SearchResultsViewPort. The default SCADE group passes 138 assertions and TutorialPatch passes 59, including new results-source guards and their existing patch, metadata, draft and lifecycle protections. The Find keyboard group also now reaches its multiple-results checks without this exception. No patch algorithms, ROM data, compiler or history behavior changed.
+
+## 233 — Submit global Find searches with Return
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 308 | Bind Enter only inside FindBox to the existing Find command using the current control text. |
+| tests/FindKeyboard/ | 1 | Reproduce the missing binding with actual keyboard input and verify search, navigation and data preservation. |
+| tests/README.md | 34 | Link the focused Find regression and distinguish its counts from complete-suite evidence. |
+
+Validation: The new group fails before the binding at Return submission, then passes 25 assertions after the repair. Fresh focused groups pass FindKeyboard 25, GotoFocus 27, ClipboardRouting 78, UpdateNotice 14, ScadeInstaller 138 and TutorialPatch 59: six groups / 341 assertions, zero failures or skipped groups; builds report zero warnings/errors. Checks cover case-insensitive Pokémon names, hex searches, case/file-scope settings, no results, multiple results, F3/Shift-F3 and Escape. Enter in another field remains normal text input, and searches leave both synthetic ROMs, metadata, disk files and Undo histories unchanged. No Core search, table navigation, script compiler or engine behavior changed; no personal ROM or preferences were opened. Native Cocoa confirmation remains a manual check.
+
+Packaging: The Apple Silicon self-contained app rebuilt successfully as Mac Edition 1.0.0 and passed deep strict signature verification with its local ad-hoc signature. The publish process emitted the existing macOS CSSM_ModuleLoad diagnostic, but completed successfully.
+
+## 234 — Prevent the map encounter help link from crashing after a rebuild
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacPlatform/MacHelpLink.cs | 1 | Open help with the absolute macOS launcher, a stable working directory and a single URL argument; return launch/exit diagnostics safely. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml.cs | 959 | Await the More Info launcher and report errors on the originating viewport instead of letting process failures escape the click handler. |
+| tests/MapHelpLink/ | 1 | Reproduce deleted-directory launch failure and verify safe process execution and error handling without opening a browser. |
+
+Investigation: The reported stack fails in Process.ResolvePath → GetCwd, before the browser is opened. App startup sets the current directory inside its bundle; republishing while an old instance runs can remove that directory. This is a likely trigger, while the missing-directory failure itself is reproduced. The legendary tip is existing pattern-based guidance for cry/setwildbattle/capture-flag scripts, independent of the selected sprite; it is not a species classification or gameplay change. The existing Haven tutorial URL is preserved.
+
+Validation: MapHelpLink passes 19 assertions, including actual reproduction of the old FileNotFoundException from a removed temporary cwd, successful absolute launch from that same state, URL argument preservation, invalid schemes, null child process, expected launch exceptions, nonzero exit codes and stderr. Tests substitute harmless system processes and never open a browser or personal ROM. Native More Info browser confirmation remains manual. No Core, compiler, encounter recognition, game behavior, ROM data or history code changes.
+
+Related focused verification: BlocksetPreviews passes 160 assertions and FindKeyboard passes 25; together with MapHelpLink, three groups / 204 assertions pass with zero failures or skipped groups and zero build warnings/errors. This is a focused run, not a replacement complete-suite total.
+
+Packaging: The self-contained Apple Silicon Mac Edition 1.0.0 app rebuilt successfully and passed deep strict ad-hoc signature verification. The publish process emitted the existing CSSM_ModuleLoad diagnostic and completed successfully. Quit the existing app before reopening the rebuilt bundle.
+
+## 235 — Allow Backspace to delete backward script selections
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Controls/TextEditor.axaml.cs | 78 | Track selection-notification scope and suppress synchronous model caret echoes during the native selection update. |
+| tests/ScriptSelectionDeletion/ | 1 | Reproduce backward multiline dialogue deletion and cover source replacement, compilation, history and caret preservation. |
+
+Investigation: In the full MainWindow, selecting the supplied dialogue shape forward and pressing Backspace succeeds, but selecting it backward causes immediate no-op deletion. Bare Avalonia TextBox deletion succeeds. Script selection observers publish their anchor as model context; the resulting model caret request echoed into the TextBox during its selection mutation and interfered with deletion. This agrees with the user's clarification that typing can replace the selection and Backspace does nothing immediately. The presentation-layer guard leaves Core caret context and compiler semantics unchanged.
+
+Validation: ScriptSelectionDeletion passes 132 actual-input assertions across forward/backward selections, content-only/newline-inclusive boundaries, Backspace, forward Delete and replacement typing. The source changes immediately and remains changed after deferred compilation; one Undo and Redo restore exact ROM bytes/metadata. Focus, read-only protection, explicit programmatic caret movement and no implicit project saves are retained. All inputs are fabricated temporary projects; the user's Tutorial Village, other personal ROMs and preferences are never opened. Native user confirmation remains useful.
+
+Related focused checks also pass: ClipboardRouting 78, ScriptAssistanceEntry 789, AutocompleteDismissal 85, SignpostScriptNavigation 14, ScriptScrollStability 245 and ScriptWorkflowSafety 598. With the new group, seven groups / 1,941 assertions pass, zero failures/skipped groups and zero build warnings/errors. This focused run is not a new complete-suite total.
+
+Packaging: Apple Silicon self-contained Mac Edition 1.0.0 rebuilt successfully and passed deep strict ad-hoc signature verification. The existing CSSM_ModuleLoad publish diagnostic was nonfatal. Quit and reopen HMA to use the rebuilt app.
+
+## 236 — Investigate intermittent TOML-save denial and report the failing operation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/Models/AtomicFileWriter.cs | 12 | Attach operation context to the original I/O/access exception while retaining its type, identity, stack and existing safe-write behavior. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 367 | Include that context in the final metadata-save error with instructions to keep the project open and retry or save under a new name. |
+| tests/SaveSafety/Program.cs | 44 | Verify failure context preserves the original exception and existing staged-write protections. |
+| tests/SaveSafety/INTERMITTENT_METADATA_SAVE.md | 1 | Record actual project validation, temporary-copy checks, live trace findings and the still-unresolved save-denial cause. |
+
+Investigation: Both recovery ROM/TOML pairs load read-only in isolated in-memory HMA models as BPRE1 with all 547 anchor definitions and 73 lists retained. Original/recovery anchor definitions and lists match; the original TOML remained identical to its post-failure snapshot. The denial is intermittent, including after Save As, so new-name success alone does not establish a permanent solution. Temporary-copy overwrite probes succeed. Live exception captures did not catch a save failure, but did establish a separate missing-current-directory condition in the old instance after bundle replacement; causation for the save denial is not established. No game files, permissions, attributes or preferences were modified by this work.
+
+This change adds diagnosis only: copy/write/flush/rename, permissions, five retries, cleanup and saved/dirty handling remain unchanged. It does not claim to fix the intermittent access failure. A failing save in a clean restarted session remains necessary to identify the exact blocked operation.
+
+Validation: SaveSafety passes 19 assertions and ScriptWorkflowSafety passes 598: two focused groups / 617 assertions, zero failures/skips and zero build warnings/errors. The existing exception instance is rethrown with operation data; failed-write file preservation, metadata retries, pending/rejected source, relocation, save/reopen and Undo/Redo checks remain passing. These are focused counts, not a fresh complete-suite total.
+
+## 237 — Refuse to replace an app bundle while that HMA instance is running
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| publish-mac.sh | 12 | Check the target bundle's process before building and immediately before swapping; fail closed when the process inventory is unavailable and preserve the existing app. |
+| tests/MacPackaging/Program.cs | 43 | Exercise running/late-opened app cancellation, failed inventory, unrelated process paths and preserved build/archive outputs. |
+| docs/DEVELOPMENT.md | 9 | Explain the quit-first workflow, process-check behavior and the small remaining launch-after-check interval. |
+
+Validation: MacPackaging passes 49 assertions with zero build warnings/errors, retaining all prior packaging/signature/archive checks. Early refusal occurs before signing or staging and late refusal cleans its own stage without replacing the previous bundle. A supplemental actual macOS process-inventory probe rejected a harmless exec-aliased sleep process at the real app command path, printing Quit HMA first; it did not start HMA or open any game. The guard never terminates a process or saves/discards user work. It applies to the architecture/output bundle being rebuilt; it is not a global application-launch lock.
+
+## 238 — Remove missing-working-directory dependencies from Mac launch paths
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacPlatform/MacOpen.cs | 1 | Share absolute native-open arguments and a stable child working directory; resolve application-relative resource paths from the app base. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileSystem.cs | 189 | Use the native-open builder for files, web targets and Finder actions and contain expected launch failures. |
+| src/HexManiac.Avalonia/MacPlatform/MacHelpLink.cs | 12 | Retain web validation and failure handling while sharing native process configuration. |
+| src/HexManiac.Avalonia/Controls/StartScreen.axaml.cs | 57 | Open credit links through the guarded web helper and surface errors in the editor. |
+| src/HexManiac.Avalonia/Windows/ | 1 | Route Help/assertion links through the Mac adapter and license/quick-edit/core-help links through the guarded web helper, with local error feedback. |
+| src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorLauncher.cs | 63 | Explicitly use a stable working directory without changing emulator arguments or preferences. |
+| src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorPicker.cs | 15 | Keep the existing chooser script and use a stable child working directory. |
+| src/HexManiac.Avalonia/MacPlatform/MacFileReveal.cs | 12 | Share native reveal configuration while preserving separate -R/path arguments. |
+| src/HexManiac.Core/Core/SystemExtensions.cs | 434 | Give the single-target native launcher a macOS-specific absolute executable/cwd; preserve other platforms and the executable-with-arguments overload. |
+| tests/MapHelpLink/LAUNCH_PATH_AUDIT.md | 1 | Record inspected routes, unchanged scope, automated coverage and remaining native UI checks. |
+
+Validation: MapHelpLink passes 31 assertions, ExternalEmulatorLaunch 35, TabMenus 34, UpdateNotice 14 and CrashReporting 31: five focused groups / 145 assertions, zero failures/skips and zero build warnings/errors. Actual harmless native processes exercise browser/file/Finder/emulator/chooser/Core-help configurations from a removed parent cwd without opening applications. Existing URI argument safety, failure handling, fork release/report identity, chooser, emulator, clipboard/ROM preservation and tab-menu checks remain passing. No compiler, engine, numeric parsing, relocation, history or safe-write strategy changes; no personal ROM or preferences opened. The intermittent save denial remains open, with its diagnostic operation context retained.
+
+## 239 — Verify all Mac regressions after the publishing guard and launch audit
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MAC_LAUNCH_SAFETY_VERIFICATION.json | 1 | Preserve the clean tested source commit, all 89 group counts, warning limits, actual guarded-publish result and outstanding checks. |
+| tests/README.md | 9 | Identify the new complete run and distinguish it from older verification records. |
+| README.md | 97 | Update the preview's verification total and link to the current evidence. |
+| tests/MacPackaging/README.md | 4 | Align the group summary with its 49-assertion running-app coverage. |
+
+Validation: Fresh documented scripts/verify-mac.sh --no-restore passes 89 groups / 24,770 assertions, zero failures and zero skipped groups, on clean source commit 05f8f4cc438e11a8b33fe952bfc6fc0e71d9f245. The only warning category is the existing NU1900 package-vulnerability-feed access warning; no compiler warnings occur. MacPackaging contributes 49, MapHelpLink 31, ExternalEmulatorLaunch 35, SaveSafety 19, FindKeyboard 25 and ScriptSelectionDeletion 132; every group is recorded in JSON rather than inferred from old totals. The real guarded Apple Silicon publish succeeds with HMA stopped, retains version 1.0.0, and passes deep strict ad-hoc signature verification. A prior actual process-inventory probe refused a harmless stand-in for a running app. No user game, TOML, permissions, extended attributes or preferences were modified. Native browser/Finder/chooser UI, Intel execution, original upstream suites and optional commercial-ROM modes were not repeated. The intermittent save denial remains unresolved and its operation-level diagnostics remain in place; no safe-write-strategy changes were made.
+
+## 240 — Add an isolated packaged-code save/reopen release probe
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tools/PackagedProjectReview/ | 1 | Exercise the actual packaged app/Core assemblies and bundled runtime through a disposable driver, with real Mac file writes and isolated settings. |
+
+Validation: The final opt-in run passes 871 assertions across 100 Save commands: 60 edit/save/close/reopen cycles and 40 continuous-session saves. Both locations use 16 MiB clean FireRed 1.1 copies and full approximately 184 KB sidecars retaining 549 definitions. Checks cover fresh defaults/resources, settings persistence, invalid metadata refusal/correction, growing/shrinking dialogue, short-field Undo/Redo, disk bytes, retained metadata/list definitions, staging cleanup and simulated remembered-emulator callbacks. A separate negative-input probe rejects a fabricated wrong base before writing any project/profile files and leaves its input unchanged. The original clean base and normal HMA preference bytes are unchanged; no working village is opened. The production app is not changed. The Mac is locked, so native UI/permissions/emulator launch and a genuinely clean machine are not claimed. This tool is supplemental and requires an exact user-supplied base, so it is not part of the default Mac group count.
+
+## 241 — Record packaged save reliability and partial installation results
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/PACKAGED_RELEASE_REVIEW.json | 1 | Preserve the exact packaged-app/probe commits, 871 checks, 100 saves, artifact hashes, normal-profile preservation and blocked native checks. |
+| docs/MAC_RELEASE_CHECKLIST.md | 12 | Refresh the complete-suite baseline and record the supplemental packaged review without checking off native or clean-machine gates. |
+| tests/README.md | 35 | Link the separate packaged-review evidence and distinguish it from ordinary regression counts. |
+
+Validation: The actual unpacked helper archive for product commit 5179545e passes SHA-256, CRC, extracted deep-strict signature, helper-file and no-ROM/save/personal-settings inspections. A separate driver copy runs on its byte-identical bundled app/Core assemblies and local runtime; 871 assertions pass with 100 Save commands, 60 close/reopen cycles and 40 continuous-session saves. Both locations use 16 MiB disposable projects with 183,718-byte sidecars and 549 definitions; growing/shrinking scripts, field Undo/Redo, metadata retention, invalid-sidecar refusal/correction, isolated fresh defaults/resources/settings and simulated emulator preference callbacks pass. Source ROM bytes and normal preference hashes are unchanged. A fabricated wrong-base input is rejected before project/profile writes. No production code changes are made.
+
+Limitations: The Mac is locked and the user is away, so no native app entry point, Open/Save As dialogs, Finder activation, native mGBA launch, actual first-download security prompts or clean no-SDK machine is certified. The Documents test path is within the permitted workspace and the model dispatcher is controlled. The local package is still ad-hoc signed. No save failure was reproduced; the intermittent denial remains open, rather than being marked fixed. The 871 supplemental checks are not added to the prior full Mac total of 89 groups / 24,770 assertions.
+
+## 242 — Preserve the isolated native release-review host
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tools/NativePackagedReview/ | 1 | Retain the opt-in investigation host for actual packaged controls, native dialogs and dispatcher with separate HMA settings. |
+
+Validation: The manually prepared copy of packaged product `5179545e` opened native windows and dialogs using the bundled runtime. This is an investigation prototype with manual bundle preparation, not a new default regression group or production entry point. Its README documents bypassed desktop startup/IPC and the missing desktop lifetime that prevented standard Quit; only the verified disposable host process was terminated after its saved project was reopened. Production source and the user's working project were not changed. Native results are recorded separately.
+
+## 243 — Record native save checks and the unresolved emulator chooser failure
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/NATIVE_RELEASE_REVIEW.json | 1 | Separate observed native passes, failed application selection, read-only saved-pair verification and untested release gates. |
+| docs/MAC_RELEASE_CHECKLIST.md | 26 | Update native progress without checking off complete startup, emulator selection or clean-machine installation. |
+| tests/README.md | 39 | Link native evidence separately from automated assertion totals. |
+
+Validation: Native Open/cancel, Command-G, edit/Save, Save As/cancel with spaces and Unicode, dialogue growth, Undo/Redo, rejected-source save blocking, correction and tab close/reopen pass on disposable FireRed 1.1 projects. Read-only packaged-Core reload confirms the final dialogue, 549 retained anchor definitions, 74 lists, 16,777,216 ROM bytes and 183,718 metadata bytes. Rejected-save disk hashes remained unchanged. Play launches installed mGBA 0.10.5 with the exact owned ROM when only the isolated test preference is configured. Actual chooser selection fails: the user reports mGBA remains disabled in Browse even after checking application filtering. Its precise cause is unresolved; no product fix is claimed. All three normal HMA profile files remain byte-identical and the working village was not opened. Manual observations do not change the prior 89-group / 24,770-assertion suite total. The save denial was not reproduced and remains open; original desktop entry-point/restart, remembered selection after native restart, no-SDK machine and first-download security checks remain pending.
+
+## 244 — Select an external emulator directly without application/type filtering
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorPicker.cs | 7 | Open a direct native picker in Applications, with no type filter and package contents hidden, instead of the registered-application list that disabled mGBA. |
+| tests/ExternalEmulatorLaunch/Program.cs | 9 | Verify picker configuration and reject ordinary files, bundle contents and folders without remembering or launching them. |
+| tests/ExternalEmulatorLaunch/README.md | 3 | Explain direct selection, validation and native checks. |
+
+Validation: ExternalEmulatorLaunch passes 39 assertions and MapHelpLink passes 31: two focused groups / 70 assertions, zero failures/skips and zero build warnings/errors. The exact chooser script compiles with macOS osacompile. Cancellation, remembered selection, missing applications, spaces, pending/rejected source, failed saves, retry and removed-working-directory launch checks remain passing. The guarded Apple Silicon publish and deep strict ad-hoc signature verification succeed. Native selection is being checked separately with the isolated test host; automated configuration and validation tests alone do not certify that mGBA is selectable. No ROM/compiler/history behavior, normal preferences or working village files are changed.
+
+## 245 — Verify native emulator selection, remembered launch and all Mac regressions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ExternalEmulatorLaunch/NATIVE_PICKER_VERIFICATION.json | 1 | Record actual selection/launch, remembered selection after an isolated-host restart, normal-profile preservation and exact full-suite group counts. |
+| tests/ExternalEmulatorLaunch/README.md | 31 | Link the observed native result separately from injected launch assertions. |
+| docs/MAC_RELEASE_CHECKLIST.md | 28 | Mark the chooser repair verified while retaining ordinary desktop startup/Quit and clean-machine installation limits. |
+| tests/README.md | 41 | Link the new native evidence without rewriting earlier historical findings. |
+
+Validation: The user selected mGBA successfully in the direct native picker; desktop observation confirmed mGBA 0.10.5 opened the exact disposable Native Trial.gba. The isolated preference contains /Applications/mGBA.app. After restarting only the saved investigation host, Play launches the same ROM without another picker. All three normal HMA preference files remain byte-identical; no working village is opened. The prototype restart uses verified-process termination because it lacks desktop lifetime; normal production Quit remains outside this check. Both test applications are stopped afterward. Fresh scripts/verify-mac.sh --no-restore on repair source 2aba4721 passes all 89 groups / 24,774 assertions, zero failures, zero skipped groups and zero compiler warnings. Exact per-group counts are in JSON; the only warning category is the existing NU1900 package-vulnerability-feed access warning in MapImageExport. The regular Apple Silicon app is rebuilt from that committed repair with the publishing guard and passes ad-hoc signature verification. No claim is made about notarization, a clean no-SDK machine or resolution of the separately tracked intermittent save denial.
+
+
+## 246 — Reconcile the utilities branch with the default documentation history
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| README.md | 97 | Retain the latest preview description and link the complete 89-group / 24,774-assertion verification from the merged repository. |
+| CodexChanges.md | 3362 | Preserve the complete numbered investigation and implementation history when integrating the earlier default-branch publication. |
+
+Validation: The default branch's earlier documentation-only publication conflicted with the newer README metric and appended changelog. Both conflicts are resolved while retaining entries 229–245 and the latest verification evidence. Application, Core, tests and optional assets remain byte-identical to the already-tested feature checkpoint; no additional regression run is claimed for documentation reconciliation. Mac assembly/file identity remains 1.0.0. The merge preserves individual commits and does not publish a release or create a version tag.

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System;
 using System.IO;
 using System.Buffers.Binary;
@@ -6,6 +5,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using HelpLauncher = HavenSoft.HexManiac.AvaloniaUI.MacPlatform.MacHelpLink;
+using HavenSoft.HexManiac.Core.ViewModels;
 
 namespace HavenSoft.HexManiac.AvaloniaUI.Controls;
 
@@ -54,13 +55,13 @@ public partial class StartScreen : Grid {
       }
    }
 
-   private void Navigate(object sender, RoutedEventArgs e) {
-      if (sender is Control { Tag: string url }) {
-         var start = new ProcessStartInfo("open") { UseShellExecute = false };
-         start.ArgumentList.Add(url);
-         Process.Start(start);
-      }
+   private async void Navigate(object sender, RoutedEventArgs e) {
       e.Handled = true;
+      if (sender is Control { Tag: string url }) {
+         var editor = DataContext as EditorViewModel;
+         var error = await HelpLauncher.OpenAsync(url);
+         if (error != null && editor != null) editor.ErrorMessage = "Could not open link: " + error;
+      }
    }
 }
 

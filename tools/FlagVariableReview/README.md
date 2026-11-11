@@ -26,10 +26,10 @@ verification, arbitrary assembly disassembly or audit of an actual modified game
 ## Usage-detection investigation
 
 The optional `--usage` mode adds twenty handcrafted command cases across five game identities,
-two detached conditional header types, and a read-only supplied BPRE1 ROM review:
+two detached conditional header types, and a read-only supplied BPRE0 or BPRE1 ROM review:
 
 ```sh
-python3 scripts/run-upstream-command.py 240 dotnet tools/FlagVariableReview/bin/Debug/net8.0/FlagVariableReview.dll --usage artifacts/script-safety/usage-detection-review.json 'sampleFiles/Pokemon FireRed.gba'
+python3 scripts/run-upstream-command.py 240 dotnet tools/FlagVariableReview/bin/Debug/net8.0/FlagVariableReview.dll --usage artifacts/script-safety/usage-detection-review.json '/absolute/path/to/your-supplied-firered.gba'
 ```
 
 Omit the ROM argument for synthetic cases only. The real-ROM mode reads the file into memory,
@@ -45,3 +45,7 @@ coverage must be distinguished. Source snapshot URLs/hashes are in `primary-sour
 
 See [the investigation](../../tests/FLAG_USAGE_INVESTIGATION.md) for results and approval boundaries,
 and [the safety group](../../tests/FlagUsageSafety/README.md) for supported behavior tests.
+
+The real phase accepts English FireRed 1.0 (`BPRE0`) and 1.1 (`BPRE1`), reporting the
+actual revision and source hash. Other game identities remain rejected. The November 9
+1.0 and 1.1 follow-up is recorded in [the verification report](../../tests/FIRERED_10_VERIFICATION.json).

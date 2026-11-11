@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using HavenSoft.HexManiac.Core.ViewModels;
 using HavenSoft.HexManiac.AvaloniaUI.Project;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.Models;
@@ -32,12 +34,18 @@ try {
       Title = "Synthetic tutorial", BaseRom = TutorialPatch.BaseGame,
       BaseSha256 = Hash(source), PatchSha256 = Hash(patch), OutputSha256 = Hash(destination),
    };
+   byte[] toml = new UTF8Encoding(true).GetPreamble().Concat(Encoding.UTF8.GetBytes(string.Join("\n", metadata) + "\n# tutorial definitions\n")).ToArray();
+   manifest.TomlSha256 = Hash(toml);
+   byte[] trustedSource = source;
    var manifestPath = Path.Combine(directory, "tutorial.json");
    var patchPath = Path.Combine(directory, "tutorial.ups");
-   void Write() { File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest)); File.WriteAllBytes(patchPath, patch); }
+   var tomlPath = Path.Combine(directory, "tutorial.toml");
+   void Write() { File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest)); File.WriteAllBytes(patchPath, patch); File.WriteAllBytes(tomlPath, toml); }
+   TutorialPatch Load() => TutorialPatch.LoadTestPackage(directory, out reason, trustedSource);
    Write();
-   var tutorial = TutorialPatch.Load(directory, out reason);
+   var tutorial = Load();
    Check(tutorial != null && reason == null && tutorial.Title == "Synthetic tutorial", "Valid manifest/UPS loads.");
+   Check(TutorialPatch.Load(directory, out _) == null, "Production loader rejects a manifest that calls fabricated bytes an unmodified retail base.");
    Check(tutorial.MatchesBase(source), "Exact synthetic base matches.");
    Check(!tutorial.MatchesBase(destination), "Already patched ROM cannot be applied backwards.");
    var result = tutorial.Create(source);
@@ -50,43 +58,102 @@ try {
    Rejected(() => tutorial.Create(destination), "Reverse application is rejected.");
    mismatch = source.ToArray(); mismatch[0xBC] = 0;
    manifest.BaseSha256 = Hash(mismatch); Write();
-   Check(!TutorialPatch.Load(directory, out reason).MatchesBase(mismatch), "FireRed 1.0 is rejected even with a matching manifest hash.");
+   Check(!TutorialPatch.LoadTestPackage(directory, out reason, mismatch).MatchesBase(mismatch), "FireRed 1.0 is rejected even with a matching manifest hash.");
    mismatch[0xBC] = 1; mismatch[0xAC] = (byte)'X'; manifest.BaseSha256 = Hash(mismatch); Write();
-   Check(!TutorialPatch.Load(directory, out reason).MatchesBase(mismatch), "Wrong game is rejected even with a matching hash.");
+   Check(!TutorialPatch.LoadTestPackage(directory, out reason, mismatch).MatchesBase(mismatch), "Wrong game is rejected even with a matching hash.");
    manifest.BaseSha256 = Hash(source); manifest.OutputSha256 = new string('0', 64); Write();
-   Rejected(() => TutorialPatch.Load(directory, out reason).Create(source), "Incorrect expected output hash is rejected before writing.");
+   Rejected(() => Load().Create(source), "Incorrect expected output hash is rejected before writing.");
    manifest.OutputSha256 = Hash(destination);
    patch[^1] ^= 1; manifest.PatchSha256 = Hash(patch); Write();
-   Rejected(() => TutorialPatch.Load(directory, out reason).Create(source), "Invalid UPS checksum is rejected even if manifest hash matches.");
+   Rejected(() => Load().Create(source), "Invalid UPS checksum is rejected even if manifest hash matches.");
    Check(source.SequenceEqual(before) && fixture.ViewPort.Undo.CanExecute(null) == undoBefore, "Failures also preserve source and history.");
    manifest.PatchSha256 = new string('0', 64); Write();
-   Check(TutorialPatch.Load(directory, out reason) == null && reason.Contains("manifest"), "Mismatched patch hash disables the tutorial.");
+   Check(Load() == null && reason.Contains("manifest"), "Mismatched patch hash disables the tutorial.");
    manifest.BaseRom = "English FireRed 1.0"; Write();
-   Check(TutorialPatch.Load(directory, out reason) == null, "Wrong manifest base disables the tutorial.");
+   Check(Load() == null, "Wrong manifest base disables the tutorial.");
    File.WriteAllText(manifestPath, "{ broken");
-   Check(TutorialPatch.Load(directory, out reason) == null && reason.StartsWith("Tutorial unavailable"), "Malformed manifest fails safely.");
-   var output = Path.Combine(directory, "Tutorial.gba");
-   TutorialPatch.SaveNewCopy(output, result);
+   Check(Load() == null && reason.StartsWith("Tutorial unavailable"), "Malformed manifest fails safely.");
+   var output = Path.Combine(directory, "MyLesson.gba");
+   tutorial.SaveNewCopy(output, result);
+   Check(File.ReadAllBytes(Path.ChangeExtension(output, ".toml")).SequenceEqual(toml), "Original supplied TOML is copied byte for byte before opening.");
    Check(File.ReadAllBytes(output).SequenceEqual(destination), "Verified output can be saved as a separate ROM.");
-   Rejected(() => TutorialPatch.SaveNewCopy(output, source), "Existing ROM cannot be overwritten.");
+   Rejected(() => tutorial.SaveNewCopy(output, result), "Existing ROM cannot be overwritten.");
    Check(File.ReadAllBytes(output).SequenceEqual(destination), "Rejected overwrite preserves existing output.");
    var sidecarOutput = Path.Combine(directory, "WithMetadata.gba");
    File.WriteAllText(Path.ChangeExtension(sidecarOutput, ".toml"), "keep me");
-   Rejected(() => TutorialPatch.SaveNewCopy(sidecarOutput, source), "Existing metadata prevents reusing an output name.");
+   Rejected(() => tutorial.SaveNewCopy(sidecarOutput, result), "Existing metadata prevents reusing an output name.");
    Check(!File.Exists(sidecarOutput) && File.ReadAllText(Path.ChangeExtension(sidecarOutput, ".toml")) == "keep me", "Existing metadata is preserved.");
-   Rejected(() => TutorialPatch.SaveNewCopy(Path.Combine(directory, "wrong.txt"), source), "Non-ROM extension is rejected.");
-   Rejected(() => TutorialPatch.SaveNewCopy(Path.Combine(directory, "missing", "output.gba"), source), "Failed output leaves no completed ROM.");
+   Rejected(() => tutorial.SaveNewCopy(Path.Combine(directory, "wrong.txt"), result), "Non-ROM extension is rejected.");
+   Rejected(() => tutorial.SaveNewCopy(Path.Combine(directory, "missing", "output.gba"), result), "Failed output leaves no completed ROM.");
    Check(!Directory.EnumerateFiles(directory, ".hma-tutorial-*").Any(), "No staging files remain after writes or failures.");
    Check(source.SequenceEqual(before), "All output operations leave original bytes untouched.");
+   var race = Path.Combine(directory, "race.gba");
+   Rejected(() => tutorial.SaveNewCopy(race, result, () => {
+      Check(File.ReadAllBytes(Path.ChangeExtension(race, ".toml")).SequenceEqual(toml), "TOML exists before the ROM is published.");
+      File.WriteAllText(race, "foreign file");
+   }), "Publication collision aborts.");
+   Check(File.ReadAllText(race) == "foreign file" && !File.Exists(Path.ChangeExtension(race, ".toml")), "Failed publication preserves foreign ROM and removes owned TOML.");
+   foreach (bool sidecar in new[] { false, true }) {
+      var path = Path.Combine(directory, sidecar ? "toml-directory.gba" : "rom-directory.gba");
+      Directory.CreateDirectory(sidecar ? Path.ChangeExtension(path, ".toml") : path);
+      Rejected(() => tutorial.SaveNewCopy(path, result), "Directory collision is rejected.");
+   }
+   Rejected(() => tutorial.SaveNewCopy(Path.Combine(directory, "unverified.gba"), source), "Arbitrary unverified output cannot be published.");
+   Check(!Directory.EnumerateFiles(directory, ".hma-tutorial-*").Any(), "Paired publication cleans all staging files.");
+   int romWrites = 0, metadataWrites = 0;
+   var fs = new StubFileSystem {
+      MetadataFor = name => File.Exists(Path.ChangeExtension(name, ".toml")) ? File.ReadAllLines(Path.ChangeExtension(name, ".toml")) : Array.Empty<string>(),
+      Save = file => { File.WriteAllBytes(file.Name, file.Contents); romWrites++; return true; },
+      SaveMetadata = (name, lines) => { File.WriteAllLines(Path.ChangeExtension(name, ".toml"), lines); metadataWrites++; return true; },
+   };
+   var editor = new EditorViewModel(fs, InstantDispatch.Instance);
+   var opened = editor.OpenFileAsync(new LoadedFile(output, File.ReadAllBytes(output))).GetAwaiter().GetResult();
+   opened.Model.InitializationWorkload.GetAwaiter().GetResult(); opened.InitializationWorkload.GetAwaiter().GetResult();
+   Check(opened.Model.RawData.SequenceEqual(result), "Normal opening retains exact patched bytes.");
+   Check(metadataWrites == 0 && File.ReadAllBytes(Path.ChangeExtension(output, ".toml")).SequenceEqual(toml), "Normal opening uses supplied TOML without regenerating it.");
+   var expected = new StoredMetadata(metadata).NamedAnchors;
+   bool DefinitionsMatch(IDataModel model) {
+      var actual = model.ExportMetadata(null, editor.Singletons.MetadataInfo).NamedAnchors;
+      return expected.All(a => actual.Any(b => a.Name == b.Name && a.Address == b.Address && a.Format == b.Format));
+   }
+   Check(DefinitionsMatch(opened.Model), "Every bundled named definition loads correctly.");
+   opened.ChangeHistory.CurrentChange.ChangeData(opened.Model, 0xA000, (byte)(opened.Model[0xA000] ^ 1));
+   opened.ChangeHistory.ChangeCompleted(); opened.Save.Execute(fs);
+   Check(romWrites == 1 && metadataWrites == 1, "A real normal Save writes both project files.");
+   var reopened = editor.OpenFileAsync(new LoadedFile(output, File.ReadAllBytes(output))).GetAwaiter().GetResult();
+   reopened.InitializationWorkload.GetAwaiter().GetResult();
+   Check(DefinitionsMatch(reopened.Model), "All bundled definitions survive actual Save/reopen.");
+   var savedToml = toml.ToArray();
+   manifest.BaseRom = TutorialPatch.BaseGame; manifest.BaseSha256 = Hash(source); manifest.OutputSha256 = Hash(destination);
+   patch = Patcher.BuildUpsPatch(source, destination); manifest.PatchSha256 = Hash(patch); Write();
+   File.Delete(tomlPath); Check(Load() == null, "Missing TOML disables package."); Write();
+   File.AppendAllText(tomlPath, "tampered"); Check(Load() == null, "Tampered TOML disables package."); Write();
+   toml = Encoding.UTF8.GetBytes("not valid definitions"); manifest.TomlSha256 = Hash(toml); Write();
+   Check(Load() == null, "Empty/malformed metadata is rejected even with matching hash.");
+   toml = savedToml; manifest.TomlSha256 = Hash(toml); Write();
+   manifest.TomlSha256 = null; Write(); Check(Load() == null, "Missing TOML verification hash disables package.");
+   manifest.TomlSha256 = Hash(toml);
+   toml = Encoding.UTF8.GetBytes(string.Join("\n", metadata.Select(line => line.StartsWith("ApplicationVersion = ") ? "ApplicationVersion = '''0.0.0'''" : line)) + "\n");
+   manifest.TomlSha256 = Hash(toml); Write(); Check(Load() == null, "Metadata requiring regeneration from defaults is rejected.");
+   toml = savedToml.Concat(Encoding.UTF8.GetBytes("\n[[NamedAnchors]]\nName = '''tutorial.invalid'''\nAddress = 0x700000\nFormat = '''[value.]4'''\n")).ToArray();
+   manifest.TomlSha256 = Hash(toml); Write();
+   var invalidDefinitions = Load(); Check(invalidDefinitions != null, "Syntactically valid metadata loads before candidate validation.");
+   Rejected(() => invalidDefinitions.Create(source), "Out-of-ROM tutorial definitions block creation before publication.");
+   toml = savedToml; manifest.TomlSha256 = Hash(toml); Write();
+   manifest.BaseSha256 = new string('0',64); Write(); Check(Load() == null, "Manifest cannot silently select a different base.");
    using var workflow = new WorkflowFixture();
    workflow.Model.RawData[0xBC] = 1;
    var workflowBase = workflow.Model.RawData.ToArray();
    var workflowOutput = workflowBase.ToArray(); workflowOutput[0x6000] ^= 1;
    patch = Patcher.BuildUpsPatch(workflowBase, workflowOutput);
    manifest.BaseRom = TutorialPatch.BaseGame; manifest.BaseSha256 = Hash(workflowBase);
+   trustedSource = workflowBase;
+   toml = Encoding.UTF8.GetBytes(string.Join("\n",workflow.Model.ExportMetadata(null, workflow.Services.MetadataInfo).Serialize()) + "\n");
+   manifest.TomlSha256 = Hash(toml);
    manifest.OutputSha256 = Hash(workflowOutput); manifest.PatchSha256 = Hash(patch); Write();
-   tutorial = TutorialPatch.Load(directory, out reason);
+   tutorial = Load();
    Check(tutorial.DisabledReason(null) != null, "No selected ROM disables tutorial creation.");
+   Check(tutorial.DisabledReason(new SearchResultsViewPort("query")) != null, "Search results disable tutorial creation without a ROM model.");
    Check(tutorial.DisabledReason(workflow.View) == null, "An exact base without drafts enables creation.");
    workflow.Edit(WorkflowFixture.Source(1, 2), settle: false);
    var pendingState = workflow.State(); var pendingSource = workflow.Body.Content;
@@ -104,4 +171,5 @@ try {
       "Eligibility retains rejected source, diagnostics and model state.");
    Check(workflow.View.Redo.CanExecute(null), "Rejected draft eligibility preserves the existing Redo entry.");
 } finally { Directory.Delete(directory, true); }
+if (args.Length == 1) checks += RealBaseVerification.Run(args[0]);
 Console.WriteLine($"CHECKS_PASSED:{checks}");

@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-10",
+  "tested_product_commit": "5179545e3a23788257eba4801aefed5e5bcdec5e",
+  "native_host_commit": "d3d86ca1",
+  "production_source_changed": false,
+  "host": {
+    "architecture": "arm64",
+    "macOS": "27.2"
+  },
+  "method": "Manual native UI testing of a copied package through an isolated investigation host; actual packaged controls, MacFileSystem, bundled runtime and UI dispatcher.",
+  "manual_observations": {
+    "welcome_and_open_cancel": "passed",
+    "open_disposable_clean_FireRed_1_1_project": "passed",
+    "command_g_focus_and_anchor_navigation": "passed",
+    "valid_script_edit_command_s_and_dirty_marker": "passed",
+    "native_save_as_cancel": "passed",
+    "native_save_as_spaces_and_unicode_basename": "passed",
+    "dialogue_growth_undo_redo_save": "passed",
+    "invalid_script_save": "blocked as expected; rejected source and diagnostics retained; disk ROM and TOML hashes unchanged",
+    "undo_rejected_draft_and_correct_retry": "passed",
+    "close_tab_reopen_saved_pair_and_final_dialogue": "passed",
+    "native_emulator_selection": "failed: user reported mGBA disabled in Browse Finder window, including after checking All Applications; both choosers cancelled",
+    "native_emulator_launch_with_isolated_preconfigured_path": "passed: Play started mGBA 0.10.5 and its window URL identified the exact owned Unicode-named ROM",
+    "standard_quit_and_restart": "not verified: investigation host lacks desktop lifetime; Quit did not exit host; saved disposable host process was terminated after verifying its identity"
+  },
+  "disk_verification": {
+    "rom_bytes": 16777216,
+    "toml_bytes": 183718,
+    "anchors": 549,
+    "lists": 74,
+    "all_anchor_definitions_retained": true,
+    "final_dialogue": "Native UI final save.",
+    "verification_read_only": true,
+    "rom_sha256": "d18d152eca168dd6726de155a1c147c8af4167feb80748c3e2a48c0ac3be09f7",
+    "toml_sha256": "3042487b9a8064dc2e30003d076a4eb60507c64ce2f7bacacce2303d0e86381c"
+  },
+  "isolation": {
+    "working_tutorial_project_opened": false,
+    "normal_HMA_profile_unchanged": true,
+    "normal_HMA_profile_files_compared": 3,
+    "emulator_preference_override": "isolated test profile only",
+    "mGBA_closed_after_test": true
+  },
+  "open_findings": [
+    "Native application selection is confirmed blocked on this Mac; installed mGBA is valid and direct configured launch succeeds. Exact chooser rejection cause is not established.",
+    "Intermittent metadata save denial was not reproduced and remains open; passing saves do not establish its cause or resolution."
+  ],
+  "limitations": [
+    "Manual observations are not automated assertion counts; the prior complete suite remains 89 groups / 24,770 assertions.",
+    "The isolated host bypasses ordinary desktop startup, IPC and update hooks; its Quit limitation is not a production Quit defect.",
+    "No clean no-SDK machine, original app entry-point launch, Applications installation, download quarantine, notarization or privacy-permission flow is certified.",
+    "Remembered-emulator behavior across a complete native restart remains unverified; preconfiguration tests only launch.",
+    "No product chooser fix was implemented in this investigation."
+  ]
+}

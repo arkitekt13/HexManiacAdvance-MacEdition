@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><RuntimeIdentifier>osx-arm64</RuntimeIdentifier><UseAppHost>true</UseAppHost>
+    <BundleBinaries Condition="'$(BundleBinaries)' == ''">$(MSBuildThisFileDirectory)../../artifacts/mac/osx-arm64/HexManiacAdvance.app/Contents/MacOS</BundleBinaries>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(BundleBinaries)/HexManiacAdvance.dll"><Private>false</Private></Reference>
+    <Reference Include="$(BundleBinaries)/HexManiac.Core.dll"><Private>false</Private></Reference>
+    <Reference Include="$(BundleBinaries)/Avalonia*.dll"><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

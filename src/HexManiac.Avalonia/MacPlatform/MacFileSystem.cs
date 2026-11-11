@@ -186,8 +186,9 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
 
    // ---------------- Misc ----------------
 
-   protected static void OpenInDefaultApp(string pathOrUrl) =>
-      Process.Start(new ProcessStartInfo("open", $"\"{pathOrUrl}\"") { UseShellExecute = false });
+   protected static void OpenInDefaultApp(string pathOrUrl) {
+      using var process = Process.Start(MacOpen.CreateStartInfo(pathOrUrl));
+   }
 
    // ==================================================================================
    // IFileSystem
@@ -255,9 +256,13 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
    public void LaunchProcess(string file, string arguments = null) {
       try {
          if (arguments == null) {
-            OpenInDefaultApp(Path.GetFullPath(file));
+            OpenInDefaultApp(Path.GetFullPath(file, AppContext.BaseDirectory));
          } else {
-            Process.Start(new ProcessStartInfo(file, arguments) { UseShellExecute = false });
+            var isOpen = file is "open" or "/usr/bin/open";
+            var isWeb = Uri.TryCreate(arguments, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https";
+            var info = isOpen && (isWeb || Path.IsPathRooted(arguments)) ? MacOpen.CreateStartInfo(arguments)
+               : new ProcessStartInfo(isOpen ? "/usr/bin/open" : file, arguments) { WorkingDirectory = isOpen ? "/" : AppContext.BaseDirectory, UseShellExecute = false };
+            using var process = Process.Start(info);
          }
       } catch (System.ComponentModel.Win32Exception) {
          var nl = Environment.NewLine;
@@ -265,6 +270,8 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
          ShowCustomMessageBox(
             $"{EditorViewModel.ApplicationName} tried to run{nl}{name}{nl}but there is no application associated with its file type.",
             showYesNoCancel: false, new ProcessModel("Show in Finder", "/" + file));
+      } catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or InvalidOperationException) {
+         ShowCustomMessageBox("Could not open the file or application: " + error.Message, showYesNoCancel: false);
       }
    }
 
@@ -364,7 +371,9 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
             return true;
          } catch (Exception ex) {
             if (tryCount >= 5) {
-               ShowCustomMessageBox($"Failed to write {metadataName}:{Environment.NewLine}{ex.Message}.", showYesNoCancel: false);
+               var stage = ex.Data[AtomicFileWriter.FailureStageKey] as string;
+               var detail = stage == null ? string.Empty : $"{Environment.NewLine}Operation: {stage}.{Environment.NewLine}";
+               ShowCustomMessageBox($"Failed to write {metadataName}:{Environment.NewLine}{ex.Message}{detail}{Environment.NewLine}This metadata save did not complete. Keep the project open; retry Save or use Save As with a new name.", showYesNoCancel: false);
                return false;
             }
             Thread.Sleep(100);
@@ -630,13 +639,14 @@ public partial class MacFileSystem : IFileSystem, IWorkDispatcher, IFileRevealer
       return dialog.ShowDialog<bool?>(getOwner());
    }
 
-   void FollowLink(string content) {
+   async void FollowLink(string content) {
       try {
          if (content.StartsWith("~")) {
             CopyText = content.Substring(1);
          } else if (content.StartsWith("!") || content.StartsWith("/")) {
             // WPF opens the Windows file-properties dialog; the macOS equivalent is Reveal in Finder.
-            Process.Start(new ProcessStartInfo("open", $"-R \"{content.Substring(1)}\"") { UseShellExecute = false });
+            var error = await RevealFileAsync(content.Substring(1));
+            if (error != null) ShowCustomMessageBox("Could not reveal the file: " + error, showYesNoCancel: false);
          } else {
             OpenInDefaultApp(content);
          }

@@ -9,7 +9,22 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NAME="HexManiacAdvance"
 OUT="$ROOT/artifacts/mac/$RID"
 FINAL="$OUT/$NAME.app"
-VERSION="$(sed -n 's/^\[assembly: AssemblyFileVersion("\([0-9.]*\)")\].*/\1/p' "$ROOT/src/SharedAssemblyInfo.cs" | tr -d '\r')"
+require_stopped_app() {
+  local processes pid command
+  if ! processes="$(ps -axww -o pid=,args=)"; then
+    echo 'Could not check whether HMA is running; the existing app was preserved.' >&2
+    return 1
+  fi
+  while read -r pid command; do
+    case "$command" in
+      "$FINAL/Contents/MacOS/$NAME"|"$FINAL/Contents/MacOS/$NAME "*)
+        echo "Quit HMA first (PID $pid), then rerun this build. The existing app was preserved." >&2
+        return 1 ;;
+    esac
+  done <<< "$processes"
+}
+require_stopped_app
+VERSION="$(sed -n 's/^\[assembly: AssemblyFileVersion("\([0-9.]*\)")\].*/\1/p' "$ROOT/src/HexManiac.Avalonia/MacAssemblyInfo.cs" | tr -d '\r')"
 if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then echo 'Could not read the application version.' >&2; exit 1; fi
 command -v dotnet >/dev/null || { echo 'Install the .NET 8 SDK to build this application.' >&2; exit 1; }
 command -v codesign >/dev/null || { echo 'Mac packaging requires codesign on macOS.' >&2; exit 1; }
@@ -58,6 +73,7 @@ PLIST
 # Local ad-hoc signature only; this is not Developer ID signing or notarization.
 codesign --force --deep --sign - "$APP"
 codesign --verify --deep --strict "$APP"
+require_stopped_app
 # Build, resources and signing must all succeed before the previous bundle is moved.
 if [[ -e "$FINAL" ]]; then
   BACKUP="$OUT/.previous-$NAME-$(basename "$STAGE")"

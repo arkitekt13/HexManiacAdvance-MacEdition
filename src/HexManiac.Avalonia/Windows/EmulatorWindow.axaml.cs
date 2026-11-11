@@ -12,6 +12,7 @@ using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using HavenSoft.HexManiac.AvaloniaUI.Emulation;
+using HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.ViewModels;
 
@@ -377,7 +378,10 @@ public partial class EmulatorWindow : Window {
       TryStart(new[] { new GbaCore(Path.GetFileName(path), path, "chosen by you") });
    }
 
-   private void OpenCoreHelp(object sender, RoutedEventArgs e) => NativeProcess.Start(EmulatorPaths.CoreHelpUrl);
+   private async void OpenCoreHelp(object sender, RoutedEventArgs e) {
+      var error = await MacHelpLink.OpenAsync(EmulatorPaths.CoreHelpUrl);
+      if (error != null) StatusText.Text = "Could not open help: " + error;
+   }
 
    #endregion
 

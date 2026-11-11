@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using HavenSoft.HexManiac.AvaloniaUI.Project;
@@ -42,19 +43,20 @@ public partial class MainWindow {
       if (tutorialMenu == null) return;
       var reason = TutorialDisabledReason();
       tutorialMenu.IsEnabled = reason == null;
-      tutorialMenu.ToolTip = reason ?? "Create " + tutorial.Title + " as a new ROM copy; the open ROM is preserved.";
+      tutorialMenu.ToolTip = reason ?? "Create " + tutorial.Title + " as a new ROM/TOML pair; the open ROM is preserved.";
    }
 
    private async void CreateTutorialRomClick(object sender, EventArgs e) {
       var reason = TutorialDisabledReason();
       if (reason != null) { if (editor != null) editor.ErrorMessage = reason; return; }
+      var targetEditor = editor;
+      var source = TutorialSource().Model.RawData.ToArray();
       creatingTutorial = true;
       RefreshTutorialMenu();
       try {
-         // Capture and validate before showing the picker. No editor changes or implicit save.
-         var bytes = tutorial.Create(TutorialSource().Model.RawData.ToArray());
+         // The input is captured before yielding; cancellation does not compile source or write files.
          var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {
-            Title = "Create Tutorial ROM — choose a new filename",
+            Title = "Create Tutorial ROM — choose a folder and new ROM name",
             SuggestedFileName = "TutorialVillage.gba",
             DefaultExtension = "gba",
             FileTypeChoices = new[] { new FilePickerFileType("Game Boy Advance ROM") { Patterns = new[] { "*.gba" } } },
@@ -63,10 +65,17 @@ public partial class MainWindow {
          if (file == null) return;
          var destination = file.TryGetLocalPath();
          if (destination == null) throw new IOException("Choose a local folder for the tutorial ROM.");
-         TutorialPatch.SaveNewCopy(destination, bytes);
-         await editor.OpenFileAsync(new LoadedFile(destination, bytes));
-      } catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException) {
-         editor.ErrorMessage = "Could not create the tutorial ROM: " + ex.Message;
+         if (!ReferenceEquals(editor, targetEditor)) throw new IOException("The original editor was closed. Run the tutorial utility again.");
+         var bytes = await Task.Run(() => {
+            var result = tutorial.Create(source);
+            tutorial.SaveNewCopy(destination, result);
+            return result;
+         });
+         // Both files are present, with the supplied metadata, before the normal HMA loader runs.
+         var opened = await targetEditor.OpenFileAsync(new LoadedFile(destination, bytes));
+         if (opened == null) targetEditor.ErrorMessage = "The tutorial ROM and TOML were created but could not be opened. " + targetEditor.ErrorMessage;
+      } catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException or InvalidOperationException) {
+         targetEditor.ErrorMessage = "Could not create the tutorial ROM: " + ex.Message;
       } finally {
          creatingTutorial = false;
          RefreshTutorialMenu();

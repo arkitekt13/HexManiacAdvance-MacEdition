@@ -57,6 +57,70 @@ Mixing-bag membership uses **Command-click in the block selector**, which is dis
 Control-click context menus. In dialogue, Enter inserts a line break; a blank line introduces
 a paragraph/page break. Overflow warnings are visual guidance, not automatic text wrapping.
 
+## Apply the Ikarus Visual Upgrade
+
+1. Open your **English FireRed** project (vanilla, HUBOL, CFRU or SCADE).
+2. Choose **Utilities > Ikarus Visual Upgrade…** and read the confirmation.
+3. Choose **Back Up and Continue…**, then choose a folder and a **new backup name**.
+4. HMA verifies both the backup `.gba` and matching `.toml` before applying the upgrade.
+5. Test the result. **Save** keeps it; **Undo** restores the pre-upgrade state.
+
+An unedited or minimally edited project is recommended, but ordinary edits are allowed.
+The backup includes unsaved ROM changes and current metadata; existing backup files are
+never replaced. Correct rejected script source before proceeding. Canceling the confirmation
+or backup picker leaves your project alone. Your original files are not automatically saved.
+
+This patch changes graphics **and** some map layouts, movement permissions, block behaviors
+and a Five Isle Meadow tile-change routine. It appears compatible with vanilla FireRed,
+HUBOL, CFRU and SCADE. Automated checks cover English FireRed 1.0, the bundled HUBOL build
+and the supplied SCADE build; gameplay, FireRed 1.1 and other CFRU builds need further testing.
+Other games and non-English ROMs are blocked. Keep your paired backup until testing is complete.
+Creator notes and full contributor credits are available in the confirmation dialog.
+
+## Create a SCADE ROM base
+
+SCADE is Shiny Miner's CFRU Expansion / DPE-gen9 build, separate from the tutorial.
+
+1. Open a **clean English FireRed 1.0** ROM; FireRed 1.1 and edited ROMs are rejected.
+2. Choose **Utilities > Create SCADE ROM…**.
+3. Choose the folder and a new ROM name in the Mac save dialog.
+4. HMA creates `Your Name.gba` and the creator's matching `Your Name.toml`
+   beside it, then opens the new ROM with those definitions.
+
+The original ROM and its metadata are preserved. Existing destination files are
+never replaced; choose another name if either file already exists. Finish or
+discard pending/rejected script edits before using the utility. Keep the TOML
+beside the new ROM when moving or sharing your project. General BPS import is
+not enabled by this feature. See [asset/version details](../OptionalAssets/SCADE/README.md).
+
+## Create the Tutorial Village project
+
+The **Utilities > Create Tutorial ROM…** action stays disabled until the finished
+tutorial patch and matching definitions are included in a build.
+
+1. Open an **unmodified English FireRed 1.1** ROM. The complete ROM hash must match;
+   FireRed 1.0, edited ROMs and other games are rejected.
+2. Choose **Utilities > Create Tutorial ROM…**.
+3. Choose a folder and a new ROM name.
+4. HMA creates `Your Name.gba` and the bundled `Your Name.toml`, then opens the pair.
+
+The matching TOML is in place before opening, preserving the tutorial's custom definitions.
+Your base ROM and its metadata are untouched. Existing files are never replaced, and
+cancellation writes nothing. Finish or discard rejected/pending script edits first.
+Keep the ROM and TOML together when moving the tutorial project.
+See [release asset instructions](../OptionalAssets/Tutorial/README.md).
+
+## Updates
+
+On startup, Mac Edition checks this project's published GitHub releases, at most once per day.
+A newer stable release with a compatible Mac download shows an **Update available** notice.
+Choose **View Update** to open the releases page, or **Dismiss** to hide it for this session;
+**Help > Update** remains available. Nothing downloads or installs automatically.
+Offline checks fail quietly. Pushing changes to a branch does not create an update.
+
+Mac Edition uses its own release numbering, starting at **1.0.0**; your project's existing
+Core/TOML version remains independent. Keep your ROM and TOML together when moving projects.
+
 ## If macOS blocks a downloaded app
 
 Current development bundles are ad-hoc signed and are not notarized.

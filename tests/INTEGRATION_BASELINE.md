@@ -1,10 +1,21 @@
 # Second upstream project baseline — 2026-11-02
 
+## Latest supplied FireRed 1.0 verification — 2026-11-09
+
+**67 cases: 58 passed, 0 failed, 9 skipped, 0 engine errors**, in both Debug and Release.
+The exact clean 1.0 upload unlocks 32 previously skipped cases in this project.
+[Structured evidence and full newly passing case names](FIRERED_10_VERIFICATION.json)
+record both configurations, untouched fixture hashes and remaining limits. The two projects
+unlock 158 previously skipped cases in total, counted once across configurations.
+The remaining skips require other fixtures; historical checkpoints below keep their original counts.
+No application assertions were relaxed or implementation changed.
+
+
 Project: `src/HexManiac.Integration`; branch: `improve/upstream-test-harness`.
 Host: macOS ARM64, .NET SDK 8.0.300 / runtime 8.0.5; Debug; xUnit 2.4.1.
 No commercial ROMs were supplied, searched for, or copied.
 
-Current status: **67 cases: 26 passed, 0 failed, 41 skipped, 0 engine errors**, verified in
+Original fixture-free status: **67 cases: 26 passed, 0 failed, 41 skipped, 0 engine errors**, verified in
 Debug and Release. The 26 passes are new host/synthetic checks; all 41 original ROM cases
 remain skipped, so this is not evidence that the game workflows have passed.
 

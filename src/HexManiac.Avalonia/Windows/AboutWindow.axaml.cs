@@ -1,8 +1,8 @@
-using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using HavenSoft.HexManiac.Core.Models;
+using HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
 
 namespace HavenSoft.HexManiac.AvaloniaUI.Windows;
 
@@ -27,8 +27,9 @@ public partial class AboutWindow : Window {
    }
 
    /// WPF used NativeProcess.Start on the Hyperlink's Uri; on macOS that is `open`.
-   private void Navigate(object sender, RoutedEventArgs e) {
-      Process.Start(new ProcessStartInfo("open", $"\"{LicenseUrl}\"") { UseShellExecute = false });
+   private async void Navigate(object sender, RoutedEventArgs e) {
       e.Handled = true;
+      var error = await MacHelpLink.OpenAsync(LicenseUrl);
+      LinkError.Text = error == null ? string.Empty : "Could not open license: " + error;
    }
 }

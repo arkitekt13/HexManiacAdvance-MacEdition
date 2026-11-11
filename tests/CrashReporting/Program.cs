@@ -11,6 +11,8 @@ Directory.CreateDirectory(root);
 try {
    var version = typeof(AppIdentity).Assembly.GetName().Version!;
    Check(AppIdentity.VersionNumber == version.ToString(version.Revision > 0 ? 4 : 3), "Use actual app assembly version.");
+   Check(AppIdentity.VersionNumber == "1.0.0", "Mac Edition has its independent 1.0.0 release identity.");
+   Check(typeof(Singletons).Assembly.GetName().Version.ToString() == "0.6.1.0", "Core assembly identity remains unchanged.");
    Check(AppIdentity.VersionNumber != "0.0.0", "App must have a meaningful version.");
    Check(StartScreen.VersionLabel == AppIdentity.VersionLabel, "Welcome screen shares diagnostic identity.");
    Check(Path.IsPathFullyQualified(CrashReporter.DefaultLogDirectory), "Default log path must be absolute.");

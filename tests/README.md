@@ -6,6 +6,13 @@ fresh binaries, executes them in separate processes, and requires one positive a
 from each. A build failure, nonzero process exit, missing count, duplicate count, or empty test
 set fails the run. The summary reports groups and assertions rather than claiming xUnit cases ran.
 
+The November 10 launch-safety candidate passes **89 groups / 24,770 assertions**,
+zero failures and zero skipped groups; [exact per-group counts and limits](MAC_LAUNCH_SAFETY_VERIFICATION.json).
+This includes the running-app publishing guard, launch-path audit and recent Find,
+selection-deletion and save-diagnostic regressions. NU1900 vulnerability-feed access
+is the only warning category; there are no compiler warnings. Older runs below
+remain historical evidence rather than the latest total.
+
 Pre-merge verification on 2026-11-08 passed **81 groups / 24,292 assertions**,
 with zero failures or skipped groups; [exact results](MAP_REFERENCE_MERGE_VERIFICATION.json)
 record the tested branch, rollback checkpoint and build-warning limitation.
@@ -15,6 +22,9 @@ The original `src/HexManiac.Tests` xUnit suite is separate and is not included i
 counts. Run `scripts/verify-upstream.sh` for that suite, or add `--in-process` when VSTest's
 local test-host socket is unavailable. It builds on .NET 8, and the latest in-process baseline
 has zero failures with explicit optional-ROM skips; see [UPSTREAM_BASELINE.md](UPSTREAM_BASELINE.md).
+The supplied FireRed 1.0 now unlocks **158 previously skipped upstream/integration cases**;
+both suites pass in Debug and Release. [Exact counts and remaining fixture skips](FIRERED_10_VERIFICATION.json).
+
 The second upstream project, `src/HexManiac.Integration`, now has a portable host; select it
 with `--integration` and see [INTEGRATION_BASELINE.md](INTEGRATION_BASELINE.md) for its separate results.
 See individual group READMEs for any manual GUI checks that remain.
@@ -23,12 +33,48 @@ hex/Go To image-hint failures; [ImageHoverPreviews](ImageHoverPreviews/README.md
 fitted window overlay and source/input lifecycle.
 [FirstLaunch](FirstLaunch/README.md) covers isolated settings, startup paths and rejected ROM opens;
 [MacPackaging](MacPackaging/README.md) covers build-script failure preservation.
+The optional [packaged-project review](PACKAGED_RELEASE_REVIEW.json) adds 871 standalone
+assertions across 100 real Mac save commands using the packaged assemblies/runtime; these
+are separate from the Mac group total. The subsequent [native review](NATIVE_RELEASE_REVIEW.json)
+passed save/reopen, Save As, Undo/Redo, rejected-draft protection and configured mGBA launch;
+the original emulator chooser failed. Its subsequent [direct-picker repair](ExternalEmulatorLaunch/NATIVE_PICKER_VERIFICATION.json)
+passed actual mGBA selection and remembered launch after an isolated-host restart.
+Full ordinary startup/Quit and fresh-install checks remain pending.
 The [helper-readiness investigation](FIRST_LAUNCH_READINESS_REVIEW.md) separates reproduced defects,
 real published-loader checks and native distribution checks still awaiting helpers.
+The earlier Mac Edition 1.0 candidate passed **86 groups / 24,568 assertions**, with zero failures
+or skipped groups; [exact counts and project-compatibility proof](StartupUpdates/mac-edition-1-0-verification.json).
+[UpdateNotice](UpdateNotice/README.md) covers nonintrusive availability prompts and pending/rejected source;
+[MacVersionMetadata](MacVersionMetadata/README.md) covers the independent app/Core versions and existing project lifecycle.
+
+[FindKeyboard](FindKeyboard/README.md) records the scoped Return submission repair and
+six focused groups / 341 assertions, including results-tab patch-utility guards.
+
+The final paired-tutorial framework passes **84 groups / 24,533 assertions**, with zero
+failures or skipped groups; [exact counts and limits](TutorialPatch/verification.json).
+A separate real-1.1 lifecycle probe adds 18 checks and preserves all 547 named definitions;
+it uses a fabricated lesson, not the unfinished Tutorial Village assets.
+
 [TutorialPatch](TutorialPatch/README.md) covers optional tutorial assets, exact-base/output
 verification, separate ROM creation and pending/rejected script protection; the asset locations
 are documented in [OptionalAssets/Tutorial](../OptionalAssets/Tutorial/README.md) and
 [OptionalAssets/Welcome](../OptionalAssets/Welcome/README.md).
+The November 9 SCADE candidate passed **83 groups / 24,439 assertions**, with zero failures
+or skipped groups; [exact results and manual limits](ScadeInstaller/verification.json).
+
+The final Ikarus candidate passed **84 groups / 24,511 assertions**, with zero failures
+or skipped groups; [exact per-group results](IkarusUpgrade/verification.json).
+The optional real-ROM process passes 127 assertions: the same 70 focused assertions plus
+57 supplemental vanilla/HUBOL/SCADE checks, not an extra 127 added to the complete total.
+
+[IkarusUpgrade](IkarusUpgrade/README.md) covers the backed-up visual upgrade, related drafts,
+formatting-safe Undo/Redo and modal controls; [real-ROM evidence](IkarusUpgrade/real-verification.json)
+records actual vanilla/HUBOL/SCADE save/reopen and initialized-map checks.
+
+[ScadeInstaller](ScadeInstaller/README.md) covers bundled SCADE BPS decoding, independent
+format vectors, paired ROM/TOML publication, pending drafts and normal metadata load/save/reopen.
+The later [real FireRed 1.0 verification](ScadeInstaller/real-base-verification.json) confirms
+independent patch output and all 541 custom anchor definitions through actual save/reopen.
 The [ID suggestion lifetime review](ID_SUGGESTION_LIFECYCLE_REVIEW.md) and
 [IdSuggestionLifecycle](IdSuggestionLifecycle/README.md) cover live usage, deletion/reuse,
 scoped reservations and retained pending/rejected source.

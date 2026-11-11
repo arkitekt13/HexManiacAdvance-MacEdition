@@ -45,8 +45,12 @@ Directory.CreateDirectory(folder);
 try {
    var path = Path.Combine(folder, "test.gba"); var original = new byte[] { 1, 2, 3, 4 };
    File.WriteAllBytes(path, original);
-   try { AtomicFileWriter.Write(path, stream => { stream.WriteByte(99); throw new IOException("injected disk failure"); }); }
-   catch (IOException) { }
+   var injected = new IOException("injected disk failure");
+   try { AtomicFileWriter.Write(path, stream => { stream.WriteByte(99); throw injected; }); }
+   catch (IOException error) {
+      Check(ReferenceEquals(error, injected), "Failure diagnostics must retain the original exception and stack.");
+      Check(error.Data[AtomicFileWriter.FailureStageKey] as string == "writing the temporary file", "A failed staged write identifies its operation without changing save behavior.");
+   }
    Check(File.ReadAllBytes(path).SequenceEqual(original), "A failed staged write must not modify the old ROM.");
    Check(Directory.GetFiles(folder).Length == 1, "Failed staged writes must clean up their temporary files.");
    AtomicFileWriter.Write(path, stream => stream.WriteByte(9));

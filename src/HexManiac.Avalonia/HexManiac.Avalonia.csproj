@@ -9,23 +9,14 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <!-- Reflection bindings while porting; switch to compiled bindings later for speed. -->
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
-    <!--
-      Same as HexManiac.Core and HexManiac.WPF: take version info from SharedAssemblyInfo.cs
-      instead of generating it. src/Directory.Build.props derives the obj path from
-      $(Configuration), so "dotnet build -c Debug" and a bare "dotnet run" each get their own obj
-      tree, and a generated AssemblyInfo.cs left in the other one gets compiled a second time
-      (error CS0579). Not generating one avoids that, exactly as the other two projects do.
-    -->
+    <!-- MacAssemblyInfo.cs defines this app's independent release identity; Core keeps
+         SharedAssemblyInfo.cs and its existing metadata/migration version. -->
     <!-- The libretro video callback hands over a raw frame buffer, and AudioQueue hands over a
          raw device buffer; both are converted with pointer loops in Emulation/. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)../SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <!-- Bump to the latest Avalonia 11.x when you set this up. -->
@@ -39,7 +30,7 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets/**" />
     <!-- Optional release assets retain their folder structure in build and publish output. -->
-    <Content Include="../../OptionalAssets/**/*.png;../../OptionalAssets/**/*.ups;../../OptionalAssets/**/*.json"
+    <Content Include="../../OptionalAssets/**/*.png;../../OptionalAssets/**/*.ups;../../OptionalAssets/**/*.json;../../OptionalAssets/**/*.bps;../../OptionalAssets/**/*.ips;../../OptionalAssets/**/*.toml;../../OptionalAssets/**/*.txt"
              Link="resources/Optional/%(RecursiveDir)%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>

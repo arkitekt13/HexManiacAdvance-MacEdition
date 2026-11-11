@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.ViewModels.QuickEditItems;
+using HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
 
 namespace HavenSoft.HexManiac.AvaloniaUI.Windows;
 
@@ -25,8 +26,10 @@ public partial class QuickEditDialog : Window {
       WikiLink.IsVisible = !string.IsNullOrEmpty(edit.WikiLink);
    }
 
-   private void OpenWiki(object sender, RoutedEventArgs e) {
-      if (!string.IsNullOrEmpty(edit?.WikiLink)) NativeProcess.Start(edit.WikiLink);
+   private async void OpenWiki(object sender, RoutedEventArgs e) {
+      if (string.IsNullOrEmpty(edit?.WikiLink)) return;
+      var error = await MacHelpLink.OpenAsync(edit.WikiLink);
+      LinkError.Text = error == null ? string.Empty : "Could not open help: " + error;
    }
 
    private void RunEdit(object sender, RoutedEventArgs e) {

@@ -47,7 +47,7 @@ public static class UsageDetectionAudit {
          var hash = Convert.ToHexString(SHA256.HashData(data));
          var model = new HardcodeTablesModel(new Singletons(), data, new StoredMetadata(Array.Empty<string>()));
          model.InitializationWorkload.GetAwaiter().GetResult();
-         if (model.GetGameCode() != "BPRE1") throw new InvalidOperationException("Real-ROM phase is scoped to the supplied BPRE1 fixture.");
+         if (model.GetGameCode() is not ("BPRE0" or "BPRE1")) throw new InvalidOperationException("Real-ROM phase requires a supplied English FireRed 1.0 or 1.1 fixture.");
          var parser = new ScriptParser(model.GetShortGameCode(), new Singletons().ScriptLines, 2);
          var before = model.RawData.ToArray();
          var used = Flags.GetUsedVariables(model, parser);

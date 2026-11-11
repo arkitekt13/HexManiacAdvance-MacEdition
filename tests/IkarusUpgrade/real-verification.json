@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-09",
+  "testedCommit": "78125ff3336f7e74e6c30fa17f02e9c55c7b3b82",
+  "branch": "codex/ikarus-visual-upgrade",
+  "command": "dotnet tests/IkarusUpgrade/bin/Debug/net8.0/IkarusUpgrade.dll /absolute/path/to/clean-firered-1.0.gba",
+  "counts": {
+    "defaultSyntheticHeadlessAssertions": 70,
+    "supplementalRealRomAssertions": 57,
+    "combinedOptInProcessAssertions": 127,
+    "failures": 0
+  },
+  "source": {
+    "crc32": "DD88761C",
+    "sha256": "3d0c79f1627022e18765766f6cb5ea067f6b5bf7dca115552189ad65a5c3a8ac",
+    "originalUnmodifiedAfterTesting": true
+  },
+  "patch": {
+    "sha256": "cbc79d5613c24d682119c6a43ba191baae39a0c7fab8a0cbf53311891a3c8b7c",
+    "creatorNotesSha256": "dd3a799ff2b84888ebcbc87a64b1ccf19b6433ea8cb469b678a8586cc00c2513",
+    "buildAndFrameworkDependentPublishIdentical": true
+  },
+  "variants": [
+    {
+      "base": "English FireRed 1.0",
+      "namedDefinitionsRetained": 549,
+      "testOutputSha256": "b10f91d6696e04063cb7c76d228a17b520a420b8b1387eb9a2269218e0e07ee6"
+    },
+    {
+      "base": "bundled HUBOL",
+      "namedDefinitionsRetained": 549,
+      "testOutputSha256": "78b9e488c42768485db2c476bf276349a0873a06af3942b7f76dfeb46061373d"
+    },
+    {
+      "base": "supplied SCADE",
+      "namedDefinitionsRetained": 541,
+      "testOutputSha256": "5c2823b7045499da05028dc1d0a3a82781f2aeec22d8c8aa0fb3654cb88b7376"
+    }
+  ],
+  "testOutputNote": "Each output includes a disposable pre-upgrade byte edit at 0x700000, proving the backup includes unsaved changes. These are test identities, not universal patch target checksums.",
+  "checks": [
+    "Normal HMA opening, before any utility operation",
+    "Verified paired backup with unsaved edit and current named metadata",
+    "Expected patched bytes agree with detached HMA IPS application; independent IPS review recorded separately",
+    "No original project file writes until explicit Save",
+    "Fresh Pallet Town snapshot changes and restores on Undo/Redo",
+    "Already-initialized Map Editor cache changes and restores on data-tab Undo",
+    "Single Undo restores exact pre-patch bytes, with earlier edit still independently undoable",
+    "Redo restores exact patched bytes and images",
+    "Actual normal Save writes ROM and TOML",
+    "All original named anchor addresses and formats persist through Save/reopen",
+    "Temporary ROM/TOML pairs removed; original uploaded ROM unchanged"
+  ],
+  "manualChecksRemaining": [
+    "Native macOS save picker",
+    "In-game progression, movement and scripted map changes",
+    "English FireRed 1.1",
+    "Other CFRU builds and custom edited projects"
+  ],
+  "scope": "Compatibility wording remains qualified. Non-English games are blocked; English BPRE revision 1 and ordinary edits are allowed, without clean-CRC enforcement."
+}

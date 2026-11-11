@@ -10,10 +10,7 @@ public interface IFileRevealer {
 
 public static class MacFileReveal {
    public static ProcessStartInfo CreateStartInfo(string path) {
-      var info = new ProcessStartInfo("/usr/bin/open") { UseShellExecute = false, RedirectStandardError = true };
-      info.ArgumentList.Add("-R");
-      info.ArgumentList.Add(Path.GetFullPath(path));
-      return info;
+      return MacOpen.CreateStartInfo(Path.GetFullPath(path), reveal: true);
    }
 
    public static async Task<string> RevealAsync(string path) {

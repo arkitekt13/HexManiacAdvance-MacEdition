@@ -22,6 +22,7 @@
          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Name="Version"/>
             <TextBlock Name="Usage" TextWrapping="Wrap"/>
+            <TextBlock Name="LinkError" TextWrapping="Wrap" Foreground="{DynamicResource Error}"/>
             <Button Name="LicenseLink" Background="Transparent" BorderThickness="0" Padding="0" Click="Navigate"
                     Content="MIT License" Foreground="{DynamicResource Accent}" Cursor="Hand"/>
          </StackPanel>

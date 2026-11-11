@@ -1,0 +1,25 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ x:Class="HavenSoft.HexManiac.AvaloniaUI.Windows.IkarusUpgradeDialog"
+ Title="Ikarus Visual Upgrade" Width="600" SizeToContent="Height" CanResize="False"
+ WindowStartupLocation="CenterOwner" FontSize="14" Background="{DynamicResource Background}">
+ <StackPanel Margin="24" Spacing="18">
+  <TextBlock Text="Ikarus Visual Upgrade" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource Primary}"/>
+  <ScrollViewer MaxHeight="440" HorizontalScrollBarVisibility="Disabled" AllowAutoHide="False">
+   <StackPanel Spacing="16">
+    <TextBlock Name="RecommendationText" TextWrapping="Wrap" Foreground="{DynamicResource Primary}"/>
+    <TextBlock Name="ChangesText" TextWrapping="Wrap" Foreground="{DynamicResource Primary}"/>
+    <TextBlock Name="CompatibilityText" TextWrapping="Wrap" Foreground="{DynamicResource Primary}"/>
+    <Border Padding="14" CornerRadius="6" Background="{DynamicResource Backlight}">
+     <TextBlock Text="First, choose a new name and folder for your backup. Both the ROM and its TOML will be backed up, including unsaved changes. Existing files will never be replaced.&#10;&#10;The upgrade is undoable and stays unsaved until you choose Save. Keep your backup until you have tested your game." TextWrapping="Wrap" Foreground="{DynamicResource Primary}"/>
+    </Border>
+    <Expander Header="Creator credits and patch notes">
+     <TextBlock Name="CreditsText" TextWrapping="Wrap" Foreground="{DynamicResource Primary}"/>
+    </Expander>
+   </StackPanel>
+  </ScrollViewer>
+  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
+   <Button Name="CancelButton" Content="Cancel" IsCancel="True" Click="Cancel" Padding="14,8" HorizontalContentAlignment="Center"/>
+   <Button Name="ContinueButton" Content="Back Up and Continue…" IsDefault="True" Click="Accept" Padding="14,8" HorizontalContentAlignment="Center"/>
+  </StackPanel>
+ </StackPanel>
+</Window>

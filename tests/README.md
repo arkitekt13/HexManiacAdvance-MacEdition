@@ -241,3 +241,8 @@ arrow after pointer/text assignment, clearing, correction, creation, templates a
 
 [ScriptAssistanceEntry](ScriptAssistanceEntry/README.md) covers initial command assistance with
 trailing whitespace, exact pointer edits/deletion, later commands and canceled queued insertions.
+
+The [November 11 SCADE asset correction](ScadeInstaller/metadata-count-correction-verification.json)
+passes a fresh 89-group / 24,774-assertion run, plus 39 separate real-base SCADE assertions
+and the Ikarus follow-up on the updated base. It records the original metadata overlap,
+verified 317-entry correction, exact published files and remaining gameplay limits.

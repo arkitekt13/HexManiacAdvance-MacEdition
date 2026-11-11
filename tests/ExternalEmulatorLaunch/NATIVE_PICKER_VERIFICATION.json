@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-10",
+  "repair_commit": "2aba4721",
+  "production_version": "1.0.0",
+  "focused_regressions": {
+    "ExternalEmulatorLaunch": 39,
+    "MapHelpLink": 31,
+    "groups": 2,
+    "assertions": 70,
+    "failures": 0,
+    "skips": 0,
+    "compiler_warnings": 0
+  },
+  "native_script_compile": "passed using macOS osacompile",
+  "native_review": {
+    "method": "Isolated NativePackagedReview host with updated production HexManiacAdvance.dll; native chooser completed by user, resulting launch observed through desktop accessibility.",
+    "reviewed_assembly_sha256": "46254ea75529a82fbda6904de7de3f4b9009adf2eb41ad12d30e3a7a11edafdd",
+    "binary_provenance": "Initial pre-commit build of the same repair source; normal application subsequently rebuilt from clean committed 2aba4721.",
+    "user_confirmed_mGBA_selectable": true,
+    "first_selection_launch": "mGBA 0.10.5 window opened the exact disposable Native Trial.gba",
+    "isolated_persisted_preference": "/Applications/mGBA.app",
+    "fresh_host_reuse": "passed: restarted isolated host, reopened disposable project, Play started mGBA without another chooser; exact test ROM URL observed again",
+    "normal_HMA_profile": "all three files byte-identical before and after",
+    "working_village_opened": false,
+    "cleanup": "test mGBA quit through menu; saved disposable host stopped after verifying exact process path",
+    "limitations": [
+      "The review host bypasses normal desktop startup/IPC.",
+      "Host restart used process termination because the prototype lacks desktop lifetime; production normal Quit was not tested.",
+      "This is not a clean-machine or first-download installation test."
+    ]
+  },
+  "publish": "guarded Apple Silicon publish and deep strict ad-hoc signature verification passed; not notarized"
+}

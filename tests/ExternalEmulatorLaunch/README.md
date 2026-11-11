@@ -29,3 +29,8 @@ The helper-readiness extension brings this group to 31 assertions on macOS: pref
 failure, a removed app while the picker is open, recovery after a launch exception, unreadable
 preferences and closing the selected ROM during selection all remain safe without a launcher
 implementation change. Tests still inject every launch and never start a native emulator.
+
+The [November 10 native repair verification](NATIVE_PICKER_VERIFICATION.json) confirms the user
+could select mGBA in the direct picker. Desktop observation verified the exact disposable ROM
+opened in mGBA and a restarted isolated host reused the saved choice without another picker.
+The current focused group passes 39 assertions; native observations are separate.

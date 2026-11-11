@@ -3553,3 +3553,14 @@ Validation: Native Open/cancel, Command-G, edit/Save, Save As/cancel with spaces
 | tests/ExternalEmulatorLaunch/README.md | 3 | Explain direct selection, validation and native checks. |
 
 Validation: ExternalEmulatorLaunch passes 39 assertions and MapHelpLink passes 31: two focused groups / 70 assertions, zero failures/skips and zero build warnings/errors. The exact chooser script compiles with macOS osacompile. Cancellation, remembered selection, missing applications, spaces, pending/rejected source, failed saves, retry and removed-working-directory launch checks remain passing. The guarded Apple Silicon publish and deep strict ad-hoc signature verification succeed. Native selection is being checked separately with the isolated test host; automated configuration and validation tests alone do not certify that mGBA is selectable. No ROM/compiler/history behavior, normal preferences or working village files are changed.
+
+## 245 — Verify native emulator selection, remembered launch and all Mac regressions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ExternalEmulatorLaunch/NATIVE_PICKER_VERIFICATION.json | 1 | Record actual selection/launch, remembered selection after an isolated-host restart, normal-profile preservation and exact full-suite group counts. |
+| tests/ExternalEmulatorLaunch/README.md | 31 | Link the observed native result separately from injected launch assertions. |
+| docs/MAC_RELEASE_CHECKLIST.md | 28 | Mark the chooser repair verified while retaining ordinary desktop startup/Quit and clean-machine installation limits. |
+| tests/README.md | 41 | Link the new native evidence without rewriting earlier historical findings. |
+
+Validation: The user selected mGBA successfully in the direct native picker; desktop observation confirmed mGBA 0.10.5 opened the exact disposable Native Trial.gba. The isolated preference contains /Applications/mGBA.app. After restarting only the saved investigation host, Play launches the same ROM without another picker. All three normal HMA preference files remain byte-identical; no working village is opened. The prototype restart uses verified-process termination because it lacks desktop lifetime; normal production Quit remains outside this check. Both test applications are stopped afterward. Fresh scripts/verify-mac.sh --no-restore on repair source 2aba4721 passes all 89 groups / 24,774 assertions, zero failures, zero skipped groups and zero compiler warnings. Exact per-group counts are in JSON. The regular Apple Silicon app is rebuilt from that committed repair with the publishing guard and passes ad-hoc signature verification. No claim is made about notarization, a clean no-SDK machine or resolution of the separately tracked intermittent save denial.

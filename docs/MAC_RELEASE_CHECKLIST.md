@@ -25,8 +25,9 @@ These results apply to the recorded checkpoints, not automatically to a later re
   [Results and limits](../tests/PACKAGED_RELEASE_REVIEW.json), November 10, 2026.
   This first run used no native window. A subsequent [isolated native review](../tests/NATIVE_RELEASE_REVIEW.json)
   passed edit/save/Save As/reopen, Undo/Redo, rejected-draft protection and configured mGBA launch.
-  Application selection failed: mGBA remained disabled in Browse. Full startup/restart and
-  clean-machine installation checks remain pending; this is not a complete native smoke pass.
+  The original application chooser failed; the subsequent [direct-picker repair](../tests/ExternalEmulatorLaunch/NATIVE_PICKER_VERIFICATION.json)
+  passed actual mGBA selection, launch and remembered selection after an isolated-host restart.
+  Full ordinary startup/Quit and clean-machine installation checks remain pending; this is not a complete native smoke pass.
 
 ## 1. Before sending a private helper build
 

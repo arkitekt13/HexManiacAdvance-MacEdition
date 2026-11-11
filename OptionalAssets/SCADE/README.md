@@ -9,7 +9,10 @@ upstream link: <https://github.com/Shiny-Miner/CFRU-expansion>.
 Credit Shiny Miner and the CFRU Expansion/DPE-gen9 contributors, building on
 Skeli's CFRU and Ghoulslash's DPE; this installer does not claim their engine work.
 
-The BPS and TOML are preserved byte for byte. `scade.json` pins their SHA-256 hashes,
+The BPS is preserved byte for byte. The shipped TOML has one reviewed local correction:
+the ability-description table contains 317 pointers, not the 390 ability-name entries.
+See [Metadata-Correction.txt](Metadata-Correction.txt) for binary/source evidence and
+the original creator TOML hash/history. `scade.json` pins the shipped SHA-256 hashes,
 source size and the patch's required source CRC32. Copy all assets to
 `resources/Optional/SCADE` during build/publish; no base or patched ROM is bundled.
 The .txt creator README is included in the application as well.

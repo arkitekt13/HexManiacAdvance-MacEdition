@@ -56,6 +56,7 @@ internal static class RealRomVerification {
             ("data.pokemon.names", 0x161F428, 1489), ("data.pokemon.stats", 0x1A92720, 1489),
             ("data.pokemon.moves.names", 0x10F8EDC, 992), ("data.trainers.stats", 0x1273158, 256),
             ("data.maps.banks", 0x3526A8, 43),
+            ("data.abilities.descriptions", 0x100B050, 317), ("graphics.moves.backgrounds.all", 0x100B544, 27),
          }) {
             var run = opened.Model.GetNextRun(address) as ITableRun;
             Check(Address(opened, name) == address && run?.ElementCount == count, "real custom table address/length: " + name);

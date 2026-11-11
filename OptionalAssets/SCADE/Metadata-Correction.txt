@@ -1,0 +1,33 @@
+SCADE metadata compatibility correction — November 11, 2026
+
+The creator's updated BPS is unchanged. One TOML format was corrected locally:
+  data.abilities.descriptions at 0x100B050
+  received: [description<"">]data.abilities.names
+  shipped:  [description<"">]317
+
+The received ability-name format has 390 entries. The actual description pointer
+array has 317 entries (0–316), ending exactly at 0x100B544, where the animation
+background table begins. Extending it to 390 overlaps that table by 292 bytes.
+The ROM references at 0x1C4 and 0x1367A8 point to the description table; 0x73960
+points to the background table. All literal description pointers from the creator
+source match the patched ROM, and the background's first row points to valid
+compressed tiles, palette and tilemap data.
+
+Creator source inspected at commit b24b5a3bafc51c6cfb982cec4204200e4d1b699a:
+https://github.com/Shiny-Miner/CFRU-expansion/blob/b24b5a3bafc51c6cfb982cec4204200e4d1b699a/assembly/data/ability_description_table.s
+https://github.com/Shiny-Miner/CFRU-expansion/blob/b24b5a3bafc51c6cfb982cec4204200e4d1b699a/include/constants/abilities.h
+https://github.com/Shiny-Miner/CFRU-expansion/blob/b24b5a3bafc51c6cfb982cec4204200e4d1b699a/repoints
+
+The source declares ABILITIES_COUNT as 317 and description entries 0–316. The
+last description, Spicy Spray, agrees with the actual ROM text. This corroborates
+the ROM boundary; the count is not chosen merely to make HMA accept the metadata.
+
+The original supplied TOML is preserved in Mac Edition Git commit 51d9c1c4 and
+has SHA-256 3ea679db301f38fed872bcd26ec80889eb4297f8287f9f1a579992ef191991db.
+The original Downloads file is untouched. Every other metadata byte, including
+all 390 ability names, is retained. The shipped hash is pinned in scade.json.
+
+Before correction, a real Save discarded the description format. After correction,
+strict normal Open/Save/reopen retains all 556 anchor addresses and formats, both
+adjacent tables, the actual saved edit, and Undo/Redo. This corrects HMA metadata;
+it does not alter the BPS, ROM bytes, engine, compiler, or ability behavior.

@@ -1,0 +1,78 @@
+{
+  "date": "2026-11-11",
+  "status": "targeted metadata correction verified",
+  "patch_unchanged": true,
+  "patch_sha256": "727b713f8b405f39399679821c6938c048592451fbd061bbd2f953f532621e57",
+  "creator_toml_sha256": "3ea679db301f38fed872bcd26ec80889eb4297f8287f9f1a579992ef191991db",
+  "shipped_toml_sha256": "f390e245e135760fbffbacb3f8b4d5ad29e7581d6b7b934f3b8f13aa14c4b198",
+  "exact_byte_change": {
+    "anchor": "data.abilities.descriptions",
+    "address": "0x100B050",
+    "received": "[description<\"\">]data.abilities.names",
+    "shipped": "[description<\"\">]317",
+    "all_other_bytes_identical": true,
+    "ability_names_preserved": 390,
+    "background_anchor_preserved": "0x100B544"
+  },
+  "binary_evidence": {
+    "description_count": 317,
+    "last_entry_address": "0x100B540",
+    "end_exclusive": "0x100B544",
+    "description_reference_offsets": [
+      "0x1C4",
+      "0x1367A8"
+    ],
+    "background_reference_offset": "0x73960",
+    "all_source_literal_description_pointers_match": true,
+    "background_first_triplet_LZ_headers": [
+      "10002000",
+      "10200000",
+      "10000800"
+    ]
+  },
+  "creator_source": {
+    "repository": "https://github.com/Shiny-Miner/CFRU-expansion",
+    "commit": "b24b5a3bafc51c6cfb982cec4204200e4d1b699a",
+    "ABILITIES_COUNT": 317,
+    "description_indices": "0\u2013316",
+    "last_entry": "DESC_SPICY_SPRAY",
+    "source_file_sha256": {
+      "repoints": "4953385674a4e82ad7c6523e97a2f7bedd566ea92aa9775dd2e13396fd52c35d",
+      "strings/ability_descriptions.string": "2224e5bc42c3238d3ccac69769057996ac95048c6285210d6859fa6e67912531",
+      "strings/ability_name_table.string": "2314ab5dc6b505b2373e7cbfde62e4680517f454c216060ac54e60aa03007c18",
+      "src/pokemon_summary_screen.c": "c9827f82a22ebd816a3de86dc95acdac5405776eca85475d6550ece5b051fb6c",
+      "src/ability_util.c": "f807048a9f3db88c15ee3748d6ecf0ce1dad0dda6a7a49c5974394183234b3eb",
+      "assembly/data/ability_tables.json": "6f91cddab3d0c75dbc1b5ba36bd19b7bb1b8d9af0b91ccce7ee98b6da0534eae",
+      "assembly/data/anim_background_table.s": "fe2448a4e014c91c844c29f7a29305b3b65565077ab71dd407273270dbc1eafb",
+      "assembly/data/ability_description_table.s": "4f34addaaef6406a4710cf317eff986cc7a4b2a4f7d06f04082a3adcb19a9a64",
+      "include/constants/abilities.h": "502acb79ff0283120cce6a53c6f7dbd1df01487d83dbe89179c2d521419fee9f"
+    }
+  },
+  "regression_before": "Uncorrected creator metadata loses only the description format on Save; strict all-format assertion fails. See update-2026-11-11-verification.json.",
+  "regression_after": {
+    "ScadeInstaller_synthetic_assertions": 138,
+    "real_base_assertions": 39,
+    "failures": 0,
+    "skips": 0,
+    "initial_anchor_mismatches": [],
+    "saved_anchor_mismatches": [],
+    "saved_format_mismatches": [],
+    "all_556_addresses_and_formats_retained": true,
+    "adjacent_table_counts": [
+      317,
+      27
+    ],
+    "normal_Save_reopen_and_Undo_Redo": "passed",
+    "three_map_snapshots": "passed"
+  },
+  "patched_ROM_sha256": "cb1d9c40063c8721374f2f217d27762463e2256cf744b5b4c3deb3490ccd6350",
+  "independent_output_unchanged": true,
+  "original_downloads_and_base_unchanged": true,
+  "personal_project_opened": false,
+  "engine_or_compiler_changes": false,
+  "Mac_Edition_version": "1.0.0",
+  "limits": [
+    "No gameplay or creator bug-fix certification.",
+    "Existing user SCADE projects are not migrated or modified."
+  ]
+}

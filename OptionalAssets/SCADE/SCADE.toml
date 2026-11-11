@@ -117,7 +117,7 @@ DefaultHash = ''''''
 [[NamedAnchors]]
 Name = '''data.abilities.descriptions'''
 Address = 0x100B050
-Format = '''[description<"">]data.abilities.names'''
+Format = '''[description<"">]317'''
 DefaultHash = '''F80AF0FF'''
 
 [[NamedAnchors]]

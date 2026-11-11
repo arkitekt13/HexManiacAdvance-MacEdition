@@ -9,9 +9,12 @@ void Check(bool value, string message) { checks++; if (!value) throw new Invalid
 var picker = ExternalEmulatorPicker.CreateStartInfo();
 Check(picker.WorkingDirectory == "/", "The chooser does not inherit a removed app working directory.");
 Check(picker.FileName == "/usr/bin/osascript" && !picker.UseShellExecute && picker.ArgumentList.Count == 2,
-   "The picker invokes the system application chooser without shell interpolation.");
-Check(picker.ArgumentList[1].Contains("choose application") && picker.ArgumentList[1].Contains("as alias"),
-   "Choose application bundles rather than ordinary files.");
+   "The picker invokes the direct native picker without shell interpolation.");
+Check(picker.ArgumentList[1].Contains("choose file") && !picker.ArgumentList[1].Contains("of type"),
+   "Select directly without registered-application or file-type filtering.");
+Check(picker.ArgumentList[1].Contains("default location (path to applications folder)") &&
+   picker.ArgumentList[1].Contains("without showing package contents"),
+   "Start in Applications and select the opaque .app bundle rather than its contents.");
 Check(ExternalEmulatorPicker.ReadSelection(0, "/Applications/mGBA.app/\n", "") == "/Applications/mGBA.app",
    "Normalize the trailing slash returned for application aliases.");
 Check(ExternalEmulatorPicker.ReadSelection(0, "\n", "") == null, "Cancel is an empty selection.");
@@ -41,15 +44,22 @@ var launcher = new ExternalEmulatorLauncher(preference, Pick, Start);
 choice = null;
 await launcher.LaunchAsync(f.View, f.FileSystem, Save, errors.Add);
 Check(!File.Exists(preference) && starts == 0 && prompts == 0, "Canceling first selection changes no preferences or ROMs.");
+// The unfiltered native picker can return ordinary files. Never persist or launch those.
+foreach (var invalid in new[] { f.FileName, Path.Combine(app, "Contents", "Info.plist"), f.Folder }) {
+   choice = invalid;
+   await launcher.LaunchAsync(f.View, f.FileSystem, Save, errors.Add);
+   Check(!File.Exists(preference) && starts == 0 && prompts == 0 && errors.Last().Contains("Select an emulator"),
+      "Non-app selections leave preferences, ROMs and launch state untouched.");
+}
 choice = app;
 await launcher.LaunchAsync(f.View, f.FileSystem, Save, errors.Add);
-Check(picks == 2 && starts == 1 && File.ReadAllText(preference).Trim() == app, "First selection is remembered and launched.");
+Check(picks == 5 && starts == 1 && File.ReadAllText(preference).Trim() == app, "First selection is remembered and launched.");
 launcher = new ExternalEmulatorLauncher(preference, Pick, Start);
 await launcher.LaunchAsync(f.View, f.FileSystem, Save, errors.Add);
-Check(picks == 2 && starts == 2 && prompts == 0, "A new launcher reuses the preference without prompting on a saved ROM.");
+Check(picks == 5 && starts == 2 && prompts == 0, "A new launcher reuses the preference without prompting on a saved ROM.");
 Directory.Move(app, app + ".moved"); choice = null;
 await launcher.LaunchAsync(f.View, f.FileSystem, Save, errors.Add);
-Check(picks == 3 && starts == 2 && File.ReadAllText(preference).Trim() == app, "A missing app prompts again and cancellation preserves the preference.");
+Check(picks == 6 && starts == 2 && File.ReadAllText(preference).Trim() == app, "A missing app prompts again and cancellation preserves the preference.");
 Directory.Move(app + ".moved", app);
 f.Edit(WorkflowFixture.Source(1, 2), settle: false);
 await launcher.LaunchAsync(f.View, f.FileSystem, () => false, errors.Add);

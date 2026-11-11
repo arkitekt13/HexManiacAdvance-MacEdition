@@ -4,11 +4,14 @@ using System.Threading.Tasks;
 
 namespace HavenSoft.HexManiac.AvaloniaUI.MacPlatform;
 
-/// <summary>Choose an application bundle through Standard Additions, avoiding file-picker package filters.</summary>
+/// <summary>Select a bundle directly without relying on application registration or file-type filters.</summary>
 public static class ExternalEmulatorPicker {
+   // No "of type" filter: some installed apps are disabled by native application/type
+   // filtering. Keep bundles opaque so the selection is the .app, not an inner executable.
+   // ExternalEmulatorLauncher validates the bundle before remembering or launching it.
    public const string Script = "try\n" +
-      "return POSIX path of (choose application with title \"Choose External Emulator\" " +
-      "with prompt \"Select mGBA or another Game Boy Advance emulator.\" as alias)\n" +
+      "return POSIX path of (choose file with prompt \"Choose an emulator application, such as mGBA.app.\" " +
+      "default location (path to applications folder) without showing package contents)\n" +
       "on error number -128\nreturn \"\"\nend try";
 
    public static ProcessStartInfo CreateStartInfo() {

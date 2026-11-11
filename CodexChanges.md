@@ -3543,3 +3543,13 @@ Validation: The manually prepared copy of packaged product `5179545e` opened nat
 | tests/README.md | 39 | Link native evidence separately from automated assertion totals. |
 
 Validation: Native Open/cancel, Command-G, edit/Save, Save As/cancel with spaces and Unicode, dialogue growth, Undo/Redo, rejected-source save blocking, correction and tab close/reopen pass on disposable FireRed 1.1 projects. Read-only packaged-Core reload confirms the final dialogue, 549 retained anchor definitions, 74 lists, 16,777,216 ROM bytes and 183,718 metadata bytes. Rejected-save disk hashes remained unchanged. Play launches installed mGBA 0.10.5 with the exact owned ROM when only the isolated test preference is configured. Actual chooser selection fails: the user reports mGBA remains disabled in Browse even after checking application filtering. Its precise cause is unresolved; no product fix is claimed. All three normal HMA profile files remain byte-identical and the working village was not opened. Manual observations do not change the prior 89-group / 24,770-assertion suite total. The save denial was not reproduced and remains open; original desktop entry-point/restart, remembered selection after native restart, no-SDK machine and first-download security checks remain pending.
+
+## 244 — Select an external emulator directly without application/type filtering
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacPlatform/ExternalEmulatorPicker.cs | 7 | Open a direct native picker in Applications, with no type filter and package contents hidden, instead of the registered-application list that disabled mGBA. |
+| tests/ExternalEmulatorLaunch/Program.cs | 9 | Verify picker configuration and reject ordinary files, bundle contents and folders without remembering or launching them. |
+| tests/ExternalEmulatorLaunch/README.md | 3 | Explain direct selection, validation and native checks. |
+
+Validation: ExternalEmulatorLaunch passes 39 assertions and MapHelpLink passes 31: two focused groups / 70 assertions, zero failures/skips and zero build warnings/errors. The exact chooser script compiles with macOS osacompile. Cancellation, remembered selection, missing applications, spaces, pending/rejected source, failed saves, retry and removed-working-directory launch checks remain passing. The guarded Apple Silicon publish and deep strict ad-hoc signature verification succeed. Native selection is being checked separately with the isolated test host; automated configuration and validation tests alone do not certify that mGBA is selectable. No ROM/compiler/history behavior, normal preferences or working village files are changed.

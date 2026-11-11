@@ -3574,3 +3574,19 @@ Validation: The user selected mGBA successfully in the direct native picker; des
 | CodexChanges.md | 3362 | Preserve the complete numbered investigation and implementation history when integrating the earlier default-branch publication. |
 
 Validation: The default branch's earlier documentation-only publication conflicted with the newer README metric and appended changelog. Both conflicts are resolved while retaining entries 229–245 and the latest verification evidence. Application, Core, tests and optional assets remain byte-identical to the already-tested feature checkpoint; no additional regression run is claimed for documentation reconciliation. Mac assembly/file identity remains 1.0.0. The merge preserves individual commits and does not publish a release or create a version tag.
+
+## 247 — Stage the updated creator SCADE pair and verify its metadata compatibility
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/SCADE/SCADE.bps | N/A | Replace the candidate BPS with the exact creator-provided November 11 update. |
+| OptionalAssets/SCADE/SCADE.toml | 1 | Keep the matching supplied TOML byte for byte, including 556 named definitions and 79 lists. |
+| OptionalAssets/SCADE/scade.json | 2 | Pin both updated hashes and the unchanged clean English FireRed 1.0 source identity; use the integration date as the package version. |
+| OptionalAssets/SCADE/README.md | 3 | Distinguish the newly supplied pair from the historical creator README without inventing an upstream release number. |
+| tests/ScadeInstaller/Program.cs | 232 | Update actual bundled-pair identity and expected definition count. |
+| tests/ScadeInstaller/RealRomVerification.cs | 24 | Pin the independently verified new output and relocated table addresses; print detailed format mismatches while retaining strict preservation checks. |
+| tests/ScadeInstaller/update-2026-11-11-verification.json | 1 | Record independent patching, published asset bytes, real workflow checks and the unresolved supplied-definition overlap. |
+
+Validation: ScadeInstaller passes 138 synthetic assertions. HMA's new 32 MiB output matches Rom Patcher JS byte for byte with all three checksums enforced. IkarusUpgrade passes 127 combined synthetic/real-base assertions across vanilla, HUBOL and updated SCADE; builds report zero warnings/errors. Isolated self-contained ARM64 publication contains the exact new patch, TOML, manifest and unchanged creator README. Mac Edition remains 1.0.0. The original clean base and both downloads are unchanged; no working project or running app bundle is modified. This is not a new complete-suite or gameplay result.
+
+Open finding: The supplied ability-description format spans 0x100B050–0x100B668 and overlaps graphics.moves.backgrounds.all at 0x100B544 by 292 bytes. Initial load preserves the sidecar bytes and all 556 addresses. Actual Save retains every address but emits an empty ability-description format; the strict real-base test correctly fails on that sole format mismatch. The earlier supplied pair already had an empty format there. No silent creator-file edit or weakened preservation assertion is introduced. The candidate remains on its development branch pending the user's choice to retain the exact pair with this limitation or obtain corrected creator metadata; it is not merged or installed over the running app.

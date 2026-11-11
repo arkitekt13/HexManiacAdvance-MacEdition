@@ -20,8 +20,8 @@ internal static class RealRomVerification {
          Check(package != null && package.MatchesBase(source), "creator patch matches supplied clean FireRed 1.0");
          var result = package.Create(source);
          Check(Hash(source) == sourceHash, "patching preserves input bytes");
-         Check(result.SequenceEqual(File.ReadAllBytes(independentOutputPath)), "original SCADE patch output agrees byte for byte with independent patcher");
-         Check(result.Length == 33554432 && Hash(result) == "15E44F658A27070352E731B167715F21BEBF6A67E6E55E51B81420765D4DCC6F", "verified real output identity");
+         Check(result.SequenceEqual(File.ReadAllBytes(independentOutputPath)), "current SCADE patch output agrees byte for byte with independent patcher");
+         Check(result.Length == 33554432 && Hash(result) == "CB1D9C40063C8721374F2F217D27762463E2256CF744B5B4C3DEB3490CCD6350", "verified real output identity");
          var path = Path.Combine(directory, "SCADE verification.gba");
          var sidecar = Path.ChangeExtension(path, ".toml");
          package.SaveNewCopy(path, result);
@@ -54,7 +54,7 @@ internal static class RealRomVerification {
          Check(missing.Length == 0, "all creator named anchor addresses load unchanged");
          foreach (var (name, address, count) in new[] {
             ("data.pokemon.names", 0x161F428, 1489), ("data.pokemon.stats", 0x1A92720, 1489),
-            ("data.pokemon.moves.names", 0x10F7A7C, 992), ("data.trainers.stats", 0x1276708, 256),
+            ("data.pokemon.moves.names", 0x10F8EDC, 992), ("data.trainers.stats", 0x1273158, 256),
             ("data.maps.banks", 0x3526A8, 43),
          }) {
             var run = opened.Model.GetNextRun(address) as ITableRun;
@@ -81,6 +81,7 @@ internal static class RealRomVerification {
          Check(missingSaved.Length == 0, "all supplied anchor addresses survive actual serialization");
          var changedFormats = supplied.NamedAnchors.Where(a => saved.NamedAnchors.Single(x => x.Name == a.Name).Format != a.Format).Select(a => a.Name).ToArray();
          Console.WriteLine("REAL_SAVED_FORMAT_MISMATCHES:" + JsonSerializer.Serialize(changedFormats));
+         foreach (var name in changedFormats) Console.WriteLine("REAL_FORMAT_DETAIL:" + JsonSerializer.Serialize(new {name, supplied = supplied.NamedAnchors.Single(a=>a.Name==name).Format, saved = saved.NamedAnchors.Single(a=>a.Name==name).Format}));
          Check(changedFormats.Length == 0, "all creator anchor formats survive actual serialization");
          foreach (string name in new[] { "data.pokemon.names", "data.pokemon.stats", "data.pokemon.moves.names", "data.trainers.stats", "data.maps.banks" }) {
             Check(saved.NamedAnchors.Single(a => a.Name == name).Format == supplied.NamedAnchors.Single(a => a.Name == name).Format, "supplied core table format retained after actual Save: " + name);

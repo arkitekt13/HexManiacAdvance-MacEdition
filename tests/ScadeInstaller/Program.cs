@@ -229,11 +229,11 @@ try {
 
    // Actual shipped assets: identity and HMA parser, never a personal game.
    var bundled = ScadePackage.Load(ScadePackage.DefaultDirectory, out reason);
-   Check(bundled != null && bundled.Version == "2026-10-21", "actual SCADE package included and valid");
+   Check(bundled != null && bundled.Version == "2026-11-11", "actual SCADE package included and valid");
    var suppliedTomlPath = Path.Combine(ScadePackage.DefaultDirectory, "SCADE.toml");
-   Check(Hash(File.ReadAllBytes(suppliedTomlPath)).Equals("BDFE821E879CCF4727070F276580D9BC35AAB9E65038946495FFF706605A84DE"), "supplied TOML unchanged");
+   Check(Hash(File.ReadAllBytes(suppliedTomlPath)).Equals("3EA679DB301F38FED872BCD26EC80889EB4297F8287F9F1A579992EF191991DB"), "supplied TOML unchanged");
    var supplied = new StoredMetadata(File.ReadAllLines(suppliedTomlPath));
-   Check(supplied.NamedAnchors.Count == 541 && supplied.Lists.Count == 79 && supplied.Version == "99.0.0", "actual TOML parsed with creator definitions");
+   Check(supplied.NamedAnchors.Count == 556 && supplied.Lists.Count == 79 && supplied.Version == "99.0.0", "actual TOML parsed with creator definitions");
    Check(!StoredMetadata.NeedVersionUpdate(supplied.Version, editor.Singletons.MetadataInfo.VersionNumber), "actual TOML will not be upgraded from defaults");
    Application.Current.Resources["FileSystem"] = fs;
    App.UpdateThemeDictionary(Application.Current.Resources, editor.Theme);

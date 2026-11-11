@@ -1,8 +1,10 @@
 # SCADE installer assets
 
-Bundled from the creator-provided October 21, 2026 test build of CFRU Expansion
-and DPE-gen9, supplied for integration into Mac Edition. See the unchanged
-[creator README](Creator-README.txt) for its description, support Discord and
+Bundled from the updated creator-provided SCADE patch/TOML pair supplied on
+November 11, 2026 for integration into Mac Edition. The manifest version records
+that integration date, not a claimed upstream release number. See the unchanged
+[creator README](Creator-README.txt) from the original October 21 test package for
+background, support Discord and
 upstream link: <https://github.com/Shiny-Miner/CFRU-expansion>.
 Credit Shiny Miner and the CFRU Expansion/DPE-gen9 contributors, building on
 Skeli's CFRU and Ghoulslash's DPE; this installer does not claim their engine work.

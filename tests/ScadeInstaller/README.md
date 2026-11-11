@@ -74,3 +74,23 @@ The same probe now accepts the exact supplied Ikarus FR v3.2 hash through the
 `--graphics-review` alias. See [Ikarus findings](../IKARUS_GRAPHICS_COMPATIBILITY_REVIEW.md).
 Its event check follows recognized child script bodies, including map headers and
 conditional header rows, so an unchanged entry opcode cannot hide later edits.
+
+## November 11 creator update candidate
+
+The replacement pair and manifest use integration date `2026-11-11`; no new
+upstream release number was supplied. The current synthetic group passes 138
+assertions. Independent patching agrees byte for byte, and the Ikarus utility's
+127 combined default/real-base checks pass across vanilla, HUBOL and updated SCADE.
+The self-contained publish copies the exact replacement assets.
+
+**Strict metadata preservation is not passing.** The new
+`data.abilities.descriptions` format requests 390 four-byte pointers beginning at
+`0x100B050`, ending at `0x100B668`. The supplied `graphics.moves.backgrounds.all`
+anchor begins at `0x100B544`, overlapping it by 292 bytes. Initial opening retains
+the supplied sidecar unchanged and all 556 addresses load. A real Save retains all
+addresses but emits an empty ability-description format, the only format mismatch.
+The old creator pair already had an empty format at that anchor. The strict
+real-base test deliberately continues to report this mismatch; it is not waived.
+The creator's files are preserved exactly, and no engine/compiler change or
+silent metadata correction is made. See [candidate evidence](update-2026-11-11-verification.json).
+Earlier real-base results above apply to the original pair, not this replacement.

@@ -3635,3 +3635,11 @@ Validation: Before the change, the new regression fails because single.battle cr
 | tests/README.md | 93 | Link the new source checkpoint and distinguish test success from current app installation. |
 
 Validation: Fresh scripts/verify-mac.sh --no-restore on source b57453ed passes 89 groups / 24,941 assertions, zero failures and zero skipped groups. The only warning category is the existing NU1900 package-vulnerability-feed warning; no compiler warnings occur. DialogueScaffolding contributes 517, ScriptAssistance 398, ScriptAssistanceEntry 789 and ScriptWorkflowSafety 598. The real headless MainWindow input paths cover typed/Enter/mouse command and trainer completion, two immediate blocks, first-block caret/focus, exact argument/resource order, explicit pointer replacement and Undo/Redo. Continuation winscript arguments remain manual and preserved. The Release build passes with zero warnings/errors and version stays 1.0.0. Guarded publishing refuses while the user's app is running, preserving the existing bundle; the change is not yet installed in that running app. No user ROM or normal preferences are opened or modified. Native manual verification remains a user check after a safe rebuild.
+
+## 252 — Publish the verified trainer-dialogue enhancement after HMA closes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/DialogueScaffolding/trainer-battle-verification.json | 1 | Replace pending-publish status with the successful guarded build, source checkpoint, exact Core hash and retained SCADE assets. |
+
+Validation: After the user confirms work saved and HMA quit, guarded Apple Silicon publishing from 938a8384 succeeds; independent deep strict ad-hoc signature verification passes. Both app bundle version fields remain 1.0.0, and the updated SCADE BPS, corrected TOML, manifest and correction note match repository assets byte for byte. This installs the already-tested source helper; no further application/test changes or additional regression run are claimed. Earlier evidence retains the 89-group / 24,941-assertion full run and native manual verification limit. No personal ROM is opened or modified, and no additional app copy is created.

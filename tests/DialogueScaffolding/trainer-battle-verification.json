@@ -137,9 +137,15 @@
     "version": "1.0.0"
   },
   "regular_app_publish": {
-    "status": "refused safely: current HMA is still running",
-    "existing_app_preserved": true,
-    "source_patch_installed_in_regular_app": false
+    "status": "passed after user confirmed saved and quit",
+    "source_commit": "938a8384",
+    "version": "1.0.0",
+    "architecture": "osx-arm64",
+    "running_app_guard": "first attempt refused while running; final attempt succeeded after user quit",
+    "source_patch_installed_in_regular_app": true,
+    "deep_strict_signature": "passed; local ad-hoc signature, not notarized",
+    "updated_SCADE_assets_preserved": true,
+    "Core_sha256": "590ea5c9445cef6624de4ee356cafd48147b3ff66ffdec4459947ea7d1bc2b74"
   },
   "limits": [
     "Automated headless editor-input checks are not manual native macOS verification.",

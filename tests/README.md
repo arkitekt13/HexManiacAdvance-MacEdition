@@ -246,3 +246,8 @@ The [November 11 SCADE asset correction](ScadeInstaller/metadata-count-correctio
 passes a fresh 89-group / 24,774-assertion run, plus 39 separate real-base SCADE assertions
 and the Ikarus follow-up on the updated base. It records the original metadata overlap,
 verified 317-entry correction, exact published files and remaining gameplay limits.
+
+The [trainer-dialogue assistance verification](DialogueScaffolding/trainer-battle-verification.json)
+passes 89 groups / 24,941 assertions on source b57453ed, including immediate paired
+text blocks and unchanged continuation entry. Its recorded app-publish status is
+separate from successful automated tests; a running app is preserved.

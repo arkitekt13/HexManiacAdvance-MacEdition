@@ -18,7 +18,7 @@ SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationCont
 int checks = 0;
 void Check(bool value, string message) { checks++; if (!value) throw new InvalidOperationException(message); }
 foreach (var acceptance in new[] { "typed", "enter", "click" })
-foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.player", "move.camera", "move.npc", "applymovement", "setflag", "checkflag", "setvar", "addvar" }) {
+foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.player", "move.camera", "single.battle", "move.npc", "applymovement", "setflag", "checkflag", "setvar", "addvar" }) {
    using var f = new WorkflowFixture();
    f.Model.LoadMetadata(new StoredMetadata(lists: BaseModel.GetDefaultMetadatas("BPRE").SelectMany(md => md.Lists)
       .Where(list => list.Name == "movementtypes").ToArray()));
@@ -26,6 +26,7 @@ foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.play
       var completion = new TaskCompletionSource();
       Dispatcher.UIThread.Post(() => { action(); completion.SetResult(); }); return completion.Task;
    };
+   if (command == "single.battle") f.Model.SetList(new NoDataChangeDeltaModel(), "data.trainers.stats", "Trainer", "Grunt", "Boss");
    var investigator = new Investigator(); f.Tool.Investigator = investigator;
    f.Tool.Contents.Clear(); f.Tool.UpdateContent(); f.Edit("section0:\nend");
    Application.Current!.Resources["FileSystem"] = f.FileSystem;
@@ -65,9 +66,48 @@ foreach (var command in new[] { "msgbox.npc", "msgbox", "preparemsg", "move.play
       window.KeyTextInput("8"); Pump();
       window.KeyPressQwerty(PhysicalKey.Space, RawInputModifiers.None); window.KeyTextInput(" "); window.KeyReleaseQwerty(PhysicalKey.Space, RawInputModifiers.None); Pump();
    }
+   if (command == "single.battle") {
+      window.KeyTextInput(acceptance == "typed" ? "Grunt" : "Gru"); Pump();
+      if (acceptance == "typed") {
+         window.KeyPressQwerty(PhysicalKey.Space, RawInputModifiers.None); window.KeyTextInput(" "); window.KeyReleaseQwerty(PhysicalKey.Space, RawInputModifiers.None); Pump();
+      } else {
+         var overlay = window.GetVisualDescendants().OfType<AutocompleteOverlay>().Single(o => ReferenceEquals(o.Target, control));
+         var items = overlay.FindControl<ItemsControl>("AutocompleteItems");
+         var options = ((IEnumerable<AutoCompleteSelectionItem>)items.ItemsSource).ToArray();
+         int wanted = Array.FindIndex(options, item => item.DisplayText == "Grunt");
+         Check(wanted >= 0, "The trainer list offers the Grunt operand before paired assistance.");
+         for (int i=0;i<wanted;i++) { window.KeyPressQwerty(PhysicalKey.ArrowDown, RawInputModifiers.None); window.KeyReleaseQwerty(PhysicalKey.ArrowDown, RawInputModifiers.None); Pump(); }
+         if (acceptance == "enter") { window.KeyPressQwerty(PhysicalKey.Enter, RawInputModifiers.None); window.KeyReleaseQwerty(PhysicalKey.Enter, RawInputModifiers.None); Pump(); }
+         else {
+            var button = items.GetVisualDescendants().OfType<Button>().Single(b => b.DataContext is AutoCompleteSelectionItem item && item.IsSelected);
+            var top = TopLevel.GetTopLevel(button); var at = button.TranslatePoint(new Avalonia.Point(button.Bounds.Width/2,button.Bounds.Height/2), top).Value;
+            ((Window)top).MouseMove(at); ((Window)top).MouseDown(at,MouseButton.Left); ((Window)top).MouseUp(at,MouseButton.Left); Pump();
+         }
+      }
+   }
    Check(body.CaretPosition == box.CaretIndex && box.CaretIndex > insertion, "Actual typing must synchronize script and UI caret positions.");
    Check(box.IsFocused && baseline.EqualsModel(f), "Typing assistance preserves focus and does not bypass delayed compilation.");
-   if (command.StartsWith("msgbox") || command.StartsWith("move.") || command is "preparemsg" or "applymovement") {
+   if (command == "single.battle") {
+      Check(body.Content.Contains("single.battle Grunt <auto> <auto>") && body.Content.Count(c=>c=='{')==2 && body.Content.Count(c=>c=='}')==2,
+         "Typed, Enter and clicked trainer completions immediately create both text blocks.");
+      Check(box.CaretIndex == body.Content.IndexOf('{')+2, "The native text box caret enters the first trainer text block.");
+      int operand = body.Content.IndexOf("<auto>", StringComparison.Ordinal);
+      box.SelectionStart = operand; box.SelectionEnd = operand+6; window.KeyTextInput("<003000>"); Pump();
+      Check(body.Content.Contains("Grunt <003000> <auto>") && body.Content.Count(c=>c=='{')==2, "Replacing a generated trainer pointer preserves the explicit address and both blocks.");
+      box.SelectionStart = operand; box.SelectionEnd = operand+8; window.KeyTextInput("<auto>"); Pump();
+      box.CaretIndex = body.Content.IndexOf('{')+2; box.SelectionStart = box.SelectionEnd = box.CaretIndex;
+      window.KeyTextInput("Before battle."); Pump();
+      int second = body.Content.IndexOf('{',body.Content.IndexOf('}')+1)+2;
+      box.CaretIndex = second; box.SelectionStart = box.SelectionEnd = second; window.KeyTextInput("After battle."); Pump();
+      f.Dispatch.Flush(); f.View.ChangeHistory.ChangeCompleted(); Pump();
+      Check(!body.HasError && f.Model.ReadMultiByteValue(body.Address+2,2)==1, "The completed trainer script compiles with the chosen Grunt ID.");
+      var firstBytes = PCSString.Convert("\"Before battle.\""); var secondBytes = PCSString.Convert("\"After battle.\"");
+      Check(firstBytes.SequenceEqual(f.Model.RawData.Skip(f.Model.ReadPointer(body.Address+6)).Take(firstBytes.Count)) &&
+         secondBytes.SequenceEqual(f.Model.RawData.Skip(f.Model.ReadPointer(body.Address+10)).Take(secondBytes.Count)),
+         "Actual text input reaches the correct prebattle and postbattle ROM resources.");
+      var compiled = f.State(); f.View.Undo.Execute(null); f.Dispatch.Flush(); Pump(); Check(baseline.EqualsModel(f), "Undo restores the pre-trainer state after actual UI entry.");
+      f.View.Redo.Execute(null); f.Dispatch.Flush(); Pump(); Check(compiled.EqualsModel(f), "Redo restores both trainer resources after actual UI entry.");
+   } else if (command.StartsWith("msgbox") || command.StartsWith("move.") || command is "preparemsg" or "applymovement") {
       Check(body.Content.Contains("<auto>"), $"{acceptance}/{command}: a supported pointer operand must receive auto. Source: {body.Content}");
       Check(box.Text![..box.CaretIndex].EndsWith("{\n"), $"The caret lands inside the empty dialogue body ({acceptance}/{command}, caret {box.CaretIndex}/{body.CaretPosition}, source {body.Content.Replace("\n", "|")}).");
       Check(body.Content.Count(c => c == '{') == 1 && body.Content.Count(c => c == '}') == 1,

@@ -20,3 +20,10 @@ then try the unused-ID button and Cmd+U in a map-backed script. Spartan mode, th
 setting and availability of an investigator retain their existing eligibility rules.
 
 Command-list regressions cover eleven commands through typed Space, keyboard acceptance and an actual suggestion click (364 assertions), including typing an actor operand after accepting move.npc/applymovement and exact resource Undo/Redo. The movement fixtures load the actual FireRed catalog and verify walk_up's byte 0x11 plus FE termination. Accepting a command publishes its intended caret with the source before script assistance runs; suffix/line-ending mapping remains covered by AutocompleteMapping.
+
+Trainer dialogue entry is also exercised through actual headless MainWindow controls:
+type `single.battle` and `Grunt`, or accept both command and trainer by Enter or
+mouse. Both text blocks must appear immediately with focus/caret in the first.
+An explicit pointer replacement stays intact, typed text reaches the respective
+prebattle/postbattle ROM pointers, and Undo/Redo restores the complete model state.
+These are automated Avalonia input checks, not a manual native macOS session.

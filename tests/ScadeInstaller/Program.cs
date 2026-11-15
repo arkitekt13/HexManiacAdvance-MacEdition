@@ -229,9 +229,9 @@ try {
 
    // Actual shipped assets: identity and HMA parser, never a personal game.
    var bundled = ScadePackage.Load(ScadePackage.DefaultDirectory, out reason);
-   Check(bundled != null && bundled.Version == "2026-11-11", "actual SCADE package included and valid");
+   Check(bundled != null && bundled.Version == "2026-11-15", "actual SCADE package included and valid");
    var suppliedTomlPath = Path.Combine(ScadePackage.DefaultDirectory, "SCADE.toml");
-   Check(Hash(File.ReadAllBytes(suppliedTomlPath)).Equals("F390E245E135760FBFFBACB3F8B4D5AD29E7581D6B7B934F3B8F13AA14C4B198"), "shipped TOML matches the reviewed local count correction");
+   Check(Hash(File.ReadAllBytes(suppliedTomlPath)).Equals("C90A02055CBC66DE845DA95F18026F28A9D30FFE6CE1555AE06B160E2CADADBC"), "shipped TOML matches the pinned November 15 creator pair");
    var supplied = new StoredMetadata(File.ReadAllLines(suppliedTomlPath));
    Check(supplied.NamedAnchors.Count == 556 && supplied.Lists.Count == 79 && supplied.Version == "99.0.0", "actual TOML parsed with creator definitions");
    Check(!StoredMetadata.NeedVersionUpdate(supplied.Version, editor.Singletons.MetadataInfo.VersionNumber), "actual TOML will not be upgraded from defaults");

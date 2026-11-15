@@ -3643,3 +3643,15 @@ Validation: Fresh scripts/verify-mac.sh --no-restore on source b57453ed passes 8
 | tests/DialogueScaffolding/trainer-battle-verification.json | 1 | Replace pending-publish status with the successful guarded build, source checkpoint, exact Core hash and retained SCADE assets. |
 
 Validation: After the user confirms work saved and HMA quit, guarded Apple Silicon publishing from 938a8384 succeeds; independent deep strict ad-hoc signature verification passes. Both app bundle version fields remain 1.0.0, and the updated SCADE BPS, corrected TOML, manifest and correction note match repository assets byte for byte. This installs the already-tested source helper; no further application/test changes or additional regression run are claimed. Earlier evidence retains the 89-group / 24,941-assertion full run and native manual verification limit. No personal ROM is opened or modified, and no additional app copy is created.
+
+## 253 — Preserve the final supplied SCADE update before metadata corrections
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/SCADE/SCADE.bps | N/A | Preserve the exact new creator BPS received November 15. |
+| OptionalAssets/SCADE/SCADE.toml | 1 | Checkpoint the matching creator TOML unchanged for review and rollback before renewed validation. |
+| OptionalAssets/SCADE/scade.json | 2 | Pin the new pair's hashes under the November 15 integration date while retaining the same exact clean FireRed 1.0 base. |
+| tests/ScadeInstaller/Program.cs | 232 | Pin the received pair's identity for integrity checks. |
+| tests/ScadeInstaller/RealRomVerification.cs | 24 | Update the independent target hash and received table-address expectations for the new candidate. |
+
+Investigation checkpoint: The new BPS has a valid patch CRC and independently produces a 32 MiB ROM from the unchanged clean 1.0 base, target CRC DD17F27A and SHA-256 67c78da450f8631b7c57d92fb9345acd822ac2b3a37efa585656a6f55b15f99c. The received TOML again ties 390 description rows to the 317-pointer region and changes the trainer anchor to the original vanilla table. These findings are being validated against actual ROM references and boundaries before any final metadata correction or app rebuild. The exact received pair is retained in this commit; earlier correction documentation remains historical until the final verification update. No working game or source download is modified, and this candidate is not claimed ready to ship.

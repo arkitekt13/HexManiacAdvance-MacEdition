@@ -21,7 +21,7 @@ internal static class RealRomVerification {
          var result = package.Create(source);
          Check(Hash(source) == sourceHash, "patching preserves input bytes");
          Check(result.SequenceEqual(File.ReadAllBytes(independentOutputPath)), "current SCADE patch output agrees byte for byte with independent patcher");
-         Check(result.Length == 33554432 && Hash(result) == "CB1D9C40063C8721374F2F217D27762463E2256CF744B5B4C3DEB3490CCD6350", "verified real output identity");
+         Check(result.Length == 33554432 && Hash(result) == "67C78DA450F8631B7C57D92FB9345ACD822AC2B3A37EFA585656A6F55B15F99C", "verified real output identity");
          var path = Path.Combine(directory, "SCADE verification.gba");
          var sidecar = Path.ChangeExtension(path, ".toml");
          package.SaveNewCopy(path, result);
@@ -54,7 +54,7 @@ internal static class RealRomVerification {
          Check(missing.Length == 0, "all creator named anchor addresses load unchanged");
          foreach (var (name, address, count) in new[] {
             ("data.pokemon.names", 0x161F428, 1489), ("data.pokemon.stats", 0x1A92720, 1489),
-            ("data.pokemon.moves.names", 0x10F8EDC, 992), ("data.trainers.stats", 0x1273158, 256),
+            ("data.pokemon.moves.names", 0x10F8EEC, 992), ("data.trainers.stats", 0x23EAC8, 743),
             ("data.maps.banks", 0x3526A8, 43),
             ("data.abilities.descriptions", 0x100B050, 317), ("graphics.moves.backgrounds.all", 0x100B544, 27),
          }) {

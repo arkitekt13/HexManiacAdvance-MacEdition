@@ -1,8 +1,8 @@
 {
-  "version": "2026-11-11",
+  "version": "2026-11-15",
   "baseRom": "English FireRed 1.0",
   "sourceLength": 16777216,
   "sourceCrc32": 3716707868,
-  "patchSha256": "727b713f8b405f39399679821c6938c048592451fbd061bbd2f953f532621e57",
-  "tomlSha256": "f390e245e135760fbffbacb3f8b4d5ad29e7581d6b7b934f3b8f13aa14c4b198"
+  "patchSha256": "8f5deb58cded1c4389e7ef1aa70bceed3b878aa1c539762c7406b9f032f53019",
+  "tomlSha256": "c90a02055cbc66de845da95f18026f28a9d30ffe6ce1555ae06b160e2cadadbc"
 }

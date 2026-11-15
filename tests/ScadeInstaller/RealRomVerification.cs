@@ -52,15 +52,31 @@ internal static class RealRomVerification {
          var missing = supplied.NamedAnchors.Where(a => Address(opened, a.Name) != a.Address).Select(a => a.Name).ToArray();
          Console.WriteLine("REAL_INITIAL_ANCHOR_MISMATCHES:" + JsonSerializer.Serialize(missing));
          Check(missing.Length == 0, "all creator named anchor addresses load unchanged");
+         Check(Address(opened, "data.trainers.stats") == opened.Model.ReadPointer(0xFC00),
+            "trainer metadata must follow the patched ROM's trainer-table reference, not the legacy vanilla copy");
          foreach (var (name, address, count) in new[] {
             ("data.pokemon.names", 0x161F428, 1489), ("data.pokemon.stats", 0x1A92720, 1489),
-            ("data.pokemon.moves.names", 0x10F8EEC, 992), ("data.trainers.stats", 0x23EAC8, 743),
+            ("data.pokemon.moves.names", 0x10F8EEC, 992), ("data.trainers.stats", 0x1273168, 743),
             ("data.maps.banks", 0x3526A8, 43),
             ("data.abilities.descriptions", 0x100B050, 317), ("graphics.moves.backgrounds.all", 0x100B544, 27),
          }) {
             var run = opened.Model.GetNextRun(address) as ITableRun;
             Check(Address(opened, name) == address && run?.ElementCount == count, "real custom table address/length: " + name);
          }
+         var trainers = (ITableRun)opened.Model.GetNextRun(Address(opened, "data.trainers.stats"));
+         var trainersEnd = trainers.Start + trainers.ElementCount * trainers.ElementLength;
+         bool validTrainerRecords = trainers.ElementLength == 40;
+         var partyStarts = new List<int>();
+         for (int i = 0; i < trainers.ElementCount; i++) {
+            int at = trainers.Start + i * trainers.ElementLength;
+            int type = opened.Model[at], trainerClass = opened.Model[at + 1];
+            int size = opened.Model.ReadMultiByteValue(at + 32, 4), party = opened.Model.ReadPointer(at + 36);
+            validTrainerRecords &= type <= 3 && trainerClass < 107 && size >= 0 && size <= 6 &&
+               (size == 0 || party >= trainersEnd && party <= opened.Model.Count - size * ((type & 1) != 0 ? 16 : 8));
+            if (size > 0) partyStarts.Add(party);
+         }
+         Check(validTrainerRecords, "all 743 relocated trainer records have valid structures, classes, sizes and party ranges");
+         Check(partyStarts.Min() == trainersEnd, "the relocated trainer table ends exactly where its party data begins");
          var snapshots = new List<string>();
          foreach (int map in new[] { 3000, 3001, 4000 }) {
             var snapshot = ScriptMapSnapshot.Create(opened, map);

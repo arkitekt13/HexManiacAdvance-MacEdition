@@ -117,7 +117,7 @@ DefaultHash = ''''''
 [[NamedAnchors]]
 Name = '''data.abilities.descriptions'''
 Address = 0x100B050
-Format = '''[description<"">]data.abilities.names'''
+Format = '''[description<"">]317'''
 DefaultHash = '''F80AF0FF'''
 
 [[NamedAnchors]]
@@ -698,7 +698,7 @@ DefaultHash = '''A07F40B9'''
 
 [[NamedAnchors]]
 Name = '''data.trainers.stats'''
-Address = 0x23EAC8
+Address = 0x1273168
 Format = '''[structType.trainerStructType class.data.trainers.classes.names introMusicAndGender.|t|music:::.encountersongs|female. sprite.graphics.trainers.sprites.front name""12 prizeMoney|=4*(data.trainers.money/class=class)/moneyrate*pokemon/last/level item1:data.items.stats item2:data.items.stats item3:data.items.stats item4:data.items.stats doubleBattle::doublebattleflag ai|b[]traineraibits | pokemonCount:: pokemon<`tpt`>]743'''
 DefaultHash = '''8C1262E9'''
 

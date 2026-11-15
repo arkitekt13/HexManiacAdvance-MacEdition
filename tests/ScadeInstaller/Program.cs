@@ -231,7 +231,7 @@ try {
    var bundled = ScadePackage.Load(ScadePackage.DefaultDirectory, out reason);
    Check(bundled != null && bundled.Version == "2026-11-15", "actual SCADE package included and valid");
    var suppliedTomlPath = Path.Combine(ScadePackage.DefaultDirectory, "SCADE.toml");
-   Check(Hash(File.ReadAllBytes(suppliedTomlPath)).Equals("C90A02055CBC66DE845DA95F18026F28A9D30FFE6CE1555AE06B160E2CADADBC"), "shipped TOML matches the pinned November 15 creator pair");
+   Check(Hash(File.ReadAllBytes(suppliedTomlPath)).Equals("7D415B24934B740B2A3B98C31C2A79A7FA9AAF282E7E5FE7A7A34D0AF0A6E6C2"), "shipped TOML matches the reviewed November 15 metadata corrections");
    var supplied = new StoredMetadata(File.ReadAllLines(suppliedTomlPath));
    Check(supplied.NamedAnchors.Count == 556 && supplied.Lists.Count == 79 && supplied.Version == "99.0.0", "actual TOML parsed with creator definitions");
    Check(!StoredMetadata.NeedVersionUpdate(supplied.Version, editor.Singletons.MetadataInfo.VersionNumber), "actual TOML will not be upgraded from defaults");

@@ -3655,3 +3655,18 @@ Validation: After the user confirms work saved and HMA quit, guarded Apple Silic
 | tests/ScadeInstaller/RealRomVerification.cs | 24 | Update the independent target hash and received table-address expectations for the new candidate. |
 
 Investigation checkpoint: The new BPS has a valid patch CRC and independently produces a 32 MiB ROM from the unchanged clean 1.0 base, target CRC DD17F27A and SHA-256 67c78da450f8631b7c57d92fb9345acd822ac2b3a37efa585656a6f55b15f99c. The received TOML again ties 390 description rows to the 317-pointer region and changes the trainer anchor to the original vanilla table. These findings are being validated against actual ROM references and boundaries before any final metadata correction or app rebuild. The exact received pair is retained in this commit; earlier correction documentation remains historical until the final verification update. No working game or source download is modified, and this candidate is not claimed ready to ship.
+
+## 254 — Validate the final SCADE pair and correct two metadata mappings
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/SCADE/SCADE.toml | 120 | Keep descriptions at the verified 317-pointer boundary and point the supplied 743-trainer definition at the patched engine's relocated table. |
+| OptionalAssets/SCADE/scade.json | 7 | Pin the reviewed metadata hash while preserving the exact new creator BPS and unchanged clean-base gate. |
+| OptionalAssets/SCADE/Metadata-Correction.txt | 1 | Disclose both changes, received-file provenance, actual ROM references, record counts and boundaries. |
+| OptionalAssets/SCADE/README.md | 3 | Identify the November 15 pair and its documented local metadata corrections. |
+| tests/ScadeInstaller/RealRomVerification.cs | 55 | Reject the legacy trainer mapping using the engine reference and validate all 743 records plus the first-party boundary. |
+| tests/ScadeInstaller/update-2026-11-15-verification.json | 1 | Record exact inputs/output, before/after findings, independent checksum-enforced comparison and 42 real-base assertions. |
+
+Investigation: The new creator metadata reintroduced 390 descriptions at 0x100B050, which overlaps the background at 0x100B544. The actual description references and 317-entry boundary are unchanged. The trainer anchor was set to legacy 0x23EAC8, but HMA's BPRE0 discovery reference at 0xFC00 and 22 additional ROM references point to 0x1273168. All 743 relocated records have valid structure/class/party fields, and their table ends exactly where the first party begins at 0x127A580. The received metadata fails the new engine-reference regression before correction. Only the description format and trainer address are corrected; the supplied 743 count, complete format and every other metadata byte are preserved. Original files remain untouched in Downloads and commit d87f6629.
+
+Validation: The new BPS output matches the pinned independent patcher byte for byte with source, target and patch checksums enforced. ScadeInstaller passes 138 synthetic assertions and 42 real-base assertions, zero failures/skips. All 556 shipped anchor addresses and formats survive normal Open/Save/reopen; actual saved edits, Undo/Redo and three map renders pass. No runtime, engine, compiler, numeric or history behavior is changed. Mac Edition stays 1.0.0; existing games are not upgraded or modified. Complete regressions and final app bundling follow separately.

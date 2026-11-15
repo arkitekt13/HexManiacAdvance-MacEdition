@@ -1,0 +1,78 @@
+{
+  "date": "2026-11-15",
+  "asset_version": "2026-11-15 (integration date; upstream release number not supplied)",
+  "received_pair_checkpoint": "d87f6629",
+  "patch": {
+    "sha256": "8f5deb58cded1c4389e7ef1aa70bceed3b878aa1c539762c7406b9f032f53019",
+    "bytes": 13645877,
+    "creator_bytes_unchanged": true,
+    "source_crc32": "DD88761C",
+    "target_crc32": "DD17F27A",
+    "patch_crc32": "6D22F00A",
+    "commands": 185924
+  },
+  "metadata": {
+    "creator_sha256": "c90a02055cbc66de845da95f18026f28a9d30ffe6ce1555ae06b160e2cadadbc",
+    "shipped_sha256": "7d415b24934b740b2a3b98c31c2a79a7fa9aaf282e7e5fe7a7a34d0af0a6e6c2",
+    "anchors": 556,
+    "lists": 79,
+    "version": "99.0.0",
+    "all_other_supplied_bytes_identical": true,
+    "corrections": [
+      {
+        "anchor": "data.abilities.descriptions",
+        "address": "0x100B050",
+        "received_format": "[description<\"\">]data.abilities.names",
+        "shipped_format": "[description<\"\">]317",
+        "end_exclusive": "0x100B544"
+      },
+      {
+        "anchor": "data.trainers.stats",
+        "received_address": "0x23EAC8",
+        "shipped_address": "0x1273168",
+        "engine_reference": "0xFC00",
+        "relocated_reference_count": 23,
+        "retained_count": 743,
+        "end_exclusive": "0x127A580",
+        "first_party_address": "0x127A580",
+        "invalid_record_count": 0
+      }
+    ]
+  },
+  "base": {
+    "description": "clean English FireRed 1.0",
+    "bytes": 16777216,
+    "sha256": "3d0c79f1627022e18765766f6cb5ea067f6b5bf7dca115552189ad65a5c3a8ac"
+  },
+  "output": {
+    "bytes": 33554432,
+    "sha256": "67c78da450f8631b7c57d92fb9345acd822ac2b3a37efa585656a6f55b15f99c",
+    "matches_independent_output_byte_for_byte": true
+  },
+  "independent_patcher": {
+    "repository": "https://github.com/marcrobledo/RomPatcher.js",
+    "commit": "4f17297cd1dc0835a0b0747497fa15f5f63f1623",
+    "all_three_checksums_enforced": true
+  },
+  "regression_before": "Received metadata fails trainer-anchor equality against the patched table reference; description count also spans the adjacent background anchor.",
+  "regression_after": {
+    "ScadeInstaller_synthetic_assertions": 138,
+    "ScadeInstaller_real_base_assertions": 42,
+    "failures": 0,
+    "skips": 0,
+    "initial_anchor_mismatches": [],
+    "saved_anchor_mismatches": [],
+    "saved_format_mismatches": [],
+    "all_556_shipped_anchor_addresses_and_formats_retained": true,
+    "normal_Save_reopen_Undo_Redo": "passed",
+    "map_renders": 3
+  },
+  "Mac_Edition_version": "1.0.0",
+  "source_downloads_modified": false,
+  "user_project_opened_or_migrated": false,
+  "engine_or_compiler_changes": false,
+  "limitations": [
+    "No in-game certification of the creator engine fixes.",
+    "Current results are focused; complete-suite and final app publishing are recorded separately after completion."
+  ]
+}

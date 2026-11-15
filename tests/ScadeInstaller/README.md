@@ -98,3 +98,17 @@ including both adjacent table lengths. No engine/compiler change is made.
 See [correction evidence](metadata-count-correction-verification.json) and the
 [shipped correction note](../../OptionalAssets/SCADE/Metadata-Correction.txt).
 Earlier real-base results above apply to the original pair, not this replacement.
+
+## November 15 final creator update
+
+The latest BPS remains byte-identical to the creator download. The shipped TOML
+retains two documented corrections: the verified 317-entry description count and
+the 743-trainer table address at 0x1273168. The received trainer address 0x23EAC8
+failed a new check against the patched reference at 0xFC00. All 743 relocated
+records are structurally valid, and their party-data boundary confirms the count.
+
+Independent BPS output matches HMA byte for byte. The strengthened real-base
+mode passes 42 assertions, including all 556 anchor addresses/formats through
+Save/reopen, normal saved edits, Undo/Redo and three map renders. Earlier results
+above describe historical asset pairs. See the [latest evidence](update-2026-11-15-verification.json)
+and the [shipped correction note](../../OptionalAssets/SCADE/Metadata-Correction.txt).

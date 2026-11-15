@@ -1,33 +1,41 @@
-SCADE metadata compatibility correction — November 11, 2026
+SCADE metadata compatibility corrections — November 15, 2026
 
-The creator's updated BPS is unchanged. One TOML format was corrected locally:
-  data.abilities.descriptions at 0x100B050
-  received: [description<"">]data.abilities.names
-  shipped:  [description<"">]317
+The latest creator BPS is unchanged. Two TOML entries were corrected locally:
 
-The received ability-name format has 390 entries. The actual description pointer
-array has 317 entries (0–316), ending exactly at 0x100B544, where the animation
-background table begins. Extending it to 390 overlaps that table by 292 bytes.
-The ROM references at 0x1C4 and 0x1367A8 point to the description table; 0x73960
-points to the background table. All literal description pointers from the creator
-source match the patched ROM, and the background's first row points to valid
-compressed tiles, palette and tilemap data.
+1. data.abilities.descriptions at 0x100B050
+   received: [description<"">]data.abilities.names (390 entries)
+   shipped:  [description<"">]317
 
-Creator source inspected at commit b24b5a3bafc51c6cfb982cec4204200e4d1b699a:
+   The actual pointer array has 317 entries, ending exactly at 0x100B544, where
+   graphics.moves.backgrounds.all begins. The engine references at 0x1C4 and
+   0x1367A8 point to this description table; 0x73960 points to the background table.
+   Using 390 descriptions would overlap the background table by 292 bytes.
+   The last description pointer is at 0x100B540. This repeats the verified count
+   correction from November 11; the new creator metadata reintroduced the old count.
+
+2. data.trainers.stats (743 entries)
+   received address: 0x23EAC8 (legacy vanilla copy)
+   shipped address:  0x1273168 (patched trainer-table reference at 0xFC00)
+
+   The new ROM contains 23 references to the relocated table. All 743 records
+   have valid struct types, class IDs, party sizes and party ranges. The table
+   ends at 0x127A580, exactly where its first party data begins. The supplied
+   743-record count and complete trainer format are retained. This prevents HMA
+   from editing the legacy table instead of the patched trainer data.
+
+The original received TOML is preserved in Mac Edition commit d87f6629 and in
+Downloads/SCADE_6o. Its SHA-256 is:
+c90a02055cbc66de845da95f18026f28a9d30ffe6ce1555ae06b160e2cadadbc
+The corrected shipped TOML hash is pinned in scade.json. Every other supplied
+metadata byte, including all 390 ability-name entries, is retained.
+
+The original count investigation also checked creator source at commit
+b24b5a3bafc51c6cfb982cec4204200e4d1b699a, which declares description entries 0–316:
 https://github.com/Shiny-Miner/CFRU-expansion/blob/b24b5a3bafc51c6cfb982cec4204200e4d1b699a/assembly/data/ability_description_table.s
-https://github.com/Shiny-Miner/CFRU-expansion/blob/b24b5a3bafc51c6cfb982cec4204200e4d1b699a/include/constants/abilities.h
-https://github.com/Shiny-Miner/CFRU-expansion/blob/b24b5a3bafc51c6cfb982cec4204200e4d1b699a/repoints
+The 0xFC00 trainer reference is the BPRE0 trainer-table discovery location in
+HMA's tableReference.txt. Both corrections are independently confirmed against
+this latest patched ROM; no prior address was blindly carried forward.
 
-The source declares ABILITIES_COUNT as 317 and description entries 0–316. The
-last description, Spicy Spray, agrees with the actual ROM text. This corroborates
-the ROM boundary; the count is not chosen merely to make HMA accept the metadata.
-
-The original supplied TOML is preserved in Mac Edition Git commit 51d9c1c4 and
-has SHA-256 3ea679db301f38fed872bcd26ec80889eb4297f8287f9f1a579992ef191991db.
-The original Downloads file is untouched. Every other metadata byte, including
-all 390 ability names, is retained. The shipped hash is pinned in scade.json.
-
-Before correction, a real Save discarded the description format. After correction,
-strict normal Open/Save/reopen retains all 556 anchor addresses and formats, both
-adjacent tables, the actual saved edit, and Undo/Redo. This corrects HMA metadata;
-it does not alter the BPS, ROM bytes, engine, compiler, or ability behavior.
+Strict normal Open/Save/reopen retains all 556 anchor addresses and formats,
+both adjacent tables, the saved edit and Undo/Redo. Metadata corrections do not
+change the BPS, patched ROM bytes, engine, compiler, or existing user projects.

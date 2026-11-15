@@ -251,3 +251,8 @@ The [trainer-dialogue assistance verification](DialogueScaffolding/trainer-battl
 passes 89 groups / 24,941 assertions on source b57453ed, including immediate paired
 text blocks and unchanged continuation entry. Its recorded app-publish status is
 separate from successful automated tests; a running app is preserved.
+
+The [November 15 SCADE update](ScadeInstaller/update-2026-11-15-verification.json)
+passes 89 groups / 24,941 assertions and 42 separate real-base SCADE assertions.
+It records the final supplied pair, verified metadata corrections, Ikarus follow-up
+and exact assets bundled in the rebuilt 1.0.0 app; prior SCADE records are historical.

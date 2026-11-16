@@ -116,14 +116,17 @@ These are release decisions or verification gates. They do not mean the current 
 
 - [x] Add the initial [welcome background PNG](../OptionalAssets/Welcome/README.md): Tutorial Village export, with rendered previews at large and compact sizes.
 - [ ] Approve final background cropping, fade, readability and small-window layout in the packaged native app.
-- [ ] Finish the tutorial village and create the [UPS/manifest assets](../OptionalAssets/Tutorial/README.md)
-  from the exact unmodified English FireRed 1.1 base; record all required hashes.
+- [x] Bundle the finished [Tutorial Village IPS/TOML/manifest](../OptionalAssets/Tutorial/README.md)
+  from exact clean FireRed 1.1. November 16 verification reproduces the working tutorial byte
+  for byte and preserves all 547 definitions and 73 lists through actual Save/reopen.
 - [ ] If shipping the tutorial, play through the tour on the generated ROM, verify scripts/warps/
   encounters and save progress, then check correct-base creation, wrong-base rejection, cancellation
   and existing-file protection through the native menu. Ship no base or patched ROM.
 - [ ] If final assets are absent, confirm the plain welcome screen and explanatory disabled
   tutorial action remain usable. The tutorial and background can arrive in a later release.
-- [ ] Polish the user guide and release accomplishments document when the final feature set is settled.
+- [x] Update the user guide and release accomplishments document for the settled tutorial feature set.
+  November 16: six-page PDF rendered and reviewed; full suite 89 groups / 25,320 assertions.
+  [Developer ID signing and notarization](MAC_SIGNING.md) remain pending.
 
 ## 5. Keep deferred unless evidence changes the priority
 

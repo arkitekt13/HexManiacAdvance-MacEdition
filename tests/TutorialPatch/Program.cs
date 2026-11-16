@@ -171,5 +171,9 @@ try {
       "Eligibility retains rejected source, diagnostics and model state.");
    Check(workflow.View.Redo.CanExecute(null), "Rejected draft eligibility preserves the existing Redo entry.");
 } finally { Directory.Delete(directory, true); }
+checks += IpsVerification.Run();
+var shipped=TutorialPatch.Load(TutorialPatch.DefaultDirectory,out var shippedReason);
+Check(shipped!=null&&shippedReason==null&&shipped.Title=="Tutorial Village","Bundled finished Tutorial Village assets validate through the production loader");
 if (args.Length == 1) checks += RealBaseVerification.Run(args[0]);
+if (args.Length == 2) checks += SuppliedVillageVerification.Run(args[0],args[1]);
 Console.WriteLine($"CHECKS_PASSED:{checks}");

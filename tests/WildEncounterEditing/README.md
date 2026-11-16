@@ -20,3 +20,21 @@ deterministic; native keystroke timing and a real-game fixture are not claimed.
 Mouse selection uses headless pointer movement, press and release in the popup's own TopLevel,
 rather than directly invoking Button.Click. It checks that press preserves focus and keeps the
 popup alive until release; the old focusable suggestion button fails this test before completion.
+
+## Add/Show defaults to Table (November 16)
+
+The group now also invokes the actual WildPokemonViewModel Add/Show commands for all
+four encounter types, from Table, Text, Image, Raw Code, Logs and a closed tools panel.
+The previous implementation fails the new Table-selection assertion. The repair keeps
+navigation and allocation intact, explicitly supplies the Table tool's header address
+(needed when Raw/closed tools skipped automatic updates), and selects Table afterward.
+
+All 48 command scenarios render the real TabView and require a visible editable encounter
+list without following its pointer. Show preserves every ROM byte, serialized metadata,
+saved status and empty Undo history; Add retains its list pointer and default species slots.
+Together with the original editing cases, the group passes 464 assertions. Every fixture
+is fabricated; no personal project, application preferences or native window is used.
+
+[Table-default verification](table-default-verification.json) records five focused groups /
+1,276 assertions, zero failures/skips, and the guarded rebuilt 1.0.0 app with matching
+Release assemblies and a verified ad-hoc signature. This is not a new full-suite total.

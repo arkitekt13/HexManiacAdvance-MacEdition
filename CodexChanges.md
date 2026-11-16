@@ -3702,3 +3702,70 @@ Validation: The added visual-tree assertion fails on the previous code with the 
 | tests/README.md | 9 | Record the newest Find repair verification separately from historical runs. |
 
 Validation: Fresh scripts/verify-mac.sh --no-restore passes 89 groups / 24,966 assertions, zero failures and skipped groups. FindKeyboard contributes 50 assertions. The only warning category is the existing NU1900 vulnerability-feed warning; no compiler warnings occur. After the user saved and quit HMA, guarded Apple Silicon publication passed on source 8989d4e5. Deep strict ad-hoc signature verification passed, both version fields remain 1.0.0, and the packaged application assembly matches the freshly compiled Release assembly. All five bundled SCADE files still match repository bytes. Tests use fabricated ROMs and offscreen rendering; native Cocoa input is not claimed. No personal project was opened or modified. The repair and evidence remain on the separate unmerged branch.
+
+## 258 — Open wild encounter Add/Show commands in the Table editor
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/WildPokemonViewModel.cs | 178 | Open both existing and newly allocated encounter headers through a scoped helper that refreshes Table's address and selects Table. |
+| tests/WildEncounterEditing/Program.cs | 111 | Exercise 48 actual Add/Show command scenarios across all four encounter types and six starting tool states, rendering their inline editors. |
+| tests/WildEncounterEditing/README.md | 23 | Document command-navigation coverage separately from the existing editing regressions. |
+
+Investigation: The upstream commands preserve the selected tool, so Text may show only the rate/list-pointer header. Raw Code and hidden tools can additionally skip normal tool-address refresh. The repair keeps existing navigation and encounter allocation, then explicitly supplies the Table address and selects Table only for these wild-data commands. General navigation behavior is unchanged. The new regression fails on the previous code; the final WildEncounterEditing group passes 464 assertions, including visible editable lists for grass, surf, rock-smash and fishing, existing-data byte/metadata/history preservation and retained Add pointers/default species. Fixtures are fabricated and do not open user projects. Checkpoint b96ae275 is preserved on the main branch, and this fix is isolated on codex/wild-data-table-default. Related checks and app-publication evidence follow separately; Mac Edition remains 1.0.0.
+
+## 259 — Verify and publish the wild-data Table default
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/WildEncounterEditing/table-default-verification.json | 1 | Record the 48-scenario matrix, exact focused counts, rollback point and published assembly identities. |
+| tests/WildEncounterEditing/README.md | 37 | Link focused verification and distinguish it from a full-suite run. |
+| tests/README.md | 128 | Link the Table-default evidence from the regression catalog. |
+
+Validation: Five focused groups pass 1,276 assertions: WildEncounterEditing 464, StreamTemplates 123, ScriptWorkflowSafety 598, FindKeyboard 50 and TabViewLifetime 41, zero failures/skips. This is not a new full-suite total. After the user saved and quit HMA, guarded Apple Silicon publication passed on source 414aa318. Both bundle version fields remain 1.0.0, packaged Core and Avalonia assemblies match the freshly compiled Release assemblies, and deep strict ad-hoc signature verification passes. Tests use fabricated data and offscreen UI; no personal project or preferences are opened or changed. The fix remains separate from main for rollback/review.
+
+## 260 — Checkpoint the supplied finished Tutorial Village assets
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/Tutorial/tutorial.ips | 1 | Preserve the exact 36,255-byte user-supplied IPS patch. |
+| OptionalAssets/Tutorial/tutorial.toml | 1 | Preserve the exact 183,351-byte matching project TOML. |
+| OptionalAssets/Tutorial/tutorial.json | 1 | Pin the clean English FireRed 1.1 base, IPS, matching output and original TOML identities. |
+
+Investigation checkpoint: An independent Python IPS decoder validates all 570 records (21 RLE records) and EOF, then produces a 16 MiB ROM with SHA-256 8e611cc0ebe03aca59418c2b55d728776327582975ed9fa96fdbb1b88f3b7c69 and CRC32 5EB1EF21. This output matches the user's current Tutorial Village (2).gba byte for byte. The source is the already-pinned canonical clean FireRed 1.1 SHA-256. Supplied IPS SHA-256 is cbc7ac0301e07d34fdf638a0be513a39fc7f818e3866df73baaf8695b13c289a; supplied TOML SHA-256 is 2ff8161741e2508a96d78ed57ccbd78715a1b2400a29d1ed791ff98d6f24823b. Original files are read-only during review; no ROM is added to Git. This asset checkpoint precedes IPS loader support and metadata/lifecycle verification; it is not a ready-to-ship claim. Prior verified source 5de8423e remains available for rollback.
+
+## 261 — Enable the finished Tutorial Village utility with verified IPS support
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/TutorialPatch.cs | 28 | Allow the manifest to select tutorial.ips or tutorial.ups, verify matching magic/hash, and apply the selected format to detached bytes with the existing base/output/TOML gates. |
+| tests/TutorialPatch/IpsVerification.cs | 1 | Cover IPS literal/RLE application, malformed/truncated records, stale UPS coexistence, filename restrictions and paired publication. |
+| tests/TutorialPatch/SuppliedVillageVerification.cs | 1 | Verify the actual finished pair against independent output and exercise all definitions/lists, map rendering and actual Save/reopen/Undo/Redo in a disposable project. |
+| tests/TutorialPatch/Program.cs | 173 | Require shipped assets to load in default verification and add the opt-in supplied-package lifecycle check. |
+| tests/TabMenus/Program.cs | 133 | Add opt-in native-menu-model availability checks using the real clean base, without native picker interaction. |
+| OptionalAssets/Tutorial/README.md | 1 | Document the bundled IPS, preserved TOML, fixed clean base and chosen-name workflow. |
+| tests/TutorialPatch/README.md | 1 | Distinguish synthetic vectors, the legacy one-byte lesson and the finished supplied tutorial checks. |
+| README.md | 53 | Describe the finished Tutorial Village utility and remove stale preview/unfinished claims. |
+
+Validation: The supplied-package run passes 97 assertions (77 default plus 20 supplemental real-package checks). The resulting ROM matches independent output and the finished working tutorial exactly. All 547 supplied named addresses/formats and all 73 named lists survive actual normal opening and Save/reopen. The original TOML is published byte for byte before the paired ROM and is not regenerated on initial opening. The 80x56 Tutorial Village map renders before and after a real saved disposable edit; Undo/Redo retains expected bytes. Three separate menu checks confirm the production utility enables for the exact clean FireRed 1.1 base and identifies Tutorial Village. Existing UPS behavior stays covered, and absent patchFile defaults to tutorial.ups for backward compatibility. Original user files and base are read-only; no ROM is tracked. Full regressions and guarded app publication follow separately. Mac Edition remains 1.0.0.
+
+## 262 — Verify and bundle the finished Tutorial Village utility
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/TutorialPatch/supplied-village-verification.json | 1 | Record exact supplied/output identities, independent IPS comparison, all per-group counts, supplemental real-package/menu checks and bundled asset/assembly hashes. |
+| tests/TutorialPatch/README.md | 55 | Link the completed verification and its native/gameplay limits. |
+| tests/README.md | 9 | Record the newest full-suite and finished tutorial evidence separately from historical baselines. |
+
+Validation: Fresh scripts/verify-mac.sh --no-restore passes 89 groups / 25,320 assertions, zero failures/skips. Default TutorialPatch contributes 77 assertions and WildEncounterEditing 464. Separate actual supplied-package checks add 20 assertions, and clean-base menu availability adds three, without double-counting the default groups. All 547 supplied named addresses/formats and 73 named list values survive actual Open/Save/reopen, with no initial TOML regeneration; the 80x56 map renders and Undo/Redo preserves the expected disposable edit. Independent decoded output matches the finished working tutorial byte for byte. Guarded Apple Silicon publication passes on source a1d973ba; both version fields remain 1.0.0, exact supplied IPS/TOML and manifest bytes are bundled, and packaged Core/Avalonia assemblies match fresh Release builds. Deep strict ad-hoc signature verification passes. Original clean ROM, supplied assets and working tutorial ROM retain their checked identities on disk. The only full-suite warning category is existing NU1900 feed access, with no compiler warnings. Native picker interaction, every gameplay path, Developer ID signing, notarization and public release are not claimed by these checks. All work remains on the separate reviewable branch.
+
+## 263 — Refresh release documentation and signing readiness
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| docs/accomplishments.json | 1 | Update the dated feature record for the finished tutorial, final SCADE pair, trainer-dialogue assistance, Find, wild-data defaults and native workflow fixes. |
+| output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | 1 | Regenerate and visually review all six pages with the current 89-group / 25,320-assertion baseline and explicit release limits. |
+| README.md | 13 | Link the updated accomplishment summary and maintainer signing guide from the GitHub landing page. |
+| docs/MAC_SIGNING.md | 1 | Document certificate setup, local Keychain authentication, staged Developer ID signing, JIT/runtime needs, notarization, stapling and final packaging. |
+| docs/MAC_RELEASE_CHECKLIST.md | 119 | Mark finished tutorial assets and updated feature documents complete while preserving native/gameplay/signing release gates. |
+
+Validation: The existing reportlab authoring script regenerated a six-page PDF. All six rendered pages were inspected for legibility, margins, wrapping and footer separation. Source evidence remains the complete 89-group / 25,320-assertion run at a1d973ba, plus 23 separate tutorial/menu checks; documentation changes do not alter the tested app. Xcode notarytool/stapler are available, but security find-identity reports zero valid signing identities, so no Developer ID signing, credential storage, upload or notarization is claimed. The guide follows current Apple and Microsoft primary documentation and explicitly avoids re-running ad-hoc packaging over a signed release. No version bump or project changes are included.

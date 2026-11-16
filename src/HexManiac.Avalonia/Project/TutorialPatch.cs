@@ -24,6 +24,7 @@ public sealed class TutorialPatch {
       public string PatchSha256 { get; set; }
       public string OutputSha256 { get; set; }
       public string TomlSha256 { get; set; }
+      public string PatchFile { get; set; } = "tutorial.ups";
    }
 
    private readonly Manifest manifest;
@@ -44,11 +45,10 @@ public sealed class TutorialPatch {
    private static TutorialPatch Load(string directory, out string reason, string requiredBaseHash, int requiredBaseLength) {
       reason = "The tutorial patch has not been included in this build yet.";
       var manifestPath = Path.Combine(directory, "tutorial.json");
-      var patchPath = Path.Combine(directory, "tutorial.ups");
       var tomlPath = Path.Combine(directory, "tutorial.toml");
-      if (!File.Exists(manifestPath) || !File.Exists(patchPath) || !File.Exists(tomlPath)) return null;
+      if (!File.Exists(manifestPath) || !File.Exists(tomlPath)) return null;
       try {
-         if (new FileInfo(manifestPath).Length > 16 * 1024 || new FileInfo(patchPath).Length > Patcher.MaximumPatchedLength ||
+         if (new FileInfo(manifestPath).Length > 16 * 1024 ||
              new FileInfo(tomlPath).Length > 4 * 1024 * 1024)
             throw new InvalidDataException("Tutorial assets exceed the supported size.");
          var manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllText(manifestPath),
@@ -57,9 +57,18 @@ public sealed class TutorialPatch {
              !string.Equals(manifest.BaseSha256, requiredBaseHash, StringComparison.OrdinalIgnoreCase) ||
              !IsHash(manifest.PatchSha256) || !IsHash(manifest.OutputSha256) || !IsHash(manifest.TomlSha256))
             throw new InvalidDataException("The tutorial manifest must identify the exact clean English FireRed 1.1 base and verified patch, output and TOML hashes.");
+         if (manifest.PatchFile is not ("tutorial.ips" or "tutorial.ups"))
+            throw new InvalidDataException("The tutorial patch filename must be tutorial.ips or tutorial.ups.");
+         var patchPath = Path.Combine(directory, manifest.PatchFile);
+         if (!File.Exists(patchPath)) return null;
+         if (new FileInfo(patchPath).Length > Patcher.MaximumPatchedLength)
+            throw new InvalidDataException("Tutorial assets exceed the supported size.");
          var patch = File.ReadAllBytes(patchPath);
-         if (!Matches(patch, manifest.PatchSha256) || patch.Length < 18 || !patch.Take(4).SequenceEqual(new byte[] { 85, 80, 83, 49 }))
-            throw new InvalidDataException("The tutorial UPS patch does not match its manifest.");
+         bool validHeader = manifest.PatchFile == "tutorial.ips"
+            ? patch.Length >= 8 && patch.Take(5).SequenceEqual(Encoding.ASCII.GetBytes("PATCH"))
+            : patch.Length >= 18 && patch.Take(4).SequenceEqual(Encoding.ASCII.GetBytes("UPS1"));
+         if (!Matches(patch, manifest.PatchSha256) || !validHeader)
+            throw new InvalidDataException("The tutorial patch does not match its manifest or format.");
          var toml = File.ReadAllBytes(tomlPath);
          if (!Matches(toml, manifest.TomlSha256)) throw new InvalidDataException("The tutorial TOML does not match its manifest.");
          using var text = new StringReader(new UTF8Encoding(false, true).GetString(toml).TrimStart('\uFEFF'));
@@ -97,8 +106,11 @@ public sealed class TutorialPatch {
       if (!MatchesBase(source)) throw new InvalidDataException("Open the unmodified English FireRed 1.1 ROM required by this tutorial.");
       // A detached model keeps all source bytes, metadata, relocation and history untouched.
       var candidate = new BasicModel(source.ToArray());
-      if (Patcher.ApplyUPSPatch(candidate, patch, () => new NoTrackChange(), false, out var direction) < 0 ||
-          direction != Patcher.UpsPatchDirection.SourceToDestination || !Matches(candidate.RawData, manifest.OutputSha256))
+      bool applied = manifest.PatchFile == "tutorial.ips"
+         ? Patcher.ApplyIPSPatch(candidate, patch, new NoTrackChange()) >= 0
+         : Patcher.ApplyUPSPatch(candidate, patch, () => new NoTrackChange(), false, out var direction) >= 0 &&
+            direction == Patcher.UpsPatchDirection.SourceToDestination;
+      if (!applied || !Matches(candidate.RawData, manifest.OutputSha256))
          throw new InvalidDataException("The tutorial patch failed verification. No ROM was written.");
       var supplied = new StoredMetadata(metadata).NamedAnchors;
       if (supplied.Any(anchor => anchor.Address < 0 || anchor.Address >= candidate.Count))

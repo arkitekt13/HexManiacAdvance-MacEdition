@@ -3722,3 +3722,13 @@ Investigation: The upstream commands preserve the selected tool, so Text may sho
 | tests/README.md | 128 | Link the Table-default evidence from the regression catalog. |
 
 Validation: Five focused groups pass 1,276 assertions: WildEncounterEditing 464, StreamTemplates 123, ScriptWorkflowSafety 598, FindKeyboard 50 and TabViewLifetime 41, zero failures/skips. This is not a new full-suite total. After the user saved and quit HMA, guarded Apple Silicon publication passed on source 414aa318. Both bundle version fields remain 1.0.0, packaged Core and Avalonia assemblies match the freshly compiled Release assemblies, and deep strict ad-hoc signature verification passes. Tests use fabricated data and offscreen UI; no personal project or preferences are opened or changed. The fix remains separate from main for rollback/review.
+
+## 260 — Checkpoint the supplied finished Tutorial Village assets
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/Tutorial/tutorial.ips | 1 | Preserve the exact 36,255-byte user-supplied IPS patch. |
+| OptionalAssets/Tutorial/tutorial.toml | 1 | Preserve the exact 183,351-byte matching project TOML. |
+| OptionalAssets/Tutorial/tutorial.json | 1 | Pin the clean English FireRed 1.1 base, IPS, matching output and original TOML identities. |
+
+Investigation checkpoint: An independent Python IPS decoder validates all 570 records (21 RLE records) and EOF, then produces a 16 MiB ROM with SHA-256 8e611cc0ebe03aca59418c2b55d728776327582975ed9fa96fdbb1b88f3b7c69 and CRC32 5EB1EF21. This output matches the user's current Tutorial Village (2).gba byte for byte. The source is the already-pinned canonical clean FireRed 1.1 SHA-256. Supplied IPS SHA-256 is cbc7ac0301e07d34fdf638a0be513a39fc7f818e3866df73baaf8695b13c289a; supplied TOML SHA-256 is 2ff8161741e2508a96d78ed57ccbd78715a1b2400a29d1ed791ff98d6f24823b. Original files are read-only during review; no ROM is added to Git. This asset checkpoint precedes IPS loader support and metadata/lifecycle verification; it is not a ready-to-ship claim. Prior verified source 5de8423e remains available for rollback.

@@ -1,0 +1,9 @@
+{
+  "title": "Tutorial Village",
+  "baseRom": "English FireRed 1.1",
+  "baseSha256": "729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059",
+  "patchSha256": "cbc7ac0301e07d34fdf638a0be513a39fc7f818e3866df73baaf8695b13c289a",
+  "outputSha256": "8e611cc0ebe03aca59418c2b55d728776327582975ed9fa96fdbb1b88f3b7c69",
+  "tomlSha256": "2ff8161741e2508a96d78ed57ccbd78715a1b2400a29d1ed791ff98d6f24823b",
+  "patchFile": "tutorial.ips"
+}

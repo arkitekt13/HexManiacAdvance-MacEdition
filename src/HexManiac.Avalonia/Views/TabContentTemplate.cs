@@ -11,13 +11,15 @@ using HavenSoft.HexManiac.Core.ViewModels.Map;
 namespace HavenSoft.HexManiac.AvaloniaUI.Views;
 
 /// <summary>
-/// Picks the view for each tab. Hex, map, image and pokedex-reorder tabs are all ported;
+/// Picks the view for each tab. Hex, search results, map, image and pokedex-reorder tabs are ported;
 /// anything else falls through to a placeholder. Add a case here per port.
 /// </summary>
 public class TabContentTemplate : IDataTemplate {
    public Control Build(object data) => data switch {
       // The starter's HexGrid stub is superseded by the real TabView + HexContent port.
       ViewPort viewPort => WireFocus(new TabView { DataContext = viewPort }, view => view.FocusElement += Focused),
+      // Results implement IViewPort and use the same read-only hex previews as upstream HMA.
+      SearchResultsViewPort results => WireFocus(new TabView { DataContext = results }, view => view.FocusElement += Focused),
       ImageEditorViewModel image => new ImageEditorView { DataContext = image },
       DexReorderTab dex => new DexReorderView { DataContext = dex },
       MapEditorViewModel map => WireFocus(new MapTab { DataContext = map }, view => view.FocusElement += Focused),

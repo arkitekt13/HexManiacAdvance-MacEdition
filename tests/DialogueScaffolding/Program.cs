@@ -60,11 +60,12 @@ foreach (var newline in new[] { "\n", "\r\n", "\r" }) using (var f = new Workflo
    Check(!f.Body.HasError, "Explicit correction retries successfully.");
    f.View.Undo.Execute(null); f.Dispatch.Flush(); Check(baseline.EqualsModel(f), "Undo of a corrected draft restores the original state.");
 }
+foreach (var command in new[] { "msgbox.npc", "single.battle 0" })
 foreach (bool navigate in new[] { false, true }) using (var f = new WorkflowFixture()) {
    var callbacks = new List<Action>();
    f.Dispatch.DispatchOverride = action => { callbacks.Add(action); return Task.CompletedTask; };
-   var body = f.Body; body.CaretPosition = "msgbox.npc".Length;
-   body.Editor.Content = "msgbox.npc \nend";
+   var body = f.Body; body.CaretPosition = command.Length;
+   body.Editor.Content = command + " \nend";
    if (navigate) f.View.Goto.Execute(WorkflowFixture.Other);
    else f.View.Undo.Execute(null);
    var state = f.State(); var caret = body.CaretPosition; var activeCaret = f.Body.CaretPosition;
@@ -72,10 +73,12 @@ foreach (bool navigate in new[] { false, true }) using (var f = new WorkflowFixt
    Check(state.EqualsModel(f) && body.CaretPosition == caret && f.Body.CaretPosition == activeCaret,
       "A queued scaffold caret cannot reapply edits or move a different editor after Undo/navigation.");
 }
+foreach (var command in new[] { "msgbox.npc", "single.battle 0" })
 foreach (bool caretAfterSpace in new[] { false, true }) using (var f = new WorkflowFixture()) {
-   var body = new CodeBody(f.Model, f.Tool.ScriptParser, null) { Content = "msgbox.npc " };
-   body.CaretPosition = "msgbox.npc".Length + (caretAfterSpace ? 1 : 0);
-   Check(body.TryInsertAuto(out var caret) && body.Content == "msgbox.npc <auto>\n{\n\n}" && caret == body.Content.IndexOf('{') + 2,
+   var body = new CodeBody(f.Model, f.Tool.ScriptParser, null) { Content = command + " " };
+   body.CaretPosition = command.Length + (caretAfterSpace ? 1 : 0);
+   var expected = command + (command == "msgbox.npc" ? " <auto>\n{\n\n}" : " <auto> <auto>\n{\n\n}\n{\n\n}");
+   Check(body.TryInsertAuto(out var caret) && body.Content == expected && caret == body.Content.IndexOf('{') + 2,
       "End-of-editor assistance supports caret notification on either side of the newly typed space.");
 }
 using (var f = new WorkflowFixture()) {
@@ -121,5 +124,61 @@ using (var f = new WorkflowFixture()) {
       "Unclosed movement drafts keep diagnostics and all original ROM/metadata state.");
    f.View.Save.Execute(f.FileSystem); f.View.SaveAs.Execute(f.FileSystem);
    Check(f.Saves == 0, "Unclosed movement drafts retain save protection.");
+}
+// Trainer battles with only trailing text operands can scaffold both in argument order.
+foreach (var newline in new[] { "\n", "\r\n", "\r" })
+foreach (var command in new[] { "single.battle 0", "single.battle.rematch 0", "single.battle.canlose 0" }) {
+   using var f = new WorkflowFixture();
+   var baseline = f.State();
+   var body = new CodeBody(f.Model, f.Tool.ScriptParser, null) { Content = command + " " + newline + "end" };
+   body.CaretPosition = command.Length;
+   Check(body.TryInsertAuto(out int caret), "A trainer battle offers automatic text operands.");
+   var block = newline + "{" + newline + newline + "}";
+   var expected = command + " <auto> <auto>" + block + block + newline + "end";
+   Check(body.Content == expected, "Both trainer text pointers and blocks must appear immediately, before compilation/reload.");
+   Check(caret == expected.IndexOf('{') + 1 + newline.Length, "Trainer assistance targets the first prebattle text row.");
+   Check(baseline.EqualsModel(f), "Paired trainer scaffolding must not allocate or write ROM/resources/history directly.");
+   body.CaretPosition = caret;
+   Check(!body.TryInsertAuto(), "Assistance inside the first trainer block cannot duplicate either block.");
+   var secondCaret = expected.IndexOf('{', expected.IndexOf('}') + 1) + 1 + newline.Length;
+   var filled = expected.Insert(secondCaret, "After battle.").Insert(caret, "Before battle.");
+   f.Edit(filled);
+   Check(!f.Body.HasError, "The two generated trainer text blocks compile normally.");
+   var first = f.Model.ReadPointer(f.Body.Address + 6); var second = f.Model.ReadPointer(f.Body.Address + 10);
+   var beforeText = PCSString.Convert("\"Before battle.\""); var afterText = PCSString.Convert("\"After battle.\"");
+   Check(first != second && beforeText.SequenceEqual(f.Model.RawData.Skip(first).Take(beforeText.Count)) &&
+      afterText.SequenceEqual(f.Model.RawData.Skip(second).Take(afterText.Count)), "Trainer pointers must target the respective prebattle and postbattle text bytes.");
+   Check(f.Model[f.Body.Address + 14] == 2 && WorkflowFixture.Callers.All(c => f.Model.ReadPointer(c + 1) == f.Body.Address),
+      "The following command and relocation callers remain intact.");
+   var compiled = f.State(); f.View.Undo.Execute(null); f.Dispatch.Flush();
+   Check(baseline.EqualsModel(f), "One Undo restores both trainer resources, pointers and metadata.");
+   f.View.Redo.Execute(null); f.Dispatch.Flush(); Check(compiled.EqualsModel(f), "Redo restores both trainer text resources.");
+   f.View.Undo.Execute(null); f.Dispatch.Flush();
+   var rejected = filled + newline + "not_a_command"; f.Edit(rejected);
+   Check(f.Body.HasError && f.Body.Content == rejected && baseline.EqualsModel(f), "A late trainer-script failure retains source and rolls back both resources atomically.");
+   f.View.Save.Execute(f.FileSystem); Check(f.Saves == 0, "Rejected paired trainer source still blocks saving.");
+   f.Edit(filled); Check(!f.Body.HasError, "Correcting rejected paired trainer source retries successfully.");
+}
+// Continuations still require a script pointer, so keep their existing operand entry.
+foreach (var command in new[] { "single.battle.continue.silent 0", "single.battle.continue.music 0" }) {
+   using var f = new WorkflowFixture();
+   var body = new CodeBody(f.Model, f.Tool.ScriptParser, null) { Content = command + " " };
+   body.CaretPosition = command.Length;
+   Check(body.TryInsertAuto(out _) && body.Content == command + " <auto>", "Continuation entry must not skip the required winscript operand or enter a text block.");
+   body.Content += " "; body.CaretPosition = body.Content.Length;
+   Check(body.TryInsertAuto(out _) && body.Content == command + " <auto> <auto>", "The second continuation text pointer retains ordinary pointer assistance.");
+   body.Content += " "; body.CaretPosition = body.Content.Length;
+   Check(!body.TryInsertAuto(), "Continuation script destinations are never fabricated by text scaffolding.");
+   f.Edit(body.Content + "<001800>\n{\nBefore.\n}\n{\nAfter.\n}\nend");
+   Check(!f.Body.HasError && f.Model.ReadPointer(f.Body.Address + 14) == WorkflowFixture.Other, "A manually completed continuation retains its explicit winscript destination.");
+}
+using (var f = new WorkflowFixture()) {
+   foreach (var prefix in new[] { "single.battle 0 ", "single.battle 0 <003000> " })
+   foreach (var comment in new[] { "", "# Existing prebattle dialogue\n" }) {
+      var body = new CodeBody(f.Model, f.Tool.ScriptParser, null) { Content = prefix + "\n" + comment + "{\nKeep first.\n}\n{\nKeep second.\n}\nend" };
+      body.CaretPosition = prefix.TrimEnd().Length;
+      Check(body.TryInsertAuto(out _) && body.Content.Count(c=>c=='{') == 2 && body.Content.Contains("Keep first.") && body.Content.Contains("Keep second."),
+         "Existing trainer blocks and explicit addresses are retained without adding or reordering blocks.");
+   }
 }
 Console.WriteLine($"CHECKS_PASSED:{checks}");

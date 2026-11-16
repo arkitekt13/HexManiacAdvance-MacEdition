@@ -8,8 +8,13 @@ inserts `<auto>` plus a complete `{ }` block, with an editable blank line and th
 This covers common msgbox variants, preparemsg and loadpointer's text operand. The source's
 existing LF/CRLF/CR style and following commands are preserved. Existing blocks are not duplicated.
 Final movement operands also get a complete block, including move.player, move.camera, move.npc
-and applymovement. Their bodies contain movement instructions, not dialogue text. Ambiguous
-multiple-pointer commands and other resources retain ordinary pointer assistance.
+and applymovement. Their bodies contain movement instructions, not dialogue text.
+A new trailing group containing only text pointers, such as `single.battle Grunt `,
+gets both `<auto>` operands and both blocks together, with the caret in the first.
+`single.battle.continue.silent` and `.music` retain ordinary entry because their
+required winscript pointer follows the text operands. Earlier explicit resource
+pointers and existing blocks (including those preceded by comments) are preserved.
+Other resources retain ordinary pointer assistance.
 Spartan mode and the existing automatic-insertion setting retain their opt-outs.
 
 This replaces the old immediate/compiler-time missing-brace completion. The compiler still
@@ -27,3 +32,8 @@ and preserved following commands across LF/CRLF/CR source.
 
 No user ROM is used. After relaunch, manually type a message command and space, type dialogue
 immediately, verify the following command remains outside the block, then Undo/Redo.
+
+Trainer regressions cover LF/CRLF/CR, normal/rematch/canlose forms, exact text-pointer
+ordering, untouched continuation destinations, first-block caret, existing blocks
+and addresses, end-of-editor notification ordering, atomic failure/correction,
+save rejection, Undo/Redo and stale queued assistance after navigation/Undo.

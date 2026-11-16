@@ -6,6 +6,12 @@ fresh binaries, executes them in separate processes, and requires one positive a
 from each. A build failure, nonzero process exit, missing count, duplicate count, or empty test
 set fails the run. The summary reports groups and assertions rather than claiming xUnit cases ran.
 
+The [November 16 Find results repair](FindKeyboard/results-view-verification.json) passes
+**89 groups / 24,966 assertions**, zero failures or skipped groups. This includes 50 Find
+assertions covering the rendered multiple-match view and navigation. The rebuilt Apple Silicon
+app remains 1.0.0 and passes deep strict signature verification. These are headless UI and
+packaging checks; native Cocoa input is not claimed.
+
 The November 10 launch-safety candidate passes **89 groups / 24,770 assertions**,
 zero failures and zero skipped groups; [exact per-group counts and limits](MAC_LAUNCH_SAFETY_VERIFICATION.json).
 This includes the running-app publishing guard, launch-path audit and recent Find,
@@ -241,3 +247,18 @@ arrow after pointer/text assignment, clearing, correction, creation, templates a
 
 [ScriptAssistanceEntry](ScriptAssistanceEntry/README.md) covers initial command assistance with
 trailing whitespace, exact pointer edits/deletion, later commands and canceled queued insertions.
+
+The [November 11 SCADE asset correction](ScadeInstaller/metadata-count-correction-verification.json)
+passes a fresh 89-group / 24,774-assertion run, plus 39 separate real-base SCADE assertions
+and the Ikarus follow-up on the updated base. It records the original metadata overlap,
+verified 317-entry correction, exact published files and remaining gameplay limits.
+
+The [trainer-dialogue assistance verification](DialogueScaffolding/trainer-battle-verification.json)
+passes 89 groups / 24,941 assertions on source b57453ed, including immediate paired
+text blocks and unchanged continuation entry. Its recorded app-publish status is
+separate from successful automated tests; a running app is preserved.
+
+The [November 15 SCADE update](ScadeInstaller/update-2026-11-15-verification.json)
+passes 89 groups / 24,941 assertions and 42 separate real-base SCADE assertions.
+It records the final supplied pair, verified metadata corrections, Ikarus follow-up
+and exact assets bundled in the rebuilt 1.0.0 app; prior SCADE records are historical.

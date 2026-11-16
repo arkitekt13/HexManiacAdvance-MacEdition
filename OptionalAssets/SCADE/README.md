@@ -1,13 +1,19 @@
 # SCADE installer assets
 
-Bundled from the creator-provided October 21, 2026 test build of CFRU Expansion
-and DPE-gen9, supplied for integration into Mac Edition. See the unchanged
-[creator README](Creator-README.txt) for its description, support Discord and
+Bundled from the updated creator-provided SCADE patch/TOML pair supplied on
+November 15, 2026 for integration into Mac Edition. The manifest version records
+that integration date, not a claimed upstream release number. See the unchanged
+[creator README](Creator-README.txt) from the original October 21 test package for
+background, support Discord and
 upstream link: <https://github.com/Shiny-Miner/CFRU-expansion>.
 Credit Shiny Miner and the CFRU Expansion/DPE-gen9 contributors, building on
 Skeli's CFRU and Ghoulslash's DPE; this installer does not claim their engine work.
 
-The BPS and TOML are preserved byte for byte. `scade.json` pins their SHA-256 hashes,
+The BPS is preserved byte for byte. The shipped TOML has two reviewed local corrections:
+the ability-description table contains 317 pointers, and the 743-trainer table uses
+the relocated address referenced by the patched ROM rather than its legacy vanilla copy.
+See [Metadata-Correction.txt](Metadata-Correction.txt) for binary/source evidence and
+the original creator TOML hash/history. `scade.json` pins the shipped SHA-256 hashes,
 source size and the patch's required source CRC32. Copy all assets to
 `resources/Optional/SCADE` during build/publish; no base or patched ROM is bundled.
 The .txt creator README is included in the application as well.

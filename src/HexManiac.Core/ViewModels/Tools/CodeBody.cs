@@ -318,18 +318,32 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Tools {
             var after = Content.Substring(insertionIndex);
             var insertion = "<auto>";
             targetCaret = before.Length + insertion.Length;
-            // Scaffold unambiguous final dialogue/movement operands. Other resources and
-            // commands with multiple pointers of the same type keep ordinary assistance.
+            // Pair only a new trailing group of text pointers. A later script/other
+            // operand (trainer continuations), or an earlier explicit resource pointer,
+            // keeps ordinary entry so blocks cannot be assigned to the wrong operand.
             var pointerType = args[token].PointerType;
-            var scaffold = pointerType.IsAny(ExpectedPointerType.Text, ExpectedPointerType.Movement) && token == args.Count - 1 &&
+            var trailingTexts = pointerType == ExpectedPointerType.Text &&
+               args.Skip(token).All(arg => arg.Type == ArgType.Pointer && arg.PointerType == ExpectedPointerType.Text) &&
+               !args.Take(token).Any(arg => arg.Type == ArgType.Pointer) ? args.Count - token : 0;
+            var singleResource = pointerType.IsAny(ExpectedPointerType.Text, ExpectedPointerType.Movement) && token == args.Count - 1 &&
                args.Count(arg => arg.Type == ArgType.Pointer && arg.PointerType == pointerType) == 1;
-            if (scaffold && !after.TrimStart().StartsWith("{")) {
+            var scaffoldCount = trailingTexts > 1 ? trailingTexts : singleResource ? 1 : 0;
+            var following = after.TrimStart();
+            if (scaffoldCount > 1) {
+               // Comments between the command and an existing block do not make it new.
+               while (following.StartsWith("#")) {
+                  var end = following.IndexOfAny(new[] { '\r', '\n' });
+                  following = end < 0 ? string.Empty : following[end..].TrimStart();
+               }
+            }
+            if (scaffoldCount > 0 && !following.StartsWith("{")) {
                var firstBreak = Content.IndexOfAny(new[] { '\r', '\n' });
                var newline = firstBreak < 0 ? Environment.NewLine :
                   Content[firstBreak] == '\r' && firstBreak + 1 < Content.Length && Content[firstBreak + 1] == '\n'
                      ? "\r\n" : Content[firstBreak].ToString();
-               insertion += newline + "{" + newline + newline + "}";
-               targetCaret += newline.Length + 1 + newline.Length;
+               insertion = string.Join(" ", Enumerable.Repeat("<auto>", scaffoldCount));
+               targetCaret = before.Length + insertion.Length + newline.Length + 1 + newline.Length;
+               insertion += string.Concat(Enumerable.Repeat(newline + "{" + newline + newline + "}", scaffoldCount));
             }
             content = before + insertion + after;
             return true;

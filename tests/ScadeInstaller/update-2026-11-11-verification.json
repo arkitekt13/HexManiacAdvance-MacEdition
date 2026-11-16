@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-11",
+  "status": "candidate pair staged; creator-metadata conflict prevents a clean strict real-base verification",
+  "asset_version": "2026-11-11 (integration date; upstream release identifier not supplied)",
+  "patch": {
+    "bytes": 13645809,
+    "sha256": "727b713f8b405f39399679821c6938c048592451fbd061bbd2f953f532621e57",
+    "source_crc32": "DD88761C",
+    "target_crc32": "5F634CB7",
+    "patch_crc32": "4B0E0A96",
+    "commands": 185910
+  },
+  "metadata": {
+    "bytes": 193882,
+    "sha256": "3ea679db301f38fed872bcd26ec80889eb4297f8287f9f1a579992ef191991db",
+    "anchors": 556,
+    "lists": 79,
+    "application_version": "99.0.0",
+    "creator_bytes_unchanged": true
+  },
+  "base": {
+    "description": "clean English FireRed 1.0",
+    "bytes": 16777216,
+    "sha256": "3d0c79f1627022e18765766f6cb5ea067f6b5bf7dca115552189ad65a5c3a8ac",
+    "original_unchanged": true
+  },
+  "output": {
+    "bytes": 33554432,
+    "sha256": "cb1d9c40063c8721374f2f217d27762463e2256cf744b5b4c3deb3490ccd6350",
+    "matches_independent_output_byte_for_byte": true
+  },
+  "independent_patcher": {
+    "project": "Marc Robledo Rom Patcher JS",
+    "commit": "4f17297cd1dc0835a0b0747497fa15f5f63f1623",
+    "all_three_checksums_enforced": true
+  },
+  "checks": {
+    "ScadeInstaller_synthetic_assertions": 138,
+    "ScadeInstaller_synthetic_failures": 0,
+    "IkarusUpgrade_default_plus_real_base_assertions": 127,
+    "IkarusUpgrade_failures": 0,
+    "Ikarus_bases": [
+      "vanilla",
+      "HUBOL",
+      "updated SCADE"
+    ],
+    "strict_SCADE_real_base_run": "fails at preservation of all supplied anchor formats after Save",
+    "initial_creator_sidecar_byte_identical": true,
+    "initial_ROM_bytes_unchanged": true,
+    "all_556_anchor_addresses_retained_on_open_and_save": true,
+    "synthetic_and_real_build_warnings": 0,
+    "synthetic_and_real_build_errors": 0
+  },
+  "creator_metadata_conflict": {
+    "anchor": "data.abilities.descriptions",
+    "address": "0x100B050",
+    "supplied_format": "[description<\"\">]data.abilities.names",
+    "entries": 390,
+    "end_exclusive": "0x100B668",
+    "overlapping_anchor": "graphics.moves.backgrounds.all",
+    "overlapping_address": "0x100B544",
+    "overlap_bytes": 292,
+    "observed_saved_format": "",
+    "other_anchor_format_mismatches": [],
+    "old_pair_format_for_this_anchor": "",
+    "resolution": "Do not silently edit creator definitions or weaken the strict format-preservation check."
+  },
+  "packaging": {
+    "self_contained_ARM64_publish": "passed to an isolated non-app output directory",
+    "published_patch_TOML_manifest_creator_README": "byte-identical to repository assets",
+    "working_app_bundle_replaced": false,
+    "Mac_Edition_version": "1.0.0"
+  },
+  "limitations": [
+    "Not a fresh complete Mac suite run.",
+    "No in-game bug-fix claims or gameplay verification.",
+    "No working tutorial or existing SCADE project opened or upgraded.",
+    "The earlier real-base-verification.json describes the original asset pair; it is historical evidence."
+  ]
+}

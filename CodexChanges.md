@@ -3574,3 +3574,131 @@ Validation: The user selected mGBA successfully in the direct native picker; des
 | CodexChanges.md | 3362 | Preserve the complete numbered investigation and implementation history when integrating the earlier default-branch publication. |
 
 Validation: The default branch's earlier documentation-only publication conflicted with the newer README metric and appended changelog. Both conflicts are resolved while retaining entries 229–245 and the latest verification evidence. Application, Core, tests and optional assets remain byte-identical to the already-tested feature checkpoint; no additional regression run is claimed for documentation reconciliation. Mac assembly/file identity remains 1.0.0. The merge preserves individual commits and does not publish a release or create a version tag.
+
+## 247 — Stage the updated creator SCADE pair and verify its metadata compatibility
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/SCADE/SCADE.bps | N/A | Replace the candidate BPS with the exact creator-provided November 11 update. |
+| OptionalAssets/SCADE/SCADE.toml | 1 | Keep the matching supplied TOML byte for byte, including 556 named definitions and 79 lists. |
+| OptionalAssets/SCADE/scade.json | 2 | Pin both updated hashes and the unchanged clean English FireRed 1.0 source identity; use the integration date as the package version. |
+| OptionalAssets/SCADE/README.md | 3 | Distinguish the newly supplied pair from the historical creator README without inventing an upstream release number. |
+| tests/ScadeInstaller/Program.cs | 232 | Update actual bundled-pair identity and expected definition count. |
+| tests/ScadeInstaller/RealRomVerification.cs | 24 | Pin the independently verified new output and relocated table addresses; print detailed format mismatches while retaining strict preservation checks. |
+| tests/ScadeInstaller/update-2026-11-11-verification.json | 1 | Record independent patching, published asset bytes, real workflow checks and the unresolved supplied-definition overlap. |
+
+Validation: ScadeInstaller passes 138 synthetic assertions. HMA's new 32 MiB output matches Rom Patcher JS byte for byte with all three checksums enforced. IkarusUpgrade passes 127 combined synthetic/real-base assertions across vanilla, HUBOL and updated SCADE; builds report zero warnings/errors. Isolated self-contained ARM64 publication contains the exact new patch, TOML, manifest and unchanged creator README. Mac Edition remains 1.0.0. The original clean base and both downloads are unchanged; no working project or running app bundle is modified. This is not a new complete-suite or gameplay result.
+
+Open finding: The supplied ability-description format spans 0x100B050–0x100B668 and overlaps graphics.moves.backgrounds.all at 0x100B544 by 292 bytes. Initial load preserves the sidecar bytes and all 556 addresses. Actual Save retains every address but emits an empty ability-description format; the strict real-base test correctly fails on that sole format mismatch. The earlier supplied pair already had an empty format there. No silent creator-file edit or weakened preservation assertion is introduced. The candidate remains on its development branch pending the user's choice to retain the exact pair with this limitation or obtain corrected creator metadata; it is not merged or installed over the running app.
+
+## 248 — Correct SCADE ability-description metadata to the verified 317-entry table
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/SCADE/SCADE.toml | 120 | Limit the description pointer array to its actual 317 entries; preserve its address, all 390 names and every other supplied byte. |
+| OptionalAssets/SCADE/scade.json | 7 | Pin the reviewed corrected TOML hash while retaining the exact creator BPS hash and base gate. |
+| OptionalAssets/SCADE/Metadata-Correction.txt | 1 | Ship explicit provenance, received/shipped formats, original creator hash/history, ROM references and pinned creator-source evidence. |
+| OptionalAssets/SCADE/README.md | 12 | Disclose the local metadata correction instead of claiming the shipped TOML is entirely byte-identical. |
+| tests/ScadeInstaller/RealRomVerification.cs | 58 | Verify both adjacent table lengths alongside unchanged strict all-anchor/address/format preservation checks. |
+| tests/ScadeInstaller/metadata-count-correction-verification.json | 1 | Record the reproduced failure and successful 39-assertion real-base correction, including normal Save/reopen and Undo/Redo. |
+
+Investigation: The engine's description references at 0x1C4 and 0x1367A8 point to 0x100B050; the animation reference at 0x73960 points to 0x100B544. Exactly 317 description pointers fit that interval. Creator source b24b5a3b independently declares ABILITIES_COUNT 317 and description entries 0–316; every literal entry matches the patched ROM and the last text matches Spicy Spray. The background begins with valid compressed graphics pointers. The correction follows the actual data boundary rather than relocating either table or suppressing HMA validation. The original creator metadata is preserved in commit 51d9c1c4 and its Downloads file.
+
+Validation: The same strict normal Open/Save/reopen test that failed before now passes 39 real-base assertions, with zero initial/saved anchor mismatches or saved format mismatches. All 556 addresses and formats, both adjacent tables, actual saved edit and Undo/Redo survive; three maps render. The synthetic SCADE group passes 138 assertions. The BPS and independently verified 32 MiB ROM output are unchanged. No runtime/compiler/engine, numeric, relocation or history code is changed, and existing projects are not migrated. Mac Edition remains 1.0.0. Full-suite and final bundled-file verification follow separately.
+
+## 249 — Verify and bundle the updated SCADE pair in Mac Edition 1.0.0
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScadeInstaller/metadata-count-correction-verification.json | 1 | Attach all 89 default-group counts, 39 separate SCADE real-base checks, corrected-metadata Ikarus follow-up and exact final published-file hashes. |
+| tests/README.md | 87 | Link the updated pair's verification separately from historical SCADE/Ikarus candidates. |
+
+Validation: Fresh scripts/verify-mac.sh --no-restore on source 6d9aed6f passes 89 groups / 24,774 assertions, zero failures and zero skipped groups; the only warning category is the existing NU1900 package-vulnerability-feed warning, with no compiler warnings. Strict real-base SCADE verification passes 39 separate assertions, preserving every one of 556 anchor addresses/formats, both adjacent tables, actual Save/reopen and Undo/Redo. Ikarus follow-up passes 127 combined checks (70 default plus 57 supplemental across vanilla, HUBOL and updated SCADE); those default checks are not double-counted. After the user saved and quit, guarded Apple Silicon publishing succeeds and deep strict ad-hoc signature verification passes. The final app remains 1.0.0 and bundles the exact new creator BPS, corrected TOML, matching manifest, original creator README and explicit correction note. Original Downloads files and the clean base are unchanged; no existing user project is opened or migrated. Gameplay and the creator's engine bug fixes are not certified by these checks.
+
+## 250 — Create paired trainer-dialogue blocks when no further operands are required
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Tools/CodeBody.cs | 321 | Scaffold a new trailing group of text pointers together, placing the caret in the first block and retaining ordinary entry when later operands or earlier resource pointers make grouping ambiguous. |
+| tests/DialogueScaffolding/Program.cs | 128 | Reproduce the missing paired blocks, verify text ordering and newlines, and protect continuation destinations, existing/commented blocks, explicit addresses, rejection/retry, Save, Undo/Redo and stale callbacks. |
+| tests/ScriptAssistance/Program.cs | 20 | Exercise typed, Enter and mouse completion for both the command and Grunt trainer operand through real headless editor controls, including caret, pointer replacement, actual text bytes and Undo/Redo. |
+| tests/DialogueScaffolding/README.md | 11 | Describe the trailing-text-only rule and continuation exclusions. |
+| tests/ScriptAssistance/README.md | 30 | Document automated trainer input coverage and its native-UI limit. |
+
+Validation: Before the change, the new regression fails because single.battle creates auto pointers without immediate blocks. Afterward, DialogueScaffolding passes 517 assertions and ScriptAssistance 398; unchanged ScriptAssistanceEntry passes 789 and ScriptWorkflowSafety 598: four focused groups / 2,302 assertions, zero failures/skips and zero build warnings/errors. Normal, rematch and canlose forms create two independent correctly ordered text resources across LF/CRLF/CR; typed and accepted trainer names land the UI caret in the first block. Continuation variants still require their explicit winscript pointer and receive no paired scaffolding. Existing blocks, comments and explicit resource addresses are preserved. Tests cover atomic late failures, retained rejected source, blocked saves, correction/retry, relocation callers, Undo/Redo and queued-callback cancellation after navigation/Undo. Only source typing assistance changes; no compiler, engine, numeric parsing or ROM fixtures are modified. Mac Edition stays 1.0.0. Full regressions and final app publishing follow separately; a running user app is not replaced.
+
+## 251 — Verify paired trainer-dialogue assistance across all Mac groups
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/DialogueScaffolding/trainer-battle-verification.json | 1 | Record the pre-fix reproduction, focused input/safety checks, every full-suite group count, Release build and safely refused app replacement. |
+| tests/README.md | 93 | Link the new source checkpoint and distinguish test success from current app installation. |
+
+Validation: Fresh scripts/verify-mac.sh --no-restore on source b57453ed passes 89 groups / 24,941 assertions, zero failures and zero skipped groups. The only warning category is the existing NU1900 package-vulnerability-feed warning; no compiler warnings occur. DialogueScaffolding contributes 517, ScriptAssistance 398, ScriptAssistanceEntry 789 and ScriptWorkflowSafety 598. The real headless MainWindow input paths cover typed/Enter/mouse command and trainer completion, two immediate blocks, first-block caret/focus, exact argument/resource order, explicit pointer replacement and Undo/Redo. Continuation winscript arguments remain manual and preserved. The Release build passes with zero warnings/errors and version stays 1.0.0. Guarded publishing refuses while the user's app is running, preserving the existing bundle; the change is not yet installed in that running app. No user ROM or normal preferences are opened or modified. Native manual verification remains a user check after a safe rebuild.
+
+## 252 — Publish the verified trainer-dialogue enhancement after HMA closes
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/DialogueScaffolding/trainer-battle-verification.json | 1 | Replace pending-publish status with the successful guarded build, source checkpoint, exact Core hash and retained SCADE assets. |
+
+Validation: After the user confirms work saved and HMA quit, guarded Apple Silicon publishing from 938a8384 succeeds; independent deep strict ad-hoc signature verification passes. Both app bundle version fields remain 1.0.0, and the updated SCADE BPS, corrected TOML, manifest and correction note match repository assets byte for byte. This installs the already-tested source helper; no further application/test changes or additional regression run are claimed. Earlier evidence retains the 89-group / 24,941-assertion full run and native manual verification limit. No personal ROM is opened or modified, and no additional app copy is created.
+
+## 253 — Preserve the final supplied SCADE update before metadata corrections
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/SCADE/SCADE.bps | N/A | Preserve the exact new creator BPS received November 15. |
+| OptionalAssets/SCADE/SCADE.toml | 1 | Checkpoint the matching creator TOML unchanged for review and rollback before renewed validation. |
+| OptionalAssets/SCADE/scade.json | 2 | Pin the new pair's hashes under the November 15 integration date while retaining the same exact clean FireRed 1.0 base. |
+| tests/ScadeInstaller/Program.cs | 232 | Pin the received pair's identity for integrity checks. |
+| tests/ScadeInstaller/RealRomVerification.cs | 24 | Update the independent target hash and received table-address expectations for the new candidate. |
+
+Investigation checkpoint: The new BPS has a valid patch CRC and independently produces a 32 MiB ROM from the unchanged clean 1.0 base, target CRC DD17F27A and SHA-256 67c78da450f8631b7c57d92fb9345acd822ac2b3a37efa585656a6f55b15f99c. The received TOML again ties 390 description rows to the 317-pointer region and changes the trainer anchor to the original vanilla table. These findings are being validated against actual ROM references and boundaries before any final metadata correction or app rebuild. The exact received pair is retained in this commit; earlier correction documentation remains historical until the final verification update. No working game or source download is modified, and this candidate is not claimed ready to ship.
+
+## 254 — Validate the final SCADE pair and correct two metadata mappings
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/SCADE/SCADE.toml | 120 | Keep descriptions at the verified 317-pointer boundary and point the supplied 743-trainer definition at the patched engine's relocated table. |
+| OptionalAssets/SCADE/scade.json | 7 | Pin the reviewed metadata hash while preserving the exact new creator BPS and unchanged clean-base gate. |
+| OptionalAssets/SCADE/Metadata-Correction.txt | 1 | Disclose both changes, received-file provenance, actual ROM references, record counts and boundaries. |
+| OptionalAssets/SCADE/README.md | 3 | Identify the November 15 pair and its documented local metadata corrections. |
+| tests/ScadeInstaller/RealRomVerification.cs | 55 | Reject the legacy trainer mapping using the engine reference and validate all 743 records plus the first-party boundary. |
+| tests/ScadeInstaller/update-2026-11-15-verification.json | 1 | Record exact inputs/output, before/after findings, independent checksum-enforced comparison and 42 real-base assertions. |
+
+Investigation: The new creator metadata reintroduced 390 descriptions at 0x100B050, which overlaps the background at 0x100B544. The actual description references and 317-entry boundary are unchanged. The trainer anchor was set to legacy 0x23EAC8, but HMA's BPRE0 discovery reference at 0xFC00 and 22 additional ROM references point to 0x1273168. All 743 relocated records have valid structure/class/party fields, and their table ends exactly where the first party begins at 0x127A580. The received metadata fails the new engine-reference regression before correction. Only the description format and trainer address are corrected; the supplied 743 count, complete format and every other metadata byte are preserved. Original files remain untouched in Downloads and commit d87f6629.
+
+Validation: The new BPS output matches the pinned independent patcher byte for byte with source, target and patch checksums enforced. ScadeInstaller passes 138 synthetic assertions and 42 real-base assertions, zero failures/skips. All 556 shipped anchor addresses and formats survive normal Open/Save/reopen; actual saved edits, Undo/Redo and three map renders pass. No runtime, engine, compiler, numeric or history behavior is changed. Mac Edition stays 1.0.0; existing games are not upgraded or modified. Complete regressions and final app bundling follow separately.
+
+## 255 — Verify and publish the final SCADE utility update in Mac Edition 1.0.0
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/ScadeInstaller/update-2026-11-15-verification.json | 1 | Attach all default-group counts, 42 real-base checks, Ikarus follow-up and exact final bundled-file hashes. |
+| tests/README.md | 255 | Link the final SCADE asset pair's evidence separately from prior candidates. |
+
+Validation: Fresh scripts/verify-mac.sh --no-restore on source 0d226ace passes 89 groups / 24,941 assertions, zero failures and zero skipped groups. The only warning category is the existing NU1900 vulnerability-feed warning; no compiler warnings occur. The 42 separate SCADE real-base assertions pass, including patched trainer-reference equality, all 743 records and the exact party boundary, all 556 shipped addresses/formats through actual Save/reopen, Undo/Redo and map rendering. Ikarus follow-up passes 127 combined checks (70 default plus 57 supplemental across vanilla, HUBOL and latest corrected SCADE), without double-counting default assertions. Guarded Apple Silicon publication and deep strict ad-hoc signature verification pass. Both bundle version fields remain 1.0.0. The final app's creator BPS, corrected TOML, manifest and correction/credit notes match repository bytes exactly. The supplied originals and clean base are unchanged. No user project is modified or migrated; gameplay certification and native first-install testing are outside these checks.
+
+## 256 — Restore multiple-match Find results in the Mac interface
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Views/TabContentTemplate.cs | 22 | Route SearchResultsViewPort to the existing shared preview rather than the unported-editor placeholder. |
+| tests/FindKeyboard/Program.cs | 64 | Reproduce the missing rendered tab and exercise preview navigation, multiple files, scrolling, resizing and read-only input. |
+| tests/FindKeyboard/README.md | 31 | Document the display regression and expanded 50-assertion coverage, separate from historical submission checks. |
+| PORT_STATUS.md | 76 | Record the now-connected search results editor. |
+
+Plan and investigation: Preserve checkpoint 7977c1d9 on the already-pushed SCADE branch; work separately on codex/find-results-view. First reproduce the actual missing visual in a headless MainWindow. Register the existing IViewPort-compatible TabView exactly as upstream WPF does, then check rendering and navigation before broad regressions and a guarded app rebuild. Update verification evidence and push reviewable commits without merging. Roll back the interface repair by reverting this commit; no project migration is involved.
+
+Validation: The added visual-tree assertion fails on the previous code with the exact missing-view regression. After registration, FindKeyboard passes 50 assertions using two fabricated ROMs: highlighted previews, source/address headings, Command-click/double-click navigation, matching-range selection, identical addresses across files, 40-hit scrolling and last-match navigation, resize, tab switching and closing. Existing single/no-hit and F3/Shift-F3 behavior remains covered. Typing/deletion/paste in results leaves both ROMs, serialized metadata, Undo state and disk files unchanged. The offscreen results screenshot was inspected. This entry does not claim native Cocoa validation or a completed full-suite run; those follow separately. Search matching, compiler, model and save code are unchanged. Mac Edition remains 1.0.0, and no user project or preferences are opened or modified.
+
+## 257 — Verify and publish the Find results repair in Mac Edition 1.0.0
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/FindKeyboard/results-view-verification.json | 1 | Record the reproduction, plan, exact 89-group counts, publication identity and remaining validation limits. |
+| tests/FindKeyboard/README.md | 52 | Link the full regression and packaging evidence. |
+| tests/README.md | 9 | Record the newest Find repair verification separately from historical runs. |
+
+Validation: Fresh scripts/verify-mac.sh --no-restore passes 89 groups / 24,966 assertions, zero failures and skipped groups. FindKeyboard contributes 50 assertions. The only warning category is the existing NU1900 vulnerability-feed warning; no compiler warnings occur. After the user saved and quit HMA, guarded Apple Silicon publication passed on source 8989d4e5. Deep strict ad-hoc signature verification passed, both version fields remain 1.0.0, and the packaged application assembly matches the freshly compiled Release assembly. All five bundled SCADE files still match repository bytes. Tests use fabricated ROMs and offscreen rendering; native Cocoa input is not claimed. No personal project was opened or modified. The repair and evidence remain on the separate unmerged branch.

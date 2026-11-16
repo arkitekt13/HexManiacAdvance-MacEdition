@@ -74,3 +74,41 @@ The same probe now accepts the exact supplied Ikarus FR v3.2 hash through the
 `--graphics-review` alias. See [Ikarus findings](../IKARUS_GRAPHICS_COMPATIBILITY_REVIEW.md).
 Its event check follows recognized child script bodies, including map headers and
 conditional header rows, so an unchanged entry opcode cannot hide later edits.
+
+## November 11 creator update and count correction
+
+The replacement pair and manifest use integration date `2026-11-11`; no new
+upstream release number was supplied. The current synthetic group passes 138
+assertions. Independent patching agrees byte for byte, and the Ikarus utility's
+127 combined default/real-base checks pass across vanilla, HUBOL and updated SCADE.
+The self-contained publish copies the exact replacement assets.
+
+**The uncorrected creator pair failed strict metadata preservation.** The received
+`data.abilities.descriptions` format requests 390 four-byte pointers beginning at
+`0x100B050`, ending at `0x100B668`. The supplied `graphics.moves.backgrounds.all`
+anchor begins at `0x100B544`, overlapping it by 292 bytes. Initial opening retains
+the supplied sidecar unchanged and all 556 addresses load. A real Save retains all
+addresses but emits an empty ability-description format, the only format mismatch.
+The old creator pair already had an empty format at that anchor. The failure is preserved in the
+[candidate evidence](update-2026-11-11-verification.json). The BPS remains exact; the
+original creator TOML remains in Git history and Downloads. The shipped TOML now
+explicitly limits descriptions to the independently verified 317 entries. The
+unchanged strict preservation assertions now pass, with 39 real-base assertions
+including both adjacent table lengths. No engine/compiler change is made.
+See [correction evidence](metadata-count-correction-verification.json) and the
+[shipped correction note](../../OptionalAssets/SCADE/Metadata-Correction.txt).
+Earlier real-base results above apply to the original pair, not this replacement.
+
+## November 15 final creator update
+
+The latest BPS remains byte-identical to the creator download. The shipped TOML
+retains two documented corrections: the verified 317-entry description count and
+the 743-trainer table address at 0x1273168. The received trainer address 0x23EAC8
+failed a new check against the patched reference at 0xFC00. All 743 relocated
+records are structurally valid, and their party-data boundary confirms the count.
+
+Independent BPS output matches HMA byte for byte. The strengthened real-base
+mode passes 42 assertions, including all 556 anchor addresses/formats through
+Save/reopen, normal saved edits, Undo/Redo and three map renders. Earlier results
+above describe historical asset pairs. See the [latest evidence](update-2026-11-15-verification.json)
+and the [shipped correction note](../../OptionalAssets/SCADE/Metadata-Correction.txt).

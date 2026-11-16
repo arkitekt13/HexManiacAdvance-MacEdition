@@ -24,6 +24,11 @@ require_stopped_app() {
   done <<< "$processes"
 }
 require_stopped_app
+ICON="$ROOT/assets/macos/AppIcon.icns"
+if [[ ! -s "$ICON" ]]; then
+  echo "Missing Mac app icon: $ICON. Run scripts/build-mac-icon.sh first." >&2
+  exit 1
+fi
 VERSION="$(sed -n 's/^\[assembly: AssemblyFileVersion("\([0-9.]*\)")\].*/\1/p' "$ROOT/src/HexManiac.Avalonia/MacAssemblyInfo.cs" | tr -d '\r')"
 if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then echo 'Could not read the application version.' >&2; exit 1; fi
 command -v dotnet >/dev/null || { echo 'Install the .NET 8 SDK to build this application.' >&2; exit 1; }
@@ -59,6 +64,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleIdentifier</key><string>io.github.hexmaniacadvance.mac</string>
   <key>CFBundleExecutable</key><string>$NAME</string>
   <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleIconFile</key><string>AppIcon.icns</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
   <key>CFBundleVersion</key><string>$VERSION</string>
   <key>LSMinimumSystemVersion</key><string>12.0</string>
@@ -70,6 +76,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   </dict></array>
 </dict></plist>
 PLIST
+mkdir -p "$APP/Contents/Resources"
+cp "$ICON" "$APP/Contents/Resources/AppIcon.icns"
 # Local ad-hoc signature only; this is not Developer ID signing or notarization.
 codesign --force --deep --sign - "$APP"
 codesign --verify --deep --strict "$APP"

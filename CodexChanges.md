@@ -3818,3 +3818,17 @@ Validation: Documentation-only updates preserve the signed archive and app basel
 | tests/MacPackaging/public-release-1.0.0-verification.json | 1 | Record public release identity, source tag and a fresh public-download hash match. |
 
 Validation: GitHub release 447414778 is published as stable/latest at v1.0.0, targeting annotated source b982d358. Both the notarized ZIP and checksum are uploaded. A fresh unauthenticated download is exactly 69,754,350 bytes and matches SHA-256 11046f63ca99c570e199d3ea2e9f5cf5c8c09c05fe7e56c7f9e37af6c89e5942; GitHub's asset digest agrees. PR 13 is merged. The live README presents shipped features and the repository description/website point to the released app. No application or project files were changed.
+
+## 268 — Prepare a Mac Edition app icon and bundle metadata
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| assets/macos/AppIcon.png | 1 | Add square map-based source artwork with clean white HMA lettering, using the supplied Tutorial Village background as reference. |
+| assets/macos/AppIcon.icns | 1 | Supply native icon representations from 16px through 1024px. |
+| assets/macos/README.md | 1 | Record artwork provenance, regeneration and signed-release handling. |
+| scripts/build-mac-icon.sh | 1 | Regenerate the ICNS with system resize/conversion tools in disposable staging. |
+| publish-mac.sh | 27 | Require the icon, copy it into Resources and declare CFBundleIconFile before signing. |
+| tests/MacPackaging/Program.cs | 17 | Check bundle metadata, byte-preserving icon publication and safe failure for a missing icon. |
+| tests/MacPackaging/README.md | 1 | Document the expanded packaging coverage and separate native icon review. |
+
+Validation: MacPackaging passes 53 assertions. macOS iconutil builds and decodes the ICNS, including a visually reviewed 64px representation with legible HMA text. Shell syntax and diff checks pass. This prepares a reviewable design and packaging change only; the public notarized 1.0.0 archive and installed development app are unchanged. Artwork approval and a newly signed/notarized distribution remain separate from these checks.

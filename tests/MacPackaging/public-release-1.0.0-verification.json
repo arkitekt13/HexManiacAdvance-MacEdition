@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-16",
+  "url": "https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.0",
+  "release_id": 447414778,
+  "tag": "v1.0.0",
+  "tag_commit": "b982d3580f402f0822fddcef94debba5a2f30308",
+  "published_at": "2026-11-16T18:18:03Z",
+  "draft": false,
+  "prerelease": false,
+  "asset": "HexManiacAdvance-MacEdition-1.0.0-osx-arm64.zip",
+  "bytes": 69754350,
+  "sha256": "11046f63ca99c570e199d3ea2e9f5cf5c8c09c05fe7e56c7f9e37af6c89e5942",
+  "public_download_matches_notarized_archive": true,
+  "checksum_asset": "HexManiacAdvance-MacEdition-1.0.0-osx-arm64.zip.sha256",
+  "github_reported_asset_digest_matches": true,
+  "documentation_pr": 13,
+  "readme_and_accomplishments_describe_released_features": true,
+  "notes": "Documentation updates do not rebuild or resign the notarized app. Source baseline and remaining platform/gameplay limits are recorded separately."
+}

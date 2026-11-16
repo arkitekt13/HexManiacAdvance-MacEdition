@@ -3810,3 +3810,11 @@ Validation: Apple accepted submission c66b37fa-342a-4b40-9840-e87e538764af with 
 | output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | 1 | Refresh the six-page accomplishment summary for the shipped release. |
 
 Validation: Documentation-only updates preserve the signed archive and app baseline. Public release uses the exact notarized Apple Silicon ZIP and SHA-256 recorded in entry 265, without rebuilding/resigning. Features are described as included; historical port notes, Intel support and gameplay limits remain accurately scoped. Release assets and default-branch links are checked after publication.
+
+## 267 — Verify the published GitHub 1.0.0 release
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MacPackaging/public-release-1.0.0-verification.json | 1 | Record public release identity, source tag and a fresh public-download hash match. |
+
+Validation: GitHub release 447414778 is published as stable/latest at v1.0.0, targeting annotated source b982d358. Both the notarized ZIP and checksum are uploaded. A fresh unauthenticated download is exactly 69,754,350 bytes and matches SHA-256 11046f63ca99c570e199d3ea2e9f5cf5c8c09c05fe7e56c7f9e37af6c89e5942; GitHub's asset digest agrees. PR 13 is merged. The live README presents shipped features and the repository description/website point to the released app. No application or project files were changed.

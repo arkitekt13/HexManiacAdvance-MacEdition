@@ -3712,3 +3712,13 @@ Validation: Fresh scripts/verify-mac.sh --no-restore passes 89 groups / 24,966 a
 | tests/WildEncounterEditing/README.md | 23 | Document command-navigation coverage separately from the existing editing regressions. |
 
 Investigation: The upstream commands preserve the selected tool, so Text may show only the rate/list-pointer header. Raw Code and hidden tools can additionally skip normal tool-address refresh. The repair keeps existing navigation and encounter allocation, then explicitly supplies the Table address and selects Table only for these wild-data commands. General navigation behavior is unchanged. The new regression fails on the previous code; the final WildEncounterEditing group passes 464 assertions, including visible editable lists for grass, surf, rock-smash and fishing, existing-data byte/metadata/history preservation and retained Add pointers/default species. Fixtures are fabricated and do not open user projects. Checkpoint b96ae275 is preserved on the main branch, and this fix is isolated on codex/wild-data-table-default. Related checks and app-publication evidence follow separately; Mac Edition remains 1.0.0.
+
+## 259 — Verify and publish the wild-data Table default
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/WildEncounterEditing/table-default-verification.json | 1 | Record the 48-scenario matrix, exact focused counts, rollback point and published assembly identities. |
+| tests/WildEncounterEditing/README.md | 37 | Link focused verification and distinguish it from a full-suite run. |
+| tests/README.md | 128 | Link the Table-default evidence from the regression catalog. |
+
+Validation: Five focused groups pass 1,276 assertions: WildEncounterEditing 464, StreamTemplates 123, ScriptWorkflowSafety 598, FindKeyboard 50 and TabViewLifetime 41, zero failures/skips. This is not a new full-suite total. After the user saved and quit HMA, guarded Apple Silicon publication passed on source 414aa318. Both bundle version fields remain 1.0.0, packaged Core and Avalonia assemblies match the freshly compiled Release assemblies, and deep strict ad-hoc signature verification passes. Tests use fabricated data and offscreen UI; no personal project or preferences are opened or changed. The fix remains separate from main for rollback/review.

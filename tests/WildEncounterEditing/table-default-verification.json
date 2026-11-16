@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-16",
+  "source_commit": "414aa31879c3a26da90b95e35391c6c23e525d25",
+  "rollback_checkpoint": "b96ae275",
+  "branch": "codex/wild-data-table-default",
+  "root_cause": "Wild Add/Show preserved the prior editor tool; Text showed only the rate/list pointer. Raw or closed tools also skipped automatic Table address updates.",
+  "repair": "Navigate as before, set the encounter header as TableTool.Address and select TableTool, scoped to wild-data Add/Show commands.",
+  "command_matrix": {
+    "commands": [
+      "grass",
+      "surf",
+      "tree/rock-smash",
+      "fish"
+    ],
+    "paths": [
+      "Show existing",
+      "Add missing"
+    ],
+    "starting_tools": [
+      "Text",
+      "Table",
+      "Image",
+      "Raw Code",
+      "Logs",
+      "closed"
+    ],
+    "scenarios": 48,
+    "visible_inline_editors_required": true,
+    "show_preserves_bytes_metadata_saved_and_undo_state": true,
+    "add_preserves_list_pointer_and_default_species": true
+  },
+  "before_fix": {
+    "exit_code": 134,
+    "failure": "grass Show opens Table from tool 0",
+    "note": "The regression was first run from Table, Text, Image, Raw Code, Logs and closed. The final test iterates Text first; actual starting-tool state is asserted before each command."
+  },
+  "focused_verification": {
+    "groups": 5,
+    "assertions": 1276,
+    "counts": {
+      "StreamTemplates": 123,
+      "ScriptWorkflowSafety": 598,
+      "FindKeyboard": 50,
+      "TabViewLifetime": 41,
+      "WildEncounterEditing": 464
+    },
+    "failures": 0,
+    "skipped_groups": 0,
+    "full_suite_rerun": false
+  },
+  "publication": {
+    "command": "./publish-mac.sh osx-arm64",
+    "exit_code": 0,
+    "user_confirmed_saved_and_quit": true,
+    "bundle_version": "1.0.0",
+    "short_version": "1.0.0",
+    "deep_strict_signature_verified": true,
+    "notarized": false,
+    "assembly_sha256": {
+      "HexManiac.Core.dll": "ab6f77cd7bacc18539b6973933f92685f84297527e0a00ff0019de45af8ac0f1",
+      "HexManiacAdvance.dll": "226e0e8120d320bc53c955665ad3b30a7619be0d53d5d585135d47af878a4652"
+    },
+    "assemblies_match_fresh_release_build": true
+  },
+  "limits": [
+    "Tests use fabricated ROMs and headless input/offscreen rendering; native Cocoa validation is not claimed.",
+    "No personal project or preferences are opened or changed.",
+    "This is focused verification, separate from the earlier 89-group Find merge baseline.",
+    "No general navigation, encounter allocation, compiler or save implementation is changed."
+  ]
+}

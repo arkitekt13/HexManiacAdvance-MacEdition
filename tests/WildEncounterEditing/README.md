@@ -34,3 +34,7 @@ list without following its pointer. Show preserves every ROM byte, serialized me
 saved status and empty Undo history; Add retains its list pointer and default species slots.
 Together with the original editing cases, the group passes 464 assertions. Every fixture
 is fabricated; no personal project, application preferences or native window is used.
+
+[Table-default verification](table-default-verification.json) records five focused groups /
+1,276 assertions, zero failures/skips, and the guarded rebuilt 1.0.0 app with matching
+Release assemblies and a verified ad-hoc signature. This is not a new full-suite total.

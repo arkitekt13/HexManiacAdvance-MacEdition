@@ -124,6 +124,10 @@ External emulator first-use selection, remembered application paths and source-a
 Launch are covered by [ExternalEmulatorLaunch](ExternalEmulatorLaunch/README.md).
 Continuous wild-encounter text editing, focus/caret retention and species autocomplete are covered
 by [WildEncounterEditing](WildEncounterEditing/README.md).
+
+The [wild Add/Show Table default](WildEncounterEditing/table-default-verification.json)
+adds 48 command scenarios. Its focused verification passes five groups / 1,276 assertions
+and guarded app publication, separately from the earlier full-suite baseline above.
 Tab Control-click/secondary-click menus, targeted Duplicate and native Finder reveal routing are
 covered by [TabMenus](TabMenus/README.md).
 Script/text clipboard shortcut and native Edit menu focus routing are covered by

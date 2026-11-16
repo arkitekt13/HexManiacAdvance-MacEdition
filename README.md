@@ -10,26 +10,27 @@ working Mac port. Thank you both for making this edition possible.
 
 Mac Edition is maintained by [arkitekt13](https://github.com/arkitekt13).
 
-See the [updated feature and accomplishment summary](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf).
-Maintainers can follow the [signing and notarization guide](docs/MAC_SIGNING.md) for public release preparation.
+**Mac Edition 1.0.0 is released for Apple Silicon**, signed with Developer ID and notarized by Apple.
+The map, scripting and ROM utility features below are included in the release.
+
+See the [feature and accomplishment summary](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf).
+Maintainers can follow the [signing and notarization guide](docs/MAC_SIGNING.md) for future releases.
 
 ## Installation
 
 ### Option 1: Download the app
 
-**[Open the Releases page](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases).**
+**[Download Mac Edition 1.0.0 for Apple Silicon](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/download/v1.0.0/HexManiacAdvance-MacEdition-1.0.0-osx-arm64.zip)** · [Release notes and checksum](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.0)
 
-**No Mac release is available yet. Use Option 2 below for now.**
-
-When a Mac release is available:
-
-1. Download the ZIP for your Mac: **Apple Silicon / arm64** for an M-series Mac, or **Intel / x64** for an Intel Mac.
+1. Download the **Apple Silicon / arm64** ZIP for an M-series Mac.
 2. Open Downloads. If the ZIP has not unpacked automatically, double-click it.
 3. Drag **HexManiacAdvance.app** into **Applications**.
 4. Open the app from Applications, click **Open ROM**, and choose your `.gba` file.
 
-If macOS blocks the app, follow [these steps](docs/MAC_SETUP.md#if-macos-blocks-a-downloaded-app).
-No .NET installation is needed for this option. Game ROMs are not included.
+The release is **Developer ID signed and Apple-notarized**. No .NET installation is needed.
+Game ROMs and emulators are not included. Keep your project's `.gba` and matching `.toml` together.
+Intel downloads are not offered in 1.0.0; Intel hardware remains unverified.
+See the [Mac usage guide](docs/MAC_SETUP.md) for controls, utilities and troubleshooting.
 
 ### Option 2: Download and run the source code
 
@@ -51,11 +52,11 @@ dotnet run --project src/HexManiac.Avalonia/HexManiac.Avalonia.csproj
 Keep Terminal open while using this version. To launch it again later, repeat steps 5–6.
 If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source-launch-troubleshooting).
 
-## Mac Edition features
+## Included in Mac Edition 1.0.0
 
 ### ROM utilities
 
-These utilities are included in the current development build; public release packaging is being finalized.
+All three utilities are implemented and included under **Utilities** in the released app.
 
 - **Create SCADE ROM** - Build a new SCADE ROM from exact unmodified English FireRed 1.0, with the creator's matching TOML placed beside it before opening.
 - **Ikarus Visual Upgrade** - Apply the reviewed visual and map upgrade to an English FireRed project after creating a verified named ROM/TOML backup, with Undo/Redo available.
@@ -97,7 +98,7 @@ Ikarus is recommended for unedited or minimally edited projects, without enforci
 
 See the [accomplishments PDF](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf) for a grouped summary and measured improvements, or the [detailed changelog](CodexChanges.md) for individual fixes and validation.
 
-The current Mac Edition preview passed **89 groups / 24,774 assertions**, with **zero failures and zero skipped groups**. An additional 57 real-ROM checks cover the Ikarus upgrade on vanilla FireRed, HUBOL and SCADE. These are recorded test results, not a substitute for helper feedback or gameplay testing. See the [complete-run evidence](tests/ExternalEmulatorLaunch/NATIVE_PICKER_VERIFICATION.json).
+The released app's source baseline passed **89 groups / 25,320 assertions**, with **zero failures and zero skipped groups**, plus 23 separate supplied-tutorial/menu checks. The signed packaged runtime passed another **871 lifecycle assertions**. Apple's notarization service accepted the app, and the extracted download passes signature, ticket and Gatekeeper checks. See the [source and tutorial verification](tests/TutorialPatch/supplied-village-verification.json) and [notarized release verification](tests/MacPackaging/notarization-1.0.0-verification.json). These checks do not certify every gameplay path or every ROM expansion combination.
 
 ## Help
 

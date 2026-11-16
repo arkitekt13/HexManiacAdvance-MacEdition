@@ -3769,3 +3769,44 @@ Validation: Fresh scripts/verify-mac.sh --no-restore passes 89 groups / 25,320 a
 | docs/MAC_RELEASE_CHECKLIST.md | 119 | Mark finished tutorial assets and updated feature documents complete while preserving native/gameplay/signing release gates. |
 
 Validation: The existing reportlab authoring script regenerated a six-page PDF. All six rendered pages were inspected for legibility, margins, wrapping and footer separation. Source evidence remains the complete 89-group / 25,320-assertion run at a1d973ba, plus 23 separate tutorial/menu checks; documentation changes do not alter the tested app. Xcode notarytool/stapler are available, but security find-identity reports zero valid signing identities, so no Developer ID signing, credential storage, upload or notarization is claimed. The guide follows current Apple and Microsoft primary documentation and explicitly avoids re-running ad-hoc packaging over a signed release. No version bump or project changes are included.
+
+## 264 — Prepare isolated Developer ID release signing
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| scripts/sign-mac-release.py | 1 | Copy a verified development app to a new release destination, relocate managed payload to Resources, sign native code inside out and retain byte-preservation evidence. |
+| scripts/macos-release-entitlements.plist | 1 | Enable only the JIT entitlement required by the bundled .NET runtime. |
+| tools/MacReleaseHost/Program.cs | 1 | Generate a matching SDK apphost bound to the release Resources payload. |
+| tools/MacReleaseHost/MacReleaseHost.csproj | 1 | Use the installed SDK host writer without introducing another package dependency. |
+| tools/PackagedProjectReview/Program.cs | 1 | Resolve either the release Resources layout or the existing development MacOS layout. |
+
+Validation: Six invalid/existing-destination guards preserve source files. The initial flat managed-payload layout was rejected by codesign; the release-only Resources layout succeeds with 19 native signatures, secure timestamps and Hardened Runtime. Only the native apphost is regenerated; managed code/resources remain byte-identical and the development app remains untouched. Signed native startup reaches the 1.0.0 welcome screen. A disposable copy of the self-contained 8.0.5 runtime passes 871 lifecycle assertions: 60 close/reopen cycles and 40 continuous saves. This is separate from native editing and does not establish the cause of earlier intermittent TOML permission failures.
+
+## 265 — Notarize and verify the Apple Silicon 1.0.0 download
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| scripts/package-notarized-mac.py | 1 | Archive a prepared notarized payload without rebuilding or resigning; validate the extracted app and refuse existing outputs. |
+| tests/MacPackaging/notarization-1.0.0-verification.json | 1 | Record Apple acceptance, archive identity, extracted signature/ticket/Gatekeeper checks and separate packaged lifecycle results. |
+| docs/MAC_SIGNING.md | 1 | Document the verified release layout and successful submission. |
+| docs/MAC_SETUP.md | 1 | Describe normal notarized-app installation instead of quarantine removal. |
+| docs/MAC_RELEASE_CHECKLIST.md | 1 | Mark signing/notarization complete while preserving other pending release gates. |
+| docs/RELEASE_NOTES_1.0.0.md | 1 | Prepare public release text with actual features, verification and limits. |
+| tests/README.md | 1 | Link the notarized-candidate evidence. |
+
+Validation: Apple accepted submission c66b37fa-342a-4b40-9840-e87e538764af with no issues. The ticket is stapled and valid; the final extracted ZIP passes strict deep signature and Gatekeeper assessment as Notarized Developer ID. Final archive is 69,754,350 bytes, SHA-256 11046f63ca99c570e199d3ea2e9f5cf5c8c09c05fe7e56c7f9e37af6c89e5942. Existing-output refusal preserves that hash. The archive contains setup/build information, LICENSE and dependency notices, with no ROM. Application code remains the verified a1d973ba baseline merged at 822b9f84; Mac version 1.0.0 and Core/TOML 0.6.1 are unchanged. No public GitHub release or Intel/clean-machine/full-gameplay pass is claimed. Credentials stay in Keychain.
+
+## 266 — Publish Mac Edition 1.0.0 and present shipped features clearly
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| README.md | 1 | Lead with the signed/notarized 1.0.0 Apple Silicon download, shipped utilities/features and current verification totals. |
+| RELEASE_NOTES.md | 1 | Point to the current release above clearly labeled original-port history. |
+| docs/RELEASE_NOTES_1.0.0.md | 1 | Publish installation, features, checksum, credits and verification limits. |
+| docs/MAC_SETUP.md | 1 | Link the released download and normal installation flow. |
+| docs/MAC_SIGNING.md | 1 | Correct the verification link and connect the accepted candidate to its public release. |
+| docs/accomplishments.json | 1 | Record release availability and successful signing/notarization without changing historical test counts. |
+| scripts/build-accomplishments.py | 1 | Replace the planning-draft footer with a release caption and app checkpoint. |
+| output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | 1 | Refresh the six-page accomplishment summary for the shipped release. |
+
+Validation: Documentation-only updates preserve the signed archive and app baseline. Public release uses the exact notarized Apple Silicon ZIP and SHA-256 recorded in entry 265, without rebuilding/resigning. Features are described as included; historical port notes, Intel support and gameplay limits remain accurately scoped. Release assets and default-branch links are checked after publication.

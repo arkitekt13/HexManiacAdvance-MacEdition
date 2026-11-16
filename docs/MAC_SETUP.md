@@ -123,14 +123,9 @@ Core/TOML version remains independent. Keep your ROM and TOML together when movi
 
 ## If macOS blocks a downloaded app
 
-Current development bundles are ad-hoc signed and are not notarized.
-After moving a trusted downloaded app into Applications, open Terminal and run:
+The released Apple Silicon Mac Edition 1.0.0 app is Developer ID signed and Apple-notarized. Extract its ZIP, move the app to Applications and open it normally. [Download it from GitHub Releases](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.0). Development bundles made with `package-mac.sh` remain separately ad-hoc signed.
 
-```sh
-xattr -dr com.apple.quarantine "/Applications/HexManiacAdvance.app"
-```
-
-Then open HexManiacAdvance from Applications again.
+If the notarized release is blocked, retain the exact warning and report it with the archive checksum; do not disable system-wide protections.
 
 ## Supported Macs
 

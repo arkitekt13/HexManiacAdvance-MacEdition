@@ -1,4 +1,15 @@
-> Historical upstream/original-port release notes. For current Mac Edition setup, features and helper testing, see [README.md](README.md). These entries do not imply that this fork has published matching downloadable Mac assets.
+# Mac Edition 1.0.0
+
+The current release is **Mac Edition 1.0.0 for Apple Silicon**, Developer ID signed and Apple-notarized.
+It includes the finished Tutorial Village, SCADE and Ikarus utilities, map/script workflows and Mac fixes.
+
+[Download and release notes](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.0) · [Full 1.0.0 notes](docs/RELEASE_NOTES_1.0.0.md)
+
+---
+
+## Historical original-port notes
+
+The entries below describe earlier builds and installation requirements, not the notarized Mac Edition 1.0.0 download. Use the [current installation instructions](README.md#installation).
 
 # HexManiacAdvance for macOS - beta 1
 

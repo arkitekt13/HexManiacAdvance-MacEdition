@@ -43,3 +43,7 @@ and on-disk files. Existing single-hit, no-hit and keyboard behavior stays cover
 Pass a PNG path as the sole argument to render the fabricated results window for
 visual inspection. No personal ROMs, application preferences or native windows
 are used. Full-suite and app-publication evidence is recorded separately.
+
+[Verification record](results-view-verification.json): 89 groups / 24,966 assertions,
+zero failures/skips. Guarded publication of the stopped app and deep strict signature
+verification pass; both bundle version fields stay 1.0.0.

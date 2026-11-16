@@ -117,6 +117,16 @@ Check(ReferenceEquals(Menu(map).DataContext,map),"Map tabs retain their own cont
 Click(Menu(map).Items.OfType<MenuItem>().Single(i=>Equals(i.Header,"Show in Finder")));
 Check(fs.Revealed.Last()==owner.FullFileName,"A map tab reveals its owning ROM file.");
 Check(mapBytes.SequenceEqual(model.RawData),"Revealing a map's ROM must not modify it.");
+if(args.Length==1) {
+   // Read only the supplied base; the stub filesystem never writes a personal project.
+   var source=File.ReadAllBytes(args[0]);
+   var clean=editor.OpenFileAsync(new LoadedFile("tutorial-clean-base.gba",source.ToArray())).GetAwaiter().GetResult();
+   clean.InitializationWorkload.GetAwaiter().GetResult();Pump();
+   typeof(MainWindow).GetMethod("RefreshTutorialMenu",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(window,null);
+   Check(tutorialItem.IsVisible&&tutorialItem.IsEnabled,"Bundled tutorial utility enables for the exact clean FireRed 1.1 base");
+   Check(tutorialItem.ToolTip.Contains("Tutorial Village"),"Enabled utility identifies the shipped Tutorial Village package");
+   Check(clean.Model.RawData.SequenceEqual(source)&&clean.ChangeHistory.IsSaved,"Menu availability leaves the base and saved state unchanged");
+}
 window.Editor=null;window.Close();
 Console.WriteLine($"CHECKS_PASSED:{checks}");
 

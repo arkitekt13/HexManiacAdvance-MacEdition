@@ -3732,3 +3732,18 @@ Validation: Five focused groups pass 1,276 assertions: WildEncounterEditing 464,
 | OptionalAssets/Tutorial/tutorial.json | 1 | Pin the clean English FireRed 1.1 base, IPS, matching output and original TOML identities. |
 
 Investigation checkpoint: An independent Python IPS decoder validates all 570 records (21 RLE records) and EOF, then produces a 16 MiB ROM with SHA-256 8e611cc0ebe03aca59418c2b55d728776327582975ed9fa96fdbb1b88f3b7c69 and CRC32 5EB1EF21. This output matches the user's current Tutorial Village (2).gba byte for byte. The source is the already-pinned canonical clean FireRed 1.1 SHA-256. Supplied IPS SHA-256 is cbc7ac0301e07d34fdf638a0be513a39fc7f818e3866df73baaf8695b13c289a; supplied TOML SHA-256 is 2ff8161741e2508a96d78ed57ccbd78715a1b2400a29d1ed791ff98d6f24823b. Original files are read-only during review; no ROM is added to Git. This asset checkpoint precedes IPS loader support and metadata/lifecycle verification; it is not a ready-to-ship claim. Prior verified source 5de8423e remains available for rollback.
+
+## 261 — Enable the finished Tutorial Village utility with verified IPS support
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Project/TutorialPatch.cs | 28 | Allow the manifest to select tutorial.ips or tutorial.ups, verify matching magic/hash, and apply the selected format to detached bytes with the existing base/output/TOML gates. |
+| tests/TutorialPatch/IpsVerification.cs | 1 | Cover IPS literal/RLE application, malformed/truncated records, stale UPS coexistence, filename restrictions and paired publication. |
+| tests/TutorialPatch/SuppliedVillageVerification.cs | 1 | Verify the actual finished pair against independent output and exercise all definitions/lists, map rendering and actual Save/reopen/Undo/Redo in a disposable project. |
+| tests/TutorialPatch/Program.cs | 173 | Require shipped assets to load in default verification and add the opt-in supplied-package lifecycle check. |
+| tests/TabMenus/Program.cs | 133 | Add opt-in native-menu-model availability checks using the real clean base, without native picker interaction. |
+| OptionalAssets/Tutorial/README.md | 1 | Document the bundled IPS, preserved TOML, fixed clean base and chosen-name workflow. |
+| tests/TutorialPatch/README.md | 1 | Distinguish synthetic vectors, the legacy one-byte lesson and the finished supplied tutorial checks. |
+| README.md | 53 | Describe the finished Tutorial Village utility and remove stale preview/unfinished claims. |
+
+Validation: The supplied-package run passes 97 assertions (77 default plus 20 supplemental real-package checks). The resulting ROM matches independent output and the finished working tutorial exactly. All 547 supplied named addresses/formats and all 73 named lists survive actual normal opening and Save/reopen. The original TOML is published byte for byte before the paired ROM and is not regenerated on initial opening. The 80x56 Tutorial Village map renders before and after a real saved disposable edit; Undo/Redo retains expected bytes. Three separate menu checks confirm the production utility enables for the exact clean FireRed 1.1 base and identifies Tutorial Village. Existing UPS behavior stays covered, and absent patchFile defaults to tutorial.ups for backward compatibility. Original user files and base are read-only; no ROM is tracked. Full regressions and guarded app publication follow separately. Mac Edition remains 1.0.0.

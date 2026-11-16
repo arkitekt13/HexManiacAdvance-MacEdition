@@ -50,15 +50,15 @@ If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source
 
 ## Mac Edition features
 
-### ROM utilities preview
+### ROM utilities
 
-These utilities are implemented on the [current preview branch](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/tree/codex/ikarus-visual-upgrade) and are not yet merged into the main download.
+These utilities are included in the current development build; public release packaging is being finalized.
 
 - **Create SCADE ROM** - Build a new SCADE ROM from exact unmodified English FireRed 1.0, with the creator's matching TOML placed beside it before opening.
 - **Ikarus Visual Upgrade** - Apply the reviewed visual and map upgrade to an English FireRed project after creating a verified named ROM/TOML backup, with Undo/Redo available.
-- **Tutorial Village framework** - Create a separate tutorial ROM and matching supplied TOML from exact unmodified English FireRed 1.1 once the finished assets are bundled; the action stays disabled until then.
+- **Tutorial Village** - Create the supplied tutorial as a new ROM and matching TOML from exact unmodified English FireRed 1.1. Explore its map, NPCs and event scripts as editable examples; the original base stays unchanged.
 
-Ikarus is recommended for unedited or minimally edited projects, without enforcing that recommendation. It appears compatible with vanilla FireRed, HUBOL, CFRU and SCADE, but further gameplay/build testing is required. It changes some map layouts and behaviors as well as graphics. The playable Tutorial Village is still being finished.
+Ikarus is recommended for unedited or minimally edited projects, without enforcing that recommendation. It appears compatible with vanilla FireRed, HUBOL, CFRU and SCADE, but further gameplay/build testing is required. It changes some map layouts and behaviors as well as graphics. Tutorial Village includes its finished IPS and matching metadata; users supply their own clean base ROM.
 
 ### Map editing
 

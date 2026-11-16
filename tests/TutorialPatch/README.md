@@ -48,3 +48,7 @@ TabMenus accepts the clean-base path as one optional argument to check actual ut
 availability in a headless MainWindow (three supplemental checks).
 
 These checks do not certify every tutorial event/gameplay path or native picker behavior.
+
+[Supplied-package verification](supplied-village-verification.json) records the fresh
+89-group / 25,320-assertion pass, 23 separate real-base/menu assertions without double
+counting, exact supplied/output/bundled hashes and guarded 1.0.0 app publication.

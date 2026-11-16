@@ -14,6 +14,9 @@ try {
  Directory.CreateDirectory(source);Directory.CreateDirectory(bin);Directory.CreateDirectory(cwd);
  File.Copy(Path.Combine(repo.FullName,"publish-mac.sh"),Path.Combine(source,"publish-mac.sh"));
  File.Copy(Path.Combine(repo.FullName,"package-mac.sh"),Path.Combine(source,"package-mac.sh"));
+ Directory.CreateDirectory(Path.Combine(source,"assets/macos"));
+ var icon=Path.Combine(source,"assets/macos/AppIcon.icns");
+ File.Copy(Path.Combine(repo.FullName,"assets/macos/AppIcon.icns"),icon);
  File.WriteAllText(Path.Combine(source,"LICENSE"),"synthetic original project MIT license");
  Directory.CreateDirectory(Path.Combine(source,"docs"));File.WriteAllText(Path.Combine(source,"docs/MAC_HELPER_TESTING.md"),"synthetic helper instructions");
  Directory.CreateDirectory(Path.Combine(source,"src/HexManiac.Avalonia"));
@@ -70,6 +73,10 @@ fi
   Check(File.ReadAllText(Path.Combine(arm,"old-build"))=="keep me","A failed package preserves the previous bundle exactly.");
   Check(!Directory.GetDirectories(Path.GetDirectoryName(arm)!,".stage.*").Any(),"Failure cleans only its own staging folder.");
  }
+ var iconBytes=File.ReadAllBytes(icon);File.Delete(icon);
+ Check(Run("normal","osx-arm64")!=0,"Missing icon rejects publication.");
+ Check(File.ReadAllText(Path.Combine(arm,"old-build"))=="keep me","Missing icon preserves the existing app.");
+ File.WriteAllBytes(icon,iconBytes);
  File.Delete(log);
  Check(Run("opened-during-build","osx-arm64")!=0,"An app opened after the first check blocks the final swap.");
  Check(File.ReadAllText(Path.Combine(arm,"old-build"))=="keep me"&&!Directory.GetDirectories(Path.GetDirectoryName(arm)!,".stage.*").Any(),"Late cancellation preserves the previous app and cleans its own staging folder.");
@@ -80,6 +87,8 @@ fi
  Check(Value("CFBundleShortVersionString")=="9.8.7"&&Value("CFBundleVersion")=="9.8.7","Bundle versions come from the application rather than a repository tag.");
  Check(Value("LSMinimumSystemVersion")=="12.0"&&Value("CFBundleDisplayName")=="HexManiacAdvance Mac Edition","Bundle prerequisites and display identity are explicit.");
  Check(Value("CFBundleIdentifier")=="io.github.hexmaniacadvance.mac"&&Value("CFBundleExecutable")=="HexManiacAdvance","Existing bundle identity and executable remain compatible.");
+ Check(Value("CFBundleIconFile")=="AppIcon.icns","Finder and Dock resolve the explicit bundle icon.");
+ Check(File.ReadAllBytes(Path.Combine(arm,"Contents/Resources/AppIcon.icns")).SequenceEqual(iconBytes),"The reviewed icon is copied intact into bundle resources before signing.");
  Check(!Directory.Exists(Path.Combine(cwd,"artifacts")),"Packaging never writes under the caller's unrelated working directory.");
  Check(File.ReadAllLines(log).Any(l=>l.StartsWith("--verify --deep --strict")),"Publication requires explicit signature verification.");
  Check(Run("normal","osx-x64")==0,"Intel packaging uses its own output directory.");

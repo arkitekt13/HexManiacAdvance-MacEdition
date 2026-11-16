@@ -49,3 +49,10 @@ and [report Mac Edition issues](https://github.com/arkitekt13/HexManiacAdvance-M
 ## November 16 icon refresh
 
 The current download adds the approved map-based HMA app icon and was signed and notarized again. Both bundle versions remain 1.0.0. Application code and project compatibility are unchanged. Earlier 1.0.0 users need to download it again; the updater does not announce same-version packaging changes. The original archive remains available as a fallback. [Verification](../tests/MacPackaging/icon-refresh-1.0.0-verification.json). Packaging source: [6aa063f9](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/commit/6aa063f9995b90f34633184c218dcb36becf68b0); the original release tag is preserved.
+
+## Utility credits
+
+- **SCADE:** [ShinyMiner & Team — CFRU Expansion](https://github.com/Shiny-Miner/CFRU-expansion).
+- **Ikarus Visual Upgrade:** [Ikarus & Many Contributors — Ikarus Tileset Patch V3.2](https://www.pokecommunity.com/threads/ikarus-tileset-patch-v3-2-fixed-version-gen-4-tiles-for-fire-red.532686/), including LibertyTwins for the fixed release.
+
+Full creator notes and contributor lists are preserved with the utilities.

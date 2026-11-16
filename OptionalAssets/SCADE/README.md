@@ -6,7 +6,7 @@ that integration date, not a claimed upstream release number. See the unchanged
 [creator README](Creator-README.txt) from the original October 21 test package for
 background, support Discord and
 upstream link: <https://github.com/Shiny-Miner/CFRU-expansion>.
-Credit Shiny Miner and the CFRU Expansion/DPE-gen9 contributors, building on
+Credit **[ShinyMiner & Team](https://github.com/Shiny-Miner/CFRU-expansion)**, the CFRU Expansion/DPE-gen9 contributors, building on
 Skeli's CFRU and Ghoulslash's DPE; this installer does not claim their engine work.
 
 The BPS is preserved byte for byte. The shipped TOML has two reviewed local corrections:

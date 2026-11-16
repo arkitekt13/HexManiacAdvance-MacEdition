@@ -1,6 +1,7 @@
 # Ikarus Visual Upgrade
 
 The Utilities action applies the exact reviewed Ikarus Tileset Patch FR V3.2.
+Credit **[Ikarus & Many Contributors](https://www.pokecommunity.com/threads/ikarus-tileset-patch-v3-2-fixed-version-gen-4-tiles-for-fire-red.532686/)**, including LibertyTwins for the fixed release.
 Original patch notes and contributor credits are preserved in Creator-README.txt
 and shown in the confirmation dialog. Ikarus created the base tileset; see those
 notes for the full contributor list and LibertyTwins bug-fix credit.

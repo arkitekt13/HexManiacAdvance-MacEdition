@@ -75,11 +75,14 @@ and a Five Isle Meadow tile-change routine. It appears compatible with vanilla F
 HUBOL, CFRU and SCADE. Automated checks cover English FireRed 1.0, the bundled HUBOL build
 and the supplied SCADE build; gameplay, FireRed 1.1 and other CFRU builds need further testing.
 Other games and non-English ROMs are blocked. Keep your paired backup until testing is complete.
-Creator notes and full contributor credits are available in the confirmation dialog.
+Credit **Ikarus & Many Contributors**, including LibertyTwins for the fixed release.
+See the [original Ikarus release thread](https://www.pokecommunity.com/threads/ikarus-tileset-patch-v3-2-fixed-version-gen-4-tiles-for-fire-red.532686/); creator notes and full contributor
+credits are also available in the confirmation dialog.
 
 ## Create a SCADE ROM base
 
-SCADE is Shiny Miner's CFRU Expansion / DPE-gen9 build, separate from the tutorial.
+SCADE is the CFRU Expansion / DPE-gen9 build by **ShinyMiner & Team**, separate from the tutorial.
+See the [original SCADE project](https://github.com/Shiny-Miner/CFRU-expansion).
 
 1. Open a **clean English FireRed 1.0** ROM; FireRed 1.1 and edited ROMs are rejected.
 2. Choose **Utilities > Create SCADE ROM…**.

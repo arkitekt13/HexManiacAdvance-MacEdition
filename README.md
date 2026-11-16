@@ -68,6 +68,16 @@ All three utilities are implemented and included under **Utilities** in the rele
 
 Ikarus is recommended for unedited or minimally edited projects, without enforcing that recommendation. It appears compatible with vanilla FireRed, HUBOL, CFRU and SCADE, but further gameplay/build testing is required. It changes some map layouts and behaviors as well as graphics. Tutorial Village includes its finished IPS and matching metadata; users supply their own clean base ROM.
 
+### Utility credits
+
+| Included utility | Creators and original project |
+| --- | --- |
+| SCADE | **ShinyMiner & Team** — [CFRU Expansion](https://github.com/Shiny-Miner/CFRU-expansion) |
+| Ikarus Visual Upgrade | **Ikarus & Many Contributors** — [Ikarus Tileset Patch V3.2](https://www.pokecommunity.com/threads/ikarus-tileset-patch-v3-2-fixed-version-gen-4-tiles-for-fire-red.532686/) |
+
+The Ikarus fixed release includes bug fixes by **LibertyTwins**. Full contributor credits
+and creator notes are preserved with the bundled utilities; HMA provides their installation workflow.
+
 ### Map editing
 
 - **Trackpad panning and zoom** - Pan with Option-drag and zoom with the on-screen minus/plus buttons.

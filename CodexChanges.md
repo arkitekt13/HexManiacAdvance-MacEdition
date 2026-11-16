@@ -3843,3 +3843,15 @@ Validation: MacPackaging passes 53 assertions. macOS iconutil builds and decodes
 | tests/README.md | 1 | Link the refreshed package verification independently from historical release evidence. |
 
 Validation: MacPackaging passes 53 assertions; Apple accepted submission 01236d21-71a0-4768-a3ca-d62a7b49d493 with no issues. The signed staging app opens at Version 1.0.0, without opening a ROM. Stapled ticket, deep strict signature and Gatekeeper checks pass after archive extraction. A fresh public download is 72,864,931 bytes and matches SHA-256 a381bf93be8626c5645c99e54a5f57f416f3ce2da7e9cab5cb61c080ab7ddde6; its icon matches the approved asset. All original managed/resource payloads are byte-identical; AppIcon.icns is the only added resource. Both bundle versions stay 1.0.0 and Core/TOML stays 0.6.1. PR 14 is merged. Original archive/checksum and source tag remain available for rollback, while the refreshed icon asset is the recommended release download. No new broad gameplay, native editing or Intel claims are made.
+
+## 270 — Credit the utility creators prominently and consistently
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| README.md | 71 | Add a compact utility-credit table linking SCADE to ShinyMiner & Team and Ikarus to its creators and release thread. |
+| docs/MAC_SETUP.md | 78 | Credit both creators alongside the utility instructions. |
+| docs/RELEASE_NOTES_1.0.0.md | 53 | Include creator links and acknowledge LibertyTwins' fixed Ikarus release. |
+| OptionalAssets/SCADE/README.md | 9 | Use the supplied creator/team attribution and project link. |
+| OptionalAssets/Ikarus/README.md | 4 | Link the original fixed-release thread while preserving full existing contributor notes. |
+
+Validation: Reviewed both supplied original-project links and retained the unchanged creator README files, patch bytes and metadata. Documentation-only update; the signed/notarized 1.0.0 download remains unchanged. Public release notes receive the same concise credits. Relative documentation links and whitespace checks pass.

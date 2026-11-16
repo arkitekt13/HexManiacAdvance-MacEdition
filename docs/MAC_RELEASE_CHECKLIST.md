@@ -96,8 +96,7 @@ These are release decisions or verification gates. They do not mean the current 
 - [ ] State the architectures and macOS versions actually verified. Ship ARM64 alone if Intel
   remains untested; build/test Intel on Intel hardware before advertising an Intel release.
   A declared minimum OS is not evidence of a tested support range.
-- [ ] Decide Developer ID signing/notarization versus explicitly documented unsigned/ad-hoc
-  distribution. Test the chosen download/install experience; do not describe an ad-hoc build as notarized.
+- [x] Developer ID sign, notarize and staple the Apple Silicon 1.0.0 candidate. Apple accepted it on November 16; the extracted final ZIP passes signature, ticket and Gatekeeper checks. [Evidence](../tests/MacPackaging/notarization-1.0.0-verification.json). Clean-machine download/install testing remains pending.
 - [ ] Run the separate [upstream unit](../tests/UPSTREAM_BASELINE.md) and
   [integration](../tests/INTEGRATION_BASELINE.md) checks for the candidate, recording passes,
   failures and optional-ROM skips separately from Mac assertion groups. Do not call skipped
@@ -126,7 +125,7 @@ These are release decisions or verification gates. They do not mean the current 
   tutorial action remain usable. The tutorial and background can arrive in a later release.
 - [x] Update the user guide and release accomplishments document for the settled tutorial feature set.
   November 16: six-page PDF rendered and reviewed; full suite 89 groups / 25,320 assertions.
-  [Developer ID signing and notarization](MAC_SIGNING.md) remain pending.
+  [Developer ID signing and notarization](MAC_SIGNING.md) completed November 16; public publication remains pending.
 
 ## 5. Keep deferred unless evidence changes the priority
 

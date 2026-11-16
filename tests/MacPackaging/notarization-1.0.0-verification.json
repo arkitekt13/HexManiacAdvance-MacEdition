@@ -1,0 +1,84 @@
+{
+  "date": "2026-11-16",
+  "source_checkpoint": "822b9f84",
+  "functional_checkpoint": "a1d973ba",
+  "mac_version": "1.0.0",
+  "core_version": "0.6.1",
+  "architecture": "osx-arm64",
+  "runtime": "8.0.5",
+  "team": "G5N5NNG3YW",
+  "native_signatures": 19,
+  "entitlements": {
+    "com.apple.security.cs.allow-jit": true
+  },
+  "native_smoke": "Signed release welcome screen launched; no personal project opened. Window closed afterward.",
+  "packaged_save_review": {
+    "checks": 871,
+    "cycles": 60,
+    "burstSaves": 40,
+    "appVersion": "1.0.0.0",
+    "coreVersion": "0.6.1.0",
+    "runtime": "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/release-validation/runtime/Contents/Resources/",
+    "isolatedProfile": true,
+    "nativeUI": false,
+    "controlledModelDispatcher": true,
+    "scenarios": [
+      {
+        "location": "temporary path",
+        "closeReopenCycles": 30,
+        "continuousSaves": 20,
+        "romBytes": 16777216,
+        "metadataBytes": 183718,
+        "anchors": 549
+      },
+      {
+        "location": "repository Documents path",
+        "closeReopenCycles": 30,
+        "continuousSaves": 20,
+        "romBytes": 16777216,
+        "metadataBytes": 183718,
+        "anchors": 549
+      }
+    ]
+  },
+  "apple_submission": {
+    "id": "c66b37fa-342a-4b40-9840-e87e538764af",
+    "status": "Accepted",
+    "summary": "Ready for distribution",
+    "issues": null
+  },
+  "archive": {
+    "zip": "HexManiacAdvance-MacEdition-1.0.0-osx-arm64.zip",
+    "sha256": "11046f63ca99c570e199d3ea2e9f5cf5c8c09c05fe7e56c7f9e37af6c89e5942",
+    "bytes": 69754350,
+    "input_checks": {
+      "signature": "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/1.0.0-osx-arm64-release/download/HexManiacAdvance.app: valid on disk\n/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/1.0.0-osx-arm64-release/download/HexManiacAdvance.app: satisfies its Designated Requirement\n",
+      "ticket": "Processing: /Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/1.0.0-osx-arm64-release/download/HexManiacAdvance.app\nThe validate action worked!\n",
+      "gatekeeper": "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/1.0.0-osx-arm64-release/download/HexManiacAdvance.app: accepted\nsource=Notarized Developer ID\n"
+    },
+    "extracted_checks": {
+      "signature": "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/.notarized-package-rpx92fug/extracted/HexManiacAdvance-MacEdition-1.0.0-osx-arm64/HexManiacAdvance.app: valid on disk\n/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/.notarized-package-rpx92fug/extracted/HexManiacAdvance-MacEdition-1.0.0-osx-arm64/HexManiacAdvance.app: satisfies its Designated Requirement\n",
+      "ticket": "Processing: /Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/.notarized-package-rpx92fug/extracted/HexManiacAdvance-MacEdition-1.0.0-osx-arm64/HexManiacAdvance.app\nThe validate action worked!\n",
+      "gatekeeper": "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/.notarized-package-rpx92fug/extracted/HexManiacAdvance-MacEdition-1.0.0-osx-arm64/HexManiacAdvance.app: accepted\nsource=Notarized Developer ID\n"
+    },
+    "zip_integrity": true,
+    "app_not_rebuilt_or_resigned": true
+  },
+  "existing_archive_refusal_preserves_hash": true,
+  "prior_full_suite": {
+    "checkpoint": "a1d973ba",
+    "groups": 89,
+    "assertions": 25320,
+    "separate_tutorial_menu_assertions": 23
+  },
+  "limits": [
+    "No public GitHub release published.",
+    "Intel hardware and clean-machine download/install remain untested.",
+    "Packaged save review uses a controlled model dispatcher, not native editing.",
+    "This does not establish a cause for the previously intermittent TOML permission denial.",
+    "Runtime upgrade decision and complete gameplay checks remain separate release gates."
+  ],
+  "source_app_unchanged": true,
+  "managed_code_and_resources_unchanged": true,
+  "signing_guard_checks": 6
+}

@@ -272,3 +272,5 @@ The [November 15 SCADE update](ScadeInstaller/update-2026-11-15-verification.jso
 passes 89 groups / 24,941 assertions and 42 separate real-base SCADE assertions.
 It records the final supplied pair, verified metadata corrections, Ikarus follow-up
 and exact assets bundled in the rebuilt 1.0.0 app; prior SCADE records are historical.
+
+The [notarized 1.0.0 candidate record](MacPackaging/notarization-1.0.0-verification.json) records Apple acceptance, extracted ZIP checks, signed native startup and 871 separate packaged-runtime save assertions. It preserves the earlier full-suite totals and lists remaining release limits.

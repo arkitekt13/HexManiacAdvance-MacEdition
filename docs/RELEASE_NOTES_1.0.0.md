@@ -21,7 +21,7 @@ Intel hardware is not verified for this release.
   and stable long-script editing.
 - Finished Tutorial Village creation from your own exact clean English FireRed 1.1 base,
   with the original matching TOML installed before opening the chosen project name.
-- SCADE creation from exact clean English FireRed 1.0, with verified matching metadata.
+- **SCADE ROM base utility:** Start your own FireRed hack with a feature-rich base built on expanded CFRU and DPE, with additional features and fixes by [ShinyMiner & Team](https://github.com/Shiny-Miner/CFRU-expansion). HMA patches your exact clean English FireRed 1.0 ROM and installs matching editor definitions automatically.
 - Ikarus Visual Upgrade with a verified named backup before patching and Undo/Redo.
 - Working Find result previews, Go To focus, Mac shortcuts and external emulator selection.
 - Nonintrusive update notices for compatible future GitHub releases.

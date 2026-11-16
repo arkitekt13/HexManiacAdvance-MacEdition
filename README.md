@@ -62,7 +62,7 @@ If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source
 
 All three utilities are implemented and included under **Utilities** in the released app.
 
-- **Create SCADE ROM** - Build a new SCADE ROM from exact unmodified English FireRed 1.0, with the creator's matching TOML placed beside it before opening.
+- **SCADE ROM base utility** - Start your own FireRed hack with a feature-rich ROM base built on expanded CFRU (Complete FireRed Upgrade) and DPE (Dynamic Pokémon Expansion), with additional features and fixes by [ShinyMiner & Team](https://github.com/Shiny-Miner/CFRU-expansion). HMA applies the patch to your exact unmodified English FireRed 1.0 ROM and installs the matching editor definitions (TOML) beside it automatically.
 - **Ikarus Visual Upgrade** - Apply the reviewed visual and map upgrade to an English FireRed project after creating a verified named ROM/TOML backup, with Undo/Redo available.
 - **Tutorial Village** - Create the supplied tutorial as a new ROM and matching TOML from exact unmodified English FireRed 1.1. Explore its map, NPCs and event scripts as editable examples; the original base stays unchanged.
 

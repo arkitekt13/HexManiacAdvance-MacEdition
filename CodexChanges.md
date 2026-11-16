@@ -3855,3 +3855,14 @@ Validation: MacPackaging passes 53 assertions; Apple accepted submission 01236d2
 | OptionalAssets/Ikarus/README.md | 4 | Link the original fixed-release thread while preserving full existing contributor notes. |
 
 Validation: Reviewed both supplied original-project links and retained the unchanged creator README files, patch bytes and metadata. Documentation-only update; the signed/notarized 1.0.0 download remains unchanged. Public release notes receive the same concise credits. Relative documentation links and whitespace checks pass.
+
+## 271 — Explain SCADE as a FireRed ROM base
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| README.md | 65 | Explain the purpose of SCADE, its expanded CFRU/DPE foundation and automatic patch/metadata installation. |
+| docs/MAC_SETUP.md | 84 | Define the ROM base and distinguish it from Tutorial Village. |
+| docs/RELEASE_NOTES_1.0.0.md | 24 | Add the same concise explanation to the release highlights. |
+| OptionalAssets/SCADE/README.md | 3 | Introduce the creator-provided base before installer asset details. |
+
+Validation: Wording follows the creator's CFRU Expansion description, retains ShinyMiner & Team credit, and avoids claiming universal superiority or that every upstream feature is enabled in the bundled build. Relative links and diff checks pass. Only documentation and public release wording change; signed archive, patch/TOML bytes and version 1.0.0 are preserved.

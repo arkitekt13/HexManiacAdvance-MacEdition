@@ -1,5 +1,10 @@
 # SCADE installer assets
 
+SCADE is a feature-rich FireRed ROM base built on expanded CFRU (Complete FireRed Upgrade)
+and DPE (Dynamic Pokémon Expansion), with additional features and fixes by ShinyMiner & Team.
+The HMA utility applies the supplied patch to an exact clean English FireRed 1.0 ROM
+and installs the matching editor definitions automatically.
+
 Bundled from the updated creator-provided SCADE patch/TOML pair supplied on
 November 15, 2026 for integration into Mac Edition. The manifest version records
 that integration date, not a claimed upstream release number. See the unchanged

@@ -81,7 +81,7 @@ credits are also available in the confirmation dialog.
 
 ## Create a SCADE ROM base
 
-SCADE is the CFRU Expansion / DPE-gen9 build by **ShinyMiner & Team**, separate from the tutorial.
+SCADE is a feature-rich ROM base for building your own FireRed hack, created by **ShinyMiner & Team**. It builds on expanded CFRU (Complete FireRed Upgrade) and DPE (Dynamic Pokémon Expansion), adding features and fixes. HMA applies the supplied patch and installs matching editor definitions; SCADE is separate from the Tutorial Village project.
 See the [original SCADE project](https://github.com/Shiny-Miner/CFRU-expansion).
 
 1. Open a **clean English FireRed 1.0** ROM; FireRed 1.1 and edited ROMs are rejected.

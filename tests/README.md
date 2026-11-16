@@ -274,3 +274,5 @@ It records the final supplied pair, verified metadata corrections, Ikarus follow
 and exact assets bundled in the rebuilt 1.0.0 app; prior SCADE records are historical.
 
 The [notarized 1.0.0 candidate record](MacPackaging/notarization-1.0.0-verification.json) records Apple acceptance, extracted ZIP checks, signed native startup and 871 separate packaged-runtime save assertions. It preserves the earlier full-suite totals and lists remaining release limits.
+
+The [same-version icon refresh](MacPackaging/icon-refresh-1.0.0-verification.json) records the approved icon in the public 1.0.0 archive, renewed Apple acceptance, extracted package verification and identical application/resource payloads. The original release record remains historical.

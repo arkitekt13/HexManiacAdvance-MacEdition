@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-16",
+  "mac_version": "1.0.0",
+  "core_version": "0.6.1",
+  "packaging_source": "6aa063f9",
+  "merged_source": "0e726823",
+  "version_unchanged": true,
+  "release_tag": "v1.0.0",
+  "release_url": "https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.0",
+  "asset": "HexManiacAdvance-MacEdition-1.0.0-osx-arm64-icon.zip",
+  "bytes": 72864931,
+  "sha256": "a381bf93be8626c5645c99e54a5f57f416f3ce2da7e9cab5cb61c080ab7ddde6",
+  "public_download_verified": true,
+  "original_archive_preserved": true,
+  "managed_and_resource_files_identical_to_original": 950,
+  "only_added_resource": "AppIcon.icns",
+  "bundle_icon_reference_verified": true,
+  "public_archive_icon_matches_approved_asset": true,
+  "packaging_assertions": 53,
+  "native_smoke": "Signed staging app opened to welcome screen showing 1.0.0, then closed; no ROM opened.",
+  "notarization": {
+    "id": "01236d21-71a0-4768-a3ca-d62a7b49d493",
+    "status": "Accepted",
+    "issues": null
+  },
+  "archive_verification": {
+    "zip": "HexManiacAdvance-MacEdition-1.0.0-osx-arm64-icon.zip",
+    "sha256": "a381bf93be8626c5645c99e54a5f57f416f3ce2da7e9cab5cb61c080ab7ddde6",
+    "bytes": 72864931,
+    "input_checks": {
+      "signature": "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/1.0.0-osx-arm64-icon-refresh/download/HexManiacAdvance.app: valid on disk\n/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/1.0.0-osx-arm64-icon-refresh/download/HexManiacAdvance.app: satisfies its Designated Requirement\n",
+      "ticket": "Processing: /Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/1.0.0-osx-arm64-icon-refresh/download/HexManiacAdvance.app\nThe validate action worked!\n",
+      "gatekeeper": "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/1.0.0-osx-arm64-icon-refresh/download/HexManiacAdvance.app: accepted\nsource=Notarized Developer ID\n"
+    },
+    "extracted_checks": {
+      "signature": "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/.notarized-package-h4qk4zxh/extracted/HexManiacAdvance-MacEdition-1.0.0-osx-arm64-icon/HexManiacAdvance.app: valid on disk\n/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/.notarized-package-h4qk4zxh/extracted/HexManiacAdvance-MacEdition-1.0.0-osx-arm64-icon/HexManiacAdvance.app: satisfies its Designated Requirement\n",
+      "ticket": "Processing: /Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/.notarized-package-h4qk4zxh/extracted/HexManiacAdvance-MacEdition-1.0.0-osx-arm64-icon/HexManiacAdvance.app\nThe validate action worked!\n",
+      "gatekeeper": "/Users/michaelsavino/Documents/Codex/2026-11-01/new-chat/HexManiacAdvance-mac/artifacts/releases/.notarized-package-h4qk4zxh/extracted/HexManiacAdvance-MacEdition-1.0.0-osx-arm64-icon/HexManiacAdvance.app: accepted\nsource=Notarized Developer ID\n"
+    },
+    "zip_integrity": true,
+    "app_not_rebuilt_or_resigned": true
+  },
+  "limits": [
+    "Same-version refresh requires manual redownload; updater does not prompt for 1.0.0-to-1.0.0.",
+    "Source tag is preserved; packaging source change is linked separately.",
+    "No new broad gameplay or platform support claims."
+  ]
+}

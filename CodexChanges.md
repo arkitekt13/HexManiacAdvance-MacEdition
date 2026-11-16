@@ -3832,3 +3832,14 @@ Validation: GitHub release 447414778 is published as stable/latest at v1.0.0, ta
 | tests/MacPackaging/README.md | 1 | Document the expanded packaging coverage and separate native icon review. |
 
 Validation: MacPackaging passes 53 assertions. macOS iconutil builds and decodes the ICNS, including a visually reviewed 64px representation with legible HMA text. Shell syntax and diff checks pass. This prepares a reviewable design and packaging change only; the public notarized 1.0.0 archive and installed development app are unchanged. Artwork approval and a newly signed/notarized distribution remain separate from these checks.
+
+## 269 — Publish the approved icon without changing version 1.0.0
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MacPackaging/icon-refresh-1.0.0-verification.json | 1 | Record renewed Apple acceptance, unchanged app payload, native startup, public archive icon/hash and preserved original release. |
+| README.md | 1 | Show the approved HMA icon and direct users to the refreshed 1.0.0 package. |
+| docs/RELEASE_NOTES_1.0.0.md | 1 | Explain the icon-only packaging refresh, new checksum and manual same-version redownload. |
+| tests/README.md | 1 | Link the refreshed package verification independently from historical release evidence. |
+
+Validation: MacPackaging passes 53 assertions; Apple accepted submission 01236d21-71a0-4768-a3ca-d62a7b49d493 with no issues. The signed staging app opens at Version 1.0.0, without opening a ROM. Stapled ticket, deep strict signature and Gatekeeper checks pass after archive extraction. A fresh public download is 72,864,931 bytes and matches SHA-256 a381bf93be8626c5645c99e54a5f57f416f3ce2da7e9cab5cb61c080ab7ddde6; its icon matches the approved asset. All original managed/resource payloads are byte-identical; AppIcon.icns is the only added resource. Both bundle versions stay 1.0.0 and Core/TOML stays 0.6.1. PR 14 is merged. Original archive/checksum and source tag remain available for rollback, while the refreshed icon asset is the recommended release download. No new broad gameplay, native editing or Intel claims are made.

@@ -175,7 +175,7 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          ShowWildData = false;
 
          if (address != Pointer.NULL) {
-            viewPort.Goto.Execute(address);
+            GotoTable(address);
             return;
          }
 
@@ -191,10 +191,17 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
             model.WriteMultiByteValue(dataStart + i * 4 + 2, 2, token, species);
          }
          wild.SetAddress(subtable, subtableStart);
-         viewPort.Goto.Execute(subtableStart);
+         GotoTable(subtableStart);
          viewPort.RaiseMessage($"New {subtable} data was added at {subtableStart:X6}.");
          wildText = null;
          NotifyPropertyChanged(nameof(WildSummary));
+      }
+
+      private void GotoTable(int address) {
+         viewPort.Goto.Execute(address);
+         // Raw mode and hidden tools skip automatic address updates during navigation.
+         viewPort.Tools.TableTool.Address = address;
+         viewPort.Tools.SelectedTool = viewPort.Tools.TableTool;
       }
 
       public void ClearCache() {

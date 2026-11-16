@@ -9,6 +9,7 @@ using HavenSoft.HexManiac.AvaloniaUI;
 using HavenSoft.HexManiac.AvaloniaUI.Controls;
 using HavenSoft.HexManiac.Core.Models;
 using HavenSoft.HexManiac.Core.ViewModels;
+using HavenSoft.HexManiac.Core.ViewModels.Map;
 using HavenSoft.HexManiac.Core.ViewModels.Tools;
 
 AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
@@ -106,5 +107,50 @@ foreach (var format in formats) foreach (var separator in new[] { "\n", "\r\n" }
    Check(Box().Text!.Contains("RATICATE"), "Navigation refreshes the stream from the edited model.");
    Console.WriteLine($"PASS: {format.Kind}, {format.Count} slots, {(separator.Length == 1 ? "LF" : "CRLF")}, focus/caret, mouse/Enter suggestions, bytes/metadata and history.");
    window.Close(); Pump();
+}
+// Exercise the actual map Add/Show commands, not just direct navigation to a stream.
+foreach(var format in formats) foreach(bool existing in new[]{true,false}) foreach(int selected in new[]{1,0,2,3,4,-1}) {
+   var bytes=Enumerable.Repeat((byte)0xFF,0x4000).ToArray();
+   Array.Clear(bytes,0x600,20); // bank/map/padding and four null encounter pointers
+   var fields=new[]{"grass","surf","tree","fish"};
+   if(existing) {
+      BitConverter.GetBytes(0x08000100).CopyTo(bytes,0x604+4*Array.IndexOf(fields,format.Kind));
+      BitConverter.GetBytes(20).CopyTo(bytes,0x100);BitConverter.GetBytes(0x08000200).CopyTo(bytes,0x104);
+      for(int i=0;i<format.Count;i++)new byte[]{2,3,0,0}.CopyTo(bytes,0x200+4*i);
+   }
+   for(int i=0;i<300;i++)PCSString.Convert($"\"MON{i}\"").CopyTo(bytes,0x1000+12*i);
+   PCSString.Convert("\"START\"").CopyTo(bytes,0x500);
+   var wildFormat="[bank. map. padding: "+string.Join(" ",formats.Select(f=>$"{f.Kind}<[rate:: list<{f.Format}>]1>"))+"]1";
+   var services=new Singletons();
+   var model=new PokemonModel(bytes,new StoredMetadata(anchors:new[]{
+      new StoredAnchor(0x1000,"species","[name\"\"12]300"),
+      new StoredAnchor(0x500,"start","\"\""),
+      new StoredAnchor(0x600,HardcodeTablesModel.WildTableName,wildFormat),
+   }),services);
+   model.FreeSpaceStart=0x800;
+   var view=new ViewPort("synthetic-wild.gba",model,InstantDispatch.Instance,services,fs:fs);
+   view.InitializationWorkload.GetAwaiter().GetResult();view.Goto.Execute(0x500);
+   view.Tools.CodeTool.Mode=CodeMode.Raw;view.Tools.SelectedIndex=selected;
+   Check(view.Tools.SelectedIndex==selected,"fixture starts in the requested editor tab");
+   view.ChangeHistory.ClearHistory(false);view.ChangeHistory.TagAsSaved();
+   var baseline=model.RawData.ToArray();var metadata=model.ExportMetadata(null,services.MetadataInfo).Serialize();
+   var wild=new WildPokemonViewModel(view,new MapTutorialsViewModel(),0,0);
+   Check(wild.HasWildData,"map encounter entry exists before Add/Show");
+   var command=format.Kind switch {"grass"=>wild.GotoGrass,"surf"=>wild.GotoSurf,"tree"=>wild.GotoTree,_=>wild.GotoFishing};
+   command.Execute(null);
+   Check(ReferenceEquals(view.Tools.SelectedTool,view.Tools.TableTool),$"{format.Kind} {(existing?"Show":"Add")} opens Table from tool {selected}");
+   var header=model.ReadPointer(0x604+4*Array.IndexOf(fields,format.Kind));
+   Check(view.ConvertViewPointToAddress(view.SelectionStart)==header&&view.Tools.TableTool.Address==header,$"{format.Kind} existing={existing} tool={selected}: header={header:X}, selection={view.ConvertViewPointToAddress(view.SelectionStart):X}, table={view.Tools.TableTool.Address:X}");
+   var tab=new TabView{DataContext=view};var host=new Window{Width=1200,Height=800,Content=tab};host.Show();
+   Dispatcher.UIThread.RunJobs();host.UpdateLayout();AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+   Check(tab.GetVisualDescendants().OfType<TextBox>().Any(b=>b.Name=="StreamTextBox"&&b.IsEffectivelyVisible&&b.Text.Contains("MON")),"the encounter list is directly editable without following its pointer");
+   if(existing) {
+      Check(baseline.SequenceEqual(model.RawData)&&metadata.SequenceEqual(model.ExportMetadata(null,services.MetadataInfo).Serialize()),"Show preserves all ROM bytes and metadata");
+      Check(view.ChangeHistory.IsSaved&&!view.Undo.CanExecute(null),"Show creates no edit or Undo entry");
+   } else {
+      Check(model.ReadPointer(header+4)==header+8,"Add retains the allocated encounter list pointer");
+      Check(Enumerable.Range(0,format.Count).All(i=>model.ReadMultiByteValue(header+8+4*i+2,2)==(format.Kind switch {"grass"=>288,"surf"=>72,"tree"=>74,_=>129})),"Add retains every default species slot");
+   }
+   host.Content=null;host.Close();Dispatcher.UIThread.RunJobs();
 }
 Console.WriteLine($"CHECKS_PASSED:{checks}");

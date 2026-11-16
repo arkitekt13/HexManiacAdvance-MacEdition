@@ -3702,3 +3702,13 @@ Validation: The added visual-tree assertion fails on the previous code with the 
 | tests/README.md | 9 | Record the newest Find repair verification separately from historical runs. |
 
 Validation: Fresh scripts/verify-mac.sh --no-restore passes 89 groups / 24,966 assertions, zero failures and skipped groups. FindKeyboard contributes 50 assertions. The only warning category is the existing NU1900 vulnerability-feed warning; no compiler warnings occur. After the user saved and quit HMA, guarded Apple Silicon publication passed on source 8989d4e5. Deep strict ad-hoc signature verification passed, both version fields remain 1.0.0, and the packaged application assembly matches the freshly compiled Release assembly. All five bundled SCADE files still match repository bytes. Tests use fabricated ROMs and offscreen rendering; native Cocoa input is not claimed. No personal project was opened or modified. The repair and evidence remain on the separate unmerged branch.
+
+## 258 — Open wild encounter Add/Show commands in the Table editor
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/WildPokemonViewModel.cs | 178 | Open both existing and newly allocated encounter headers through a scoped helper that refreshes Table's address and selects Table. |
+| tests/WildEncounterEditing/Program.cs | 111 | Exercise 48 actual Add/Show command scenarios across all four encounter types and six starting tool states, rendering their inline editors. |
+| tests/WildEncounterEditing/README.md | 23 | Document command-navigation coverage separately from the existing editing regressions. |
+
+Investigation: The upstream commands preserve the selected tool, so Text may show only the rate/list-pointer header. Raw Code and hidden tools can additionally skip normal tool-address refresh. The repair keeps existing navigation and encounter allocation, then explicitly supplies the Table address and selects Table only for these wild-data commands. General navigation behavior is unchanged. The new regression fails on the previous code; the final WildEncounterEditing group passes 464 assertions, including visible editable lists for grass, surf, rock-smash and fishing, existing-data byte/metadata/history preservation and retained Add pointers/default species. Fixtures are fabricated and do not open user projects. Checkpoint b96ae275 is preserved on the main branch, and this fix is isolated on codex/wild-data-table-default. Related checks and app-publication evidence follow separately; Mac Edition remains 1.0.0.

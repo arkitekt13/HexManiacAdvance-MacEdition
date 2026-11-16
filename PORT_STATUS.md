@@ -73,6 +73,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` ported & builds · `[L]`
 
 ## Tier 5 — Editors
 
+- [x] `SearchResultsViewPort` — registered with the shared TabView/HexContent preview; multiple Find matches show file/address context and support double-click or Cmd-click navigation. The results themselves remain read-only.
 - [x] `Controls/ImageEditorView.xaml` (533) + `.xaml.cs` — registered in TabContentTemplate; tool buttons, zoom, pages, palette + mixer, canvas with SelectionRender/GridDecorator/TilePalettes
 - [x] `Controls/SelectedBlockEditor.xaml` + `.xaml.cs`
 - [x] `Controls/MapTab.xaml` (2043) + `.xaml.cs` (441) — code-behind ported in full; XAML covers the blocks panel, main map view, tile panel, border panel, tutorials, the full Events panel (object/warp/script/signpost/fly editors), the Header panel (blocksets, the 7-column Data Operations popup with its Import/Export File menus, shared-layout list, Z-connection editor, map fields, map scripts) and the full toolbar (Wild Pokemon popup, border editor, wave-function and event-template drag tiles, template settings popup, Map ID / Quick Goto)

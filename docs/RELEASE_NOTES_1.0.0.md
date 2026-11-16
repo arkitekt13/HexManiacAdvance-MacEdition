@@ -6,9 +6,9 @@ and the original Mac port by xavierkeys; maintained by arkitekt13.
 
 ## Download
 
-Apple Silicon: HexManiacAdvance-MacEdition-1.0.0-osx-arm64.zip
+Apple Silicon: [Download the Apple Silicon ZIP](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/download/v1.0.0/HexManiacAdvance-MacEdition-1.0.0-osx-arm64.zip)
 
-The prepared app is Developer ID signed, notarized by Apple and includes its ticket.
+The app is Developer ID signed, notarized by Apple and includes its ticket.
 Unzip, move HexManiacAdvance.app to Applications, then open it and choose a ROM.
 The .NET runtime is included. No game ROM or emulator is distributed.
 Intel hardware is not verified for this release.
@@ -39,5 +39,9 @@ The extracted download passes signature, stapled-ticket and Gatekeeper checks.
 These checks do not certify every tutorial gameplay path, every expanded ROM combination
 or Intel hardware. Detailed records are linked from tests/README.md.
 
-This file is prepared release text. Creating/notarizing the local archive does not publish
-a GitHub release; replace the download filename with the public asset link when publishing.
+SHA-256: `11046f63ca99c570e199d3ea2e9f5cf5c8c09c05fe7e56c7f9e37af6c89e5942`.
+
+Built on [Haven's HexManiacAdvance](https://github.com/haven1433/HexManiacAdvance)
+and [xavierkeys' original Mac port](https://github.com/Xkeys-bot/HexManiacAdvance-mac).
+See [the user guide](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/blob/avalonia-port/docs/MAC_SETUP.md)
+and [report Mac Edition issues](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/issues).

@@ -1,6 +1,6 @@
 {
   "date": "November 16, 2026",
-  "checkpoint": "fa6cab10",
+  "checkpoint": "822b9f84",
   "complete_suite_checkpoint": "a1d973ba",
   "pages": [
     [
@@ -563,6 +563,6 @@
   ],
   "verification_summary": "89 groups / 25,320 assertions / 0 failures / 0 skipped groups",
   "verification_detail": "Latest complete Mac run: November 16 on a1d973ba. Separate supplied-tutorial and menu checks add 23 assertions; upstream and other real-ROM checks are recorded independently.",
-  "availability_note": "The development app includes SCADE, Ikarus and finished Tutorial Village utilities. Apple Silicon is verified; Developer ID signing, notarization and public release are pending. Complete tutorial gameplay and Intel hardware testing are not claimed.",
-  "evidence_note": "Evidence: CodexChanges entries 001-262; tests/TutorialPatch/supplied-village-verification.json for the latest full run and exact bundled assets; tests/ScadeInstaller/update-2026-11-15-verification.json for final SCADE checks."
+  "availability_note": "Mac Edition 1.0.0 is released for Apple Silicon, Developer ID signed and Apple-notarized. SCADE, Ikarus and the finished Tutorial Village utilities are included. Complete tutorial gameplay and Intel hardware testing are not claimed.",
+  "evidence_note": "Evidence: CodexChanges entries 001-266; tests/TutorialPatch/supplied-village-verification.json for the full run and tutorial assets; tests/MacPackaging/notarization-1.0.0-verification.json for Apple acceptance and 871 separate packaged lifecycle assertions."
 }

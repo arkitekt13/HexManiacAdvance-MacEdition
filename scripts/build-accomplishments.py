@@ -40,7 +40,7 @@ def page_chrome(canvas, doc):
     canvas.setFont('Helvetica', 14)
     canvas.drawString(42, 730, 'Mac Edition')
     canvas.setFont('Helvetica', 10)
-    canvas.drawString(42, 710, 'Development accomplishments')
+    canvas.drawString(42, 710, 'Release accomplishments')
     canvas.setFillColor(colors.HexColor('#625F70'))
     canvas.setFont('Helvetica', 9)
     canvas.drawRightString(570, 732, 'Updated ' + data['date'])
@@ -48,7 +48,7 @@ def page_chrome(canvas, doc):
     canvas.line(42, 697, 570, 697)
     canvas.line(42, 41, 570, 41)
     canvas.setFont('Helvetica', 8)
-    canvas.drawString(42, 27, 'Release planning draft  |  Code checkpoint ' + data['checkpoint'])
+    canvas.drawString(42, 27, 'Mac Edition 1.0.0 release  |  App checkpoint ' + data['checkpoint'])
     canvas.drawRightString(570, 27, f'{doc.page} / {len(data["pages"])}')
     canvas.restoreState()
 
@@ -70,7 +70,7 @@ for index, sections in enumerate(data['pages']):
         story.append(Paragraph(escape(data['availability_note']), note))
         story.append(Paragraph('Built on Haven\'s HexManiacAdvance and the original Mac port by xavierkeys; Mac Edition is maintained by arkitekt13.', note))
 SimpleDocTemplate(str(output), pagesize=(612,792), leftMargin=42, rightMargin=42,
-                  topMargin=106, bottomMargin=52, title='HexManiacAdvance Mac Edition - Development Accomplishments',
+                  topMargin=106, bottomMargin=52, title='HexManiacAdvance Mac Edition - Release Accomplishments',
                   author='HexManiacAdvance Mac Edition', pageCompression=1).build(story, onFirstPage=page_chrome, onLaterPages=page_chrome)
 print(output)
 print('Bullets:', sum(len(items) for page in data['pages'] for _,items in page))

@@ -3795,3 +3795,18 @@ Validation: Six invalid/existing-destination guards preserve source files. The i
 | tests/README.md | 1 | Link the notarized-candidate evidence. |
 
 Validation: Apple accepted submission c66b37fa-342a-4b40-9840-e87e538764af with no issues. The ticket is stapled and valid; the final extracted ZIP passes strict deep signature and Gatekeeper assessment as Notarized Developer ID. Final archive is 69,754,350 bytes, SHA-256 11046f63ca99c570e199d3ea2e9f5cf5c8c09c05fe7e56c7f9e37af6c89e5942. Existing-output refusal preserves that hash. The archive contains setup/build information, LICENSE and dependency notices, with no ROM. Application code remains the verified a1d973ba baseline merged at 822b9f84; Mac version 1.0.0 and Core/TOML 0.6.1 are unchanged. No public GitHub release or Intel/clean-machine/full-gameplay pass is claimed. Credentials stay in Keychain.
+
+## 266 — Publish Mac Edition 1.0.0 and present shipped features clearly
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| README.md | 1 | Lead with the signed/notarized 1.0.0 Apple Silicon download, shipped utilities/features and current verification totals. |
+| RELEASE_NOTES.md | 1 | Point to the current release above clearly labeled original-port history. |
+| docs/RELEASE_NOTES_1.0.0.md | 1 | Publish installation, features, checksum, credits and verification limits. |
+| docs/MAC_SETUP.md | 1 | Link the released download and normal installation flow. |
+| docs/MAC_SIGNING.md | 1 | Correct the verification link and connect the accepted candidate to its public release. |
+| docs/accomplishments.json | 1 | Record release availability and successful signing/notarization without changing historical test counts. |
+| scripts/build-accomplishments.py | 1 | Replace the planning-draft footer with a release caption and app checkpoint. |
+| output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf | 1 | Refresh the six-page accomplishment summary for the shipped release. |
+
+Validation: Documentation-only updates preserve the signed archive and app baseline. Public release uses the exact notarized Apple Silicon ZIP and SHA-256 recorded in entry 265, without rebuilding/resigning. Features are described as included; historical port notes, Intel support and gameplay limits remain accurately scoped. Release assets and default-branch links are checked after publication.

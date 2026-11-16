@@ -4,7 +4,7 @@ The development app remains ad-hoc signed. A separate Apple Silicon 1.0.0 releas
 was Developer ID signed and accepted by Apple's notary service on November 16, 2026.
 Its stapled ticket, deep strict signatures and Gatekeeper assessment pass, including
 after ZIP extraction. Public GitHub release publication is separate from notarization.
-See the [release verification record](../tests/MacPackaging/notarized-1.0.0-verification.json).
+See the [release verification record](../tests/MacPackaging/notarization-1.0.0-verification.json).
 
 ## 1. Set up the signing certificate
 
@@ -93,4 +93,4 @@ Update README's download and signing status only after these steps actually pass
 
 ## Verified November 16 candidate
 
-Apple accepted submission `c66b37fa-342a-4b40-9840-e87e538764af` without issues. The stapled final Apple Silicon ZIP passes signature, ticket and Gatekeeper checks after extraction. See the [verification record](../tests/MacPackaging/notarization-1.0.0-verification.json). This is a prepared download, not a published GitHub release. The development app was preserved.
+Apple accepted submission `c66b37fa-342a-4b40-9840-e87e538764af` without issues. The stapled final Apple Silicon ZIP passes signature, ticket and Gatekeeper checks after extraction. See the [verification record](../tests/MacPackaging/notarization-1.0.0-verification.json). The verified download is distributed through the [1.0.0 GitHub release](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.0). The development app was preserved.

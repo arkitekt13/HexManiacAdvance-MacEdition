@@ -10,6 +10,9 @@ working Mac port. Thank you both for making this edition possible.
 
 Mac Edition is maintained by [arkitekt13](https://github.com/arkitekt13).
 
+See the [updated feature and accomplishment summary](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf).
+Maintainers can follow the [signing and notarization guide](docs/MAC_SIGNING.md) for public release preparation.
+
 ## Installation
 
 ### Option 1: Download the app

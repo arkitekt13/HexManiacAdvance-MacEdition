@@ -1,7 +1,7 @@
 {
-  "date": "November 9, 2026",
-  "checkpoint": "5b77a83c",
-  "complete_suite_checkpoint": "96bfc0e9",
+  "date": "November 16, 2026",
+  "checkpoint": "fa6cab10",
+  "complete_suite_checkpoint": "a1d973ba",
   "pages": [
     [
       [
@@ -23,9 +23,9 @@
             "002-003"
           ],
           [
-            "Continuous encounter editing",
-            "Kept focus and caret position stable while editing grass, surf, tree and fishing encounter tables.",
-            "071-073"
+            "Direct, continuous encounter editing",
+            "Made wild Add/Show open the editable Table list from any previous tool, while preserving focus and suggestions during level/species edits.",
+            "071-073,258-259"
           ],
           [
             "Quick field replacement",
@@ -78,9 +78,9 @@
             "075"
           ],
           [
-            "Remembered emulator choice",
-            "Made Play launch a selected external emulator such as mGBA, remembering its application path and supporting Browse.",
-            "069-070"
+            "Reliable external emulator selection",
+            "Made mGBA.app selectable in the native picker and verified remembered launches, including after restarting the app.",
+            "069-070,238,244-245"
           ],
           [
             "Focused clipboard commands",
@@ -116,6 +116,11 @@
             "Ready-to-type Go To",
             "Focused the search field after Command-G, including after opening a ROM or changing tabs.",
             "199,201"
+          ],
+          [
+            "Working multi-match Find",
+            "Restored highlighted result previews with source addresses and double-click or Command-click navigation across open ROMs.",
+            "233,256-257"
           ]
         ]
       ]
@@ -243,8 +248,8 @@
         [
           [
             "Automatic dialogue scaffolds",
-            "Inserted an automatic text pointer and complete dialogue block with the caret ready for typing.",
-            "080-081"
+            "Inserted dialogue pointers and braces immediately, including paired trainer-battle text blocks; preserved commands requiring a later script operand.",
+            "080-081,250-252"
           ],
           [
             "Automatic movement scaffolds",
@@ -339,9 +344,9 @@
             "215-218"
           ],
           [
-            "Supplied SCADE definitions",
-            "Bundled the creator-supplied TOML under the chosen ROM name before opening, preserving relocated tables and custom definitions.",
-            "216,218"
+            "Verified final SCADE definitions",
+            "Bundled the November 15 creator patch with documented description-count and trainer-table corrections validated against actual engine references.",
+            "216,218,247-249,253-255"
           ],
           [
             "Ikarus Visual Upgrade",
@@ -359,19 +364,19 @@
             "220-223"
           ],
           [
-            "Tutorial Village distribution framework",
-            "Prepared a Utilities action that requires exact unmodified English FireRed 1.1 and creates a new matching ROM and TOML pair when final assets are bundled.",
-            "150,226-227"
+            "Finished Tutorial Village utility",
+            "Bundled the finished IPS and matching TOML; create a new named ROM/metadata pair from exact clean English FireRed 1.1.",
+            "226-227,260-262"
           ],
           [
-            "Protected tutorial definitions",
-            "Verified tutorial patch and metadata hashes, preserved the supplied TOML before opening and blocked mismatched assets or output collisions.",
-            "226-227"
+            "Preserved tutorial definitions",
+            "Published the original TOML before opening; verified all 547 definitions and 73 lists through actual Save/reopen without initial regeneration.",
+            "226-227,260-262"
           ],
           [
             "Learning through the village",
-            "Prepared the distribution path for a planned playable tutorial whose map, NPCs and event scripts will serve as inspectable examples once finished.",
-            "226-227"
+            "Shipped an inspectable 80x56 tutorial map with NPCs and event scripts; independent IPS decoding reproduces the finished project byte for byte.",
+            "260-262"
           ]
         ]
       ],
@@ -380,8 +385,8 @@
         [
           [
             "Complete Mac regression runner",
-            "Passed 84 groups and 24,533 assertions with zero failures and zero skipped groups in the latest complete Mac run.",
-            "227"
+            "Verified 89 groups and 25,320 assertions with zero failures or skips; recorded real-base checks separately without double counting.",
+            "227,262"
           ],
           [
             "Real FireRed workflow coverage",
@@ -390,8 +395,8 @@
           ],
           [
             "Verified installer metadata",
-            "Retained all 541 SCADE and 547 tutorial named definitions through actual normal saving and reopening on real bases.",
-            "218,227"
+            "Retained all 556 final SCADE and 547 tutorial named addresses/formats through normal Save/reopen on their matching real bases.",
+            "254-255,261-262"
           ],
           [
             "Real editor workflow coverage",
@@ -410,8 +415,8 @@
           ],
           [
             "Recoverable development history",
-            "Kept features and verification evidence in separate commits with pushed checkpoints for review or rollback.",
-            "215-227"
+            "Kept original assets, implementation and verification in separate commits so changes remain reviewable and reversible.",
+            "215-262"
           ]
         ]
       ]
@@ -421,9 +426,9 @@
         "Under the Hood Improvements",
         [
           [
-            "Safer file saves",
-            "Staged file replacements and preserved open unsaved documents when ROM or metadata saving fails.",
-            "010"
+            "Save diagnostics and preserved projects",
+            "Staged file replacements, kept unsaved projects open on failure and added detailed diagnostics for intermittent TOML-write denial.",
+            "010,236,240-243"
           ],
           [
             "Validated binary patches",
@@ -456,9 +461,9 @@
             "068"
           ],
           [
-            "Mac diagnostics and updates",
-            "Pointed crash/help links and compatible-release checks at the renamed Mac Edition repository while retaining upstream references where appropriate.",
-            "014-015,119"
+            "Mac Edition 1.0 and update notices",
+            "Kept metadata compatibility separate from Mac Edition 1.0.0 and added nonintrusive notices for compatible published GitHub updates.",
+            "014-015,119,229-231"
           ],
           [
             "Gap-safe script decompilation",
@@ -486,9 +491,9 @@
             "128-129"
           ],
           [
-            "Repeatable Mac packaging",
-            "Built architecture-specific app bundles without deleting the last successful output when packaging fails.",
-            "131,138,148"
+            "Safe, repeatable Mac packaging",
+            "Verified self-contained bundles and refused to replace a running app, preventing missing-folder launch failures after rebuilds.",
+            "131,138,148,237-239"
           ]
         ]
       ]
@@ -556,8 +561,8 @@
       ]
     ]
   ],
-  "verification_summary": "84 groups / 24,533 assertions / 0 failures / 0 skipped groups",
-  "verification_detail": "Latest complete Mac run: November 9; real-ROM and upstream checks are recorded separately.",
-  "availability_note": "SCADE and Ikarus are implemented on the current utilities preview branch; Tutorial Village packaging is ready, with the finished playable assets still to be supplied. General .hma patch compatibility with the correct base remains awaiting user verification.",
-  "evidence_note": "Evidence: CodexChanges entries 001-227; tests/TutorialPatch/verification.json for the complete run at 96bfc0e9; installer lifecycle records and tests/FIRERED_10_VERIFICATION.json for separate real-ROM checks."
+  "verification_summary": "89 groups / 25,320 assertions / 0 failures / 0 skipped groups",
+  "verification_detail": "Latest complete Mac run: November 16 on a1d973ba. Separate supplied-tutorial and menu checks add 23 assertions; upstream and other real-ROM checks are recorded independently.",
+  "availability_note": "The development app includes SCADE, Ikarus and finished Tutorial Village utilities. Apple Silicon is verified; Developer ID signing, notarization and public release are pending. Complete tutorial gameplay and Intel hardware testing are not claimed.",
+  "evidence_note": "Evidence: CodexChanges entries 001-262; tests/TutorialPatch/supplied-village-verification.json for the latest full run and exact bundled assets; tests/ScadeInstaller/update-2026-11-15-verification.json for final SCADE checks."
 }

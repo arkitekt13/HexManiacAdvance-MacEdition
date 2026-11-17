@@ -1,0 +1,10 @@
+{
+  "version": "2026-11-16-candidate1",
+  "sourceScadeVersion": "2026-11-15",
+  "sourceLength": 33554432,
+  "sourceSha256": "67c78da450f8631b7c57d92fb9345acd822ac2b3a37efa585656a6f55b15f99c",
+  "outputSha256": "6e7841faf2a9dff16385f4160ff02c582405098e531b763238de5e06499cc728",
+  "patchSha256": "32831d272be7f87f28d4b39db90c1cb220387883821b485d73ee7afffaa730ff",
+  "tomlSha256": "9ae24bede428941f7fe77ed7a252ebc0159795475639c6ed62d88f95aac89e50",
+  "creditsSha256": "1644ea45cbbae69d9bf8cad3b3d3118dcc4b7be776c2e281800356fbe3e696ce"
+}

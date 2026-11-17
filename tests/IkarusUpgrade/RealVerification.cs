@@ -68,6 +68,12 @@ internal static class RealVerification {
     var editor=new EditorViewModel(fs,InstantDispatch.Instance);
     var view=editor.OpenFileAsync(new LoadedFile(path,data.ToArray())).GetAwaiter().GetResult();
     view.Model.InitializationWorkload.GetAwaiter().GetResult();view.InitializationWorkload.GetAwaiter().GetResult();
+    if (name != "vanilla") {
+     Check(Upgrade.DisabledReason(view)!=null,name+" expanded base rejected by vanilla path");
+     Check(view.Model.RawData.SequenceEqual(data),name+" blocked input stays unchanged");
+     editor.CloseAll.Execute(fs);
+     continue;
+    }
     Check(Upgrade.DisabledReason(view)==null,name+" normal loader eligible");
     writes=0;
     var diskBefore=File.ReadAllBytes(path);

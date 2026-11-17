@@ -36,12 +36,14 @@ public sealed class MacUpdateChecker {
    }
 
    /// <summary>Null means no trustworthy result; a failed request never becomes a daily cache hit.</summary>
-   public async Task<bool?> CheckAsync(CancellationToken cancellationToken = default) {
+   public async Task<bool?> CheckAsync(CancellationToken cancellationToken = default, bool forceRefresh = false) {
       Cache cached = null;
       try {
          if (File.Exists(cachePath)) cached = JsonSerializer.Deserialize<Cache>(File.ReadAllText(cachePath));
          if (cached?.Repository != AppIdentity.RepositoryUrl || cached.Version != version || cached.Architecture != architecture.ToString()) cached = null;
       } catch (Exception error) when (error is IOException or UnauthorizedAccessException or JsonException or ArgumentException) { }
+      // A manual request must report a fresh result, including failure, never an old cached success.
+      if (forceRefresh) cached = null;
       var now = utcNow();
       if (cancellationToken.IsCancellationRequested) return null;
       if (cached != null && cached.CheckedUtc <= now && now - cached.CheckedUtc < TimeSpan.FromDays(1)) return cached.Available;

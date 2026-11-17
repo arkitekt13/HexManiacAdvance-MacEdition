@@ -35,7 +35,7 @@ void Click(MainWindow w,Button button) {
 IEnumerable<NativeMenuItem> Items(NativeMenu menu)=>menu.Items.OfType<NativeMenuItem>().SelectMany(item=>new[]{item}.Concat(item.Menu==null?Enumerable.Empty<NativeMenuItem>():Items(item.Menu)));
 var window=Window(owner);Pump();
 var notice=window.FindControl<Border>("UpdateNotice");var view=window.FindControl<Button>("ViewUpdateButton");var dismiss=window.FindControl<Button>("DismissUpdateButton");
-var menu=Items(NativeMenu.GetMenu(window)).Single(i=>Equals(i.Header,"Update"));
+var menu=Items(NativeMenu.GetMenu(window)).Single(i=>Equals(i.Header,"View Available Update"));
 Check(!notice.IsVisible&&!menu.IsEnabled,"no positive update result means no notice or enabled menu");
 var input=window.GetVisualDescendants().OfType<TextEditor>().Single(c=>ReferenceEquals(c.DataContext,f.Body.Editor)).EditBox;
 input.Focus();input.CaretIndex=4;input.SelectionStart=1;input.SelectionEnd=4;Pump();
@@ -72,5 +72,28 @@ window.Editor=replacement;owner.IsNewVersionAvailable=false;owner.IsNewVersionAv
 Check(!notice.IsVisible,"detached editor update events cannot display a notice in a replacement editor");
 replacement.IsNewVersionAvailable=true;Pump();
 Check(notice.IsEffectivelyVisible&&window.FindControl<StartScreen>("WelcomeScreen").IsEffectivelyVisible,"update notice also works on the welcome screen without an open ROM");
+var manualMenu=Items(NativeMenu.GetMenu(window)).Single(i=>Equals(i.Header,"Check for Updates…"));
+Check(manualMenu.IsVisible&&manualMenu.IsEnabled,"manual check exists without a ROM or known newer release");
+int requests=0;var delayed=new TaskCompletionSource<bool?>();
+window.ManualUpdateRequest=token=>{requests++;return delayed.Task;};
+var manualTask=window.CheckForUpdatesAsync();Pump();
+Check(!manualTask.IsCompleted&&!manualMenu.IsEnabled&&window.FindControl<TextBlock>("UpdateNoticeText").Text.Contains("Checking"),"manual check yields and disables duplicate requests");
+window.CheckForUpdatesAsync().GetAwaiter().GetResult();Check(requests==1,"repeated request while busy does not start another check");
+delayed.SetResult(false);
+void Until(Task task){var stop=System.Diagnostics.Stopwatch.StartNew();while(!task.IsCompleted){Pump();if(stop.ElapsedMilliseconds>5000)throw new TimeoutException();Thread.Sleep(1);}task.GetAwaiter().GetResult();Pump();}
+Until(manualTask);
+Check(manualMenu.IsEnabled&&notice.IsEffectivelyVisible&&window.FindControl<TextBlock>("UpdateNoticeText").Text.Contains("up to date")&&!replacement.IsNewVersionAvailable,"negative manual result explicitly confirms up to date");
+window.ManualUpdateRequest=_=>Task.FromResult<bool?>(true);Until(window.CheckForUpdatesAsync());
+Check(replacement.IsNewVersionAvailable&&window.FindControl<Button>("ViewUpdateButton").IsVisible,"positive manual result offers release page without automatic launch");
+window.ManualUpdateRequest=_=>Task.FromResult<bool?>(null);Until(window.CheckForUpdatesAsync());
+Check(window.FindControl<TextBlock>("UpdateNoticeText").Text.Contains("Could not check")&&replacement.IsNewVersionAvailable,"failed manual check shows retry message and preserves earlier positive result");
+Click(window,window.FindControl<Button>("DismissUpdateButton"));
+window.ManualUpdateRequest=_=>Task.FromResult<bool?>(false);Until(window.CheckForUpdatesAsync());
+Check(notice.IsEffectivelyVisible&&!replacement.IsNewVersionAvailable&&!window.FindControl<Button>("ViewUpdateButton").IsVisible,"manual retry reopens dismissed status and clears stale positive availability on successful fresh check");
+var waiting=new TaskCompletionSource<bool?>();CancellationToken requestToken=default;
+window.ManualUpdateRequest=token=>{requestToken=token;return waiting.Task;};manualTask=window.CheckForUpdatesAsync();
+var priorOwnerFlag=owner.IsNewVersionAvailable;window.Editor=owner;waiting.SetResult(true);Until(manualTask);
+Check(requestToken.IsCancellationRequested&&owner.IsNewVersionAvailable==priorOwnerFlag&&window.ManualUpdateCheckRequested,"detached completion is canceled and cannot update replacement editor");
+Check(f.Body.Content==rejected&&rejectedState.EqualsModel(f),"manual checks preserve rejected scripts, ROM, metadata and history");
 window.Editor=null;window.Close();
 Console.WriteLine($"CHECKS_PASSED:{checks}");

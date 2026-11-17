@@ -7,9 +7,12 @@ and shown in the confirmation dialog. Ikarus created the base tileset; see those
 notes for the full contributor list and LibertyTwins bug-fix credit.
 
 Recommended for fresh or minimally edited English FireRed projects, not enforced.
-Other games/languages are blocked. Vanilla FireRed, HUBOL, CFRU and SCADE appear
-compatible; automated checks cover FireRed 1.0, bundled HUBOL and supplied SCADE.
-Gameplay, FireRed 1.1 and other CFRU builds require further testing.
+The vanilla utility accepts only 16 MiB English FireRed 1.0/1.1 projects; other
+games/languages/revisions and expanded bases are blocked. Edited vanilla projects
+remain allowed, with the warning and mandatory verified backup. FireRed 1.1 and
+gameplay require further testing. This original IPS is not SCADE-compatible; use
+the separate exact-base experimental SCADE utility, with its relocated assets and
+matching TOML. No general HUBOL/CFRU compatibility is claimed.
 
 This is more than graphics: map cells, movement/elevation permissions, block
 behaviors/layers and a Five Isle Meadow tile-change routine also change.

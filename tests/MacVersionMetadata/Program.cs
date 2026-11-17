@@ -10,7 +10,7 @@ Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 int checks=0;
 void Check(bool value,string message) {checks++;if(!value)throw new Exception(message);}
 using var f=new WorkflowFixture();
-Check(AppIdentity.VersionNumber=="1.0.1"&&f.Services.MetadataInfo.VersionNumber=="0.6.1","Mac release and Core metadata versions are independent");
+Check(AppIdentity.VersionNumber=="1.0.2"&&f.Services.MetadataInfo.VersionNumber=="0.6.1","Mac release and Core metadata versions are independent");
 ArrayRun.TryParse(f.Model,"[value.]4",0xA000,SortedSpan<int>.None,out var custom);
 f.Model.ObserveAnchorWritten(new NoDataChangeDeltaModel(),"tutorial.custom.definition",custom);
 var metadata=f.Model.ExportMetadata(null,f.Services.MetadataInfo);
@@ -56,10 +56,10 @@ Check(reopened.Tools.CodeTool.Contents.Any(body=>body.Content.Contains("setvar")
 if(args.Length==1) {
  var contents=Path.Combine(Path.GetFullPath(args[0]),"Contents");var binaries=Path.Combine(contents,"Resources");
  if(!File.Exists(Path.Combine(binaries,"HexManiacAdvance.dll")))binaries=Path.Combine(contents,"MacOS");
- Check(System.Reflection.AssemblyName.GetAssemblyName(Path.Combine(binaries,"HexManiacAdvance.dll")).Version==new Version(1,0,1,0),"actual published Mac assembly reports 1.0.1");
+ Check(System.Reflection.AssemblyName.GetAssemblyName(Path.Combine(binaries,"HexManiacAdvance.dll")).Version==new Version(1,0,2,0),"actual published Mac assembly reports 1.0.2");
  Check(System.Reflection.AssemblyName.GetAssemblyName(Path.Combine(binaries,"HexManiac.Core.dll")).Version==new Version(0,6,1,0),"actual bundled Core assembly retains 0.6.1");
  var elements=System.Xml.Linq.XDocument.Load(Path.Combine(contents,"Info.plist")).Root.Element("dict").Elements().ToArray();
  string Value(string key)=>elements[Array.FindIndex(elements,e=>e.Name=="key"&&e.Value==key)+1].Value;
- Check(Value("CFBundleShortVersionString")=="1.0.1"&&Value("CFBundleVersion")=="1.0.1","actual Finder bundle versions match the Mac app identity");
+ Check(Value("CFBundleShortVersionString")=="1.0.2"&&Value("CFBundleVersion")=="1.0.2","actual Finder bundle versions match the Mac app identity");
 }
 Console.WriteLine($"CHECKS_PASSED:{checks}");

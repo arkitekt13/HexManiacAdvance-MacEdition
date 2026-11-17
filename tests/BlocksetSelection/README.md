@@ -20,5 +20,14 @@ dotnet build tests/BlocksetSelection/BlocksetSelection.csproj --no-restore --dis
 python3 scripts/run-upstream-command.py 90 dotnet tests/BlocksetSelection/bin/Debug/net8.0/BlocksetSelection.dll
 ```
 
-No user ROM, settings, watcher, metadata sidecar or file is read or written. Saves remain in memory.
+The default synthetic run reads no user ROM, settings or metadata sidecar and writes no project files. Saves remain in memory.
 Native macOS pointer/trackpad and compositor behavior still need a live check on the user's map.
+
+## Optional real-project review
+
+Pass `--project` followed by an absolute ROM path with a matching TOML. This opt-in mode
+reads the specified pair, loads the actual Mac controls, navigates between existing maps,
+creates a new map in memory and switches its secondary blockset away and back. It checks
+visible address text, inherited pointers and exact four-byte writes, and verifies the original
+files remain unchanged. All storage writes are stubbed. The block-palette counts are diagnostic:
+selection success does not establish compatibility between patches that overlap in ROM space.

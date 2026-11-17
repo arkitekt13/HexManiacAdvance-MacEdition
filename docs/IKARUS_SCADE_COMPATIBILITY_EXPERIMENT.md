@@ -2,6 +2,11 @@
 
 November 16, 2026. **A local evaluation build, not a release or utility update.**
 
+Follow-up, November 17: the reviewed pair is now bundled in a separate experimental
+**development** utility. The published 1.0.1 app is unchanged. See
+[installer scope and instructions](IKARUS_UTILITIES.md). The statements below describe
+the original experiment and its testing limits.
+
 The candidate resolves every direct three-way byte conflict between the exact
 bundled SCADE 2026-11-15 output and Ikarus FR V3.2. Broader gameplay compatibility
 remains experimental. No installed app, original project, bundled asset or public

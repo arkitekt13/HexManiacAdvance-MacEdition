@@ -185,7 +185,8 @@
             </NativeMenuItem>
             <NativeMenuItem Header="Scripts" Command="{Binding LaunchScriptsLocation}" />
             <NativeMenuItemSeparator />
-            <NativeMenuItem Header="Ikarus Visual Upgrade…" IsEnabled="False" Click="ApplyIkarusClick"/>
+            <NativeMenuItem Header="Ikarus Visual Upgrade — Vanilla FireRed…" IsEnabled="False" Click="ApplyIkarusClick"/>
+            <NativeMenuItem Header="Ikarus Visual Upgrade — SCADE (Experimental)…" IsEnabled="False" Click="CreateScadeIkarusClick"/>
             <NativeMenuItem Header="Create SCADE ROM…" IsEnabled="False" Click="CreateScadeRomClick"
                             ToolTip="Open the unmodified English FireRed 1.0 base ROM first." />
             <NativeMenuItem Header="Create Tutorial ROM…" IsEnabled="False" Click="CreateTutorialRomClick"
@@ -220,12 +221,8 @@
       <NativeMenuItem Header="Help">
         <NativeMenuItem.Menu>
           <NativeMenu>
-            <!--
-               WPF also tinted this item with the accent colour until the user had moused over it
-               (NewVersionAcknowledged). A NativeMenuItem is drawn by macOS and has no Background,
-               so the port keeps the enable/disable half, which is the part that carries meaning.
-            -->
-            <NativeMenuItem Header="Update" Click="UpdateClick" IsEnabled="{Binding IsNewVersionAvailable}" />
+            <NativeMenuItem Header="Check for Updates…" Click="CheckForUpdatesClick" />
+            <NativeMenuItem Header="View Available Update" Click="UpdateClick" IsEnabled="{Binding IsNewVersionAvailable}" />
             <NativeMenuItem Header="Wiki" Click="WebLink" CommandParameter="https://github.com/haven1433/HexManiacAdvance/wiki" />
             <NativeMenuItem Header="Tutorials" Click="WebLink" CommandParameter="https://github.com/haven1433/HexManiacAdvance/wiki/Tutorials" />
             <NativeMenuItem Header="Event Script Reference" Click="WebLink" CommandParameter="https://github.com/haven1433/HexManiacAdvance/wiki/Everything-You-Need-for-Event-Scripting-in-HexManiacAdvance" />
@@ -280,7 +277,7 @@
             Background="{DynamicResource Background}" BorderBrush="{DynamicResource Accent}"
             BorderThickness="0,0,0,1" Padding="12,8">
       <Grid ColumnDefinitions="*,Auto,Auto">
-        <TextBlock Text="A newer version of Mac Edition is available." TextWrapping="Wrap"
+        <TextBlock Name="UpdateNoticeText" Text="A newer version of Mac Edition is available." TextWrapping="Wrap"
                    Foreground="{DynamicResource Primary}" VerticalAlignment="Center" Margin="0,0,12,0"/>
         <Button Name="ViewUpdateButton" Grid.Column="1" Content="View Update" Click="ViewUpdateClick"
                 Focusable="False" Padding="12,6" Margin="0,0,8,0" HorizontalContentAlignment="Center"/>

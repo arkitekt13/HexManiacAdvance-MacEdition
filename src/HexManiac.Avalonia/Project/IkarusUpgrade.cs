@@ -13,9 +13,9 @@ namespace HavenSoft.HexManiac.AvaloniaUI.Project;
 
 /// <summary>Exact reviewed visual upgrade with a mandatory current-project backup, independent of ROM cleanliness.</summary>
 public sealed class IkarusUpgrade {
-   public const string Title = "Ikarus Visual Upgrade";
+   public const string Title = "Ikarus Visual Upgrade — Vanilla FireRed";
    public const string Recommendation = "Recommended for an unedited or minimally edited project. Edited projects are allowed, but existing changes may be overwritten.";
-   public const string Compatibility = "Appears compatible with vanilla FireRed, HUBOL, CFRU and SCADE. Automated checks covered English FireRed 1.0, the bundled HUBOL build and the supplied SCADE build. Gameplay, FireRed 1.1 and other CFRU builds require further testing.";
+   public const string Compatibility = "For 16 MiB English FireRed 1.0/1.1 vanilla-based projects. FireRed 1.1 and gameplay require further testing. Expanded ROM bases are not supported by this path. For fresh bundled SCADE, use the separate experimental SCADE upgrade.";
    public const string Changes = "This upgrade replaces graphics and also changes map layouts, movement/elevation permissions, block behaviors/layers and one Five Isle Meadow tile-change routine.";
    public static string DefaultDirectory => Path.Combine(AppContext.BaseDirectory, "resources", "Optional", "Ikarus");
    private const string PatchHash = "CBC79D5613C24D682119C6A43BA191BAAE39A0C7FAB8A0CBF53311891A3C8B7C";
@@ -42,8 +42,8 @@ public sealed class IkarusUpgrade {
       var data = source.Model.RawData;
       if (data.Length < 0xBD || data[0xAC] != 'B' || data[0xAD] != 'P' || data[0xAE] != 'R' || data[0xAF] != 'E')
          return "Ikarus Visual Upgrade requires an English FireRed ROM. Other games and languages are not supported.";
-      if (data.Length < 16 * 1024 * 1024 || data.Length > Patcher.MaximumPatchedLength || source.Model is not PokemonModel)
-         return "Open a supported 16–64 MiB FireRed project with its metadata.";
+      if (data.Length != 16 * 1024 * 1024 || data[0xBC] > 1 || source.Model is not PokemonModel)
+         return "This path requires a 16 MiB English FireRed 1.0/1.1 vanilla-based project. Expanded ROMs need a compatible upgrade.";
       return null;
    }
 

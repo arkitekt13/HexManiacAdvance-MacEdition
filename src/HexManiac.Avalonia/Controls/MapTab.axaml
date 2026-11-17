@@ -717,6 +717,7 @@
                <local:AngleBorder Grid.Row="1" Direction="Left" Content="Secondary Blockset: " />
                <local:AngleComboBox Name="PrimaryBlocksetSelector" Grid.Column="1" Direction="Out" Margin="0,2,2,2"
                                     DropDownClosed="BlocksetPreviewClosed" SelectionChanged="BlocksetSelectionChanged"
+                                    BoundSelectionIndex="{Binding PrimaryIndex}"
                                     ItemsSource="{Binding PrimaryOptions}" SelectedIndex="{Binding PrimaryIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}">
                   <local:AngleComboBox.ItemTemplate>
                      <DataTemplate><TextBlock Text="{Binding AddressText}" PointerEntered="BlocksetPreviewEntered" /></DataTemplate>
@@ -724,6 +725,7 @@
                </local:AngleComboBox>
                <local:AngleComboBox Name="SecondaryBlocksetSelector" Grid.Column="1" Direction="Out" Margin="0,2,2,2" Grid.Row="1"
                                     DropDownClosed="BlocksetPreviewClosed" SelectionChanged="BlocksetSelectionChanged"
+                                    BoundSelectionIndex="{Binding SecondaryIndex}"
                                     ItemsSource="{Binding SecondaryOptions}" SelectedIndex="{Binding SecondaryIndex, Mode=TwoWay, Converter={x:Static res:IgnoreEmptySelectionConverter.Instance}}">
                   <local:AngleComboBox.ItemTemplate>
                      <DataTemplate><TextBlock Text="{Binding AddressText}" PointerEntered="BlocksetPreviewEntered" /></DataTemplate>

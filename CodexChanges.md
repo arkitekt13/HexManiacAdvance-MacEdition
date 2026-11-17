@@ -3937,3 +3937,41 @@ Validation: The guarded diagnostic reproduces the same report on two fresh in-me
 | docs/IKARUS_SCADE_COMPATIBILITY_PLAN.md | 7 | Link the follow-up experiment while retaining the original plan. |
 
 Validation: Every direct three-way conflict (184,935 bytes) lies in the relocated region. Sixty-one typed references are repointed; all 16,852,636 SCADE-specific bytes remain exact. The final review passes 327 assertions with zero failures: 425 terrain maps, 60 pairings, 61 previews, raw blocks/behavior/layer attributes/tiles/palettes/animation references, 7,834 frame ranges, 556 original definitions, a full 900-block new-map palette and normal Save/Undo/Redo/reopen. The real Mac controls pass 32 additional disposable-project checks. Two fresh builds reproduce identical 652,253-byte BPS and matching TOML; HMA and independent Python decoders agree, and four invalid-input cases are rejected. Native mGBA smoke testing covers boot, copied-save continuation, indoor/outdoor warps, Pallet art/movement/NPC dialogue/night colors and water animation; broader battles, animations, battery persistence and progression remain pending. The final TOML follows HMA's raw-block convention after full testing rejected an ordinary-table revision; original metadata lines are preserved with 83 new relocation/reservation anchors. No compatibility assets are placed in OptionalAssets, no utility is changed, no app/release is replaced and no original project/save is modified. Experimental patch/TOML files remain local for review.
+
+## 278 — Separate vanilla and experimental exact-SCADE Ikarus utilities
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| OptionalAssets/IkarusScade/ikarus-scade.json | 1 | Bundle the reviewed compatibility BPS, matching TOML and creator credits with pinned source, output and asset identities. |
+| src/HexManiac.Avalonia/Project/ScadeIkarusPackage.cs | 17 | Require exact fresh bundled SCADE, verify output and publish a new named ROM/TOML pair without replacing source or existing files. |
+| src/HexManiac.Avalonia/Project/IkarusUpgrade.cs | 16 | Restrict the original IPS route to 16 MiB English FireRed 1.0/1.1 vanilla-based projects while retaining edited-project warnings, verified backups and Undo/Redo. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 188 | Expose separately named Vanilla FireRed and SCADE (Experimental) actions. |
+| src/HexManiac.Avalonia/Windows/MainWindow.Ikarus.cs | 16 | Load both packages and refresh independent eligibility, with a shared busy guard and pending-script protection. |
+| src/HexManiac.Avalonia/Windows/MainWindow.ScadeIkarus.cs | 12 | Capture exact source before dialogs, show testing limits, prompt for a new output name and open normally only after matching metadata is installed. |
+| src/HexManiac.Avalonia/Windows/IkarusUpgradeDialog.axaml.cs | 9 | Share the confirmation layout while clearly distinguishing backup/live-Undo and experimental new-copy workflows. |
+| tests/ScadeIkarusInstaller/Program.cs | 1 | Exercise bundled identities, preserved SCADE definitions, rejection, publication/collision/rollback, normal Save/reopen, native menu eligibility and cancellation on disposable files. |
+| tests/IkarusUpgrade/RealVerification.cs | 73 | Retain vanilla backup/Undo/Save coverage and verify expanded HUBOL/SCADE bases are rejected by the original IPS route. |
+| tests/CrashReporting/Program.cs | 14 | Correct a stale release-identity assertion to the already-released 1.0.1; production version remains unchanged. |
+| docs/IKARUS_UTILITIES.md | 1 | Document input requirements, exact-base experimental scope, complete metadata retention, creator credits and pending gameplay checks. |
+| README.md | 69 | Remove the original IPS compatibility claim and distinguish development utilities from the published download. |
+| docs/MAC_SETUP.md | 60 | Provide separate vanilla and experimental SCADE instructions and warn against the original IPS on SCADE. |
+
+Validation: The exact real-source installer run passes 65 assertions, including all 639 anchor addresses/formats on initial open and Save, all definitions after reopen, the saved edit, exact reviewed output identity, protected originals, native menu scope and cancellation. The original Ikarus workflow passes 99 assertions including disposable vanilla backup/Undo/Redo/Save/reopen and rejection of expanded HUBOL/SCADE bases. Every original SCADE metadata line remains before appended relocation entries (ignoring BOM/newline encoding), preserving 556 anchors and 79 lists. Packaging includes byte-identical reviewed BPS/TOML/credits and passes deep strict local signature verification. No original project or save, installed app, version number or published release is replaced. Broader battles, expanded species gameplay, regional animations, battery persistence and progression remain explicitly unverified; the new route is experimental.
+
+## 279 — Prepare Mac Edition 1.0.2 with manual updates and restored blockset selections
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/Windows/MainWindow.Updates.cs | 1 | Add an always-available Help check with bounded asynchronous requests, busy suppression, cancellation and visible available/current/failure feedback. |
+| src/HexManiac.Avalonia/Updates/MacUpdateChecker.cs | 38 | Let manual checks bypass the daily cache and report failures without presenting cached results as fresh; startup caching remains supported. |
+| src/HexManiac.Avalonia/App.axaml.cs | 349 | Prevent a late startup response from overriding a newer manual check or a replacement editor. |
+| src/HexManiac.Avalonia/Windows/MainWindow.axaml | 224 | Separate Check for Updates from View Available Update, and reuse the dismissible notification for manual status. |
+| src/HexManiac.Avalonia/Controls/MapTab.axaml | 720 | Bind both blockset controls' presentation index so navigation restores visible selected addresses when options change at the same numeric index. |
+| tests/UpdateNotice/Program.cs | 1 | Exercise manual result states, asynchronous busy behavior, duplicate suppression and editor-replacement cancellation alongside existing script-focus protections. |
+| tests/StartupUpdates/Program.cs | 1 | Verify a manual check detects a release immediately despite a fresh negative cache, with honest failure feedback and preserved last-successful startup cache. |
+| tests/BlocksetSelection/RealBlocksetReview.cs | 1 | Check existing/new map selection through actual Mac controls, using stub storage and unchanged original project files. |
+| src/HexManiac.Avalonia/MacAssemblyInfo.cs | 11 | Bump only the Mac app to 1.0.2; retain Core/TOML identity 0.6.1. |
+| tests/MacVersionMetadata/Program.cs | 13 | Verify the new app identity and unchanged project definitions through editing, Save, Undo/Redo and reopen. |
+| docs/RELEASE_NOTES_1.0.2.md | 1 | Explain all three changes, update instructions, SCADE experimental limits and utility creator credits. |
+
+Focused validation: Manual UI checks pass 23 assertions and update discovery/cache checks pass 54. The reported SCADE/Ikarus project passes 32 real-control assertions for visible primary/secondary addresses and new-map selection; originals stay unchanged. The corrected exact-SCADE candidate previously passed 32 corresponding real-control assertions with its full 900-block palette. Selection fixes do not establish compatibility for overlapping original patches. Release signing, notarization and publication are recorded separately after verification.

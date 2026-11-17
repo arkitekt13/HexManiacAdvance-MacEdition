@@ -28,3 +28,25 @@ Set `HMA_IKARUS_DIALOG_PREVIEW=/absolute/path.png` to render the offscreen confi
 Native Mac save-picker behavior, gameplay and other CFRU/custom projects remain manual checks.
 All-map structural comparisons are recorded separately in
 [the compatibility review](../IKARUS_GRAPHICS_COMPATIBILITY_REVIEW.md).
+
+## Cerulean trainer validation / sparse learnsets
+
+The real-base matrix also follows Go To into Cerulean (3-3) before saving and
+renders its event controls again after save/reopen. A separate opt-in project
+review works only on disposable copies:
+
+```sh
+dotnet run --project tests/IkarusUpgrade -- --project "/absolute/path/project.gba"
+```
+
+The project review reads the adjacent TOML, scans learnset availability, loads
+Cerulean and its trainer/rematch controls, selects a block from the palette and
+a map tile, and verifies both original files and loaded ROM bytes remain unchanged.
+It reports unreadable species rows without embedding a ROM in the repository.
+
+The reported SCADE project contains five null learnset pointers at species indices
+706, 1036, 1038, 1218 and 1228. Those pointers match the pre-Ikarus SCADE ROM;
+Ikarus did not relocate or overwrite this table. The prior learnset scan threw a
+NullReferenceException. The repair omits unavailable rows and retains readable
+learnsets and existing trainer move warnings. Synthetic trainer tests cover null,
+negative and out-of-range pointers with byte/metadata preservation.

@@ -378,6 +378,9 @@ namespace HavenSoft.HexManiac.Core.ViewModels.Map {
          var results = new AutoDictionary<int, List<int>>(i => new());
          foreach (var element in table) {
             var sub = element.GetSubTable("movesFromLevel");
+            // Expanded ROM bases can leave unused species without a learnset pointer.
+            // Keep readable species available instead of aborting trainer/map validation.
+            if (sub == null) continue;
             foreach (var move in sub) {
                if (sub.Run.ElementContent.Count == 1) {
                   results[element.ArrayIndex].Add(model.ReadMultiByteValue(move.Start, 2) & 0x1FF);

@@ -174,6 +174,7 @@ foreach (bool accept in new[] { false,true }) {
 }
 host.Close();
 if (args.Length==1) checks += RealVerification.Run(args[0],upgrade);
+if (args.Length==2 && args[0]=="--project") checks += RealVerification.ReviewProject(args[1]);
 Console.WriteLine($"CHECKS_PASSED:{checks}");
 
 sealed class FailingReloadModel : PokemonModel {

@@ -3866,3 +3866,15 @@ Validation: Reviewed both supplied original-project links and retained the uncha
 | OptionalAssets/SCADE/README.md | 3 | Introduce the creator-provided base before installer asset details. |
 
 Validation: Wording follows the creator's CFRU Expansion description, retains ShinyMiner & Team credit, and avoids claiming universal superiority or that every upstream feature is enabled in the bundled build. Relative links and diff checks pass. Only documentation and public release wording change; signed archive, patch/TOML bytes and version 1.0.0 are preserved.
+
+## 272 — Prevent missing learnsets from crashing trainer/map validation
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Core/ViewModels/Map/Flags.cs | 381 | Skip unavailable level-up subtables while retaining readable species for trainer move validation. |
+| src/HexManiac.Tests/TrainerMoveValidationTests.cs | 94 | Reproduce null, negative and out-of-range learnset pointers and retain valid-species warnings, ROM bytes and metadata. |
+| tests/IkarusUpgrade/Program.cs | 177 | Add an explicit opt-in disposable project review mode. |
+| tests/IkarusUpgrade/RealVerification.cs | 11 | Exercise learnset scanning, Cerulean trainer/rematch controls, palette/map selection and unchanged original files; extend real-base navigation before and after Save. |
+| tests/IkarusUpgrade/README.md | 42 | Document reproduction, sparse SCADE rows and safe project-copy verification. |
+
+Validation: Three new synthetic cases fail on the prior code with the reported NullReferenceException, then pass after the repair. The focused trainer move/level set passes 36 cases without skips. A disposable copy of the reported project reproduces the same exception during the learnset scan before repair; afterward its Cerulean map and trainer/rematch controls load, palette and map-tile selection succeed, and original ROM/TOML plus loaded bytes remain unchanged (77 checks including the default Ikarus group). Five null pointer rows, 706/1036/1038/1218/1228, are identical before and after Ikarus; this crash is not caused by Ikarus relocating that table. A clean-base vanilla/HUBOL/SCADE navigation matrix passes 139 checks independently. Full engine unit execution passes 1,670 cases, with 1,048 optional-fixture skips and no failures. App/Core versions, patch assets, installed app and public release remain unchanged; broad Mac regression verification is recorded separately when complete.

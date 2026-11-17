@@ -3878,3 +3878,11 @@ Validation: Wording follows the creator's CFRU Expansion description, retains Sh
 | tests/IkarusUpgrade/README.md | 42 | Document reproduction, sparse SCADE rows and safe project-copy verification. |
 
 Validation: Three new synthetic cases fail on the prior code with the reported NullReferenceException, then pass after the repair. The focused trainer move/level set passes 36 cases without skips. A disposable copy of the reported project reproduces the same exception during the learnset scan before repair; afterward its Cerulean map and trainer/rematch controls load, palette and map-tile selection succeed, and original ROM/TOML plus loaded bytes remain unchanged (77 checks including the default Ikarus group). Five null pointer rows, 706/1036/1038/1218/1228, are identical before and after Ikarus; this crash is not caused by Ikarus relocating that table. A clean-base vanilla/HUBOL/SCADE navigation matrix passes 139 checks independently. Full engine unit execution passes 1,670 cases, with 1,048 optional-fixture skips and no failures. App/Core versions, patch assets, installed app and public release remain unchanged; broad Mac regression verification is recorded separately when complete.
+
+## 273 — Verify the sparse-learnset crash repair across Mac and engine regressions
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/IkarusUpgrade/cerulean-learnset-crash-verification.json | 1 | Record prior-code failures, repaired project-copy selection, real-base compatibility and complete regression totals. |
+
+Validation: On functional source c2c5eab6, all 89 Mac groups pass 25,324 assertions with no skipped groups. The separate engine suite passes 1,670 cases with 1,048 optional-fixture skips and no failures; 36 focused trainer cases pass without skips. Repaired clean-base vanilla/HUBOL/SCADE tests pass 139 checks, including live Go To Cerulean and save/reopen rendering. The reported project-copy review passes 77 checks including learnset scanning, trainer/rematch controls and palette/map selection. Original user ROM and TOML SHA-256 values remain unchanged after testing. Native installed-app interaction, public distribution and broad gameplay compatibility are not claimed; the installed app and release archive still require a separate updated build to contain this repair.

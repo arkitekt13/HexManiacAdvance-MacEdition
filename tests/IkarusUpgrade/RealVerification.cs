@@ -3,10 +3,43 @@ using HavenSoft.HexManiac.AvaloniaUI.Project;
 using HavenSoft.HexManiac.AvaloniaUI.Windows;
 using HavenSoft.HexManiac.Core;
 using HavenSoft.HexManiac.Core.Models;
+using HavenSoft.HexManiac.Core.Models.Runs;
 using HavenSoft.HexManiac.Core.ViewModels;
 using Upgrade = HavenSoft.HexManiac.AvaloniaUI.Project.IkarusUpgrade;
 
 internal static class RealVerification {
+ public static int ReviewProject(string sourcePath) {
+  var bytes=File.ReadAllBytes(sourcePath);
+  var metadataPath=Path.ChangeExtension(sourcePath,".toml");
+  var metadata=File.ReadAllBytes(metadataPath);
+  var folder=Path.Combine(Path.GetTempPath(),"hma-cerulean-project-"+Guid.NewGuid().ToString("N"));
+  Directory.CreateDirectory(folder);
+  try {
+   var path=Path.Combine(folder,"disposable.gba");File.WriteAllBytes(path,bytes);
+   File.WriteAllBytes(Path.ChangeExtension(path,".toml"),metadata);
+   var fs=new StubFileSystem { MetadataFor=file=>File.Exists(Path.ChangeExtension(file,".toml"))?File.ReadAllLines(Path.ChangeExtension(file,".toml")):Array.Empty<string>() };
+   var editor=new EditorViewModel(fs,InstantDispatch.Instance);
+   var view=editor.OpenFileAsync(new LoadedFile(path,bytes.ToArray())).GetAwaiter().GetResult();
+   view.Model.InitializationWorkload.GetAwaiter().GetResult();view.InitializationWorkload.GetAwaiter().GetResult();
+   var table=view.Model.GetTableModel(HardcodeTablesModel.LevelMovesTableName);
+   Console.WriteLine("UNREADABLE_LEARNSET_ROWS:"+string.Join(',',table.Where(row=>row.GetSubTable("movesFromLevel")==null).Select(row=>row.ArrayIndex)));
+   var learnsets=HavenSoft.HexManiac.Core.ViewModels.Map.Flags.GetPokemonLevelupMoves(view.Model);
+   if(learnsets.Count==0)throw new Exception("Expected readable learnsets.");
+   view.Goto.Execute("maps.bank3.CERULEAN CITY.3-3");
+   var map=view.MapEditor.PrimaryMap;
+   if(map.MapID!=3003 || map.PixelData.Length==0 || map.EventGroup==null)throw new Exception("Cerulean failed to load.");
+   foreach(var obj in map.EventGroup.Objects) { _=obj.ShowNoContent; _=obj.ShowRematchTrainerContent; }
+   view.MapEditor.SelectBlock(1,0);view.MapEditor.ReleaseBlock(1,0);
+   if(map.BlockEditor.BlockIndex!=1)throw new Exception("Block palette selection failed.");
+   var x=map.LeftEdge+map.PixelWidth*map.SpriteScale/2;
+   var y=map.TopEdge+map.PixelHeight*map.SpriteScale/2;
+   view.MapEditor.SelectDown(x,y);view.MapEditor.SelectUp(x,y);
+   if(map.PixelData.Length==0)throw new Exception("Map tile selection failed.");
+   if(!bytes.SequenceEqual(view.Model.RawData)||!bytes.SequenceEqual(File.ReadAllBytes(sourcePath))||!metadata.SequenceEqual(File.ReadAllBytes(metadataPath)))throw new Exception("Read-only project review changed bytes.");
+   Console.WriteLine("CERULEAN_PROJECT_PASS:learnsets="+learnsets.Count);
+   return 7;
+  } finally { Directory.Delete(folder,true); }
+ }
  public static int Run(string sourcePath, Upgrade upgrade) {
   int checks=0;
   void Check(bool value,string message) { checks++;if(!value)throw new Exception(message); }
@@ -66,6 +99,10 @@ internal static class RealVerification {
     Check(ScriptMapSnapshot.Create(view,3000).Image.PixelData.SequenceEqual(afterPixels),name+" Redo rebuilds patched map image");
     var current=view.Model.ExportMetadata(null,editor.Singletons.MetadataInfo).NamedAnchors;
     Check(names.All(a=>current.Any(b=>a.Name==b.Name && a.Address==b.Address && a.Format==b.Format)),name+" every named definition survives");
+    view.Goto.Execute("maps.bank3.CERULEAN CITY.3-3");
+    var liveCerulean=view.MapEditor.PrimaryMap;
+    Check(liveCerulean.MapID==3003 && liveCerulean.PixelData.Length>0 && liveCerulean.EventGroup!=null,name+" Go To Cerulean renders live patched trainer events before Save");
+    Check(view.Model.RawData.SequenceEqual(after),name+" live Cerulean loading preserves patched bytes");
     view.Save.Execute(fs);Check(writes==2 && view.ChangeHistory.IsSaved,name+" actual normal Save writes ROM and TOML");
     var reopened=editor.OpenFileAsync(new LoadedFile(path,File.ReadAllBytes(path))).GetAwaiter().GetResult();
     reopened.Model.InitializationWorkload.GetAwaiter().GetResult();reopened.InitializationWorkload.GetAwaiter().GetResult();
@@ -73,6 +110,11 @@ internal static class RealVerification {
     var saved=reopened.Model.ExportMetadata(null,editor.Singletons.MetadataInfo).NamedAnchors;
     Check(names.All(a=>saved.Any(b=>a.Name==b.Name && a.Address==b.Address && a.Format==b.Format)),name+" every named definition survives save/reopen");
     Check(ScriptMapSnapshot.Create(reopened,3000).Image.PixelData.SequenceEqual(afterPixels),name+" reopened map image exact");
+    var beforeCerulean=reopened.Model.RawData.ToArray();
+    reopened.MapEditor.NavigateTo(3,3,0,0);
+    var cerulean=reopened.MapEditor.PrimaryMap;
+    Check(cerulean.PixelData.Length>0 && cerulean.EventGroup!=null,name+" Cerulean renders with trainer events after patch and reopen");
+    Check(reopened.Model.RawData.SequenceEqual(beforeCerulean),name+" Cerulean event loading preserves ROM bytes");
     Console.WriteLine($"IKARUS_REAL_PASS:{name}:anchors={names.Count}:sha256={Hash(after)}");
    }
    Check(Hash(File.ReadAllBytes(sourcePath))==sourceHash,"uploaded original remains byte identical");

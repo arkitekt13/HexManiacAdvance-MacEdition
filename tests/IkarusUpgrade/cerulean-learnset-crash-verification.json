@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-16",
+  "fix_source": "c2c5eab6",
+  "failure": "NullReferenceException in Flags.GetPokemonLevelupMoves while trainer/rematch text validation creates map event controls",
+  "cause": "GetSubTable returned null for an unavailable species learnset; the scan enumerated it without checking.",
+  "reported_project_unreadable_species_rows": [
+    706,
+    1036,
+    1038,
+    1218,
+    1228
+  ],
+  "pre_ikarus_and_post_ikarus_learnset_pointer_table_identical": true,
+  "prior_code_reproduction": {
+    "synthetic_invalid_pointer_failures": 3,
+    "reported_project_copy_learnset_scan": "Same NullReferenceException reproduced"
+  },
+  "repair": "Skip unavailable learnset rows; preserve readable species and existing trainer warnings.",
+  "focused_trainer_tests": {
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0
+  },
+  "full_engine_unit_tests": {
+    "passed": 1670,
+    "failed": 0,
+    "skipped_optional_fixtures": 1048,
+    "total": 2718
+  },
+  "mac_regressions": {
+    "groups": 89,
+    "assertions": 25324,
+    "failed": 0,
+    "skipped_groups": 0
+  },
+  "real_base_compatibility": {
+    "total_checks_including_default_group": 139,
+    "bases": [
+      "vanilla FireRed 1.0",
+      "HUBOL",
+      "SCADE"
+    ],
+    "coverage": [
+      "Ikarus application and exact byte/metadata preservation",
+      "Go To Cerulean before Save",
+      "Cerulean event rendering after save/reopen"
+    ]
+  },
+  "reported_project_copy": {
+    "total_checks_including_default_group": 77,
+    "learnset_dictionary_species": 1457,
+    "cerulean_map_id": 3003,
+    "trainer_rematch_controls_loaded": true,
+    "palette_selection_succeeded": true,
+    "map_tile_selection_succeeded": true,
+    "loaded_rom_bytes_preserved": true,
+    "original_rom_and_toml_hashes_preserved": true
+  },
+  "limits": {
+    "native_window_tested": false,
+    "installed_app_changed": false,
+    "public_download_contains_repair": false,
+    "broad_gameplay_compatibility_claimed": false
+  },
+  "versions_unchanged": {
+    "MacEdition": "1.0.0",
+    "Core": "0.6.1"
+  }
+}

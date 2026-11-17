@@ -91,6 +91,25 @@ namespace HavenSoft.HexManiac.Tests {
          Assert.Equal(new[] { new TextSegment(1, 2, 5, SegmentType.Warning) }, errors);
       }
 
+      [Theory]
+      [InlineData(-0x08000000)]
+      [InlineData(-1)]
+      [InlineData(0x5000)]
+      public void MissingLearnset_DoesNotPreventOtherSpeciesOrTrainerValidation(int destination) {
+         var expected = Flags.GetPokemonLevelupMoves(Model)[1].ToArray();
+         Model.WritePointer(Token, 0x100, destination);
+         Model.ClearCacheScope();
+         var bytes = Model.RawData.ToArray();
+         var metadata = Model.ExportMetadata(Singletons.MetadataInfo).Serialize();
+         var moves = Flags.GetPokemonLevelupMoves(Model);
+         Assert.False(moves.ContainsKey(0));
+         Assert.Equal(expected, moves[1]);
+         Assert.Empty(new TrainerTextFormatter(Model).FindErrors("10 sprout\n- Punch"));
+         Assert.Single(new TrainerTextFormatter(Model).FindErrors("10 sprout\n- Mega Punch"));
+         Assert.Equal(bytes, Model.RawData);
+         Assert.Equal(metadata, Model.ExportMetadata(Singletons.MetadataInfo).Serialize());
+      }
+
       [Fact]
       public void RenamedMoveAndUndo_ValidationUsesCurrentNames() {
          ViewPort.Goto.Execute(0x1000 + 2 * Model.GetTable(HardcodeTablesModel.MoveNamesTable).ElementLength);

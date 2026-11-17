@@ -1,0 +1,5285 @@
+{
+  "scadeSourceSha256": "67c78da450f8631b7c57d92fb9345acd822ac2b3a37efa585656a6f55b15f99c",
+  "ikarusSha256": "cbc79d5613c24d682119c6a43ba191baae39a0c7fab8a0cbf53311891a3c8b7c",
+  "naiveCombinedSha256": "d0f061ae3a3a75c3b35fbc0c91bb2c2f0727ae3d53d0d4b50a2e8cf54512e839",
+  "length": 33554432,
+  "records": 5838,
+  "requested": 597600,
+  "distinctWrittenBytes": 597600,
+  "changedBytes": 472701,
+  "overworldLists": 1319,
+  "uniqueFrameRanges": 7834,
+  "overwrittenFrameRanges": 476,
+  "overwrittenFrameBytes": 185453,
+  "frameHits": [
+    {
+      "start": 3776392,
+      "length": 128,
+      "changed": 1,
+      "lists": [
+        3823864
+      ]
+    },
+    {
+      "start": 3776520,
+      "length": 128,
+      "changed": 62,
+      "lists": [
+        3822556
+      ]
+    },
+    {
+      "start": 3776648,
+      "length": 128,
+      "changed": 125,
+      "lists": [
+        3822556
+      ]
+    },
+    {
+      "start": 3776776,
+      "length": 128,
+      "changed": 54,
+      "lists": [
+        3822556
+      ]
+    },
+    {
+      "start": 3776904,
+      "length": 128,
+      "changed": 56,
+      "lists": [
+        3822556
+      ]
+    },
+    {
+      "start": 3777032,
+      "length": 128,
+      "changed": 65,
+      "lists": [
+        3822556
+      ]
+    },
+    {
+      "start": 3785992,
+      "length": 128,
+      "changed": 68,
+      "lists": [
+        3825232
+      ]
+    },
+    {
+      "start": 9437184,
+      "length": 512,
+      "changed": 421,
+      "lists": [
+        19222912
+      ]
+    },
+    {
+      "start": 9437696,
+      "length": 512,
+      "changed": 413,
+      "lists": [
+        19222912
+      ]
+    },
+    {
+      "start": 9438208,
+      "length": 512,
+      "changed": 343,
+      "lists": [
+        19222912
+      ]
+    },
+    {
+      "start": 9438720,
+      "length": 512,
+      "changed": 366,
+      "lists": [
+        19222912
+      ]
+    },
+    {
+      "start": 9439232,
+      "length": 512,
+      "changed": 351,
+      "lists": [
+        19222912
+      ]
+    },
+    {
+      "start": 9439744,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19222912
+      ]
+    },
+    {
+      "start": 9440256,
+      "length": 512,
+      "changed": 357,
+      "lists": [
+        19222840,
+        19222912
+      ]
+    },
+    {
+      "start": 9440768,
+      "length": 512,
+      "changed": 226,
+      "lists": [
+        19222840,
+        19222912
+      ]
+    },
+    {
+      "start": 9441280,
+      "length": 512,
+      "changed": 256,
+      "lists": [
+        19222840,
+        19222912
+      ]
+    },
+    {
+      "start": 9441792,
+      "length": 512,
+      "changed": 236,
+      "lists": [
+        19222840
+      ]
+    },
+    {
+      "start": 9442304,
+      "length": 512,
+      "changed": 466,
+      "lists": [
+        19222840
+      ]
+    },
+    {
+      "start": 9442816,
+      "length": 512,
+      "changed": 449,
+      "lists": [
+        19222840
+      ]
+    },
+    {
+      "start": 9443328,
+      "length": 512,
+      "changed": 401,
+      "lists": [
+        19222768,
+        19222840
+      ]
+    },
+    {
+      "start": 9443840,
+      "length": 512,
+      "changed": 373,
+      "lists": [
+        19222768,
+        19222840
+      ]
+    },
+    {
+      "start": 9444352,
+      "length": 512,
+      "changed": 272,
+      "lists": [
+        19222768,
+        19222840
+      ]
+    },
+    {
+      "start": 9444864,
+      "length": 512,
+      "changed": 310,
+      "lists": [
+        19222768
+      ]
+    },
+    {
+      "start": 9445376,
+      "length": 512,
+      "changed": 453,
+      "lists": [
+        19222768
+      ]
+    },
+    {
+      "start": 9445888,
+      "length": 512,
+      "changed": 448,
+      "lists": [
+        19222768
+      ]
+    },
+    {
+      "start": 9446400,
+      "length": 512,
+      "changed": 349,
+      "lists": [
+        19222696,
+        19222768
+      ]
+    },
+    {
+      "start": 9446912,
+      "length": 512,
+      "changed": 370,
+      "lists": [
+        19222696,
+        19222768
+      ]
+    },
+    {
+      "start": 9447424,
+      "length": 512,
+      "changed": 278,
+      "lists": [
+        19222696,
+        19222768
+      ]
+    },
+    {
+      "start": 9447936,
+      "length": 512,
+      "changed": 243,
+      "lists": [
+        19222696
+      ]
+    },
+    {
+      "start": 9448448,
+      "length": 512,
+      "changed": 280,
+      "lists": [
+        19222696
+      ]
+    },
+    {
+      "start": 9448960,
+      "length": 512,
+      "changed": 467,
+      "lists": [
+        19222696
+      ]
+    },
+    {
+      "start": 9449472,
+      "length": 512,
+      "changed": 463,
+      "lists": [
+        19222624,
+        19222696
+      ]
+    },
+    {
+      "start": 9449984,
+      "length": 512,
+      "changed": 474,
+      "lists": [
+        19222624,
+        19222696
+      ]
+    },
+    {
+      "start": 9450496,
+      "length": 512,
+      "changed": 491,
+      "lists": [
+        19222624,
+        19222696
+      ]
+    },
+    {
+      "start": 9451008,
+      "length": 512,
+      "changed": 477,
+      "lists": [
+        19222624
+      ]
+    },
+    {
+      "start": 9451520,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19222624
+      ]
+    },
+    {
+      "start": 9452032,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19222624
+      ]
+    },
+    {
+      "start": 9452544,
+      "length": 512,
+      "changed": 492,
+      "lists": [
+        19222552,
+        19222624
+      ]
+    },
+    {
+      "start": 9453056,
+      "length": 512,
+      "changed": 501,
+      "lists": [
+        19222552,
+        19222624
+      ]
+    },
+    {
+      "start": 9453568,
+      "length": 512,
+      "changed": 491,
+      "lists": [
+        19222552,
+        19222624
+      ]
+    },
+    {
+      "start": 9454080,
+      "length": 512,
+      "changed": 296,
+      "lists": [
+        19222552
+      ]
+    },
+    {
+      "start": 9458688,
+      "length": 512,
+      "changed": 405,
+      "lists": [
+        19222408,
+        19222480
+      ]
+    },
+    {
+      "start": 9459200,
+      "length": 512,
+      "changed": 487,
+      "lists": [
+        19222408,
+        19222480
+      ]
+    },
+    {
+      "start": 9459712,
+      "length": 512,
+      "changed": 478,
+      "lists": [
+        19222408,
+        19222480
+      ]
+    },
+    {
+      "start": 9460224,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19222408
+      ]
+    },
+    {
+      "start": 9460736,
+      "length": 512,
+      "changed": 484,
+      "lists": [
+        19222408
+      ]
+    },
+    {
+      "start": 9461248,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19222408
+      ]
+    },
+    {
+      "start": 9461760,
+      "length": 512,
+      "changed": 491,
+      "lists": [
+        19222336,
+        19222408
+      ]
+    },
+    {
+      "start": 9462272,
+      "length": 512,
+      "changed": 498,
+      "lists": [
+        19222336,
+        19222408
+      ]
+    },
+    {
+      "start": 9462784,
+      "length": 512,
+      "changed": 476,
+      "lists": [
+        19222336,
+        19222408
+      ]
+    },
+    {
+      "start": 9463296,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19222336
+      ]
+    },
+    {
+      "start": 9463808,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19222336
+      ]
+    },
+    {
+      "start": 9464320,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19222336
+      ]
+    },
+    {
+      "start": 9464832,
+      "length": 512,
+      "changed": 481,
+      "lists": [
+        19222264,
+        19222336
+      ]
+    },
+    {
+      "start": 9465344,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19222264,
+        19222336
+      ]
+    },
+    {
+      "start": 9465856,
+      "length": 512,
+      "changed": 482,
+      "lists": [
+        19222264,
+        19222336
+      ]
+    },
+    {
+      "start": 9466368,
+      "length": 512,
+      "changed": 492,
+      "lists": [
+        19222264
+      ]
+    },
+    {
+      "start": 9466880,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19222264
+      ]
+    },
+    {
+      "start": 9467392,
+      "length": 512,
+      "changed": 462,
+      "lists": [
+        19222264
+      ]
+    },
+    {
+      "start": 9467904,
+      "length": 512,
+      "changed": 423,
+      "lists": [
+        19222192,
+        19222264
+      ]
+    },
+    {
+      "start": 9468416,
+      "length": 512,
+      "changed": 401,
+      "lists": [
+        19222192,
+        19222264
+      ]
+    },
+    {
+      "start": 9468928,
+      "length": 512,
+      "changed": 397,
+      "lists": [
+        19222192,
+        19222264
+      ]
+    },
+    {
+      "start": 9469440,
+      "length": 512,
+      "changed": 381,
+      "lists": [
+        19222192
+      ]
+    },
+    {
+      "start": 9469952,
+      "length": 512,
+      "changed": 250,
+      "lists": [
+        19222192
+      ]
+    },
+    {
+      "start": 9470464,
+      "length": 512,
+      "changed": 85,
+      "lists": [
+        19222192
+      ]
+    },
+    {
+      "start": 9470976,
+      "length": 512,
+      "changed": 196,
+      "lists": [
+        19222120,
+        19222192
+      ]
+    },
+    {
+      "start": 9471488,
+      "length": 512,
+      "changed": 288,
+      "lists": [
+        19222120,
+        19222192
+      ]
+    },
+    {
+      "start": 9472000,
+      "length": 512,
+      "changed": 468,
+      "lists": [
+        19222120,
+        19222192
+      ]
+    },
+    {
+      "start": 9472512,
+      "length": 512,
+      "changed": 472,
+      "lists": [
+        19222120
+      ]
+    },
+    {
+      "start": 9473024,
+      "length": 512,
+      "changed": 480,
+      "lists": [
+        19222120
+      ]
+    },
+    {
+      "start": 9473536,
+      "length": 512,
+      "changed": 491,
+      "lists": [
+        19222120
+      ]
+    },
+    {
+      "start": 9474048,
+      "length": 512,
+      "changed": 498,
+      "lists": [
+        19222048,
+        19222120
+      ]
+    },
+    {
+      "start": 9474560,
+      "length": 512,
+      "changed": 500,
+      "lists": [
+        19222048,
+        19222120
+      ]
+    },
+    {
+      "start": 9475072,
+      "length": 512,
+      "changed": 492,
+      "lists": [
+        19222048,
+        19222120
+      ]
+    },
+    {
+      "start": 9475584,
+      "length": 512,
+      "changed": 466,
+      "lists": [
+        19222048
+      ]
+    },
+    {
+      "start": 9476096,
+      "length": 512,
+      "changed": 466,
+      "lists": [
+        19222048
+      ]
+    },
+    {
+      "start": 9476608,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19222048
+      ]
+    },
+    {
+      "start": 9477120,
+      "length": 512,
+      "changed": 481,
+      "lists": [
+        19221976,
+        19222048
+      ]
+    },
+    {
+      "start": 9477632,
+      "length": 512,
+      "changed": 319,
+      "lists": [
+        19221976,
+        19222048
+      ]
+    },
+    {
+      "start": 9478656,
+      "length": 512,
+      "changed": 296,
+      "lists": [
+        19221976
+      ]
+    },
+    {
+      "start": 9479168,
+      "length": 512,
+      "changed": 406,
+      "lists": [
+        19221976
+      ]
+    },
+    {
+      "start": 9479680,
+      "length": 512,
+      "changed": 449,
+      "lists": [
+        19221976
+      ]
+    },
+    {
+      "start": 9480192,
+      "length": 512,
+      "changed": 393,
+      "lists": [
+        19221904,
+        19221976
+      ]
+    },
+    {
+      "start": 9480704,
+      "length": 512,
+      "changed": 427,
+      "lists": [
+        19221904,
+        19221976
+      ]
+    },
+    {
+      "start": 9481216,
+      "length": 512,
+      "changed": 468,
+      "lists": [
+        19221904,
+        19221976
+      ]
+    },
+    {
+      "start": 9481728,
+      "length": 512,
+      "changed": 423,
+      "lists": [
+        19221904
+      ]
+    },
+    {
+      "start": 9482240,
+      "length": 512,
+      "changed": 417,
+      "lists": [
+        19221904
+      ]
+    },
+    {
+      "start": 9482752,
+      "length": 512,
+      "changed": 360,
+      "lists": [
+        19221904
+      ]
+    },
+    {
+      "start": 9483264,
+      "length": 512,
+      "changed": 344,
+      "lists": [
+        19221832,
+        19221904
+      ]
+    },
+    {
+      "start": 9483776,
+      "length": 512,
+      "changed": 347,
+      "lists": [
+        19221832,
+        19221904
+      ]
+    },
+    {
+      "start": 9484288,
+      "length": 512,
+      "changed": 337,
+      "lists": [
+        19221832,
+        19221904
+      ]
+    },
+    {
+      "start": 9484800,
+      "length": 512,
+      "changed": 191,
+      "lists": [
+        19221832
+      ]
+    },
+    {
+      "start": 9485312,
+      "length": 512,
+      "changed": 87,
+      "lists": [
+        19221832
+      ]
+    },
+    {
+      "start": 9485824,
+      "length": 512,
+      "changed": 89,
+      "lists": [
+        19221832
+      ]
+    },
+    {
+      "start": 9486336,
+      "length": 512,
+      "changed": 362,
+      "lists": [
+        19221760,
+        19221832
+      ]
+    },
+    {
+      "start": 9486848,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19221760,
+        19221832
+      ]
+    },
+    {
+      "start": 9487360,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19221760,
+        19221832
+      ]
+    },
+    {
+      "start": 9487872,
+      "length": 512,
+      "changed": 490,
+      "lists": [
+        19221760
+      ]
+    },
+    {
+      "start": 9488384,
+      "length": 512,
+      "changed": 490,
+      "lists": [
+        19221760
+      ]
+    },
+    {
+      "start": 9488896,
+      "length": 512,
+      "changed": 494,
+      "lists": [
+        19221760
+      ]
+    },
+    {
+      "start": 9489408,
+      "length": 512,
+      "changed": 98,
+      "lists": [
+        19221688,
+        19221760
+      ]
+    },
+    {
+      "start": 9490944,
+      "length": 512,
+      "changed": 127,
+      "lists": [
+        19221688
+      ]
+    },
+    {
+      "start": 9491456,
+      "length": 512,
+      "changed": 449,
+      "lists": [
+        19221688
+      ]
+    },
+    {
+      "start": 9491968,
+      "length": 512,
+      "changed": 379,
+      "lists": [
+        19221688
+      ]
+    },
+    {
+      "start": 9492480,
+      "length": 512,
+      "changed": 360,
+      "lists": [
+        19221616,
+        19221688
+      ]
+    },
+    {
+      "start": 9492992,
+      "length": 512,
+      "changed": 391,
+      "lists": [
+        19221616,
+        19221688
+      ]
+    },
+    {
+      "start": 9493504,
+      "length": 512,
+      "changed": 385,
+      "lists": [
+        19221616,
+        19221688
+      ]
+    },
+    {
+      "start": 9494016,
+      "length": 512,
+      "changed": 332,
+      "lists": [
+        19221616
+      ]
+    },
+    {
+      "start": 9494528,
+      "length": 512,
+      "changed": 340,
+      "lists": [
+        19221616
+      ]
+    },
+    {
+      "start": 9495040,
+      "length": 512,
+      "changed": 407,
+      "lists": [
+        19221616
+      ]
+    },
+    {
+      "start": 9495552,
+      "length": 512,
+      "changed": 428,
+      "lists": [
+        19221544,
+        19221616
+      ]
+    },
+    {
+      "start": 9496064,
+      "length": 512,
+      "changed": 378,
+      "lists": [
+        19221544,
+        19221616
+      ]
+    },
+    {
+      "start": 9496576,
+      "length": 512,
+      "changed": 370,
+      "lists": [
+        19221544,
+        19221616
+      ]
+    },
+    {
+      "start": 9497088,
+      "length": 512,
+      "changed": 290,
+      "lists": [
+        19221544
+      ]
+    },
+    {
+      "start": 9497600,
+      "length": 512,
+      "changed": 204,
+      "lists": [
+        19221544
+      ]
+    },
+    {
+      "start": 9498112,
+      "length": 512,
+      "changed": 166,
+      "lists": [
+        19221544
+      ]
+    },
+    {
+      "start": 9498624,
+      "length": 512,
+      "changed": 34,
+      "lists": [
+        19221472,
+        19221544
+      ]
+    },
+    {
+      "start": 9506816,
+      "length": 512,
+      "changed": 224,
+      "lists": [
+        19221328
+      ]
+    },
+    {
+      "start": 9507328,
+      "length": 512,
+      "changed": 434,
+      "lists": [
+        19221328
+      ]
+    },
+    {
+      "start": 9507840,
+      "length": 512,
+      "changed": 425,
+      "lists": [
+        19221256,
+        19221328
+      ]
+    },
+    {
+      "start": 9508352,
+      "length": 512,
+      "changed": 379,
+      "lists": [
+        19221256,
+        19221328
+      ]
+    },
+    {
+      "start": 9508864,
+      "length": 512,
+      "changed": 406,
+      "lists": [
+        19221256,
+        19221328
+      ]
+    },
+    {
+      "start": 9509376,
+      "length": 512,
+      "changed": 366,
+      "lists": [
+        19221256
+      ]
+    },
+    {
+      "start": 9509888,
+      "length": 512,
+      "changed": 183,
+      "lists": [
+        19221256
+      ]
+    },
+    {
+      "start": 9510400,
+      "length": 512,
+      "changed": 274,
+      "lists": [
+        19221256
+      ]
+    },
+    {
+      "start": 9510912,
+      "length": 512,
+      "changed": 339,
+      "lists": [
+        19221184,
+        19221256
+      ]
+    },
+    {
+      "start": 9511424,
+      "length": 512,
+      "changed": 468,
+      "lists": [
+        19221184,
+        19221256
+      ]
+    },
+    {
+      "start": 9511936,
+      "length": 512,
+      "changed": 468,
+      "lists": [
+        19221184,
+        19221256
+      ]
+    },
+    {
+      "start": 9512448,
+      "length": 512,
+      "changed": 476,
+      "lists": [
+        19221184
+      ]
+    },
+    {
+      "start": 9512960,
+      "length": 512,
+      "changed": 471,
+      "lists": [
+        19221184
+      ]
+    },
+    {
+      "start": 9513472,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19221184
+      ]
+    },
+    {
+      "start": 9513984,
+      "length": 512,
+      "changed": 479,
+      "lists": [
+        19221112,
+        19221184
+      ]
+    },
+    {
+      "start": 9514496,
+      "length": 512,
+      "changed": 484,
+      "lists": [
+        19221112,
+        19221184
+      ]
+    },
+    {
+      "start": 9515008,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19221112,
+        19221184
+      ]
+    },
+    {
+      "start": 9515520,
+      "length": 512,
+      "changed": 356,
+      "lists": [
+        19221112
+      ]
+    },
+    {
+      "start": 9520640,
+      "length": 512,
+      "changed": 218,
+      "lists": [
+        19220968,
+        19221040
+      ]
+    },
+    {
+      "start": 9521152,
+      "length": 512,
+      "changed": 448,
+      "lists": [
+        19220968,
+        19221040
+      ]
+    },
+    {
+      "start": 9521664,
+      "length": 512,
+      "changed": 440,
+      "lists": [
+        19220968
+      ]
+    },
+    {
+      "start": 9522176,
+      "length": 512,
+      "changed": 199,
+      "lists": [
+        19220968
+      ]
+    },
+    {
+      "start": 9522688,
+      "length": 512,
+      "changed": 170,
+      "lists": [
+        19220968
+      ]
+    },
+    {
+      "start": 9523200,
+      "length": 512,
+      "changed": 12,
+      "lists": [
+        19220896,
+        19220968
+      ]
+    },
+    {
+      "start": 9524736,
+      "length": 512,
+      "changed": 119,
+      "lists": [
+        19220896
+      ]
+    },
+    {
+      "start": 9525248,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19220896
+      ]
+    },
+    {
+      "start": 9525760,
+      "length": 512,
+      "changed": 405,
+      "lists": [
+        19220896
+      ]
+    },
+    {
+      "start": 9526272,
+      "length": 512,
+      "changed": 264,
+      "lists": [
+        19220824,
+        19220896
+      ]
+    },
+    {
+      "start": 9526784,
+      "length": 512,
+      "changed": 318,
+      "lists": [
+        19220824,
+        19220896
+      ]
+    },
+    {
+      "start": 9527296,
+      "length": 512,
+      "changed": 395,
+      "lists": [
+        19220824,
+        19220896
+      ]
+    },
+    {
+      "start": 9527808,
+      "length": 512,
+      "changed": 388,
+      "lists": [
+        19220824
+      ]
+    },
+    {
+      "start": 9528320,
+      "length": 512,
+      "changed": 370,
+      "lists": [
+        19220824
+      ]
+    },
+    {
+      "start": 9528832,
+      "length": 512,
+      "changed": 411,
+      "lists": [
+        19220824
+      ]
+    },
+    {
+      "start": 9529344,
+      "length": 512,
+      "changed": 408,
+      "lists": [
+        19220752,
+        19220824
+      ]
+    },
+    {
+      "start": 9529856,
+      "length": 512,
+      "changed": 418,
+      "lists": [
+        19220752,
+        19220824
+      ]
+    },
+    {
+      "start": 9530368,
+      "length": 512,
+      "changed": 273,
+      "lists": [
+        19220752,
+        19220824
+      ]
+    },
+    {
+      "start": 9530880,
+      "length": 512,
+      "changed": 200,
+      "lists": [
+        19220752
+      ]
+    },
+    {
+      "start": 9531392,
+      "length": 512,
+      "changed": 190,
+      "lists": [
+        19220752
+      ]
+    },
+    {
+      "start": 9531904,
+      "length": 512,
+      "changed": 234,
+      "lists": [
+        19220752
+      ]
+    },
+    {
+      "start": 9532416,
+      "length": 512,
+      "changed": 368,
+      "lists": [
+        19220680,
+        19220752
+      ]
+    },
+    {
+      "start": 9532928,
+      "length": 512,
+      "changed": 433,
+      "lists": [
+        19220680,
+        19220752
+      ]
+    },
+    {
+      "start": 9533440,
+      "length": 512,
+      "changed": 164,
+      "lists": [
+        19220680,
+        19220752
+      ]
+    },
+    {
+      "start": 9533952,
+      "length": 512,
+      "changed": 90,
+      "lists": [
+        19220680
+      ]
+    },
+    {
+      "start": 9534464,
+      "length": 512,
+      "changed": 89,
+      "lists": [
+        19220680
+      ]
+    },
+    {
+      "start": 9534976,
+      "length": 512,
+      "changed": 87,
+      "lists": [
+        19220680
+      ]
+    },
+    {
+      "start": 9535488,
+      "length": 512,
+      "changed": 135,
+      "lists": [
+        19220608,
+        19220680
+      ]
+    },
+    {
+      "start": 9536000,
+      "length": 512,
+      "changed": 135,
+      "lists": [
+        19220608,
+        19220680
+      ]
+    },
+    {
+      "start": 9536512,
+      "length": 512,
+      "changed": 136,
+      "lists": [
+        19220608,
+        19220680
+      ]
+    },
+    {
+      "start": 9537024,
+      "length": 512,
+      "changed": 136,
+      "lists": [
+        19220608
+      ]
+    },
+    {
+      "start": 9537536,
+      "length": 512,
+      "changed": 131,
+      "lists": [
+        19220608
+      ]
+    },
+    {
+      "start": 9538048,
+      "length": 512,
+      "changed": 147,
+      "lists": [
+        19220608
+      ]
+    },
+    {
+      "start": 9538560,
+      "length": 512,
+      "changed": 173,
+      "lists": [
+        19220536,
+        19220608
+      ]
+    },
+    {
+      "start": 9539072,
+      "length": 512,
+      "changed": 170,
+      "lists": [
+        19220536,
+        19220608
+      ]
+    },
+    {
+      "start": 9539584,
+      "length": 512,
+      "changed": 291,
+      "lists": [
+        19220536,
+        19220608
+      ]
+    },
+    {
+      "start": 9540096,
+      "length": 512,
+      "changed": 367,
+      "lists": [
+        19220536
+      ]
+    },
+    {
+      "start": 9540608,
+      "length": 512,
+      "changed": 409,
+      "lists": [
+        19220536
+      ]
+    },
+    {
+      "start": 9541120,
+      "length": 512,
+      "changed": 435,
+      "lists": [
+        19220536
+      ]
+    },
+    {
+      "start": 9541632,
+      "length": 512,
+      "changed": 427,
+      "lists": [
+        19220464,
+        19220536
+      ]
+    },
+    {
+      "start": 9542144,
+      "length": 512,
+      "changed": 334,
+      "lists": [
+        19220464,
+        19220536
+      ]
+    },
+    {
+      "start": 9542656,
+      "length": 512,
+      "changed": 430,
+      "lists": [
+        19220464,
+        19220536
+      ]
+    },
+    {
+      "start": 9543168,
+      "length": 512,
+      "changed": 474,
+      "lists": [
+        19220464
+      ]
+    },
+    {
+      "start": 9543680,
+      "length": 512,
+      "changed": 164,
+      "lists": [
+        19220464
+      ]
+    },
+    {
+      "start": 9544192,
+      "length": 512,
+      "changed": 148,
+      "lists": [
+        19220464
+      ]
+    },
+    {
+      "start": 9544704,
+      "length": 512,
+      "changed": 67,
+      "lists": [
+        19220392,
+        19220464
+      ]
+    },
+    {
+      "start": 9545728,
+      "length": 512,
+      "changed": 112,
+      "lists": [
+        19220392,
+        19220464
+      ]
+    },
+    {
+      "start": 9546240,
+      "length": 512,
+      "changed": 357,
+      "lists": [
+        19220392
+      ]
+    },
+    {
+      "start": 9546752,
+      "length": 512,
+      "changed": 287,
+      "lists": [
+        19220392
+      ]
+    },
+    {
+      "start": 9547264,
+      "length": 512,
+      "changed": 413,
+      "lists": [
+        19220392
+      ]
+    },
+    {
+      "start": 9547776,
+      "length": 512,
+      "changed": 391,
+      "lists": [
+        19220320,
+        19220392
+      ]
+    },
+    {
+      "start": 9548288,
+      "length": 512,
+      "changed": 402,
+      "lists": [
+        19220320,
+        19220392
+      ]
+    },
+    {
+      "start": 9548800,
+      "length": 512,
+      "changed": 322,
+      "lists": [
+        19220320,
+        19220392
+      ]
+    },
+    {
+      "start": 9549312,
+      "length": 512,
+      "changed": 359,
+      "lists": [
+        19220320
+      ]
+    },
+    {
+      "start": 9549824,
+      "length": 512,
+      "changed": 413,
+      "lists": [
+        19220320
+      ]
+    },
+    {
+      "start": 9550336,
+      "length": 512,
+      "changed": 461,
+      "lists": [
+        19220320
+      ]
+    },
+    {
+      "start": 9550848,
+      "length": 512,
+      "changed": 454,
+      "lists": [
+        19220248,
+        19220320
+      ]
+    },
+    {
+      "start": 9551360,
+      "length": 512,
+      "changed": 328,
+      "lists": [
+        19220248,
+        19220320
+      ]
+    },
+    {
+      "start": 9551872,
+      "length": 512,
+      "changed": 224,
+      "lists": [
+        19220248
+      ]
+    },
+    {
+      "start": 9552384,
+      "length": 512,
+      "changed": 221,
+      "lists": [
+        19220248
+      ]
+    },
+    {
+      "start": 9552896,
+      "length": 512,
+      "changed": 296,
+      "lists": [
+        19220248
+      ]
+    },
+    {
+      "start": 9553408,
+      "length": 512,
+      "changed": 397,
+      "lists": [
+        19220248
+      ]
+    },
+    {
+      "start": 9553920,
+      "length": 512,
+      "changed": 407,
+      "lists": [
+        19220176,
+        19220248
+      ]
+    },
+    {
+      "start": 9554432,
+      "length": 512,
+      "changed": 379,
+      "lists": [
+        19220176,
+        19220248
+      ]
+    },
+    {
+      "start": 9554944,
+      "length": 512,
+      "changed": 346,
+      "lists": [
+        19220176,
+        19220248
+      ]
+    },
+    {
+      "start": 9555456,
+      "length": 512,
+      "changed": 403,
+      "lists": [
+        19220176
+      ]
+    },
+    {
+      "start": 9555968,
+      "length": 512,
+      "changed": 398,
+      "lists": [
+        19220176
+      ]
+    },
+    {
+      "start": 9556480,
+      "length": 512,
+      "changed": 384,
+      "lists": [
+        19220176
+      ]
+    },
+    {
+      "start": 9556992,
+      "length": 512,
+      "changed": 403,
+      "lists": [
+        19220104,
+        19220176
+      ]
+    },
+    {
+      "start": 9557504,
+      "length": 512,
+      "changed": 455,
+      "lists": [
+        19220104,
+        19220176
+      ]
+    },
+    {
+      "start": 9558016,
+      "length": 512,
+      "changed": 382,
+      "lists": [
+        19220104,
+        19220176
+      ]
+    },
+    {
+      "start": 9558528,
+      "length": 512,
+      "changed": 437,
+      "lists": [
+        19220104
+      ]
+    },
+    {
+      "start": 9559040,
+      "length": 512,
+      "changed": 285,
+      "lists": [
+        19220104
+      ]
+    },
+    {
+      "start": 9559552,
+      "length": 512,
+      "changed": 175,
+      "lists": [
+        19220104
+      ]
+    },
+    {
+      "start": 9560064,
+      "length": 512,
+      "changed": 121,
+      "lists": [
+        19220032,
+        19220104
+      ]
+    },
+    {
+      "start": 9560576,
+      "length": 512,
+      "changed": 280,
+      "lists": [
+        19220032,
+        19220104
+      ]
+    },
+    {
+      "start": 9561088,
+      "length": 512,
+      "changed": 343,
+      "lists": [
+        19220032,
+        19220104
+      ]
+    },
+    {
+      "start": 9561600,
+      "length": 512,
+      "changed": 440,
+      "lists": [
+        19220032
+      ]
+    },
+    {
+      "start": 9562112,
+      "length": 512,
+      "changed": 469,
+      "lists": [
+        19220032
+      ]
+    },
+    {
+      "start": 9562624,
+      "length": 512,
+      "changed": 448,
+      "lists": [
+        19220032
+      ]
+    },
+    {
+      "start": 9563136,
+      "length": 512,
+      "changed": 456,
+      "lists": [
+        19219960,
+        19220032
+      ]
+    },
+    {
+      "start": 9563648,
+      "length": 512,
+      "changed": 412,
+      "lists": [
+        19219960,
+        19220032
+      ]
+    },
+    {
+      "start": 9564160,
+      "length": 512,
+      "changed": 412,
+      "lists": [
+        19219960,
+        19220032
+      ]
+    },
+    {
+      "start": 9564672,
+      "length": 512,
+      "changed": 411,
+      "lists": [
+        19219960
+      ]
+    },
+    {
+      "start": 9565184,
+      "length": 512,
+      "changed": 439,
+      "lists": [
+        19219960
+      ]
+    },
+    {
+      "start": 9565696,
+      "length": 512,
+      "changed": 448,
+      "lists": [
+        19219960
+      ]
+    },
+    {
+      "start": 9566208,
+      "length": 512,
+      "changed": 353,
+      "lists": [
+        19219888,
+        19219960
+      ]
+    },
+    {
+      "start": 9566720,
+      "length": 512,
+      "changed": 254,
+      "lists": [
+        19219888,
+        19219960
+      ]
+    },
+    {
+      "start": 9567232,
+      "length": 512,
+      "changed": 127,
+      "lists": [
+        19219888,
+        19219960
+      ]
+    },
+    {
+      "start": 9567744,
+      "length": 512,
+      "changed": 89,
+      "lists": [
+        19219888
+      ]
+    },
+    {
+      "start": 9568256,
+      "length": 512,
+      "changed": 310,
+      "lists": [
+        19219888
+      ]
+    },
+    {
+      "start": 9568768,
+      "length": 512,
+      "changed": 476,
+      "lists": [
+        19219888
+      ]
+    },
+    {
+      "start": 9569280,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19219816,
+        19219888
+      ]
+    },
+    {
+      "start": 9569792,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19219816,
+        19219888
+      ]
+    },
+    {
+      "start": 9570304,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19219816,
+        19219888
+      ]
+    },
+    {
+      "start": 9570816,
+      "length": 512,
+      "changed": 459,
+      "lists": [
+        19219816
+      ]
+    },
+    {
+      "start": 9571328,
+      "length": 512,
+      "changed": 487,
+      "lists": [
+        19219816
+      ]
+    },
+    {
+      "start": 9571840,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19219816
+      ]
+    },
+    {
+      "start": 9572352,
+      "length": 512,
+      "changed": 498,
+      "lists": [
+        19219744,
+        19219816
+      ]
+    },
+    {
+      "start": 9572864,
+      "length": 512,
+      "changed": 491,
+      "lists": [
+        19219744,
+        19219816
+      ]
+    },
+    {
+      "start": 9573376,
+      "length": 512,
+      "changed": 432,
+      "lists": [
+        19219744,
+        19219816
+      ]
+    },
+    {
+      "start": 9573888,
+      "length": 512,
+      "changed": 466,
+      "lists": [
+        19219744
+      ]
+    },
+    {
+      "start": 9574400,
+      "length": 512,
+      "changed": 466,
+      "lists": [
+        19219744
+      ]
+    },
+    {
+      "start": 9574912,
+      "length": 512,
+      "changed": 474,
+      "lists": [
+        19219744
+      ]
+    },
+    {
+      "start": 9575424,
+      "length": 512,
+      "changed": 466,
+      "lists": [
+        19219672,
+        19219744
+      ]
+    },
+    {
+      "start": 9575936,
+      "length": 512,
+      "changed": 481,
+      "lists": [
+        19219672,
+        19219744
+      ]
+    },
+    {
+      "start": 9576448,
+      "length": 512,
+      "changed": 470,
+      "lists": [
+        19219672,
+        19219744
+      ]
+    },
+    {
+      "start": 9576960,
+      "length": 512,
+      "changed": 477,
+      "lists": [
+        19219672
+      ]
+    },
+    {
+      "start": 9577472,
+      "length": 512,
+      "changed": 474,
+      "lists": [
+        19219672
+      ]
+    },
+    {
+      "start": 9577984,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19219672
+      ]
+    },
+    {
+      "start": 9578496,
+      "length": 512,
+      "changed": 388,
+      "lists": [
+        19219600,
+        19219672
+      ]
+    },
+    {
+      "start": 9579008,
+      "length": 512,
+      "changed": 330,
+      "lists": [
+        19219600,
+        19219672
+      ]
+    },
+    {
+      "start": 9579520,
+      "length": 512,
+      "changed": 363,
+      "lists": [
+        19219600,
+        19219672
+      ]
+    },
+    {
+      "start": 9580032,
+      "length": 512,
+      "changed": 420,
+      "lists": [
+        19219600
+      ]
+    },
+    {
+      "start": 9580544,
+      "length": 512,
+      "changed": 457,
+      "lists": [
+        19219600
+      ]
+    },
+    {
+      "start": 9581056,
+      "length": 512,
+      "changed": 454,
+      "lists": [
+        19219600
+      ]
+    },
+    {
+      "start": 9581568,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19219528,
+        19219600
+      ]
+    },
+    {
+      "start": 9582080,
+      "length": 512,
+      "changed": 386,
+      "lists": [
+        19219528,
+        19219600
+      ]
+    },
+    {
+      "start": 9582592,
+      "length": 512,
+      "changed": 381,
+      "lists": [
+        19219528,
+        19219600
+      ]
+    },
+    {
+      "start": 9583104,
+      "length": 512,
+      "changed": 412,
+      "lists": [
+        19219528
+      ]
+    },
+    {
+      "start": 9583616,
+      "length": 512,
+      "changed": 396,
+      "lists": [
+        19219528
+      ]
+    },
+    {
+      "start": 9584128,
+      "length": 512,
+      "changed": 441,
+      "lists": [
+        19219528
+      ]
+    },
+    {
+      "start": 9584640,
+      "length": 512,
+      "changed": 343,
+      "lists": [
+        19219456,
+        19219528
+      ]
+    },
+    {
+      "start": 9585152,
+      "length": 512,
+      "changed": 219,
+      "lists": [
+        19219456,
+        19219528
+      ]
+    },
+    {
+      "start": 9585664,
+      "length": 512,
+      "changed": 247,
+      "lists": [
+        19219456,
+        19219528
+      ]
+    },
+    {
+      "start": 9586176,
+      "length": 512,
+      "changed": 330,
+      "lists": [
+        19219456
+      ]
+    },
+    {
+      "start": 9586688,
+      "length": 512,
+      "changed": 484,
+      "lists": [
+        19219456
+      ]
+    },
+    {
+      "start": 9587200,
+      "length": 512,
+      "changed": 484,
+      "lists": [
+        19219456
+      ]
+    },
+    {
+      "start": 9587712,
+      "length": 512,
+      "changed": 480,
+      "lists": [
+        19219384,
+        19219456
+      ]
+    },
+    {
+      "start": 9588224,
+      "length": 512,
+      "changed": 470,
+      "lists": [
+        19219384,
+        19219456
+      ]
+    },
+    {
+      "start": 9588736,
+      "length": 512,
+      "changed": 471,
+      "lists": [
+        19219384,
+        19219456
+      ]
+    },
+    {
+      "start": 9589248,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19219384
+      ]
+    },
+    {
+      "start": 9589760,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19219384
+      ]
+    },
+    {
+      "start": 9590272,
+      "length": 512,
+      "changed": 490,
+      "lists": [
+        19219384
+      ]
+    },
+    {
+      "start": 9590784,
+      "length": 512,
+      "changed": 459,
+      "lists": [
+        19219312,
+        19219384
+      ]
+    },
+    {
+      "start": 9591296,
+      "length": 512,
+      "changed": 242,
+      "lists": [
+        19219312,
+        19219384
+      ]
+    },
+    {
+      "start": 9591808,
+      "length": 512,
+      "changed": 433,
+      "lists": [
+        19219312,
+        19219384
+      ]
+    },
+    {
+      "start": 9592320,
+      "length": 512,
+      "changed": 426,
+      "lists": [
+        19219312
+      ]
+    },
+    {
+      "start": 9592832,
+      "length": 512,
+      "changed": 365,
+      "lists": [
+        19219312
+      ]
+    },
+    {
+      "start": 9593344,
+      "length": 512,
+      "changed": 396,
+      "lists": [
+        19219312
+      ]
+    },
+    {
+      "start": 9593856,
+      "length": 512,
+      "changed": 407,
+      "lists": [
+        19219240,
+        19219312
+      ]
+    },
+    {
+      "start": 9594368,
+      "length": 512,
+      "changed": 442,
+      "lists": [
+        19219240,
+        19219312
+      ]
+    },
+    {
+      "start": 9594880,
+      "length": 512,
+      "changed": 412,
+      "lists": [
+        19219240,
+        19219312
+      ]
+    },
+    {
+      "start": 9595392,
+      "length": 512,
+      "changed": 431,
+      "lists": [
+        19219240
+      ]
+    },
+    {
+      "start": 9595904,
+      "length": 512,
+      "changed": 326,
+      "lists": [
+        19219240
+      ]
+    },
+    {
+      "start": 9596416,
+      "length": 512,
+      "changed": 98,
+      "lists": [
+        19219240
+      ]
+    },
+    {
+      "start": 9596928,
+      "length": 512,
+      "changed": 125,
+      "lists": [
+        19219168,
+        19219240
+      ]
+    },
+    {
+      "start": 9597440,
+      "length": 512,
+      "changed": 192,
+      "lists": [
+        19219168,
+        19219240
+      ]
+    },
+    {
+      "start": 9597952,
+      "length": 512,
+      "changed": 301,
+      "lists": [
+        19219168,
+        19219240
+      ]
+    },
+    {
+      "start": 9598464,
+      "length": 512,
+      "changed": 276,
+      "lists": [
+        19219168
+      ]
+    },
+    {
+      "start": 9598976,
+      "length": 512,
+      "changed": 263,
+      "lists": [
+        19219168
+      ]
+    },
+    {
+      "start": 9599488,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19219168
+      ]
+    },
+    {
+      "start": 9600000,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19219096,
+        19219168
+      ]
+    },
+    {
+      "start": 9600512,
+      "length": 512,
+      "changed": 467,
+      "lists": [
+        19219096,
+        19219168
+      ]
+    },
+    {
+      "start": 9601024,
+      "length": 512,
+      "changed": 476,
+      "lists": [
+        19219096,
+        19219168
+      ]
+    },
+    {
+      "start": 9601536,
+      "length": 512,
+      "changed": 471,
+      "lists": [
+        19219096
+      ]
+    },
+    {
+      "start": 9602048,
+      "length": 512,
+      "changed": 480,
+      "lists": [
+        19219096
+      ]
+    },
+    {
+      "start": 9602560,
+      "length": 512,
+      "changed": 502,
+      "lists": [
+        19219096
+      ]
+    },
+    {
+      "start": 9603072,
+      "length": 512,
+      "changed": 494,
+      "lists": [
+        19219024,
+        19219096
+      ]
+    },
+    {
+      "start": 9603584,
+      "length": 512,
+      "changed": 487,
+      "lists": [
+        19219024,
+        19219096
+      ]
+    },
+    {
+      "start": 9604096,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19219024,
+        19219096
+      ]
+    },
+    {
+      "start": 9604608,
+      "length": 512,
+      "changed": 433,
+      "lists": [
+        19219024
+      ]
+    },
+    {
+      "start": 9605120,
+      "length": 512,
+      "changed": 405,
+      "lists": [
+        19219024
+      ]
+    },
+    {
+      "start": 9605632,
+      "length": 512,
+      "changed": 454,
+      "lists": [
+        19219024
+      ]
+    },
+    {
+      "start": 9606144,
+      "length": 512,
+      "changed": 459,
+      "lists": [
+        19218952,
+        19219024
+      ]
+    },
+    {
+      "start": 9606656,
+      "length": 512,
+      "changed": 424,
+      "lists": [
+        19218952,
+        19219024
+      ]
+    },
+    {
+      "start": 9607168,
+      "length": 512,
+      "changed": 446,
+      "lists": [
+        19218952,
+        19219024
+      ]
+    },
+    {
+      "start": 9607680,
+      "length": 512,
+      "changed": 454,
+      "lists": [
+        19218952
+      ]
+    },
+    {
+      "start": 9608192,
+      "length": 512,
+      "changed": 450,
+      "lists": [
+        19218952
+      ]
+    },
+    {
+      "start": 9608704,
+      "length": 512,
+      "changed": 407,
+      "lists": [
+        19218952
+      ]
+    },
+    {
+      "start": 9609216,
+      "length": 512,
+      "changed": 449,
+      "lists": [
+        19218880,
+        19218952
+      ]
+    },
+    {
+      "start": 9609728,
+      "length": 512,
+      "changed": 406,
+      "lists": [
+        19218880,
+        19218952
+      ]
+    },
+    {
+      "start": 9610240,
+      "length": 512,
+      "changed": 306,
+      "lists": [
+        19218880,
+        19218952
+      ]
+    },
+    {
+      "start": 9610752,
+      "length": 512,
+      "changed": 269,
+      "lists": [
+        19218880
+      ]
+    },
+    {
+      "start": 9611264,
+      "length": 512,
+      "changed": 217,
+      "lists": [
+        19218880
+      ]
+    },
+    {
+      "start": 9611776,
+      "length": 512,
+      "changed": 417,
+      "lists": [
+        19218880
+      ]
+    },
+    {
+      "start": 9612288,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19218808,
+        19218880
+      ]
+    },
+    {
+      "start": 9612800,
+      "length": 512,
+      "changed": 487,
+      "lists": [
+        19218808,
+        19218880
+      ]
+    },
+    {
+      "start": 9613312,
+      "length": 512,
+      "changed": 472,
+      "lists": [
+        19218808,
+        19218880
+      ]
+    },
+    {
+      "start": 9613824,
+      "length": 512,
+      "changed": 485,
+      "lists": [
+        19218808
+      ]
+    },
+    {
+      "start": 9614336,
+      "length": 512,
+      "changed": 484,
+      "lists": [
+        19218808
+      ]
+    },
+    {
+      "start": 9614848,
+      "length": 512,
+      "changed": 487,
+      "lists": [
+        19218808
+      ]
+    },
+    {
+      "start": 9615360,
+      "length": 512,
+      "changed": 496,
+      "lists": [
+        19218736,
+        19218808
+      ]
+    },
+    {
+      "start": 9615872,
+      "length": 512,
+      "changed": 490,
+      "lists": [
+        19218736,
+        19218808
+      ]
+    },
+    {
+      "start": 9616384,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19218736,
+        19218808
+      ]
+    },
+    {
+      "start": 9616896,
+      "length": 512,
+      "changed": 479,
+      "lists": [
+        19218736
+      ]
+    },
+    {
+      "start": 9617408,
+      "length": 512,
+      "changed": 498,
+      "lists": [
+        19218736
+      ]
+    },
+    {
+      "start": 9617920,
+      "length": 512,
+      "changed": 494,
+      "lists": [
+        19218736
+      ]
+    },
+    {
+      "start": 9618432,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19218664,
+        19218736
+      ]
+    },
+    {
+      "start": 9618944,
+      "length": 512,
+      "changed": 484,
+      "lists": [
+        19218664,
+        19218736
+      ]
+    },
+    {
+      "start": 9619456,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19218664,
+        19218736
+      ]
+    },
+    {
+      "start": 9619968,
+      "length": 512,
+      "changed": 481,
+      "lists": [
+        19218664
+      ]
+    },
+    {
+      "start": 9620480,
+      "length": 512,
+      "changed": 251,
+      "lists": [
+        19218664
+      ]
+    },
+    {
+      "start": 9630208,
+      "length": 512,
+      "changed": 242,
+      "lists": [
+        19218448
+      ]
+    },
+    {
+      "start": 9630720,
+      "length": 512,
+      "changed": 481,
+      "lists": [
+        19218376,
+        19218448
+      ]
+    },
+    {
+      "start": 9631232,
+      "length": 512,
+      "changed": 470,
+      "lists": [
+        19218376,
+        19218448
+      ]
+    },
+    {
+      "start": 9631744,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19218376,
+        19218448
+      ]
+    },
+    {
+      "start": 9632256,
+      "length": 512,
+      "changed": 470,
+      "lists": [
+        19218376
+      ]
+    },
+    {
+      "start": 9632768,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19218376
+      ]
+    },
+    {
+      "start": 9633280,
+      "length": 512,
+      "changed": 482,
+      "lists": [
+        19218376
+      ]
+    },
+    {
+      "start": 9633792,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19218304,
+        19218376
+      ]
+    },
+    {
+      "start": 9634304,
+      "length": 512,
+      "changed": 472,
+      "lists": [
+        19218304,
+        19218376
+      ]
+    },
+    {
+      "start": 9634816,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19218304,
+        19218376
+      ]
+    },
+    {
+      "start": 9635328,
+      "length": 512,
+      "changed": 473,
+      "lists": [
+        19218304
+      ]
+    },
+    {
+      "start": 9635840,
+      "length": 512,
+      "changed": 480,
+      "lists": [
+        19218304
+      ]
+    },
+    {
+      "start": 9636352,
+      "length": 512,
+      "changed": 472,
+      "lists": [
+        19218304
+      ]
+    },
+    {
+      "start": 9636864,
+      "length": 512,
+      "changed": 481,
+      "lists": [
+        19218232,
+        19218304
+      ]
+    },
+    {
+      "start": 9637376,
+      "length": 512,
+      "changed": 490,
+      "lists": [
+        19218232,
+        19218304
+      ]
+    },
+    {
+      "start": 9637888,
+      "length": 512,
+      "changed": 445,
+      "lists": [
+        19218232,
+        19218304
+      ]
+    },
+    {
+      "start": 9638400,
+      "length": 512,
+      "changed": 404,
+      "lists": [
+        19218232
+      ]
+    },
+    {
+      "start": 9638912,
+      "length": 512,
+      "changed": 410,
+      "lists": [
+        19218232
+      ]
+    },
+    {
+      "start": 9639424,
+      "length": 512,
+      "changed": 376,
+      "lists": [
+        19218232
+      ]
+    },
+    {
+      "start": 9639936,
+      "length": 512,
+      "changed": 418,
+      "lists": [
+        19218160,
+        19218232
+      ]
+    },
+    {
+      "start": 9640448,
+      "length": 512,
+      "changed": 423,
+      "lists": [
+        19218160,
+        19218232
+      ]
+    },
+    {
+      "start": 9640960,
+      "length": 512,
+      "changed": 470,
+      "lists": [
+        19218160,
+        19218232
+      ]
+    },
+    {
+      "start": 9641472,
+      "length": 512,
+      "changed": 390,
+      "lists": [
+        19218160
+      ]
+    },
+    {
+      "start": 9641984,
+      "length": 512,
+      "changed": 437,
+      "lists": [
+        19218160
+      ]
+    },
+    {
+      "start": 9642496,
+      "length": 512,
+      "changed": 370,
+      "lists": [
+        19218160
+      ]
+    },
+    {
+      "start": 9643008,
+      "length": 512,
+      "changed": 289,
+      "lists": [
+        19218088,
+        19218160
+      ]
+    },
+    {
+      "start": 9643520,
+      "length": 512,
+      "changed": 284,
+      "lists": [
+        19218088,
+        19218160
+      ]
+    },
+    {
+      "start": 9644032,
+      "length": 512,
+      "changed": 342,
+      "lists": [
+        19218088,
+        19218160
+      ]
+    },
+    {
+      "start": 9644544,
+      "length": 512,
+      "changed": 476,
+      "lists": [
+        19218088
+      ]
+    },
+    {
+      "start": 9645056,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19218088
+      ]
+    },
+    {
+      "start": 9645568,
+      "length": 512,
+      "changed": 478,
+      "lists": [
+        19218088
+      ]
+    },
+    {
+      "start": 9646080,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19218016,
+        19218088
+      ]
+    },
+    {
+      "start": 9646592,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19218016,
+        19218088
+      ]
+    },
+    {
+      "start": 9647104,
+      "length": 512,
+      "changed": 479,
+      "lists": [
+        19218016,
+        19218088
+      ]
+    },
+    {
+      "start": 9647616,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19218016
+      ]
+    },
+    {
+      "start": 9648128,
+      "length": 512,
+      "changed": 478,
+      "lists": [
+        19218016
+      ]
+    },
+    {
+      "start": 9648640,
+      "length": 512,
+      "changed": 487,
+      "lists": [
+        19218016
+      ]
+    },
+    {
+      "start": 9649152,
+      "length": 512,
+      "changed": 262,
+      "lists": [
+        19217944,
+        19218016
+      ]
+    },
+    {
+      "start": 9649664,
+      "length": 512,
+      "changed": 467,
+      "lists": [
+        19217944,
+        19218016
+      ]
+    },
+    {
+      "start": 9650176,
+      "length": 512,
+      "changed": 462,
+      "lists": [
+        19217944,
+        19218016
+      ]
+    },
+    {
+      "start": 9650688,
+      "length": 512,
+      "changed": 482,
+      "lists": [
+        19217944
+      ]
+    },
+    {
+      "start": 9651200,
+      "length": 512,
+      "changed": 465,
+      "lists": [
+        19217944
+      ]
+    },
+    {
+      "start": 9651712,
+      "length": 512,
+      "changed": 476,
+      "lists": [
+        19217944
+      ]
+    },
+    {
+      "start": 9652224,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19217872,
+        19217944
+      ]
+    },
+    {
+      "start": 9652736,
+      "length": 512,
+      "changed": 481,
+      "lists": [
+        19217872,
+        19217944
+      ]
+    },
+    {
+      "start": 9653248,
+      "length": 512,
+      "changed": 482,
+      "lists": [
+        19217872,
+        19217944
+      ]
+    },
+    {
+      "start": 9653760,
+      "length": 512,
+      "changed": 498,
+      "lists": [
+        19217872
+      ]
+    },
+    {
+      "start": 9654272,
+      "length": 512,
+      "changed": 481,
+      "lists": [
+        19217872
+      ]
+    },
+    {
+      "start": 9654784,
+      "length": 512,
+      "changed": 159,
+      "lists": [
+        19217872
+      ]
+    },
+    {
+      "start": 9658880,
+      "length": 512,
+      "changed": 168,
+      "lists": [
+        19217728,
+        19217800
+      ]
+    },
+    {
+      "start": 9659392,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19217728,
+        19217800
+      ]
+    },
+    {
+      "start": 9659904,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19217728
+      ]
+    },
+    {
+      "start": 9660416,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19217728
+      ]
+    },
+    {
+      "start": 9660928,
+      "length": 512,
+      "changed": 430,
+      "lists": [
+        19217728
+      ]
+    },
+    {
+      "start": 9661440,
+      "length": 512,
+      "changed": 437,
+      "lists": [
+        19217656,
+        19217728
+      ]
+    },
+    {
+      "start": 9661952,
+      "length": 512,
+      "changed": 387,
+      "lists": [
+        19217656,
+        19217728
+      ]
+    },
+    {
+      "start": 9662464,
+      "length": 512,
+      "changed": 423,
+      "lists": [
+        19217656,
+        19217728
+      ]
+    },
+    {
+      "start": 9662976,
+      "length": 512,
+      "changed": 358,
+      "lists": [
+        19217656
+      ]
+    },
+    {
+      "start": 9663488,
+      "length": 512,
+      "changed": 330,
+      "lists": [
+        19217656
+      ]
+    },
+    {
+      "start": 9664000,
+      "length": 512,
+      "changed": 310,
+      "lists": [
+        19217656
+      ]
+    },
+    {
+      "start": 9664512,
+      "length": 512,
+      "changed": 340,
+      "lists": [
+        19217584,
+        19217656
+      ]
+    },
+    {
+      "start": 9665024,
+      "length": 512,
+      "changed": 152,
+      "lists": [
+        19217584,
+        19217656
+      ]
+    },
+    {
+      "start": 9665536,
+      "length": 512,
+      "changed": 214,
+      "lists": [
+        19217584,
+        19217656
+      ]
+    },
+    {
+      "start": 9666048,
+      "length": 512,
+      "changed": 179,
+      "lists": [
+        19217584
+      ]
+    },
+    {
+      "start": 9666560,
+      "length": 512,
+      "changed": 234,
+      "lists": [
+        19217584
+      ]
+    },
+    {
+      "start": 9667072,
+      "length": 512,
+      "changed": 478,
+      "lists": [
+        19217584
+      ]
+    },
+    {
+      "start": 9667584,
+      "length": 512,
+      "changed": 476,
+      "lists": [
+        19217512,
+        19217584
+      ]
+    },
+    {
+      "start": 9668096,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19217512,
+        19217584
+      ]
+    },
+    {
+      "start": 9668608,
+      "length": 512,
+      "changed": 472,
+      "lists": [
+        19217512,
+        19217584
+      ]
+    },
+    {
+      "start": 9669120,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19217512
+      ]
+    },
+    {
+      "start": 9669632,
+      "length": 512,
+      "changed": 497,
+      "lists": [
+        19217512
+      ]
+    },
+    {
+      "start": 9670144,
+      "length": 512,
+      "changed": 490,
+      "lists": [
+        19217512
+      ]
+    },
+    {
+      "start": 9670656,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19217440,
+        19217512
+      ]
+    },
+    {
+      "start": 9671168,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19217440,
+        19217512
+      ]
+    },
+    {
+      "start": 9671680,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19217440,
+        19217512
+      ]
+    },
+    {
+      "start": 9672192,
+      "length": 512,
+      "changed": 438,
+      "lists": [
+        19217440
+      ]
+    },
+    {
+      "start": 9672704,
+      "length": 512,
+      "changed": 491,
+      "lists": [
+        19217440
+      ]
+    },
+    {
+      "start": 9673216,
+      "length": 512,
+      "changed": 474,
+      "lists": [
+        19217440
+      ]
+    },
+    {
+      "start": 9673728,
+      "length": 512,
+      "changed": 461,
+      "lists": [
+        19217368,
+        19217440
+      ]
+    },
+    {
+      "start": 9674240,
+      "length": 512,
+      "changed": 452,
+      "lists": [
+        19217368,
+        19217440
+      ]
+    },
+    {
+      "start": 9674752,
+      "length": 512,
+      "changed": 456,
+      "lists": [
+        19217368,
+        19217440
+      ]
+    },
+    {
+      "start": 9675264,
+      "length": 512,
+      "changed": 426,
+      "lists": [
+        19217368
+      ]
+    },
+    {
+      "start": 9675776,
+      "length": 512,
+      "changed": 404,
+      "lists": [
+        19217368
+      ]
+    },
+    {
+      "start": 9676288,
+      "length": 512,
+      "changed": 376,
+      "lists": [
+        19217368
+      ]
+    },
+    {
+      "start": 9676800,
+      "length": 512,
+      "changed": 205,
+      "lists": [
+        19217296,
+        19217368
+      ]
+    },
+    {
+      "start": 9677312,
+      "length": 512,
+      "changed": 118,
+      "lists": [
+        19217296,
+        19217368
+      ]
+    },
+    {
+      "start": 9677824,
+      "length": 512,
+      "changed": 101,
+      "lists": [
+        19217296,
+        19217368
+      ]
+    },
+    {
+      "start": 9678336,
+      "length": 512,
+      "changed": 124,
+      "lists": [
+        19217296
+      ]
+    },
+    {
+      "start": 9678848,
+      "length": 512,
+      "changed": 176,
+      "lists": [
+        19217296
+      ]
+    },
+    {
+      "start": 9679360,
+      "length": 512,
+      "changed": 128,
+      "lists": [
+        19217296
+      ]
+    },
+    {
+      "start": 9679872,
+      "length": 512,
+      "changed": 312,
+      "lists": [
+        19217224,
+        19217296
+      ]
+    },
+    {
+      "start": 9680384,
+      "length": 512,
+      "changed": 469,
+      "lists": [
+        19217224,
+        19217296
+      ]
+    },
+    {
+      "start": 9680896,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19217224,
+        19217296
+      ]
+    },
+    {
+      "start": 9681408,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19217224
+      ]
+    },
+    {
+      "start": 9681920,
+      "length": 512,
+      "changed": 494,
+      "lists": [
+        19217224
+      ]
+    },
+    {
+      "start": 9682432,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19217224
+      ]
+    },
+    {
+      "start": 9682944,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19217152,
+        19217224
+      ]
+    },
+    {
+      "start": 9683456,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19217152,
+        19217224
+      ]
+    },
+    {
+      "start": 9683968,
+      "length": 512,
+      "changed": 485,
+      "lists": [
+        19217152,
+        19217224
+      ]
+    },
+    {
+      "start": 9684480,
+      "length": 512,
+      "changed": 479,
+      "lists": [
+        19217152
+      ]
+    },
+    {
+      "start": 9684992,
+      "length": 512,
+      "changed": 479,
+      "lists": [
+        19217152
+      ]
+    },
+    {
+      "start": 9685504,
+      "length": 512,
+      "changed": 273,
+      "lists": [
+        19217152
+      ]
+    },
+    {
+      "start": 9696768,
+      "length": 512,
+      "changed": 391,
+      "lists": [
+        19216864,
+        19216936
+      ]
+    },
+    {
+      "start": 9697280,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19216864,
+        19216936
+      ]
+    },
+    {
+      "start": 9697792,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19216864
+      ]
+    },
+    {
+      "start": 9698304,
+      "length": 512,
+      "changed": 479,
+      "lists": [
+        19216864
+      ]
+    },
+    {
+      "start": 9698816,
+      "length": 512,
+      "changed": 487,
+      "lists": [
+        19216864
+      ]
+    },
+    {
+      "start": 9699328,
+      "length": 512,
+      "changed": 482,
+      "lists": [
+        19216792,
+        19216864
+      ]
+    },
+    {
+      "start": 9699840,
+      "length": 512,
+      "changed": 488,
+      "lists": [
+        19216792,
+        19216864
+      ]
+    },
+    {
+      "start": 9700352,
+      "length": 512,
+      "changed": 492,
+      "lists": [
+        19216792,
+        19216864
+      ]
+    },
+    {
+      "start": 9700864,
+      "length": 512,
+      "changed": 491,
+      "lists": [
+        19216792
+      ]
+    },
+    {
+      "start": 9701376,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19216792
+      ]
+    },
+    {
+      "start": 9701888,
+      "length": 512,
+      "changed": 371,
+      "lists": [
+        19216792
+      ]
+    },
+    {
+      "start": 9707008,
+      "length": 512,
+      "changed": 4,
+      "lists": [
+        19216648
+      ]
+    },
+    {
+      "start": 9764864,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19215280,
+        19215352
+      ]
+    },
+    {
+      "start": 9765376,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19215280
+      ]
+    },
+    {
+      "start": 9765888,
+      "length": 512,
+      "changed": 479,
+      "lists": [
+        19215280
+      ]
+    },
+    {
+      "start": 9766400,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19215280
+      ]
+    },
+    {
+      "start": 9766912,
+      "length": 512,
+      "changed": 483,
+      "lists": [
+        19215208,
+        19215280
+      ]
+    },
+    {
+      "start": 9767424,
+      "length": 512,
+      "changed": 484,
+      "lists": [
+        19215208,
+        19215280
+      ]
+    },
+    {
+      "start": 9767936,
+      "length": 512,
+      "changed": 492,
+      "lists": [
+        19215208,
+        19215280
+      ]
+    },
+    {
+      "start": 9768448,
+      "length": 512,
+      "changed": 485,
+      "lists": [
+        19215208
+      ]
+    },
+    {
+      "start": 9768960,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19215208
+      ]
+    },
+    {
+      "start": 9769472,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19215208
+      ]
+    },
+    {
+      "start": 9769984,
+      "length": 512,
+      "changed": 459,
+      "lists": [
+        19215136,
+        19215208
+      ]
+    },
+    {
+      "start": 9770496,
+      "length": 512,
+      "changed": 467,
+      "lists": [
+        19215136,
+        19215208
+      ]
+    },
+    {
+      "start": 9771008,
+      "length": 512,
+      "changed": 487,
+      "lists": [
+        19215136,
+        19215208
+      ]
+    },
+    {
+      "start": 9771520,
+      "length": 512,
+      "changed": 481,
+      "lists": [
+        19215136
+      ]
+    },
+    {
+      "start": 9772032,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19215136
+      ]
+    },
+    {
+      "start": 9772544,
+      "length": 512,
+      "changed": 474,
+      "lists": [
+        19215136
+      ]
+    },
+    {
+      "start": 9773056,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19215064,
+        19215136
+      ]
+    },
+    {
+      "start": 9773568,
+      "length": 512,
+      "changed": 491,
+      "lists": [
+        19215064,
+        19215136
+      ]
+    },
+    {
+      "start": 9774080,
+      "length": 512,
+      "changed": 485,
+      "lists": [
+        19215064,
+        19215136
+      ]
+    },
+    {
+      "start": 9774592,
+      "length": 512,
+      "changed": 471,
+      "lists": [
+        19215064
+      ]
+    },
+    {
+      "start": 9775104,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19215064
+      ]
+    },
+    {
+      "start": 9775616,
+      "length": 512,
+      "changed": 473,
+      "lists": [
+        19215064
+      ]
+    },
+    {
+      "start": 9776128,
+      "length": 512,
+      "changed": 475,
+      "lists": [
+        19214992,
+        19215064
+      ]
+    },
+    {
+      "start": 9776640,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19214992,
+        19215064
+      ]
+    },
+    {
+      "start": 9777152,
+      "length": 512,
+      "changed": 484,
+      "lists": [
+        19214992,
+        19215064
+      ]
+    },
+    {
+      "start": 9777664,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19214992
+      ]
+    },
+    {
+      "start": 9778176,
+      "length": 512,
+      "changed": 486,
+      "lists": [
+        19214992
+      ]
+    },
+    {
+      "start": 9778688,
+      "length": 512,
+      "changed": 485,
+      "lists": [
+        19214992
+      ]
+    },
+    {
+      "start": 9779200,
+      "length": 512,
+      "changed": 489,
+      "lists": [
+        19214920,
+        19214992
+      ]
+    },
+    {
+      "start": 9779712,
+      "length": 512,
+      "changed": 484,
+      "lists": [
+        19214920,
+        19214992
+      ]
+    },
+    {
+      "start": 9780224,
+      "length": 512,
+      "changed": 491,
+      "lists": [
+        19214920,
+        19214992
+      ]
+    },
+    {
+      "start": 9780736,
+      "length": 512,
+      "changed": 493,
+      "lists": [
+        19214920
+      ]
+    },
+    {
+      "start": 9781248,
+      "length": 512,
+      "changed": 480,
+      "lists": [
+        19214920
+      ]
+    },
+    {
+      "start": 9781760,
+      "length": 512,
+      "changed": 354,
+      "lists": [
+        19214920
+      ]
+    }
+  ],
+  "runHits": {
+    "PointerRun": {
+      "runs": 38,
+      "changedBytes": 142
+    },
+    "NoInfoRun": {
+      "runs": 126,
+      "changedBytes": 126
+    },
+    "LzTilesetRun": {
+      "runs": 2,
+      "changedBytes": 11282
+    },
+    "PaletteRun": {
+      "runs": 22,
+      "changedBytes": 2118
+    },
+    "TableStreamRun": {
+      "runs": 61,
+      "changedBytes": 770
+    },
+    "BlockmapRun": {
+      "runs": 91,
+      "changedBytes": 103706
+    },
+    "SpriteRun": {
+      "runs": 476,
+      "changedBytes": 185453
+    },
+    "PCSRun": {
+      "runs": 1,
+      "changedBytes": 3
+    },
+    "ArrayRun": {
+      "runs": 1,
+      "changedBytes": 2
+    }
+  },
+  "anchorHits": [
+    {
+      "name": "sound.tracks",
+      "start": 4862668,
+      "length": 2776,
+      "changed": 2
+    }
+  ],
+  "blocksetHeaders": [
+    {
+      "header": 2968212,
+      "changed": 6,
+      "primary": true,
+      "beforePointers": [
+        15342952,
+        15342440,
+        2750152,
+        459093,
+        2760392
+      ],
+      "afterPointers": [
+        9770016,
+        15342440,
+        2750152,
+        8192048,
+        2760392
+      ]
+    },
+    {
+      "header": 2968236,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2544508,
+        2545600,
+        2762952,
+        -134217728,
+        2764376
+      ],
+      "afterPointers": [
+        9458768,
+        2545600,
+        9539780,
+        -134217728,
+        9543940
+      ]
+    },
+    {
+      "header": 2968260,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2546112,
+        2547648,
+        2764732,
+        -134217728,
+        2766252
+      ],
+      "afterPointers": [
+        9611860,
+        2547648,
+        9478812,
+        -134217728,
+        9484956
+      ]
+    },
+    {
+      "header": 2968284,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2548160,
+        2550456,
+        2766632,
+        -134217728,
+        2767896
+      ],
+      "afterPointers": [
+        9617032,
+        2550456,
+        9442208,
+        -134217728,
+        9444608
+      ]
+    },
+    {
+      "header": 2968308,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2550968,
+        2553016,
+        2768212,
+        -134217728,
+        2770356
+      ],
+      "afterPointers": [
+        9764864,
+        2553016,
+        9525100,
+        -134217728,
+        9530700
+      ]
+    },
+    {
+      "header": 2968332,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2553528,
+        2556984,
+        2770892,
+        -134217728,
+        2774380
+      ],
+      "afterPointers": [
+        9462804,
+        2556984,
+        9491264,
+        -134217728,
+        9497408
+      ]
+    },
+    {
+      "header": 2968356,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2557496,
+        2559392,
+        2775252,
+        -134217728,
+        2777940
+      ],
+      "afterPointers": [
+        9448640,
+        2559392,
+        9553100,
+        -134217728,
+        9559244
+      ]
+    },
+    {
+      "header": 2968380,
+      "changed": 11,
+      "primary": false,
+      "beforePointers": [
+        2559904,
+        2563188,
+        2778612,
+        459225,
+        2782452
+      ],
+      "afterPointers": [
+        9568460,
+        2563188,
+        9560780,
+        8061296,
+        9566924
+      ]
+    },
+    {
+      "header": 2968404,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2563700,
+        2566748,
+        2783412,
+        -134217728,
+        2786484
+      ],
+      "afterPointers": [
+        9599212,
+        2566748,
+        9546100,
+        -134217728,
+        9551700
+      ]
+    },
+    {
+      "header": 2968428,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2567260,
+        2569048,
+        2787252,
+        -134217728,
+        2788276
+      ],
+      "afterPointers": [
+        9486492,
+        2569048,
+        9532100,
+        -134217728,
+        9538244
+      ]
+    },
+    {
+      "header": 2968452,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2569560,
+        2573008,
+        2788532,
+        -134217728,
+        2791348
+      ],
+      "afterPointers": [
+        9680040,
+        2573008,
+        9672360,
+        -134217728,
+        9678504
+      ]
+    },
+    {
+      "header": 2968476,
+      "changed": 8,
+      "primary": false,
+      "beforePointers": [
+        2573520,
+        2576532,
+        2792052,
+        -134217728,
+        2795252
+      ],
+      "afterPointers": [
+        9644336,
+        2576532,
+        9578740,
+        -134217728,
+        9584884
+      ]
+    },
+    {
+      "header": 2968500,
+      "changed": 0,
+      "primary": true,
+      "beforePointers": [
+        2577044,
+        2586260,
+        2807732,
+        -134217728,
+        2817972
+      ],
+      "afterPointers": [
+        2577044,
+        2586260,
+        2807732,
+        -134217728,
+        2817972
+      ]
+    },
+    {
+      "header": 2968524,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2586772,
+        2587228,
+        2831652,
+        -134217728,
+        2832724
+      ],
+      "afterPointers": [
+        2586772,
+        2587228,
+        2831652,
+        -134217728,
+        2832724
+      ]
+    },
+    {
+      "header": 2968548,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2587740,
+        2591940,
+        2832992,
+        -134217728,
+        2837072
+      ],
+      "afterPointers": [
+        2587740,
+        2591940,
+        2832992,
+        -134217728,
+        2837072
+      ]
+    },
+    {
+      "header": 2968572,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2592452,
+        2597288,
+        2838572,
+        -134217728,
+        2841148
+      ],
+      "afterPointers": [
+        9511052,
+        2597288,
+        9507052,
+        -134217728,
+        9510252
+      ]
+    },
+    {
+      "header": 2968620,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2598328,
+        2600468,
+        2905912,
+        -134217728,
+        2908072
+      ],
+      "afterPointers": [
+        2598328,
+        2600468,
+        2905912,
+        -134217728,
+        2908072
+      ]
+    },
+    {
+      "header": 2968644,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2600980,
+        2621204,
+        2908612,
+        -134217728,
+        2912708
+      ],
+      "afterPointers": [
+        2600980,
+        2621204,
+        2908612,
+        -134217728,
+        2912708
+      ]
+    },
+    {
+      "header": 2968668,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2621716,
+        2622700,
+        2830812,
+        -134217728,
+        2831484
+      ],
+      "afterPointers": [
+        2621716,
+        2622700,
+        2830812,
+        -134217728,
+        2831484
+      ]
+    },
+    {
+      "header": 2968692,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        15374836,
+        15374324,
+        2838092,
+        -134217728,
+        2838476
+      ],
+      "afterPointers": [
+        15374836,
+        15374324,
+        2838092,
+        -134217728,
+        2838476
+      ]
+    },
+    {
+      "header": 2968716,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2623212,
+        2624768,
+        2844832,
+        -134217728,
+        2847632
+      ],
+      "afterPointers": [
+        2623212,
+        2624768,
+        2844832,
+        -134217728,
+        2847632
+      ]
+    },
+    {
+      "header": 2968740,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2642768,
+        2643876,
+        2802532,
+        -134217728,
+        2803076
+      ],
+      "afterPointers": [
+        2642768,
+        2643876,
+        2802532,
+        -134217728,
+        2803076
+      ]
+    },
+    {
+      "header": 2968764,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2648020,
+        2649032,
+        2806052,
+        -134217728,
+        2807396
+      ],
+      "afterPointers": [
+        2648020,
+        2649032,
+        2806052,
+        -134217728,
+        2807396
+      ]
+    },
+    {
+      "header": 2968812,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2631076,
+        2633660,
+        2841792,
+        -134217728,
+        2844224
+      ],
+      "afterPointers": [
+        2631076,
+        2633660,
+        2841792,
+        -134217728,
+        2844224
+      ]
+    },
+    {
+      "header": 2968836,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2634172,
+        2636208,
+        2796052,
+        -134217728,
+        2797668
+      ],
+      "afterPointers": [
+        2634172,
+        2636208,
+        2796052,
+        -134217728,
+        2797668
+      ]
+    },
+    {
+      "header": 2968860,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2636720,
+        2637816,
+        2798072,
+        -134217728,
+        2799416
+      ],
+      "afterPointers": [
+        2636720,
+        2637816,
+        2798072,
+        -134217728,
+        2799416
+      ]
+    },
+    {
+      "header": 2968884,
+      "changed": 3,
+      "primary": false,
+      "beforePointers": [
+        2638328,
+        2640312,
+        2799752,
+        459549,
+        2800952
+      ],
+      "afterPointers": [
+        2638328,
+        2640312,
+        2799752,
+        8061312,
+        2800952
+      ]
+    },
+    {
+      "header": 2968908,
+      "changed": 3,
+      "primary": false,
+      "beforePointers": [
+        2640824,
+        2642256,
+        2801252,
+        459649,
+        2802276
+      ],
+      "afterPointers": [
+        2640824,
+        2642256,
+        2801252,
+        8061328,
+        2802276
+      ]
+    },
+    {
+      "header": 2968932,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2644388,
+        2645392,
+        2803212,
+        -134217728,
+        2803948
+      ],
+      "afterPointers": [
+        2644388,
+        2645392,
+        2803212,
+        -134217728,
+        2803948
+      ]
+    },
+    {
+      "header": 2968956,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2645904,
+        2647508,
+        2804132,
+        -134217728,
+        2805668
+      ],
+      "afterPointers": [
+        2645904,
+        2647508,
+        2804132,
+        -134217728,
+        2805668
+      ]
+    },
+    {
+      "header": 2968980,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2649544,
+        2653056,
+        2848332,
+        -134217728,
+        2853708
+      ],
+      "afterPointers": [
+        2649544,
+        2653056,
+        2848332,
+        -134217728,
+        2853708
+      ]
+    },
+    {
+      "header": 2969028,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2654100,
+        2655300,
+        2855092,
+        -134217728,
+        2855780
+      ],
+      "afterPointers": [
+        9471860,
+        2655300,
+        9467860,
+        -134217728,
+        9471060
+      ]
+    },
+    {
+      "header": 2969076,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2657888,
+        2662344,
+        2858232,
+        -134217728,
+        2860664
+      ],
+      "afterPointers": [
+        2657888,
+        2662344,
+        2858232,
+        -134217728,
+        2860664
+      ]
+    },
+    {
+      "header": 2969100,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2662856,
+        2667088,
+        2861272,
+        -134217728,
+        2863784
+      ],
+      "afterPointers": [
+        2662856,
+        2667088,
+        2861272,
+        -134217728,
+        2863784
+      ]
+    },
+    {
+      "header": 2969124,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2667600,
+        2673312,
+        2864412,
+        -134217728,
+        2868380
+      ],
+      "afterPointers": [
+        9630444,
+        2673312,
+        9591532,
+        -134217728,
+        9597676
+      ]
+    },
+    {
+      "header": 2969172,
+      "changed": 8,
+      "primary": false,
+      "beforePointers": [
+        2675900,
+        2679716,
+        2871652,
+        -134217728,
+        2873796
+      ],
+      "afterPointers": [
+        2667712,
+        2679716,
+        9445208,
+        -134217728,
+        9447816
+      ]
+    },
+    {
+      "header": 2969196,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        15376264,
+        15375752,
+        2874332,
+        -134217728,
+        2878268
+      ],
+      "afterPointers": [
+        15376264,
+        15375752,
+        2874332,
+        -134217728,
+        2878268
+      ]
+    },
+    {
+      "header": 2969220,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2680228,
+        2681968,
+        2879252,
+        -134217728,
+        2882196
+      ],
+      "afterPointers": [
+        2680228,
+        2681968,
+        2879252,
+        -134217728,
+        2882196
+      ]
+    },
+    {
+      "header": 2969244,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2682480,
+        2683768,
+        2882932,
+        -134217728,
+        2885380
+      ],
+      "afterPointers": [
+        2682480,
+        2683768,
+        2882932,
+        -134217728,
+        2885380
+      ]
+    },
+    {
+      "header": 2969268,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2684280,
+        2685400,
+        2885992,
+        -134217728,
+        2886936
+      ],
+      "afterPointers": [
+        2684280,
+        2685400,
+        2885992,
+        -134217728,
+        2886936
+      ]
+    },
+    {
+      "header": 2969292,
+      "changed": 3,
+      "primary": false,
+      "beforePointers": [
+        2685912,
+        2690512,
+        2887172,
+        459345,
+        2893220
+      ],
+      "afterPointers": [
+        2685912,
+        2690512,
+        2887172,
+        8061344,
+        2893220
+      ]
+    },
+    {
+      "header": 2969316,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2691024,
+        2691700,
+        2894732,
+        -134217728,
+        2895884
+      ],
+      "afterPointers": [
+        2691024,
+        2691700,
+        2894732,
+        -134217728,
+        2895884
+      ]
+    },
+    {
+      "header": 2969340,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2692212,
+        2693884,
+        2896172,
+        -134217728,
+        2897788
+      ],
+      "afterPointers": [
+        2692212,
+        2693884,
+        2896172,
+        -134217728,
+        2897788
+      ]
+    },
+    {
+      "header": 2969364,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2694396,
+        2695408,
+        2898192,
+        -134217728,
+        2900240
+      ],
+      "afterPointers": [
+        2694396,
+        2695408,
+        2898192,
+        -134217728,
+        2900240
+      ]
+    },
+    {
+      "header": 2969388,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2695920,
+        2699248,
+        2900752,
+        -134217728,
+        2904880
+      ],
+      "afterPointers": [
+        2695920,
+        2699248,
+        2900752,
+        -134217728,
+        2904880
+      ]
+    },
+    {
+      "header": 2969412,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2699760,
+        2700896,
+        2913732,
+        -134217728,
+        2915396
+      ],
+      "afterPointers": [
+        2699760,
+        2700896,
+        2913732,
+        -134217728,
+        2915396
+      ]
+    },
+    {
+      "header": 2969436,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2701408,
+        2702092,
+        2915812,
+        -134217728,
+        2916548
+      ],
+      "afterPointers": [
+        2701408,
+        2702092,
+        2915812,
+        -134217728,
+        2916548
+      ]
+    },
+    {
+      "header": 2969460,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2702604,
+        2703684,
+        2916732,
+        -134217728,
+        2919452
+      ],
+      "afterPointers": [
+        2702604,
+        2703684,
+        2916732,
+        -134217728,
+        2919452
+      ]
+    },
+    {
+      "header": 2969484,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2685912,
+        2690512,
+        2920132,
+        -134217728,
+        2923572
+      ],
+      "afterPointers": [
+        2685912,
+        2690512,
+        2920132,
+        -134217728,
+        2923572
+      ]
+    },
+    {
+      "header": 2969508,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2704196,
+        2706696,
+        2924432,
+        -134217728,
+        2925344
+      ],
+      "afterPointers": [
+        2704196,
+        2706696,
+        2924432,
+        -134217728,
+        2925344
+      ]
+    },
+    {
+      "header": 2969580,
+      "changed": 12,
+      "primary": false,
+      "beforePointers": [
+        2708268,
+        2713556,
+        2925652,
+        459445,
+        2929268
+      ],
+      "afterPointers": [
+        9649588,
+        2713556,
+        9437184,
+        8061360,
+        9441184
+      ]
+    },
+    {
+      "header": 2969604,
+      "changed": 8,
+      "primary": false,
+      "beforePointers": [
+        2714068,
+        2715280,
+        2930172,
+        -134217728,
+        2930844
+      ],
+      "afterPointers": [
+        9475540,
+        2715280,
+        9520800,
+        -134217728,
+        9522880
+      ]
+    },
+    {
+      "header": 2969628,
+      "changed": 3,
+      "primary": false,
+      "beforePointers": [
+        2715792,
+        2720700,
+        2931012,
+        -134217728,
+        2934532
+      ],
+      "afterPointers": [
+        9573752,
+        2720700,
+        2931012,
+        -134217728,
+        2934532
+      ]
+    },
+    {
+      "header": 2969652,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2721212,
+        2722160,
+        2935412,
+        -134217728,
+        2936916
+      ],
+      "afterPointers": [
+        2721212,
+        2722160,
+        2935412,
+        -134217728,
+        2936916
+      ]
+    },
+    {
+      "header": 2969676,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2722672,
+        2726564,
+        2937292,
+        -134217728,
+        2941852
+      ],
+      "afterPointers": [
+        9586420,
+        2726564,
+        9604180,
+        -134217728,
+        9610324
+      ]
+    },
+    {
+      "header": 2969700,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2727076,
+        2730756,
+        2942992,
+        -134217728,
+        2945424
+      ],
+      "afterPointers": [
+        9666884,
+        2730756,
+        9659204,
+        -134217728,
+        9665348
+      ]
+    },
+    {
+      "header": 2969724,
+      "changed": 9,
+      "primary": false,
+      "beforePointers": [
+        2731268,
+        2735460,
+        2946032,
+        -134217728,
+        2949872
+      ],
+      "afterPointers": [
+        9696864,
+        2735460,
+        9636656,
+        -134217728,
+        9642800
+      ]
+    },
+    {
+      "header": 2969748,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2735972,
+        2739940,
+        2950832,
+        -134217728,
+        2955440
+      ],
+      "afterPointers": [
+        2735972,
+        2739940,
+        2950832,
+        -134217728,
+        2955440
+      ]
+    },
+    {
+      "header": 2969772,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2740452,
+        2742420,
+        2956592,
+        -134217728,
+        2957856
+      ],
+      "afterPointers": [
+        2740452,
+        2742420,
+        2956592,
+        -134217728,
+        2957856
+      ]
+    },
+    {
+      "header": 2969796,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2742932,
+        2746960,
+        2958172,
+        -134217728,
+        2964316
+      ],
+      "afterPointers": [
+        2742932,
+        2746960,
+        2958172,
+        -134217728,
+        2964316
+      ]
+    },
+    {
+      "header": 2969820,
+      "changed": 0,
+      "primary": false,
+      "beforePointers": [
+        2747472,
+        2749640,
+        2965852,
+        -134217728,
+        2967740
+      ],
+      "afterPointers": [
+        2747472,
+        2749640,
+        2965852,
+        -134217728,
+        2967740
+      ]
+    }
+  ],
+  "rawPointerLikeOccurrences": 82,
+  "rawPointerLikeOccurrencesAreNotVerifiedReferences": true,
+  "ffRunsOver256KiB": [
+    {
+      "start": 7447100,
+      "length": 1990084
+    },
+    {
+      "start": 13218816,
+      "length": 412672
+    },
+    {
+      "start": 15403808,
+      "length": 1373408
+    },
+    {
+      "start": 20090680,
+      "length": 2977992
+    },
+    {
+      "start": 33001622,
+      "length": 552810
+    }
+  ],
+  "ffRunsAreUnverifiedCandidates": true,
+  "ipsApplicationMatchesHma": true,
+  "sourceUnchanged": true,
+  "cleanInputUnchanged": true
+}

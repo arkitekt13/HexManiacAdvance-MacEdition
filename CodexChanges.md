@@ -3910,3 +3910,15 @@ Validation: StartupUpdates passes 48 checks, MacVersionMetadata passes 15 checks
 | tests/MacPackaging/notarization-1.0.1-verification.json | 1 | Record source/tag, Apple acceptance, signed payload hashes, public archive integrity and original-updater compatibility. |
 
 Validation: PR 16 merges the release identity and documentation; annotated tag v1.0.1 points to 3e1ddb9c. Apple accepts submission 6dd36b6a-2b84-4ac2-bb0d-c763eee1c572 with no issues. Strict signatures, stapled ticket and Gatekeeper pass before and after ZIP extraction. Signed release assemblies pass the reported-project review (77 checks); packaged version metadata passes 18 checks. The fresh public 72,853,510-byte ZIP matches SHA-256 70137b3c7b03b5fc1de3404cff8c13e80b1cd0d219a159844af0edcc17ee20b0 and contains no game ROM. Bundled patch/TOML bytes match source. Original v1.0.0 updater source recognizes the actual published 1.0.1 metadata, while 1.0.1 does not offer itself again. GitHub marks v1.0.1 as latest, with ZIP and checksum uploaded; v1.0.0 remains available. The installed app and original projects remain untouched. No new native-window or broad gameplay claims are made.
+
+## 276 — Investigate the current SCADE/Ikarus collision and outline a separate port
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tools/IkarusScadeReview/Program.cs | 1 | Build fresh SCADE in memory, independently decode IPS writes and compare live sprite ranges, named definitions and blockset pointers. |
+| tools/IkarusScadeReview/IkarusScadeReview.csproj | 1 | Provide an opt-in diagnostic host with HMA reference resources. |
+| tools/IkarusScadeReview/README.md | 1 | Document exact clean-input requirements, read-only scope and inventory limits. |
+| tests/ikarus-scade-compatibility-review/results.json | 1 | Retain reproducible hashes, counts and address-only collision evidence without ROM data. |
+| docs/IKARUS_SCADE_COMPATIBILITY_PLAN.md | 1 | Separate the selector issue from actual patch collisions and detail relocation, metadata, installer and testing milestones. |
+
+Validation: The guarded diagnostic reproduces the same report on two fresh in-memory SCADE outputs. Independent IPS literal/RLE application agrees byte-for-byte with HMA. On the bundled 2026-11-15 SCADE output, Ikarus changes 469 live overworld frame ranges in its added graphics region (185,022 bytes), plus seven legacy frame ranges requiring separate semantic review. Twenty-five blockset headers change, with 68 changed pointer fields; a song-table pointer edit is flagged for review rather than labeled a confirmed SCADE-specific bug. Exact source/output hashes and inventory limits are retained. The clean base stays unchanged. No combined compatibility patch is generated, no user project is migrated, and no installed app or public release is changed. Earlier map/save checks are historical evidence and do not establish compatibility for this pair. The prepared blank-selector repair remains separate, deferred feature work.

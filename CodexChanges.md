@@ -3886,3 +3886,19 @@ Validation: Three new synthetic cases fail on the prior code with the reported N
 | tests/IkarusUpgrade/cerulean-learnset-crash-verification.json | 1 | Record prior-code failures, repaired project-copy selection, real-base compatibility and complete regression totals. |
 
 Validation: On functional source c2c5eab6, all 89 Mac groups pass 25,324 assertions with no skipped groups. The separate engine suite passes 1,670 cases with 1,048 optional-fixture skips and no failures; 36 focused trainer cases pass without skips. Repaired clean-base vanilla/HUBOL/SCADE tests pass 139 checks, including live Go To Cerulean and save/reopen rendering. The reported project-copy review passes 77 checks including learnset scanning, trainer/rematch controls and palette/map selection. Original user ROM and TOML SHA-256 values remain unchanged after testing. Native installed-app interaction, public distribution and broad gameplay compatibility are not claimed; the installed app and release archive still require a separate updated build to contain this repair.
+
+## 274 — Prepare Mac Edition 1.0.1 for the verified Cerulean crash repair
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| src/HexManiac.Avalonia/MacAssemblyInfo.cs | 11 | Increment only the Mac release identity to 1.0.1; preserve Core/TOML 0.6.1. |
+| tests/StartupUpdates/Program.cs | 19 | Check the 1.0.0-to-1.0.1 archive notification, no repeated current-version notice and later patch discovery. |
+| tests/MacVersionMetadata/Program.cs | 13 | Assert independent versions and inspect both development and signed Resources bundle layouts. |
+| tests/MacVersionMetadata/README.md | 3 | Document the current app version and existing-project checks. |
+| docs/RELEASE_NOTES_1.0.1.md | 1 | Explain the targeted repair, validation and manual update steps. |
+| README.md | 15 | Point current installation to 1.0.1 and describe the repair. |
+| RELEASE_NOTES.md | 1 | Lead with the patch release while retaining historical feature notes. |
+| docs/MAC_SETUP.md | 129 | Link the current release. |
+| docs/MAC_SIGNING.md | 51 | Describe independent app patch versions without changing the app identifier or metadata version. |
+
+Validation: StartupUpdates passes 48 checks, MacVersionMetadata passes 15 checks, and UpdateNotice passes 14 checks. Functional repair regression totals remain recorded in entries 272–273; no engine or patch changes are introduced here. Signed/notarized packaging and public-download verification are recorded separately after completion.

@@ -12,7 +12,7 @@ working Mac port. Thank you both for making this edition possible.
 
 Mac Edition is maintained by [arkitekt13](https://github.com/arkitekt13).
 
-**Mac Edition 1.0.0 is released for Apple Silicon**, signed with Developer ID and notarized by Apple.
+**Mac Edition 1.0.1 is released for Apple Silicon**, signed with Developer ID and notarized by Apple.
 The map, scripting and ROM utility features below are included in the release.
 
 See the [feature and accomplishment summary](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf).
@@ -22,18 +22,18 @@ Maintainers can follow the [signing and notarization guide](docs/MAC_SIGNING.md)
 
 ### Option 1: Download the app
 
-**[Download Mac Edition 1.0.0 for Apple Silicon](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/download/v1.0.0/HexManiacAdvance-MacEdition-1.0.0-osx-arm64-icon.zip)** · [Release notes and checksum](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.0)
+**[Download Mac Edition 1.0.1 for Apple Silicon](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/download/v1.0.1/HexManiacAdvance-MacEdition-1.0.1-osx-arm64.zip)** · [Release notes and checksum](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.1)
 
 1. Download the **Apple Silicon / arm64** ZIP for an M-series Mac.
 2. Open Downloads. If the ZIP has not unpacked automatically, double-click it.
 3. Drag **HexManiacAdvance.app** into **Applications**.
 4. Open the app from Applications, click **Open ROM**, and choose your `.gba` file.
 
-The current download includes the HMA map icon and remains **version 1.0.0**. If you installed the original package, download this refresh again to receive the icon.
+**1.0.1 fixes a map/tile-selection crash in SCADE projects with missing learnsets**, including the reported SCADE + Ikarus Cerulean project. Save your work and quit HMA before replacing the app. Your project files stay separate. [Patch release notes](docs/RELEASE_NOTES_1.0.1.md).
 
 The release is **Developer ID signed and Apple-notarized**. No .NET installation is needed.
 Game ROMs and emulators are not included. Keep your project's `.gba` and matching `.toml` together.
-Intel downloads are not offered in 1.0.0; Intel hardware remains unverified.
+Intel downloads are not offered in 1.0.1; Intel hardware remains unverified.
 See the [Mac usage guide](docs/MAC_SETUP.md) for controls, utilities and troubleshooting.
 
 ### Option 2: Download and run the source code

@@ -1,9 +1,9 @@
-# Mac Edition 1.0.0
+# Mac Edition 1.0.1
 
-The current release is **Mac Edition 1.0.0 for Apple Silicon**, Developer ID signed and Apple-notarized.
-It includes the finished Tutorial Village, SCADE and Ikarus utilities, map/script workflows and Mac fixes.
+The current release is **Mac Edition 1.0.1 for Apple Silicon**, Developer ID signed and Apple-notarized.
+It fixes a map/tile-selection crash caused by missing SCADE learnsets and includes the finished Tutorial Village, SCADE and Ikarus utilities, map/script workflows and Mac fixes.
 
-[Download and release notes](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.0) · [Full 1.0.0 notes](docs/RELEASE_NOTES_1.0.0.md)
+[Download and release notes](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.1) · [1.0.1 repair notes](docs/RELEASE_NOTES_1.0.1.md) · [Full 1.0.0 notes](docs/RELEASE_NOTES_1.0.0.md)
 
 ---
 

@@ -1,6 +1,6 @@
 # Mac release identity and existing-project metadata
 
-Synthetic existing-project checks assert that Mac Edition reports 1.0.0 while Core's
+Synthetic existing-project checks assert that Mac Edition reports 1.0.1 while Core's
 assembly and metadata format retain 0.6.1. Opening a current-format project must not
 trigger the migration that would occur if the Mac release version were used by mistake.
 The actual editor loader preserves byte-exact TOML on first open, all custom named

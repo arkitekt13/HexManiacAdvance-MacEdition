@@ -40,7 +40,7 @@ def page_chrome(canvas, doc):
     canvas.setFont('Helvetica', 14)
     canvas.drawString(42, 730, 'Mac Edition')
     canvas.setFont('Helvetica', 10)
-    canvas.drawString(42, 710, 'Release accomplishments')
+    canvas.drawString(42, 710, 'Release ' + data.get('release_version', '1.0.0') + ' accomplishments')
     canvas.setFillColor(colors.HexColor('#625F70'))
     canvas.setFont('Helvetica', 9)
     canvas.drawRightString(570, 732, 'Updated ' + data['date'])
@@ -48,7 +48,7 @@ def page_chrome(canvas, doc):
     canvas.line(42, 697, 570, 697)
     canvas.line(42, 41, 570, 41)
     canvas.setFont('Helvetica', 8)
-    canvas.drawString(42, 27, 'Mac Edition 1.0.0 release  |  App checkpoint ' + data['checkpoint'])
+    canvas.drawString(42, 27, 'Mac Edition ' + data.get('release_version', '1.0.0') + ' release  |  App checkpoint ' + data['checkpoint'])
     canvas.drawRightString(570, 27, f'{doc.page} / {len(data["pages"])}')
     canvas.restoreState()
 

@@ -48,7 +48,7 @@ individually rather than relying on deep signing to discover everything.
 
 Verify signatures and inspect the resulting entitlements. Test launching, saving/reopening
 a disposable project, external emulator selection, and tutorial creation with the signed app.
-Keep the existing app identifier stable. For each published repair, increment the independent Mac app version (currently 1.0.1); keep Core/TOML metadata at its existing version. The 1.0.0 verification records below are historical.
+Keep the existing app identifier stable. For each published repair, increment the independent Mac app version (currently 1.0.2); keep Core/TOML metadata at its existing version. The 1.0.0 verification records below are historical.
 
 The tested signing helper creates a new copy, relocates the self-contained payload into
 Contents/Resources and generates a matching SDK apphost bound to the managed assembly

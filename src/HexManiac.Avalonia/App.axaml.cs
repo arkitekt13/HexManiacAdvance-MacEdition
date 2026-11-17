@@ -131,7 +131,7 @@ public partial class App : Application {
          };
          mainWindow.Opened += async (sender, e) => {
             CloseSplash();
-            await CheckIsNewerVersionAvailableAsync(viewModel, updateCancellation.Token);
+            await CheckIsNewerVersionAvailableAsync(viewModel, updateCancellation.Token, mainWindow);
          };
          mainWindow.Show();
          if (args.Any(argument => argument == Arg_Mcp_Server)) mainWindow.StartMcpServer(announce: false);
@@ -346,7 +346,7 @@ public partial class App : Application {
       }
    }
 
-   private static async Task CheckIsNewerVersionAvailableAsync(EditorViewModel viewModel, CancellationToken cancellationToken) {
+   private static async Task CheckIsNewerVersionAvailableAsync(EditorViewModel viewModel, CancellationToken cancellationToken, MainWindow window) {
       using var client = new HttpClient();
       var checker = new MacUpdateChecker(client, MacUpdateChecker.DefaultCachePath,
          AppIdentity.VersionNumber, RuntimeInformation.ProcessArchitecture);
@@ -354,7 +354,7 @@ public partial class App : Application {
       var available = await Task.Run(() => checker.CheckAsync(cancellationToken)).ConfigureAwait(false);
       if (cancellationToken.IsCancellationRequested || available == null) return;
       await Dispatcher.UIThread.InvokeAsync(() => {
-         if (!cancellationToken.IsCancellationRequested) viewModel.IsNewVersionAvailable = available.Value;
+         if (!cancellationToken.IsCancellationRequested && !window.ManualUpdateCheckRequested && ReferenceEquals(window.Editor, viewModel)) viewModel.IsNewVersionAvailable = available.Value;
       });
    }
 

@@ -6,22 +6,28 @@ SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP="$(cd "$1" && pwd)"
 BASE_ROM="$(python3 -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve())' "$2")"
 OUTPUT="$3"
+BINARIES="$APP/Contents/Resources"
+if [[ ! -f "$BINARIES/HexManiacAdvance.dll" ]]; then BINARIES="$APP/Contents/MacOS"; fi
 python3 - "$APP" "$BASE_ROM" "$OUTPUT" <<'PY'
 from pathlib import Path
 import sys
 app,base,out=map(lambda p:Path(p).resolve(),sys.argv[1:])
-if not (app/'Contents/MacOS/HexManiacAdvance.dll').is_file() or not base.is_file(): raise SystemExit('App or input ROM is missing.')
+binaries=app/'Contents/Resources'
+if not (binaries/'HexManiacAdvance.dll').is_file(): binaries=app/'Contents/MacOS'
+if not (binaries/'HexManiacAdvance.dll').is_file() or not base.is_file(): raise SystemExit('App or input ROM is missing.')
 if out==app or app in out.parents or out==base.parent: raise SystemExit('Use a separate empty output folder; input files are read-only.')
 if out.exists() and any(out.iterdir()): raise SystemExit('Output must be empty; existing files are preserved.')
 out.mkdir(parents=True,exist_ok=True)
 PY
 codesign --verify --deep --strict "$APP"
-dotnet build "$SOURCE/PackagedProjectReview.csproj" -p:BundleBinaries="$APP/Contents/MacOS" -p:NuGetAudit=false --disable-build-servers -p:UseSharedCompilation=false -m:1 -nr:false -v:q
+dotnet build "$SOURCE/PackagedProjectReview.csproj" -p:BundleBinaries="$BINARIES" -p:NuGetAudit=false --disable-build-servers -p:UseSharedCompilation=false -m:1 -nr:false -v:q
 python3 - "$APP" "$SOURCE" "$OUTPUT" <<'PY'
 from pathlib import Path
 import shutil,json,sys,hashlib
 app,source,out=map(lambda p:Path(p).resolve(),sys.argv[1:])
-driver=out/'driver.app/Contents/MacOS';shutil.copytree(app/'Contents/MacOS',driver)
+binaries=app/'Contents/Resources'
+if not (binaries/'HexManiacAdvance.dll').is_file(): binaries=app/'Contents/MacOS'
+driver=out/'driver.app/Contents/MacOS';shutil.copytree(binaries,driver)
 built=source/'bin/Debug/net8.0/osx-arm64'
 for name in ['PackagedProjectReview','PackagedProjectReview.dll']:shutil.copy2(built/name,driver/name)
 # Preserve the packaged runtime graph, adding only the driver entry; do not resolve a host SDK runtime.

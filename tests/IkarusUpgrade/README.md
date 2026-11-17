@@ -18,8 +18,9 @@ Optional exact-base verification (read-only uploaded source; temporary outputs d
 dotnet tests/IkarusUpgrade/bin/Debug/net8.0/IkarusUpgrade.dll /absolute/path/to/clean-firered-1.0.gba
 ```
 
-This builds bundled HUBOL and SCADE with their patch checksums enforced, opens each normally,
-adds a disposable unsaved edit, backs up, applies and checks exact expected bytes. It checks
+This builds bundled HUBOL and SCADE with their patch checksums enforced and verifies
+that the vanilla route rejects both expanded bases. On vanilla it adds a disposable
+unsaved edit, backs up, applies and checks exact expected bytes. It checks
 fresh map snapshots and an already-initialized Map Editor, data-tab Undo/Redo and earlier
 history, then performs actual Save/reopen with every named definition retained. The supplied
 original is hashed again afterward. Supplemental assertions are separate from default totals.

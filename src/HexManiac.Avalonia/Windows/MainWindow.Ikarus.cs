@@ -13,6 +13,9 @@ using HavenSoft.HexManiac.Core.ViewModels.Map;
 namespace HavenSoft.HexManiac.AvaloniaUI.Windows;
 
 public partial class MainWindow {
+   private ScadeIkarusPackage scadeIkarus;
+   private string scadeIkarusUnavailable;
+   private NativeMenuItem scadeIkarusMenu;
    private IkarusUpgrade ikarus;
    private string ikarusUnavailable;
    private NativeMenuItem ikarusMenu;
@@ -22,7 +25,9 @@ public partial class MainWindow {
       var root = NativeMenu.GetMenu(this);
       if (root == null) return;
       ikarus = IkarusUpgrade.Load(IkarusUpgrade.DefaultDirectory, out ikarusUnavailable);
-      ikarusMenu = FindMenuItem(root, "Ikarus Visual Upgrade…");
+      ikarusMenu = FindMenuItem(root, "Ikarus Visual Upgrade — Vanilla FireRed…");
+      scadeIkarus = ScadeIkarusPackage.Load(ScadeIkarusPackage.DefaultDirectory, out scadeIkarusUnavailable);
+      scadeIkarusMenu = FindMenuItem(root, ScadeIkarusPackage.Title + "…");
       var utilities = FindMenuItem(root, "Utilities");
       if (utilities?.Menu != null) utilities.Menu.NeedsUpdate += (_, _) => RefreshIkarusMenu();
       RefreshIkarusMenu();
@@ -33,11 +38,24 @@ public partial class MainWindow {
       _ => null,
    };
    private void RefreshIkarusMenu() {
+      if (scadeIkarusMenu != null) {
+         var scadeReason = scadeIkarus == null ? scadeIkarusUnavailable : applyingIkarus ?
+            "An Ikarus upgrade is already in progress." : ScadeIkarusDisabledReason();
+         scadeIkarusMenu.IsEnabled = scadeReason == null;
+         scadeIkarusMenu.ToolTip = scadeReason ?? "Create a separate experimental Ikarus/SCADE ROM with matching definitions; the source stays unchanged.";
+      }
       if (ikarusMenu == null) return;
       var reason = ikarus == null ? ikarusUnavailable : applyingIkarus ?
          "An Ikarus upgrade is already in progress." : IkarusUpgrade.DisabledReason(IkarusSource());
       ikarusMenu.IsEnabled = reason == null;
       ikarusMenu.ToolTip = reason ?? "Back up your FireRed project, then apply the Ikarus Visual Upgrade.";
+   }
+   private string ScadeIkarusDisabledReason() {
+      var source = IkarusSource();
+      var reason = scadeIkarus?.DisabledReason(source);
+      if (reason != null || source == null) return reason;
+      return IkarusRelatedViews(editor, source).Any(view => view.Tools?.CodeTool.HasUncompiledScriptChanges == true)
+         ? "Finish or discard pending script edits in this project first." : null;
    }
    internal static ViewPort[] IkarusRelatedViews(EditorViewModel owner, ViewPort source) => owner
       .Select(tab => tab is MapEditorViewModel map ? map.ViewPort as ViewPort : tab as ViewPort)

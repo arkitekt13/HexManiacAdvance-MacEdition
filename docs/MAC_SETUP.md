@@ -59,8 +59,11 @@ a paragraph/page break. Overflow warnings are visual guidance, not automatic tex
 
 ## Apply the Ikarus Visual Upgrade
 
-1. Open your **English FireRed** project (vanilla, HUBOL, CFRU or SCADE).
-2. Choose **Utilities > Ikarus Visual Upgrade…** and read the confirmation.
+Mac Edition 1.0.2 provides separate paths. **Do not apply the original Ikarus IPS to SCADE**; its graphics region
+overlaps expanded sprite data.
+
+1. Open a **16 MiB English FireRed 1.0/1.1 vanilla-based** project.
+2. Choose **Utilities > Ikarus Visual Upgrade — Vanilla FireRed…** and read the confirmation.
 3. Choose **Back Up and Continue…**, then choose a folder and a **new backup name**.
 4. HMA verifies both the backup `.gba` and matching `.toml` before applying the upgrade.
 5. Test the result. **Save** keeps it; **Undo** restores the pre-upgrade state.
@@ -71,13 +74,26 @@ never replaced. Correct rejected script source before proceeding. Canceling the 
 or backup picker leaves your project alone. Your original files are not automatically saved.
 
 This patch changes graphics **and** some map layouts, movement permissions, block behaviors
-and a Five Isle Meadow tile-change routine. It appears compatible with vanilla FireRed,
-HUBOL, CFRU and SCADE. Automated checks cover English FireRed 1.0, the bundled HUBOL build
-and the supplied SCADE build; gameplay, FireRed 1.1 and other CFRU builds need further testing.
-Other games and non-English ROMs are blocked. Keep your paired backup until testing is complete.
+and a Five Isle Meadow tile-change routine. Gameplay and FireRed 1.1 need further
+testing. Expanded bases, other games/languages/revisions are blocked by this path.
+A matching size/header does not prove compatibility with another custom ROM base.
+Keep your paired backup until testing is complete.
 Credit **Ikarus & Many Contributors**, including LibertyTwins for the fixed release.
 See the [original Ikarus release thread](https://www.pokecommunity.com/threads/ikarus-tileset-patch-v3-2-fixed-version-gen-4-tiles-for-fire-red.532686/); creator notes and full contributor
 credits are also available in the confirmation dialog.
+
+## Apply the experimental Ikarus upgrade to SCADE
+
+1. Create a fresh bundled SCADE 2026-11-15 ROM from exact clean FireRed 1.0.
+2. Choose **Utilities > Ikarus Visual Upgrade — SCADE (Experimental)…**.
+3. Read the testing limits, then choose a folder and new ROM name.
+4. HMA verifies the output and installs the matching TOML beside the new ROM before opening it.
+
+Your source stays untouched. The exact source checksum is required; edited projects,
+different SCADE versions and already-patched output are rejected. This does not repair
+a project previously patched using the original IPS. All 556 SCADE anchors and 79 lists
+remain, with 83 relocation/reservation definitions added. Broader gameplay remains
+experimental; see [requirements and coverage](IKARUS_UTILITIES.md).
 
 ## Create a SCADE ROM base
 
@@ -144,3 +160,12 @@ versions and Intel hardware still need independent release testing; see the
 - **App stops when Terminal closes:** Leave Terminal open while running the source version.
 
 For general editing and scripting, use [Haven's tutorials](https://github.com/haven1433/HexManiacAdvance/wiki).
+
+## Check for updates
+
+Choose **Help > Check for Updates…** to check immediately, even if startup checked
+earlier today. The banner reports whether a newer release is available, your app
+is up to date, or the check failed and should be retried. **View Available Update**
+opens this fork's release page; it does not install anything automatically.
+Startup checks still use a daily cache. Earlier 1.0.0/1.0.1 apps lack the manual
+button; download 1.0.2 to obtain it.

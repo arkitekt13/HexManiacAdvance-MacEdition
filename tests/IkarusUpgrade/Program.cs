@@ -155,7 +155,7 @@ App.UpdateThemeDictionary(Application.Current.Resources,menuEditor.Theme);
 var menuWindow=new MainWindow { Width=1000,Height=700, FileSystem=new StubFileSystem(),Editor=menuEditor };
 menuWindow.Show();Dispatcher.UIThread.RunJobs();
 IEnumerable<NativeMenuItem> Items(NativeMenu menu)=>menu.Items.OfType<NativeMenuItem>().SelectMany(item=>new[]{item}.Concat(item.Menu==null?Enumerable.Empty<NativeMenuItem>():Items(item.Menu)));
-var menuItem=Items(NativeMenu.GetMenu(menuWindow)).Single(item=>Equals(item.Header,"Ikarus Visual Upgrade…"));
+var menuItem=Items(NativeMenu.GetMenu(menuWindow)).Single(item=>Equals(item.Header,"Ikarus Visual Upgrade — Vanilla FireRed…"));
 Check(menuItem.IsVisible && !menuItem.IsEnabled && menuItem.ToolTip.Contains("FireRed"),"native utility menu is visible and disabled without FireRed");
 menuWindow.Editor=null;menuWindow.Close();
 var host = new Window { Width=800,Height=700 };host.Show();

@@ -23,6 +23,7 @@ AppBuilder.Configure<App>().UseStandardRuntimePlatformSubsystem().UseSkia()
    .WithInterFont().SetupWithoutStarting();
 SynchronizationContext.SetSynchronizationContext(new AvaloniaSynchronizationContext());
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
+if (args.Length == 2 && args[0] == "--project") { RealBlocksetReview.Run(Path.GetFullPath(args[1])); return; }
 var checks = 0;
 void Check(bool condition, string message) { checks++; if (!condition) throw new InvalidOperationException(message); }
 void PumpUntil(Func<bool> ready) {
@@ -149,6 +150,17 @@ foreach(var mode in new[]{"normal","stale","reorder","shrink","missing","keyboar
  Console.WriteLine($"PASS:{name}:{mode}");cases++;
 }
 Check(cases==12,"Both selectors must cover normal, stale-cache, reordered, shrinking, missing-choice and keyboard selections.");
+// Equal numeric indices still need to restore selection after ItemsSource changes.
+var sameIndexBytes=viewport.Model.RawData.ToArray();
+foreach(var target in new[]{2,0,2,0}) {
+ mapper.NavigateTo(3,target,10,10);Layout();
+ foreach(var name in new[]{"PrimaryBlocksetSelector","SecondaryBlocksetSelector"}) {
+  var field=name=="PrimaryBlocksetSelector"?"blockdata1":"blockdata2";
+  Check(view.FindControl<AngleComboBox>(name)!.SelectedItem is BlocksetOption selected&&selected.Address==mapper.PrimaryMap.GetLayout().GetAddress(field),
+   "Same-index map navigation must retain visible primary and secondary addresses.");
+ }
+}
+Check(sameIndexBytes.SequenceEqual(viewport.Model.RawData),"Restoring same-index selections must not edit ROM bytes.");
 // A queued presentation refresh must not reapply an edit after Undo or navigation.
 foreach(var name in new[]{"PrimaryBlocksetSelector","SecondaryBlocksetSelector"}) {
  var baseline=viewport.Model.RawData.ToArray();viewport.ChangeHistory.ClearHistory(false);

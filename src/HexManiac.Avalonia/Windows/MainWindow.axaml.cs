@@ -56,6 +56,8 @@ public partial class MainWindow : Window {
          }
          editor = value;
          updateNoticeDismissed = false;
+         manualUpdateMessage = null;
+         manualUpdateCancellation?.Cancel();
          RefreshUpdateNotice();
          DataContext = value;
          if (value == null) {
@@ -968,7 +970,11 @@ public partial class MainWindow : Window {
       new AboutWindow(editor.Singletons.MetadataInfo).ShowDialog(this);
 
    private bool updateNoticeDismissed;
-   private void RefreshUpdateNotice() => UpdateNotice.IsVisible = editor?.IsNewVersionAvailable == true && !updateNoticeDismissed;
+   private void RefreshUpdateNotice() {
+      UpdateNoticeText.Text = manualUpdateMessage ?? "A newer version of Mac Edition is available.";
+      ViewUpdateButton.IsVisible = editor?.IsNewVersionAvailable == true && !checkingUpdates;
+      UpdateNotice.IsVisible = !updateNoticeDismissed && (manualUpdateMessage != null || editor?.IsNewVersionAvailable == true);
+   }
    private void DismissUpdateNotice(object sender, RoutedEventArgs e) {
       updateNoticeDismissed = true;
       RefreshUpdateNotice();

@@ -3,6 +3,8 @@
 November 16, 2026. Investigation only: no compatibility patch, public release,
 installed-app replacement or project migration was performed.
 
+Follow-up: an [experimental candidate and test report](IKARUS_SCADE_COMPATIBILITY_EXPERIMENT.md) now records the disposable implementation. The initial investigation below is retained as its planning checkpoint.
+
 ## Conclusion
 
 A version-specific compatible ROM base appears feasible. The preferred approach is

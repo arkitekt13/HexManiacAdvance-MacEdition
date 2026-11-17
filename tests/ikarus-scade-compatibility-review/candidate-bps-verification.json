@@ -1,0 +1,23 @@
+{
+  "independentDecoder": "Python implementation, separate from HMA",
+  "bothBpsStagesVerified": true,
+  "baseSha256": "67c78da450f8631b7c57d92fb9345acd822ac2b3a37efa585656a6f55b15f99c",
+  "targetSha256": "6e7841faf2a9dff16385f4160ff02c582405098e531b763238de5e06499cc728",
+  "patchSha256": "32831d272be7f87f28d4b39db90c1cb220387883821b485d73ee7afffaa730ff",
+  "scadeCommandCounts": [
+    1897,
+    92959,
+    0,
+    91068
+  ],
+  "compatibilityCommandCounts": [
+    64962,
+    64961,
+    0,
+    0
+  ],
+  "sourceCrc32": "DD17F27A",
+  "targetCrc32": "E15BB339",
+  "patchCrc32": "1CE0529F",
+  "originalCleanInputUnchanged": true
+}

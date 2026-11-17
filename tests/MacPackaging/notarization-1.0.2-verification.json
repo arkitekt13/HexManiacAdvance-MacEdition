@@ -18,7 +18,7 @@
     "gatekeeper": "accepted; Notarized Developer ID",
     "archive_crc_valid": true,
     "roms_or_saves_included": false,
-    "public_download_matches": null
+    "public_download_matches": true
   },
   "checks": {
     "mac_regression_groups": 90,
@@ -44,5 +44,17 @@
     "broader_gameplay": "Experimental; battles, expanded species, regional animations, battery persistence and progression unverified.",
     "intel_hardware": "Unverified"
   },
-  "publication": "Prepared; update public asset identity after upload."
+  "publication": {
+    "status": "published",
+    "latest": true,
+    "published_at": "2026-11-17T13:20:56Z",
+    "tag_commit": "2088928f991eb269cf3f50a7c09ea148c96a21f9",
+    "pull_request": 17
+  },
+  "public_update_probe": {
+    "assembly": "actual previously released 1.0.1",
+    "metadata": "live public GitHub releases response after publication",
+    "1.0.1_detects_1.0.2": true,
+    "1.0.2_does_not_repeat_notice": true
+  }
 }

@@ -3902,3 +3902,11 @@ Validation: On functional source c2c5eab6, all 89 Mac groups pass 25,324 asserti
 | docs/MAC_SIGNING.md | 51 | Describe independent app patch versions without changing the app identifier or metadata version. |
 
 Validation: StartupUpdates passes 48 checks, MacVersionMetadata passes 15 checks, and UpdateNotice passes 14 checks. Functional repair regression totals remain recorded in entries 272–273; no engine or patch changes are introduced here. Signed/notarized packaging and public-download verification are recorded separately after completion.
+
+## 275 — Publish and verify the notarized Mac Edition 1.0.1 repair
+
+| File Name | Line | Summary |
+| --- | --- | --- |
+| tests/MacPackaging/notarization-1.0.1-verification.json | 1 | Record source/tag, Apple acceptance, signed payload hashes, public archive integrity and original-updater compatibility. |
+
+Validation: PR 16 merges the release identity and documentation; annotated tag v1.0.1 points to 3e1ddb9c. Apple accepts submission 6dd36b6a-2b84-4ac2-bb0d-c763eee1c572 with no issues. Strict signatures, stapled ticket and Gatekeeper pass before and after ZIP extraction. Signed release assemblies pass the reported-project review (77 checks); packaged version metadata passes 18 checks. The fresh public 72,853,510-byte ZIP matches SHA-256 70137b3c7b03b5fc1de3404cff8c13e80b1cd0d219a159844af0edcc17ee20b0 and contains no game ROM. Bundled patch/TOML bytes match source. Original v1.0.0 updater source recognizes the actual published 1.0.1 metadata, while 1.0.1 does not offer itself again. GitHub marks v1.0.1 as latest, with ZIP and checksum uploaded; v1.0.0 remains available. The installed app and original projects remain untouched. No new native-window or broad gameplay claims are made.

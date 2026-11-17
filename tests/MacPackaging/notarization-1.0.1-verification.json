@@ -1,0 +1,57 @@
+{
+  "app_version": "1.0.1",
+  "core_metadata_version": "0.6.1",
+  "architecture": "osx-arm64",
+  "runtime": "8.0.5",
+  "source_commit": "3e1ddb9c44431c10e82178c76ff4931cbdbe1600",
+  "tag": "v1.0.1",
+  "release_url": "https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.1",
+  "notarization": {
+    "status": "Accepted",
+    "submission": "6dd36b6a-2b84-4ac2-bb0d-c763eee1c572",
+    "issues": null,
+    "team": "G5N5NNG3YW"
+  },
+  "package": {
+    "file": "HexManiacAdvance-MacEdition-1.0.1-osx-arm64.zip",
+    "bytes": 72853510,
+    "sha256": "70137b3c7b03b5fc1de3404cff8c13e80b1cd0d219a159844af0edcc17ee20b0",
+    "public_download_matches": true,
+    "archive_crc_valid": true,
+    "roms_included": false,
+    "signature_valid_before_and_after_extraction": true,
+    "stapled_ticket_valid_before_and_after_extraction": true,
+    "gatekeeper": "accepted; Notarized Developer ID"
+  },
+  "managed_sha256": {
+    "HexManiacAdvance.dll": "056c7ef9f18c24749f8f22801157b548b2bb6eb960ce011da38026af6cb1240b",
+    "HexManiac.Core.dll": "ae8aa27cc1f081123393b37fc6d05a7bea3a12654ddc7876add15695b496a454"
+  },
+  "icon_sha256": "e5ddf13bf9962ce7d8a4a35f7883c1d89d542b75875c16ecdd49f990b7d7987c",
+  "bundled_patch_and_toml_bytes_match_source": true,
+  "checks": {
+    "startup_updates": 48,
+    "version_metadata": 15,
+    "update_notice": 14,
+    "signed_bundle_metadata": 18,
+    "reported_project_with_signed_release_assemblies": 77,
+    "mac_functional_regression_groups": 89,
+    "mac_functional_regression_assertions": 25324,
+    "focused_trainer_cases": 36
+  },
+  "public_update_probe": {
+    "updater_source_tag": "v1.0.0",
+    "source_unchanged_since_tag": true,
+    "public_release_metadata": "live GitHub releases response after publication",
+    "1.0.0_detects_1.0.1": true,
+    "1.0.1_does_not_repeat_notice": true
+  },
+  "limits": {
+    "native_window_tested": false,
+    "broad_gameplay_compatibility_claimed": false,
+    "intel_hardware_verified": false,
+    "installed_app_replaced": false,
+    "user_project_originals_modified": false
+  },
+  "functional_verification_record": "../IkarusUpgrade/cerulean-learnset-crash-verification.json"
+}

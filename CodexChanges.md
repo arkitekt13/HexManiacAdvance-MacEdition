@@ -2,7 +2,7 @@
 
 This log records changes we make in this fork, starting with our local work; it does not repeat changes inherited from the original projects.
 
-Utilities entries 215-227 describe work on the unmerged `codex/ikarus-visual-upgrade` preview branch; publishing this log and feature overview does not merge that application code.
+Historical context: utilities entries 215-227 were written while `codex/ikarus-visual-upgrade` was a preview branch. That code was subsequently merged into `avalonia-port` in [PR #10](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/pull/10) on November 10, 2026. The SCADE, Ikarus and finished Tutorial Village utilities are included in the released Mac Edition 1.0.0 app and the default source branch; later entries record their updates and release verification.
 
 ## Entry format
 

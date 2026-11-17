@@ -1,4 +1,4 @@
-# Signing and notarizing Mac Edition 1.0.0
+# Signing and notarizing Mac Edition
 
 The development app remains ad-hoc signed. A separate Apple Silicon 1.0.0 release copy
 was Developer ID signed and accepted by Apple's notary service on November 16, 2026.
@@ -48,7 +48,7 @@ individually rather than relying on deep signing to discover everything.
 
 Verify signatures and inspect the resulting entitlements. Test launching, saving/reopening
 a disposable project, external emulator selection, and tutorial creation with the signed app.
-Keep version 1.0.0 and the existing app identifier stable.
+Keep the existing app identifier stable. For each published repair, increment the independent Mac app version (currently 1.0.1); keep Core/TOML metadata at its existing version. The 1.0.0 verification records below are historical.
 
 The tested signing helper creates a new copy, relocates the self-contained payload into
 Contents/Resources and generates a matching SDK apphost bound to the managed assembly

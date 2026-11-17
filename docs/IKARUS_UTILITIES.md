@@ -1,7 +1,6 @@
 # Ikarus utility paths
 
-Development update, November 17, 2026. These changes are not yet in the published
-1.0.1 app. No general SCADE/Ikarus compatibility is claimed for the original IPS.
+Mac Edition 1.0.2, November 17, 2026. No general SCADE/Ikarus compatibility is claimed for the original IPS.
 
 ## Vanilla FireRed
 

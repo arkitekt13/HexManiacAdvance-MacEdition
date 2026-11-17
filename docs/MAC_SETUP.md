@@ -59,8 +59,7 @@ a paragraph/page break. Overflow warnings are visual guidance, not automatic tex
 
 ## Apply the Ikarus Visual Upgrade
 
-The following separate paths are in the development build, not the published 1.0.1
-download. **Do not apply the original Ikarus IPS to SCADE**; its graphics region
+Mac Edition 1.0.2 provides separate paths. **Do not apply the original Ikarus IPS to SCADE**; its graphics region
 overlaps expanded sprite data.
 
 1. Open a **16 MiB English FireRed 1.0/1.1 vanilla-based** project.
@@ -161,3 +160,12 @@ versions and Intel hardware still need independent release testing; see the
 - **App stops when Terminal closes:** Leave Terminal open while running the source version.
 
 For general editing and scripting, use [Haven's tutorials](https://github.com/haven1433/HexManiacAdvance/wiki).
+
+## Check for updates
+
+Choose **Help > Check for Updates…** to check immediately, even if startup checked
+earlier today. The banner reports whether a newer release is available, your app
+is up to date, or the check failed and should be retried. **View Available Update**
+opens this fork's release page; it does not install anything automatically.
+Startup checks still use a daily cache. Earlier 1.0.0/1.0.1 apps lack the manual
+button; download 1.0.2 to obtain it.

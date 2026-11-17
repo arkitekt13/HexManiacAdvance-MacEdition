@@ -1,0 +1,48 @@
+{
+  "app_version": "1.0.2",
+  "core_metadata_version": "0.6.1",
+  "implementation_commit": "6349173b606ba16e5e3d430b0d8a32c31b7eb8e5",
+  "release_url": "https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.2",
+  "notarization": {
+    "status": "Accepted",
+    "submission": "01efc0e1-23d7-437d-8f0b-b93e8b85ab91",
+    "issues": null,
+    "team": "G5N5NNG3YW"
+  },
+  "package": {
+    "file": "HexManiacAdvance-MacEdition-1.0.2-osx-arm64.zip",
+    "bytes": 73120572,
+    "sha256": "29323a84d0dcf5d156963b5a56484404330fcb6cbbe35f732d34d99f64103602",
+    "signature_valid_before_and_after_extraction": true,
+    "stapled_ticket_valid_before_and_after_extraction": true,
+    "gatekeeper": "accepted; Notarized Developer ID",
+    "archive_crc_valid": true,
+    "roms_or_saves_included": false,
+    "public_download_matches": null
+  },
+  "checks": {
+    "mac_regression_groups": 90,
+    "mac_regression_assertions": 25402,
+    "failures": 0,
+    "skipped_groups": 0,
+    "signed_runtime_lifecycle_assertions": 871,
+    "source_preserving_real_installer_assertions": 65,
+    "vanilla_and_blocked_expanded_workflow_assertions": 99,
+    "reported_real_project_blockset_controls": 32,
+    "manual_update_ui": 23,
+    "update_cache_and_discovery": 54,
+    "signed_bundle_version_metadata": 18
+  },
+  "preservation": {
+    "normal_preferences_unchanged": true,
+    "original_projects_unchanged": true,
+    "installed_app_replaced": false,
+    "all_556_original_scade_anchors_and_79_lists_retained": true
+  },
+  "limits": {
+    "native_help_menu_interaction": "Pending: Mac locked; welcome screen reports 1.0.2. Native controls covered by headless interaction checks.",
+    "broader_gameplay": "Experimental; battles, expanded species, regional animations, battery persistence and progression unverified.",
+    "intel_hardware": "Unverified"
+  },
+  "publication": "Prepared; update public asset identity after upload."
+}

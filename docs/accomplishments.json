@@ -1,7 +1,7 @@
 {
-  "date": "November 16, 2026",
-  "checkpoint": "822b9f84",
-  "complete_suite_checkpoint": "a1d973ba",
+  "date": "November 17, 2026",
+  "checkpoint": "6349173b",
+  "complete_suite_checkpoint": "6349173b",
   "pages": [
     [
       [
@@ -206,8 +206,8 @@
           ],
           [
             "Stable tileset selection",
-            "Fixed the map-header dropdown crash while preserving immediate pointer writes, fresh previews and Undo/Redo.",
-            "124"
+            "Preserved primary/secondary blockset labels across same-index navigation and kept existing/new-map choices selectable with correct Undo/Redo.",
+            "279"
           ],
           [
             "Safe border access",
@@ -349,9 +349,9 @@
             "216,218,247-249,253-255"
           ],
           [
-            "Ikarus Visual Upgrade",
-            "Added a FireRed utility that applies the reviewed Ikarus patch with clear notice of its graphics, map-layout and behavior changes.",
-            "219-223"
+            "Separate Ikarus upgrade paths",
+            "Kept verified-backup vanilla FireRed upgrades and added an exact-fresh-SCADE experimental path producing a new named ROM/TOML pair.",
+            "278"
           ],
           [
             "Verified pre-upgrade backups",
@@ -359,9 +359,9 @@
             "222-223"
           ],
           [
-            "Qualified compatibility guidance",
-            "Recommended fresh or minimally edited Ikarus projects and described apparent vanilla FireRed, HUBOL, CFRU and SCADE compatibility as requiring further testing.",
-            "220-223"
+            "Relocated SCADE graphics",
+            "Resolved the original IPS graphics overlap with relocated assets and 83 definitions; retained all 556 SCADE anchors and 79 lists. Broader gameplay remains experimental.",
+            "277-278"
           ],
           [
             "Finished Tutorial Village utility",
@@ -385,8 +385,8 @@
         [
           [
             "Complete Mac regression runner",
-            "Verified 89 groups and 25,320 assertions with zero failures or skips; recorded real-base checks separately without double counting.",
-            "227,262"
+            "Verified 90 groups and 25,402 assertions with zero failures or skips; real-ROM checks and 871 signed-runtime assertions are recorded separately.",
+            "278-279"
           ],
           [
             "Real FireRed workflow coverage",
@@ -461,9 +461,9 @@
             "068"
           ],
           [
-            "Mac Edition 1.0 and update notices",
-            "Kept metadata compatibility separate from Mac Edition 1.0.0 and added nonintrusive notices for compatible published GitHub updates.",
-            "014-015,119,229-231"
+            "Manual and automatic update checks",
+            "Added Help > Check for Updates with uncached requests, explicit results and retry feedback. Startup checks retain daily caching; Core/TOML remains 0.6.1.",
+            "279"
           ],
           [
             "Gap-safe script decompilation",
@@ -561,8 +561,9 @@
       ]
     ]
   ],
-  "verification_summary": "89 groups / 25,320 assertions / 0 failures / 0 skipped groups",
-  "verification_detail": "Latest complete Mac run: November 16 on a1d973ba. Separate supplied-tutorial and menu checks add 23 assertions; upstream and other real-ROM checks are recorded independently.",
-  "availability_note": "Mac Edition 1.0.0 is released for Apple Silicon, Developer ID signed and Apple-notarized. SCADE, Ikarus and the finished Tutorial Village utilities are included. Complete tutorial gameplay and Intel hardware testing are not claimed.",
-  "evidence_note": "Evidence: CodexChanges entries 001-266; tests/TutorialPatch/supplied-village-verification.json for the full run and tutorial assets; tests/MacPackaging/notarization-1.0.0-verification.json for Apple acceptance and 871 separate packaged lifecycle assertions."
+  "verification_summary": "90 groups / 25,402 assertions / 0 failures / 0 skipped groups",
+  "verification_detail": "Complete Mac 1.0.2 run: November 17 on 6349173b. Separate signed-runtime lifecycle review: 871 assertions. Real-ROM utility and blockset checks are recorded independently.",
+  "availability_note": "Mac Edition 1.0.2 for Apple Silicon is Developer ID signed and Apple-notarized. Includes manual update checks, restored blockset labels and separate vanilla / experimental SCADE Ikarus utilities. Broader gameplay and Intel hardware testing are not claimed.",
+  "evidence_note": "Evidence: CodexChanges entries 001-279 and tests/MacPackaging/notarization-1.0.2-verification.json. Native menu interaction remained pending while the Mac was locked; packaged-runtime checks do not replace native UI review.",
+  "release_version": "1.0.2"
 }

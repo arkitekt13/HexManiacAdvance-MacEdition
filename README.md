@@ -12,7 +12,7 @@ working Mac port. Thank you both for making this edition possible.
 
 Mac Edition is maintained by [arkitekt13](https://github.com/arkitekt13).
 
-**Mac Edition 1.0.1 is released for Apple Silicon**, signed with Developer ID and notarized by Apple.
+**Mac Edition 1.0.2 is released for Apple Silicon**, signed with Developer ID and notarized by Apple.
 The map, scripting and ROM utility features below are included in the release.
 
 See the [feature and accomplishment summary](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf).
@@ -22,18 +22,18 @@ Maintainers can follow the [signing and notarization guide](docs/MAC_SIGNING.md)
 
 ### Option 1: Download the app
 
-**[Download Mac Edition 1.0.1 for Apple Silicon](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/download/v1.0.1/HexManiacAdvance-MacEdition-1.0.1-osx-arm64.zip)** · [Release notes and checksum](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.1)
+**[Download Mac Edition 1.0.2 for Apple Silicon](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/download/v1.0.2/HexManiacAdvance-MacEdition-1.0.2-osx-arm64.zip)** · [Release notes and checksum](https://github.com/arkitekt13/HexManiacAdvance-MacEdition/releases/tag/v1.0.2)
 
 1. Download the **Apple Silicon / arm64** ZIP for an M-series Mac.
 2. Open Downloads. If the ZIP has not unpacked automatically, double-click it.
 3. Drag **HexManiacAdvance.app** into **Applications**.
 4. Open the app from Applications, click **Open ROM**, and choose your `.gba` file.
 
-**1.0.1 fixes a map/tile-selection crash in SCADE projects with missing learnsets**, including the reported SCADE + Ikarus Cerulean project. Save your work and quit HMA before replacing the app. Your project files stay separate. [Patch release notes](docs/RELEASE_NOTES_1.0.1.md).
+**1.0.2 adds Help → Check for Updates, restores blockset dropdown labels, and separates vanilla and experimental SCADE Ikarus upgrades.** Save your work and quit HMA before replacing the app. Your project files stay separate. [Feature release notes](docs/RELEASE_NOTES_1.0.2.md).
 
 The release is **Developer ID signed and Apple-notarized**. No .NET installation is needed.
 Game ROMs and emulators are not included. Keep your project's `.gba` and matching `.toml` together.
-Intel downloads are not offered in 1.0.1; Intel hardware remains unverified.
+Intel downloads are not offered in 1.0.2; Intel hardware remains unverified.
 See the [Mac usage guide](docs/MAC_SETUP.md) for controls, utilities and troubleshooting.
 
 ### Option 2: Download and run the source code
@@ -56,7 +56,7 @@ dotnet run --project src/HexManiac.Avalonia/HexManiac.Avalonia.csproj
 Keep Terminal open while using this version. To launch it again later, repeat steps 5–6.
 If a command fails, see [source launch troubleshooting](docs/MAC_SETUP.md#source-launch-troubleshooting).
 
-## Included in Mac Edition 1.0.0
+## Included in Mac Edition 1.0.2
 
 ### ROM utilities
 
@@ -66,7 +66,7 @@ All three utilities are implemented and included under **Utilities** in the rele
 - **Ikarus Visual Upgrade** - Apply the reviewed visual and map upgrade to an English FireRed project after creating a verified named ROM/TOML backup, with Undo/Redo available.
 - **Tutorial Village** - Create the supplied tutorial as a new ROM and matching TOML from exact unmodified English FireRed 1.1. Explore its map, NPCs and event scripts as editable examples; the original base stays unchanged.
 
-Ikarus changes some map layouts and behaviors as well as graphics and is recommended for unedited or minimally edited projects. **Do not apply the original Ikarus IPS to SCADE:** its added graphics overlap SCADE sprite data. The development build separates a 16 MiB vanilla FireRed path from an exact-base **SCADE experimental** path that creates a new ROM with matching definitions. This utility update is not yet part of the published 1.0.1 download. See [utility requirements and testing limits](docs/IKARUS_UTILITIES.md). Tutorial Village includes its finished IPS and matching metadata; users supply their own clean base ROM.
+Ikarus changes some map layouts and behaviors as well as graphics and is recommended for unedited or minimally edited projects. **Do not apply the original Ikarus IPS to SCADE:** its added graphics overlap SCADE sprite data. Mac Edition 1.0.2 separates a 16 MiB vanilla FireRed path from an exact-base **SCADE experimental** path that creates a new ROM with matching definitions. See [utility requirements and testing limits](docs/IKARUS_UTILITIES.md). Tutorial Village includes its finished IPS and matching metadata; users supply their own clean base ROM.
 
 ### Utility credits
 
@@ -107,12 +107,13 @@ and creator notes are preserved with the bundled utilities; HMA provides their i
 - **Ready-to-type navigation** - Command-G opens Go To with the search field focused, including after changing ROM tabs.
 - **Tutorial Village welcome image** - A faded map background introduces the project while keeping the welcome actions clear.
 - **Easier field editing** - Short fields select their contents when reached with Tab, and encounter suggestions support mouse selection.
+- **Check for Updates** - Use Help for an immediate uncached check; available, up-to-date and retry feedback is shown without installing anything automatically.
 - **External emulator support** - Launch your saved ROM in an installed emulator such as mGBA.
 - **Less repeated work** - Improvements reduce unnecessary rendering, script layout calculations, highlighting and data lookups.
 
 See the [accomplishments PDF](output/pdf/HexManiacAdvance_MacEdition_Accomplishments.pdf) for a grouped summary and measured improvements, or the [detailed changelog](CodexChanges.md) for individual fixes and validation.
 
-The released app's source baseline passed **89 groups / 25,320 assertions**, with **zero failures and zero skipped groups**, plus 23 separate supplied-tutorial/menu checks. The signed packaged runtime passed another **871 lifecycle assertions**. Apple's notarization service accepted the app, and the extracted download passes signature, ticket and Gatekeeper checks. See the [source and tutorial verification](tests/TutorialPatch/supplied-village-verification.json) and [notarized release verification](tests/MacPackaging/notarization-1.0.0-verification.json). These checks do not certify every gameplay path or every ROM expansion combination.
+The 1.0.2 source passed **90 groups / 25,402 assertions**, with **zero failures and zero skipped groups**. The signed packaged runtime passed another **871 lifecycle assertions**. Apple's notarization service accepted the app, and the extracted download passes signature, ticket and Gatekeeper checks. See the [source and tutorial verification](tests/TutorialPatch/supplied-village-verification.json) and [notarized release verification](tests/MacPackaging/notarization-1.0.2-verification.json). These checks do not certify every gameplay path or every ROM expansion combination.
 
 ## Help
 
